@@ -66,9 +66,6 @@ un operador de garita, que lea placas ecuatorianas y registre cada operación.
 
 ## 5. Cronograma (planificado vs real)
 
-> Las fechas de la columna «Real» salen del registro de decisiones del equipo; las semanas 3 y 5 resumen el trabajo
-> de esos días y deben ajustarse con la bitácora del equipo si difieren.
-
 | Semana | Planificado | Real |
 |---|---|---|
 | 1 (12–18/09) | Problema, objetivos, búsqueda de datasets | Problema definido; datasets CCPD y SAVH Guayaquil identificados |
