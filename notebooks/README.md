@@ -16,6 +16,3 @@ Secrets necesarios: `ROBOFLOW_API_KEY` (dataset) y, opcionales, `PG_DSN`, `CAMAR
 **Versión 4.0 (24/10/2026).** El backend usa un solo detector, YOLO11-s; se retiró el segundo detector y la
 comparación entre detectores. El entrenamiento de YOLO11-s (preset `completo`, 40 épocas, 0,70 h en una GPU L4)
 se conserva en Drive y el notebook no lo repite.
-
-**Privacidad.** Esta copia pública no incluye las salidas con datos reales de la planta (cuadros del video,
-placas leídas, propietarios, respuestas del SRI); se conservan solo en Drive.

@@ -86,8 +86,7 @@ Para un despliegue real la instalación (responsable del tratamiento) debe:
 La integración con **SRI / ANT** (consulta de datos del vehículo) solo debe hacerse con acceso autorizado y para la
 finalidad declarada. El notebook de investigación consulta además el **nombre público del propietario** en un sitio
 de terceros; esa consulta no está en la app, extrae solo el campo gratuito «Nombre» (sin cédula, dirección ni
-teléfono) y, para un despliegue real, debe reemplazarse por un acceso formal o eliminarse. Las salidas del notebook
-con placas, propietarios y respuestas del SRI se borraron de la copia pública del repositorio.
+teléfono) y, para un despliegue real, debe reemplazarse por un acceso formal o eliminarse.
 
 ## 4. Transparencia y explicabilidad
 
