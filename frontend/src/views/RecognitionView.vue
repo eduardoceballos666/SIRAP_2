@@ -304,10 +304,14 @@ async function recognize() {
     const form = new FormData()
     form.append('file', file.value, 'imagen.jpg')
     const data = await api('/api/recognize', { method: 'POST', form })
+    const accepted = Boolean(data.recognition.plate) && Number(data.recognition.ocr_confidence) >= 0.93
+    if (!accepted) return
+
+    // Solo publicamos lecturas con placa válida y confianza OCR mínima de 93 %.
     recognition.value = data.recognition
-    if (continuousAnalysis.value && data.recognition.plate) stopContinuousAnalysis()
+    if (continuousAnalysis.value) stopContinuousAnalysis()
     decision.value = data.decision
-    manualPlate.value = data.recognition.plate || ''
+    manualPlate.value = data.recognition.plate
     session.addLectura({
       fuente: sourceLabel.value || 'Imagen', placa: data.recognition.plate, resultado: data.decision.resultado,
       confianza: data.recognition.ocr_confidence, ms: data.recognition.timings_ms?.total, origen: 'DETECCION',
@@ -572,7 +576,7 @@ onMounted(async () => {
       <button class="btn-navy action-button" :disabled="!decision || busy || done" @click="manualOpen = true"><AppIcon name="lock" :size="19" /><span>Apertura manual (Contingencia)</span></button>
     </div>
   </div>
-  <ModalDialog :open="helpOpen" title="Cómo registrar un acceso" @close="helpOpen = false"><ol class="list-decimal space-y-3 pl-5"><li>Elija un ejemplo, suba una imagen o video, o conecte una cámara local o una URL compatible.</li><li>Las imágenes se analizan al seleccionarlas. Los videos y cámaras se analizan automáticamente cada 2,5 segundos y el análisis se detiene cuando detecta una placa; también puede detenerlo manualmente.</li><li>Revise la placa, el vehículo y el resultado. Corrija la placa y pulse Verificar si es necesario.</li><li>Autorice y abra solo cuando el resultado lo permita, o registre sin abrir. La apertura manual requiere un motivo.</li><li>Las lecturas solo se guardan en el historial al registrar una acción.</li></ol><button class="btn-primary mt-4" @click="helpOpen = false">Entendido</button></ModalDialog>
+  <ModalDialog :open="helpOpen" title="Cómo registrar un acceso" @close="helpOpen = false"><ol class="list-decimal space-y-3 pl-5"><li>Elija un ejemplo, suba una imagen o video, o conecte una cámara local o una URL compatible.</li><li>Las imágenes se analizan al seleccionarlas. Los videos y cámaras se analizan automáticamente cada 2,5 segundos hasta leer una placa válida con al menos 93 % de confianza OCR; las lecturas inferiores no se muestran.</li><li>Revise la placa, el vehículo y el resultado. Corrija la placa y pulse Verificar si es necesario.</li><li>Autorice y abra solo cuando el resultado lo permita, o registre sin abrir. La apertura manual requiere un motivo.</li><li>Las lecturas solo se guardan en el historial al registrar una acción.</li></ol><button class="btn-primary mt-4" @click="helpOpen = false">Entendido</button></ModalDialog>
   <ModalDialog :open="registrationOpen" title="Registrar camión nuevo" @close="registrationOpen = false">
     <form class="vehicle-registration-form" @submit.prevent="saveVehicle">
       <div class="registration-plate"><span>Placa detectada</span><strong>{{ plateShown }}</strong></div>
