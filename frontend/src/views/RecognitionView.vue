@@ -344,6 +344,12 @@ onMounted(async () => {
       </section>
 
       <div class="decision-column" :class="tone ? 'tone-' + tone : 'tone-neutral'">
+        <section class="card plate-panel" aria-label="Placa identificada">
+          <div class="section-heading"><h2><AppIcon name="camera" :size="19" /> Placa identificada</h2><span>{{ origin === 'MANUAL' ? 'Manual' : 'OCR' }}</span></div>
+          <div class="plate-line"><div class="compact-plate">{{ plateShown || '———-————' }}</div><img v-if="recognition?.crop_jpeg_base64" :src="'data:image/jpeg;base64,' + recognition.crop_jpeg_base64" alt="Recorte de la placa" /></div>
+          <form class="plate-form" @submit.prevent="verifyManual"><input v-model.trim="manualPlate" class="field font-mono uppercase" aria-label="Corregir o escribir placa" placeholder="Corregir / escribir placa" maxlength="12" /><button class="btn-ghost" :disabled="busy || !manualPlate">Verificar</button></form>
+        </section>
+
         <section class="card access-result-card" :class="tone ? 'tone-' + tone : 'tone-neutral'" role="status" aria-live="polite">
           <span class="result-mark"><AppIcon :name="tone === 'ok' ? 'check' : tone === 'bad' ? 'x' : tone === 'warn' ? 'alert' : 'bolt'" :size="28" :stroke="2.5" /></span>
           <div class="result-copy">
@@ -359,12 +365,6 @@ onMounted(async () => {
             <strong>{{ origin === 'MANUAL' ? 'Manual' : pct(recognition?.ocr_confidence) }}</strong>
             <div class="meter-track" role="progressbar" :aria-valuenow="Math.round((recognition?.ocr_confidence || 0) * 100)" aria-valuemin="0" aria-valuemax="100"><i :style="{ width: Math.max(0, Math.min(100, (recognition?.ocr_confidence || 0) * 100)) + '%' }"></i></div>
           </div>
-        </section>
-
-        <section class="card plate-panel" aria-label="Placa identificada">
-          <div class="section-heading"><h2><AppIcon name="camera" :size="19" /> Placa identificada</h2><span>{{ origin === 'MANUAL' ? 'Manual' : 'OCR' }}</span></div>
-          <div class="plate-line"><div class="compact-plate">{{ plateShown || '———-————' }}</div><img v-if="recognition?.crop_jpeg_base64" :src="'data:image/jpeg;base64,' + recognition.crop_jpeg_base64" alt="Recorte de la placa" /></div>
-          <form class="plate-form" @submit.prevent="verifyManual"><input v-model.trim="manualPlate" class="field font-mono uppercase" aria-label="Corregir o escribir placa" placeholder="Corregir / escribir placa" maxlength="12" /><button class="btn-ghost" :disabled="busy || !manualPlate">Verificar</button></form>
         </section>
 
         <section class="card vehicle-panel" aria-label="Detalles del vehículo">
