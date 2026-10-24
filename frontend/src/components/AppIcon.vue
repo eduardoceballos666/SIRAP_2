@@ -25,8 +25,6 @@ const PATHS = {
   calendar: 'M8 2v4M16 2v4M3 10h18M5 4h14a2 2 0 0 1 2 2v14H3V6a2 2 0 0 1 2-2z',
   fullscreen: 'M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5',
   minimize: 'M9 4v5H4M20 9h-5V4M15 20v-5h5M4 15h5v5',
-  fullscreen: 'M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5',
-  minimize: 'M9 4v5H4M20 9h-5V4M15 20v-5h5M4 15h5v5',
   chart: 'M4 20V10M10 20V4M16 20v-7M22 20H2',
   user: 'M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z',
   sun: 'M12 17a5 5 0 1 0 0-10 5 5 0 0 0 0 10zM12 1v2M12 21v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M1 12h2M21 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4',
