@@ -115,9 +115,14 @@
 .live-camera-tools button { min-height:34px; padding:6px 10px; font-size:12px; }
 .upload-compact { display:flex; align-items:center; justify-content:center; gap:8px; min-width:0; min-height:34px; padding:5px 9px; border:1px dashed var(--color-line); border-radius:8px; color:var(--color-ink); font-size:12px; line-height:1.2; text-align:center; cursor:pointer; }
 .upload-compact span { overflow-wrap:anywhere; }
+.media-source-tools { display:flex; flex-wrap:wrap; align-items:center; gap:6px; min-width:0; }
+.online-source-tools { display:grid; gap:5px; min-width:0; }
+.online-camera-form { display:grid; grid-template-columns:minmax(112px,.42fr) minmax(0,1fr) auto; gap:6px; min-width:0; }
+.online-camera-form .field { min-height:34px; }
+.camera-stream-hint { margin:0; color:var(--color-muted); font-size:10px; line-height:1.25; }
 .camera-error { position:absolute; z-index:5; top:64px; left:14px; right:14px; margin:0; padding:8px 10px; border-radius:8px; background:var(--color-bad-soft); color:var(--color-bad); font-size:12px; }
 .camera-stage { position:relative; min-height:0; overflow:hidden; border-radius:9px; background:var(--color-navy-900); }
-.camera-stage > video { position:absolute; inset:0; width:100%; height:100%; border-radius:9px; object-fit:contain; }
+.camera-stage > video, .camera-stage > img { position:absolute; inset:0; width:100%; height:100%; border-radius:9px; object-fit:contain; }
 .camera-stage .compact-viewer { position:absolute; inset:0; width:100%; height:100%; padding:0; border-radius:9px; }
 .compact-viewer > div { width:100%; height:100%; aspect-ratio:auto; }
 .compact-viewer img { width:100%; height:100%; max-height:100%; object-fit:contain; }
@@ -277,6 +282,8 @@
   .fullscreen-button { margin-left:auto; }
   .camera-panel { min-height:445px; }
   .camera-stage { min-height:230px; }
+  .online-camera-form { grid-template-columns:minmax(0,1fr) auto; }
+  .online-camera-form select { grid-column:1 / -1; }
   .reading-cards { grid-template-columns:repeat(2,minmax(0,1fr)); }
   .decision-column { grid-template-columns:1fr; }
   .access-result-card { grid-template-columns:42px minmax(0,1fr) 78px; gap:6px; }
