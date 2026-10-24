@@ -124,7 +124,10 @@
 .compact-viewer span.absolute { padding:3px 6px; font-size:10px; }
 .camera-meta { display:flex; align-items:center; justify-content:space-between; gap:8px; min-width:0; color:var(--color-muted); font-size:11px; }
 .camera-meta > span { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.camera-meta-actions { display:flex; flex:none; gap:5px; }
 .camera-meta .btn-ghost { min-height:30px; padding:4px 8px; font-size:11px; }
+.camera-meta .clear-reading-button { border-color:color-mix(in srgb,var(--color-bad) 35%,var(--color-line)); color:var(--color-bad); }
+.camera-meta .clear-reading-button:hover:not(:disabled) { background:var(--color-bad-soft); }
 
 .reading-gallery { display:grid; gap:5px; min-width:0; }
 .reading-gallery-head { display:flex; align-items:center; justify-content:space-between; gap:8px; color:var(--color-ink); font-size:12px; }

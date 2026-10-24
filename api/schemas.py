@@ -109,6 +109,11 @@ class AuthorizationIn(BaseModel):
     vigente_hasta: Optional[date] = None
 
 
+class BulkTruckAuthorizationIn(BaseModel):
+    placas: list[str] = Field(min_length=1, max_length=100)
+    lista: Optional[Literal["BLANCA", "RESTRINGIDA"]] = None
+
+
 class GateIn(BaseModel):
     nombre: str = Field(min_length=1, max_length=60)
     ubicacion: str = ""

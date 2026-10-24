@@ -12,6 +12,7 @@ const TABS = [['vehiculos', 'Vehículos'], ['autorizaciones', 'Listas'], ['propi
 const tab = ref('vehiculos')
 const rows = ref([])
 const busy = ref(false)
+const selectedTruckPlates = ref([])
 
 const vehicle = reactive({ placa: '', marca: '', modelo: '', color: '', tipo: 'LIVIANO', propietario: '', transportista: '' })
 const auth_ = reactive({ placa: '', lista: 'BLANCA', motivo: '', vigente_hasta: '' })
@@ -20,6 +21,8 @@ const user = reactive({ usuario: '', nombre: '', rol: 'OPERADOR', password: '' }
 const demoN = ref(120)
 
 const columns = computed(() => (rows.value[0] ? Object.keys(rows.value[0]) : []))
+const selectableTrucks = computed(() => rows.value.filter((row) => row.tipo === 'CAMION' && row.placa).map((row) => row.placa))
+const allTrucksSelected = computed(() => selectableTrucks.value.length > 0 && selectableTrucks.value.every((plate) => selectedTruckPlates.value.includes(plate)))
 
 async function load() {
   if (tab.value === 'demo') { rows.value = []; return }
@@ -29,6 +32,7 @@ async function load() {
     session.notify(e.message, 'bad')
   }
 }
+watch(tab, () => { selectedTruckPlates.value = []; load() })
 async function run(fn) {
   busy.value = true
   try {
@@ -47,13 +51,36 @@ async function run(fn) {
 const saveVehicle = () => run(() => api('/api/admin/vehiculos', { method: 'POST', body: vehicle }))
 const saveAuth = () => run(() => api('/api/admin/autorizaciones', { method: 'POST', body: { ...auth_, vigente_hasta: auth_.vigente_hasta || null } }))
 const revoke = () => run(() => api(`/api/admin/autorizaciones/${encodeURIComponent(auth_.placa)}`, { method: 'DELETE' }))
+function toggleTruckSelection(plate, checked) {
+  selectedTruckPlates.value = checked
+    ? [...new Set([...selectedTruckPlates.value, plate])]
+    : selectedTruckPlates.value.filter((selected) => selected !== plate)
+}
+function selectAllTrucks(checked) {
+  selectedTruckPlates.value = checked ? [...selectableTrucks.value] : []
+}
+async function updateSelectedTruckAuthorization(lista) {
+  if (!selectedTruckPlates.value.length || busy.value) return
+  busy.value = true
+  try {
+    const out = await api('/api/admin/autorizaciones/seleccionadas', {
+      method: 'POST', body: { placas: selectedTruckPlates.value, lista },
+    })
+    selectedTruckPlates.value = []
+    session.notify(out.mensaje, 'ok')
+    await load()
+  } catch (e) {
+    session.notify(e.message, 'bad')
+  } finally {
+    busy.value = false
+  }
+}
 const saveGate = () => run(() => api('/api/admin/garitas', { method: 'POST', body: gate }))
 const saveUser = async () => { if (await run(() => api('/api/admin/usuarios', { method: 'POST', body: user }))) user.password = '' }
 const demo = () => run(() => api('/api/admin/demo', { method: 'POST', params: { n: demoN.value } }))
 const clearDemo = () => run(() => api('/api/admin/demo', { method: 'DELETE' }))
 
 const fmt = (v) => (v === true ? 'Sí' : v === false ? 'No' : v ?? '—')
-watch(tab, load)
 onMounted(load)
 </script>
 
@@ -126,11 +153,24 @@ onMounted(load)
     </section>
 
     <section v-if="tab !== 'demo'" class="card" :class="isAdmin && tab !== 'propietarios' ? 'xl:col-span-2' : ''">
-      <p class="mb-3 font-semibold">{{ rows.length }} registros</p>
+      <div class="mb-3 flex flex-wrap items-center justify-between gap-3">
+        <p class="font-semibold">{{ rows.length }} registros</p>
+        <div v-if="isAdmin && tab === 'vehiculos'" class="flex flex-wrap items-center gap-2">
+          <span class="text-xs text-muted">{{ selectedTruckPlates.length }} camión(es) seleccionados</span>
+          <button class="btn-primary" :disabled="busy || !selectedTruckPlates.length" @click="updateSelectedTruckAuthorization('BLANCA')">Autorizar seleccionados</button>
+          <button class="btn-ghost" :disabled="busy || !selectedTruckPlates.length" @click="updateSelectedTruckAuthorization(null)">Dejar sin autorización</button>
+        </div>
+      </div>
       <div class="table-wrap max-h-[65vh]">
         <table class="tbl">
-          <thead><tr><th v-for="c in columns" :key="c">{{ c }}</th></tr></thead>
-          <tbody><tr v-for="(r, i) in rows" :key="i"><td v-for="c in columns" :key="c">{{ fmt(r[c]) }}</td></tr></tbody>
+          <thead><tr>
+            <th v-if="isAdmin && tab === 'vehiculos'"><input type="checkbox" aria-label="Seleccionar todos los camiones" :checked="allTrucksSelected" :disabled="!selectableTrucks.length" @change="selectAllTrucks($event.target.checked)" /></th>
+            <th v-for="c in columns" :key="c">{{ c }}</th>
+          </tr></thead>
+          <tbody><tr v-for="(r, i) in rows" :key="i">
+            <td v-if="isAdmin && tab === 'vehiculos'"><input v-if="r.tipo === 'CAMION'" type="checkbox" :aria-label="`Seleccionar camión ${r.placa}`" :checked="selectedTruckPlates.includes(r.placa)" @change="toggleTruckSelection(r.placa, $event.target.checked)" /></td>
+            <td v-for="c in columns" :key="c">{{ fmt(r[c]) }}</td>
+          </tr></tbody>
         </table>
       </div>
     </section>

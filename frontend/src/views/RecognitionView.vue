@@ -110,6 +110,22 @@ function setImage(blob, label = '') {
   stamp.value = new Date().toLocaleString('es-EC')
   reset()
 }
+function clearCurrentReading() {
+  if (loading.value || busy.value) return
+  if (preview.value) URL.revokeObjectURL(preview.value)
+  file.value = null
+  preview.value = ''
+  stamp.value = ''
+  sourceLabel.value = ''
+  selectedSample.value = ''
+  showCapture.value = false
+  reset()
+  Object.assign(vehicleDraft, { marca: '', modelo: '', color: '', propietario: '', transportista: '' })
+  registrationOpen.value = false
+  manualOpen.value = false
+  detailsOpen.value = false
+  motivo.value = ''
+}
 async function pickSample(name) {
   selectedSample.value = name
   const res = await api(`/api/samples/${name}`, { raw: true })
@@ -199,7 +215,7 @@ async function saveVehicle() {
     origin.value = 'MANUAL'
     registrationOpen.value = false
     registrationPromptDismissed.value = true
-    session.notify(`${saved.mensaje} Sigue sin autorización de acceso.`, 'ok')
+    session.notify(`${saved.mensaje} Puede continuar con la autorización automática.`, 'ok')
   } catch (e) {
     session.notify(e.message, 'bad')
   } finally {
@@ -303,7 +319,10 @@ onMounted(async () => {
         </div>
         <div class="camera-meta">
           <span>{{ recognition ? recognition.detector + ' · ' + recognition.timings_ms.total?.toFixed(0) + ' ms' : 'Imagen de la garita · lista para procesar' }}</span>
-          <button class="btn-ghost" :disabled="loading || !file" @click="recognize"><AppIcon name="refresh" :size="15" /> Reprocesar</button>
+          <div class="camera-meta-actions">
+            <button class="btn-ghost clear-reading-button" :disabled="loading || busy || (!file && !decision && !manualPlate)" @click="clearCurrentReading"><AppIcon name="trash" :size="14" /> Limpiar lectura</button>
+            <button class="btn-ghost" :disabled="loading || !file" @click="recognize"><AppIcon name="refresh" :size="15" /> Reprocesar</button>
+          </div>
         </div>
 
         <section class="reading-gallery" aria-label="Lecturas recientes">
@@ -375,7 +394,7 @@ onMounted(async () => {
       <label class="field-label" for="vehicle-color">Color *</label><input id="vehicle-color" v-model.trim="vehicleDraft.color" class="field" required maxlength="40" placeholder="Ej.: Blanco" />
       <label class="field-label" for="vehicle-owner">Propietario *</label><input id="vehicle-owner" v-model.trim="vehicleDraft.propietario" class="field" required maxlength="120" placeholder="Nombre del propietario" />
       <label class="field-label" for="vehicle-carrier">Transportista</label><input id="vehicle-carrier" v-model.trim="vehicleDraft.transportista" class="field" maxlength="120" placeholder="Empresa transportista (opcional)" />
-      <p class="registration-note">Se guardará como camión en vehículos registrados. El registro no autoriza el acceso automáticamente.</p>
+      <p class="registration-note">Se guardará como camión y quedará autorizado en la lista blanca.</p>
       <div class="mt-4 flex justify-end gap-2"><button type="button" class="btn-ghost" @click="registrationOpen = false">Cancelar</button><button type="submit" class="btn-primary" :disabled="busy">{{ busy ? 'Guardando…' : 'Guardar camión' }}</button></div>
     </form>
   </ModalDialog>
