@@ -295,6 +295,7 @@ async function recognize() {
     form.append('file', file.value, 'imagen.jpg')
     const data = await api('/api/recognize', { method: 'POST', form })
     recognition.value = data.recognition
+    if (continuousAnalysis.value && data.recognition.plate) stopContinuousAnalysis()
     decision.value = data.decision
     manualPlate.value = data.recognition.plate || ''
     session.addLectura({
