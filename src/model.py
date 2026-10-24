@@ -115,7 +115,7 @@ class PlateDetector:
     """
 
     def __init__(self, onnx_path: str | Path | None = None, pt_path: str | Path | None = None,
-                 imgsz: int = 640, conf: float = 0.25, iou: float = 0.7, allow_fallback: bool = True):
+                 imgsz: int = 640, conf: float = 0.25, iou: float = 0.7, allow_fallback: bool = False):
         self.imgsz, self.conf, self.iou = int(imgsz), float(conf), float(iou)
         self.backend = "none"
         self.name = "sin detector"
