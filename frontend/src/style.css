@@ -143,6 +143,12 @@
 .access-result-card.tone-bad { border-color:#f0b3b6 !important; background:linear-gradient(115deg,#fff0f0 0%,var(--color-surface) 100%) !important; }
 .access-result-card.tone-warn { border-color:#f1d28b !important; background:linear-gradient(115deg,#fff9e8 0%,var(--color-surface) 100%) !important; }
 .access-result-card.tone-neutral { border-color:var(--color-line) !important; background:var(--color-surface) !important; }
+.decision-column.tone-ok .plate-panel, .decision-column.tone-ok .vehicle-panel { border-color:color-mix(in srgb,var(--color-ok) 38%,var(--color-line)); background:linear-gradient(145deg,color-mix(in srgb,var(--color-ok-soft) 72%,var(--color-surface)),var(--color-surface) 84%); }
+.decision-column.tone-bad .plate-panel, .decision-column.tone-bad .vehicle-panel { border-color:color-mix(in srgb,var(--color-bad) 38%,var(--color-line)); background:linear-gradient(145deg,color-mix(in srgb,var(--color-bad-soft) 74%,var(--color-surface)),var(--color-surface) 84%); }
+.decision-column.tone-warn .plate-panel, .decision-column.tone-warn .vehicle-panel { border-color:color-mix(in srgb,var(--color-warn) 42%,var(--color-line)); background:linear-gradient(145deg,color-mix(in srgb,var(--color-warn-soft) 76%,var(--color-surface)),var(--color-surface) 84%); }
+.decision-column.tone-ok .section-heading h2 { color:var(--color-ok-dark); }
+.decision-column.tone-bad .section-heading h2 { color:var(--color-bad); }
+.decision-column.tone-warn .section-heading h2 { color:var(--color-warn); }
 .result-mark { display:grid; width:52px; height:52px; place-items:center; border-radius:50%; background:#159957; color:white; }
 .tone-bad .result-mark { background:#dc1f26; }
 .tone-warn .result-mark { background:#d98a00; }
@@ -175,6 +181,18 @@
 .vehicle-rows dt { color:var(--color-muted); }
 .vehicle-rows dd { min-width:0; margin:0; overflow-wrap:anywhere; color:var(--color-ink); font-weight:700; }
 .registered-note { margin:0; color:var(--color-ok-dark); font-size:10px; font-weight:700; }
+.registration-prompt { display:grid; gap:6px; padding:8px; border:1px solid color-mix(in srgb,var(--color-warn) 48%,var(--color-line)); border-radius:8px; background:linear-gradient(110deg,var(--color-warn-soft),color-mix(in srgb,var(--color-sirap-yellow) 18%,var(--color-surface))); }
+.registration-prompt > div:first-child { display:grid; gap:2px; }
+.registration-prompt strong { color:var(--color-warn); font-size:11px; }
+.registration-prompt span { color:var(--color-ink); font-size:10px; }
+.registration-prompt-actions { display:flex; flex-wrap:wrap; gap:5px; }
+.registration-prompt-actions .btn-primary, .registration-prompt-actions .btn-ghost { min-height:28px; padding:4px 8px; font-size:10px; }
+.vehicle-registration-form { display:grid; gap:5px; }
+.vehicle-registration-form .field { min-height:38px; }
+.registration-plate { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:5px; padding:8px 10px; border:1px solid color-mix(in srgb,var(--color-warn) 45%,var(--color-line)); border-radius:8px; background:var(--color-warn-soft); }
+.registration-plate span { color:var(--color-muted); font-size:12px; }
+.registration-plate strong { color:var(--color-ink); font-family:ui-monospace,monospace; font-size:18px; }
+.registration-note { margin:3px 0 0; color:var(--color-muted); font-size:12px; }
 
 .access-action-bar { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; min-height:62px; padding:8px; border:1px solid #e2e8f0; border-radius:12px; background:var(--color-surface); }
 .action-button { display:flex; align-items:center; justify-content:center; gap:8px; min-width:0; min-height:44px; padding:7px 12px !important; border-radius:9px !important; font-size:clamp(12px,.94vw,15px) !important; font-weight:800 !important; line-height:1.12; text-align:center; white-space:normal; overflow-wrap:anywhere; transition:filter .15s ease,transform .15s ease,box-shadow .15s ease; }

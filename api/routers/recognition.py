@@ -99,6 +99,26 @@ def verify_plate(body: schemas.VerifyIn, _: dict = Depends(current_user)) -> sch
     return schemas.VerifyOut(placa=plate, decision=_decision_out(decision))
 
 
+@router.post("/plates/register", status_code=201, summary="Registrar un camión detectado como nuevo")
+def register_vehicle(body: schemas.VehicleIn, _: dict = Depends(current_user)) -> dict[str, str]:
+    """Permite al operador completar el registro de un camión que no existe en la base."""
+    plate = normalize_plate(body.placa)
+    if not plate:
+        raise HTTPException(422,
+                            "Formato inválido: use 3 letras y 3 o 4 dígitos (ej.: PBA-8901).")
+    required = {"marca": body.marca, "modelo": body.modelo, "color": body.color,
+                "propietario": body.propietario or ""}
+    missing = [name for name, value in required.items() if not value.strip()]
+    if missing:
+        raise HTTPException(422, f"Complete los campos obligatorios: {', '.join(missing)}.")
+    try:
+        get_db().upsert_vehicle(plate, body.marca.strip(), body.modelo.strip(), body.color.strip(), "CAMION",
+                                body.propietario.strip(), (body.transportista or "").strip() or None)
+    except (DatabaseError, ValueError) as exc:
+        raise HTTPException(422, f"No se pudo registrar el camión: {exc}")
+    return {"placa": plate, "mensaje": f"El camión {plate} se guardó en vehículos registrados."}
+
+
 @router.post("/operations", response_model=schemas.OperationOut, status_code=201,
              summary="Registrar una operación (y abrir la barrera si corresponde)")
 def register_operation(body: schemas.OperationIn, user: dict = Depends(current_user)) -> schemas.OperationOut:
