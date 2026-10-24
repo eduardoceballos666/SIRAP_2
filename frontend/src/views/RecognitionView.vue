@@ -239,9 +239,14 @@ onMounted(async () => {
         <form class="plate-form" @submit.prevent="verifyManual"><input v-model.trim="manualPlate" class="field font-mono uppercase" aria-label="Corregir o escribir placa" placeholder="Corregir / escribir placa" maxlength="12" /><button class="btn-ghost" :disabled="busy || !manualPlate">Verificar</button></form>
         <div class="compact-status" :class="TONE_PILL[tone]" role="status"><strong>{{ loading ? 'PROCESANDO…' : RESULT[decision?.resultado]?.label || 'EN ESPERA' }}</strong><span>{{ decision?.detalle || 'Seleccione o capture una imagen' }}</span><button v-if="decision" @click="detailsOpen = true" class="status-details">Ver detalle</button></div>
         <dl class="vehicle-rows"><div v-for="[k,v] in [['Marca / modelo', [vehicle?.marca, vehicle?.modelo].filter(Boolean).join(' ')], ['Color', vehicle?.color], ['Propietario', vehicle?.propietario], ['Transportista', vehicle?.transportista]]" :key="k"><dt>{{ k }}</dt><dd :title="v || ''">{{ v || '—' }}</dd></div></dl>
-        <div class="access-actions"><button class="btn-yellow" :disabled="!canOpen || busy" @click="register('APERTURA_AUTOMATICA')"><AppIcon name="barrier" :size="18" /> Autorizar y abrir</button><button class="btn-ghost" :disabled="!decision || decision.permite_apertura || busy || done" @click="register(decision.resultado === 'DENEGADO' ? 'RECHAZO' : 'SOLO_REGISTRO')">{{ decision?.resultado === 'DENEGADO' ? 'Registrar rechazo' : 'Registrar sin abrir' }}</button><button class="btn-navy manual-action" :disabled="!decision || busy || done" @click="manualOpen = true"><AppIcon name="lock" :size="16" /> Apertura manual</button></div>
+        <button class="btn-ghost record-without-opening" :disabled="!decision || decision.permite_apertura || busy || done" @click="register(decision.resultado === 'DENEGADO' ? 'RECHAZO' : 'SOLO_REGISTRO')">{{ decision?.resultado === 'DENEGADO' ? 'Registrar rechazo' : 'Registrar sin abrir' }}</button>
         <p v-if="done" class="text-xs font-semibold text-ok-dark" role="status">✓ Lectura registrada en el historial.</p>
       </section>
+    </div>
+    <div class="access-action-bar" aria-label="Acciones de acceso">
+      <button class="btn-yellow" :disabled="!canOpen || busy" @click="register('APERTURA_AUTOMATICA')"><AppIcon name="barrier" :size="19" /> Autorizar y abrir barrera</button>
+      <button class="btn-red" :disabled="!file || loading" @click="recognize"><AppIcon name="settings" :size="19" /> Procesar detección automática</button>
+      <button class="btn-navy" :disabled="!decision || busy || done" @click="manualOpen = true"><AppIcon name="lock" :size="18" /> Apertura manual (Contingencia)</button>
     </div>
     <section class="card recent-readings"><div class="panel-toolbar"><h2>Últimas 5 lecturas <span class="text-muted">· sesión actual</span></h2><div class="reading-tools"><button class="btn-ghost" @click="readingsOpen = true">Ver todas ({{ session.lecturas.length }})</button><RouterLink class="btn-ghost" to="/historial">Historial</RouterLink><button class="btn-ghost" @click="exportLecturas">CSV</button></div></div>
     <div class="table-wrap">
