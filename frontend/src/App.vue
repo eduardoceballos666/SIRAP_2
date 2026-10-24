@@ -38,56 +38,21 @@ function logout() {
 
 <template>
   <RouterView v-if="isPublic" />
-  <div v-else class="flex min-h-screen lg:bg-[linear-gradient(to_right,var(--color-navy-900)_18rem,transparent_18rem)]">
-    <!-- Barra lateral -->
-    <aside :class="menuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'"
-           class="fixed inset-y-0 left-0 z-30 flex w-72 flex-col bg-navy-900 px-4 py-6 text-white transition-transform lg:sticky lg:top-0 lg:h-screen">
-      <SirapLogo />
-      <p class="mt-8 mb-2 px-2 text-xs font-semibold tracking-[.14em] text-slate-400">MÓDULOS</p>
-      <nav class="flex flex-col gap-1.5">
-        <RouterLink v-for="i in items" :key="i.to" :to="i.to"
-                    class="flex items-center gap-3 rounded-xl px-4 py-3 text-[15px] text-slate-200 transition hover:bg-white/7"
-                    active-class="!bg-brand-600 !text-white shadow-[inset_4px_0_0_#7fb0ff]">
-          <AppIcon :name="i.icon" :size="22" /> <span>{{ i.label }}</span>
-        </RouterLink>
+  <div v-else class="app-shell">
+    <header class="app-topbar">
+      <RouterLink to="/reconocimiento" class="compact-logo" aria-label="SIRAP: reconocimiento"><SirapLogo /></RouterLink>
+      <button class="mobile-menu" aria-label="Abrir menú" :aria-expanded="menuOpen" @click="menuOpen = !menuOpen"><AppIcon name="menu" /></button>
+      <nav class="top-navigation" :class="{ 'is-open': menuOpen }" aria-label="Módulos">
+        <RouterLink v-for="i in items" :key="i.to" :to="i.to" active-class="selected"><AppIcon :name="i.icon" :size="17" /><span>{{ i.label }}</span></RouterLink>
       </nav>
-      <div class="mt-auto rounded-xl bg-white/5 p-3 text-sm">
-        <div class="flex items-center gap-2">
-          <div class="grid h-9 w-9 place-items-center rounded-full bg-brand-600"><AppIcon name="user" :size="18" /></div>
-          <div class="min-w-0">
-            <p class="truncate font-semibold">{{ auth.user?.nombre }}</p>
-            <p class="text-xs text-slate-400">{{ roleLabel[auth.user?.rol] }}</p>
-          </div>
-        </div>
-        <button class="mt-3 flex w-full items-center justify-center gap-2 rounded-lg border border-white/15 py-2 text-slate-200 hover:bg-white/10" @click="logout">
-          <AppIcon name="logout" :size="16" /> Cerrar sesión
-        </button>
+      <div class="top-user">
+        <span class="user-name" :title="roleLabel[auth.user?.rol]">{{ auth.user?.nombre }}</span>
+        <button :aria-label="session.theme === 'dark' ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro'" @click="session.toggleTheme()"><AppIcon :name="session.theme === 'dark' ? 'sun' : 'moon'" :size="18" /></button>
+        <button title="Cerrar sesión" aria-label="Cerrar sesión" @click="logout"><AppIcon name="logout" :size="18" /></button>
       </div>
-    </aside>
-    <div v-if="menuOpen" class="fixed inset-0 z-20 bg-black/40 lg:hidden" @click="menuOpen = false"></div>
-
-    <!-- Contenido -->
-    <main class="min-w-0 flex-1 px-4 py-5 sm:px-6 lg:px-8">
-      <header class="mb-5 flex items-start justify-between gap-4">
-        <div class="flex items-start gap-3">
-          <button class="mt-1 rounded-lg bg-surface p-2 shadow lg:hidden" aria-label="Abrir menú" @click="menuOpen = true">
-            <AppIcon name="menu" />
-          </button>
-          <div>
-            <p class="text-sm font-bold tracking-wide text-muted">SIRAP / SISTEMA DE ACCESO</p>
-            <h1 class="text-2xl font-extrabold tracking-tight sm:text-3xl">{{ route.meta.title }}</h1>
-          </div>
-        </div>
-        <div class="flex items-center gap-3 pt-1">
-          <p class="hidden text-sm text-muted sm:block">{{ clock }}</p>
-          <button class="grid h-9 w-9 place-items-center rounded-lg border border-line bg-surface text-muted hover:text-ink"
-                  :title="session.theme === 'dark' ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro'"
-                  :aria-label="session.theme === 'dark' ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro'"
-                  @click="session.toggleTheme()">
-            <AppIcon :name="session.theme === 'dark' ? 'sun' : 'moon'" :size="18" />
-          </button>
-        </div>
-      </header>
+    </header>
+    <main class="app-content" :class="{ 'access-content': route.path === '/reconocimiento' }">
+      <header class="page-heading"><h1>{{ route.meta.title }}</h1><span>{{ clock }}</span></header>
       <RouterView />
     </main>
   </div>
