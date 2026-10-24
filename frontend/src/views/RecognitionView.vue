@@ -208,6 +208,7 @@ function connectOnlineCamera() {
 function setSource(name) {
   stopContinuousAnalysis()
   source.value = name
+  detection.value = null
   showCapture.value = false
   mediaReady.value = false
   cameraError.value = ''
