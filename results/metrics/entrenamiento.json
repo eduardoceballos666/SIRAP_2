@@ -1,0 +1,17 @@
+{
+  "modelo": "YOLO11-s",
+  "pesos_iniciales": "yolo11s.pt",
+  "preset": "completo",
+  "epocas_corridas": 40,
+  "mejor_epoca": 40,
+  "horas": 0.698,
+  "memoria_gpu_pico_gb": 6.9,
+  "imgsz": 640,
+  "batch": 16,
+  "nbs": 64,
+  "patience": 10,
+  "seed": 0,
+  "optimizer": "auto (AdamW)",
+  "dataset": "license-plate-recognition-rxg4e v11",
+  "fuente": "Notebook SIRAP_backend.ipynb, preset «completo» (Ultralytics 8.4.177, GPU NVIDIA L4)"
+}

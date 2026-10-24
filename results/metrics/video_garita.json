@@ -1,0 +1,26 @@
+{
+  "modelo": "YOLO11-s",
+  "video": "video_camiones.mp4 (garita real; no se publica)",
+  "cuadros": 18115,
+  "imgsz": 1280,
+  "fps_pipeline": 66.09,
+  "det_ms_media": 13.59,
+  "track_ms_media": 0.43,
+  "ocr_llamadas": 225,
+  "ocr_ms_media": 75.7,
+  "tracks_confirmados": 52,
+  "placas_leidas": 52,
+  "formato_valido": 25,
+  "ms_por_decision": 90.19,
+  "estados": {
+    "AUTORIZADO": 17,
+    "NO_REGISTRADO": 2,
+    "VERIFICACION_MANUAL": 33
+  },
+  "sri": {
+    "encontrada": 19,
+    "no_encontrada": 3
+  },
+  "nota": "Sin referencia anotada del video todavía: no hay EMR punta a punta. Las placas leídas no se publican (datos reales).",
+  "fuente": "Notebook SIRAP_backend.ipynb, preset «completo» (Ultralytics 8.4.177, GPU NVIDIA L4)"
+}

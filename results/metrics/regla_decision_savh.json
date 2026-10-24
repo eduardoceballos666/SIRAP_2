@@ -1,0 +1,39 @@
+{
+  "n": 399,
+  "lista_simulada": "178 de 357 placas distintas de SAVH",
+  "sin_umbral_ocr": {
+    "matriz": {
+      "autorizada": {
+        "AUTORIZADO": 184,
+        "VERIFICACION_MANUAL": 12,
+        "NO_REGISTRADO": 1
+      },
+      "no_autorizada": {
+        "AUTORIZADO": 0,
+        "VERIFICACION_MANUAL": 4,
+        "NO_REGISTRADO": 198
+      }
+    },
+    "falsos_autorizados": 0,
+    "rechazos_indebidos": 1,
+    "verificacion_manual": 0.04
+  },
+  "umbral_ocr_0_99": {
+    "matriz": {
+      "autorizada": {
+        "AUTORIZADO": 165,
+        "VERIFICACION_MANUAL": 31,
+        "NO_REGISTRADO": 1
+      },
+      "no_autorizada": {
+        "AUTORIZADO": 0,
+        "VERIFICACION_MANUAL": 31,
+        "NO_REGISTRADO": 171
+      }
+    },
+    "falsos_autorizados": 0,
+    "rechazos_indebidos": 1,
+    "verificacion_manual": 0.155
+  },
+  "fuente": "Notebook, sección 5 (evaluación de la regla con lista simulada)"
+}

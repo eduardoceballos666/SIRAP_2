@@ -1,0 +1,28 @@
+{
+  "ocr": "fast-plate-ocr cct-s-v2-global-model",
+  "dataset": "SAVH Guayaquil (subconjunto revisado)",
+  "n": 399,
+  "emr": 0.937,
+  "cer": 0.01,
+  "emr_camara_formato_valido": {
+    "n": 330,
+    "emr": 0.945,
+    "cer": 0.009
+  },
+  "emr_sugerida_sin_confirmar": {
+    "n": 69,
+    "emr": 0.899,
+    "cer": 0.014
+  },
+  "formato_valido": 1.0,
+  "lecturas_equivocadas": 25,
+  "ms_por_recorte_media": 16,
+  "ms_por_recorte_p95": 20,
+  "auroc_confianza": 0.76,
+  "umbral_ocr_sugerido": 0.99,
+  "a_verificacion_con_umbral": 0.13,
+  "equivocadas_aceptadas_con_umbral": 12,
+  "no_legibles": 267,
+  "nota": "69 referencias aún son sugerencias sin confirmar en la hoja de revisión.",
+  "fuente": "Notebook, sección 5"
+}

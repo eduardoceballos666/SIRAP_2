@@ -1,0 +1,16 @@
+{
+  "modelo": "YOLO11-s",
+  "latencia_ms_media": 22.23429520000991,
+  "latencia_ms_p50": 13.080418999834365,
+  "latencia_ms_p95": 22.70087550000163,
+  "fps": 44.97556549485564,
+  "preprocess_ms": 1.2837374450032257,
+  "inference_ms": 19.262426059999598,
+  "postprocess_ms": 1.3002291649991093,
+  "parametros_M": 9.413187,
+  "gflops": 21.4198784,
+  "precision_numerica": "FP16",
+  "imagenes": 200,
+  "dispositivo": "GPU NVIDIA L4 (Colab)",
+  "fuente": "Notebook SIRAP_backend.ipynb, preset «completo» (Ultralytics 8.4.177, GPU NVIDIA L4)"
+}

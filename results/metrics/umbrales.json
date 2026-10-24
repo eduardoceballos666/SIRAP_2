@@ -1,0 +1,10 @@
+{
+  "YOLO11": {
+    "conf": 0.2993,
+    "conf_track": 0.2993,
+    "f1_max_val": 0.9665707993349401,
+    "val_map50": 0.9716484157684314,
+    "val_map50_95": 0.6912615975852615,
+    "criterio": "menor umbral con precisión ≥ 95 % en val (piso 0.10)"
+  }
+}

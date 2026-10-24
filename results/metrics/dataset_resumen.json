@@ -1,0 +1,27 @@
+{
+  "splits": [
+    {
+      "split": "train",
+      "im\u00e1genes": 7057,
+      "placas": 7357,
+      "im\u00e1genes sin placa": 5
+    },
+    {
+      "split": "val",
+      "im\u00e1genes": 2048,
+      "placas": 2195,
+      "im\u00e1genes sin placa": 3
+    },
+    {
+      "split": "test",
+      "im\u00e1genes": 1020,
+      "placas": 1085,
+      "im\u00e1genes sin placa": 1
+    }
+  ],
+  "test_por_tamano": {
+    "pequenas": 191,
+    "medianas": 756,
+    "grandes": 138
+  }
+}
