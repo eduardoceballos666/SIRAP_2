@@ -100,7 +100,7 @@ def verify_plate(body: schemas.VerifyIn, _: dict = Depends(current_user)) -> sch
 
 
 @router.post("/plates/register", status_code=201, summary="Registrar un camión detectado como nuevo")
-def register_vehicle(body: schemas.VehicleIn, _: dict = Depends(current_user)) -> dict[str, str]:
+def register_vehicle(body: schemas.VehicleIn, user: dict = Depends(current_user)) -> dict[str, str]:
     """Permite al operador completar el registro de un camión que no existe en la base."""
     plate = normalize_plate(body.placa)
     if not plate:
@@ -112,11 +112,13 @@ def register_vehicle(body: schemas.VehicleIn, _: dict = Depends(current_user)) -
     if missing:
         raise HTTPException(422, f"Complete los campos obligatorios: {', '.join(missing)}.")
     try:
-        get_db().upsert_vehicle(plate, body.marca.strip(), body.modelo.strip(), body.color.strip(), "CAMION",
-                                body.propietario.strip(), (body.transportista or "").strip() or None)
+        db = get_db()
+        db.upsert_vehicle(plate, body.marca.strip(), body.modelo.strip(), body.color.strip(), "CAMION",
+                          body.propietario.strip(), (body.transportista or "").strip() or None)
+        db.set_authorization(plate, "BLANCA", "Autorizado al registrar el camión", None, user["usuario"])
     except (DatabaseError, ValueError) as exc:
-        raise HTTPException(422, f"No se pudo registrar el camión: {exc}")
-    return {"placa": plate, "mensaje": f"El camión {plate} se guardó en vehículos registrados."}
+        raise HTTPException(422, f"No se pudo registrar y autorizar el camión: {exc}")
+    return {"placa": plate, "mensaje": f"El camión {plate} se registró y quedó autorizado."}
 
 
 @router.post("/operations", response_model=schemas.OperationOut, status_code=201,

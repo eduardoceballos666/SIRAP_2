@@ -61,6 +61,32 @@ def revoke_authorization(placa: str, _: dict = Depends(admin_only)) -> dict[str,
     return {"placa": plate, "mensaje": f"{plate} quedó sin autorización."}
 
 
+@router.post("/autorizaciones/seleccionadas", summary="Autorizar o quitar autorización a camiones seleccionados")
+def update_selected_truck_authorizations(body: schemas.BulkTruckAuthorizationIn,
+                                         user: dict = Depends(admin_only)) -> dict[str, str | int]:
+    plates = list(dict.fromkeys(_plate(raw) for raw in body.placas))
+    db = get_db()
+    vehicles = {plate: db.get_vehicle(plate) for plate in plates}
+    missing = [plate for plate, vehicle in vehicles.items() if vehicle is None]
+    non_trucks = [plate for plate, vehicle in vehicles.items()
+                  if vehicle is not None and vehicle.get("tipo") != "CAMION"]
+    if missing or non_trucks:
+        invalid = missing + non_trucks
+        raise HTTPException(422, f"Solo se pueden cambiar camiones registrados. Revise: {', '.join(invalid)}.")
+    try:
+        for plate in plates:
+            if body.lista:
+                db.set_authorization(plate, body.lista,
+                                     "Autorización aplicada desde Administración", None, user["usuario"])
+            else:
+                db.revoke_authorization(plate)
+    except (DatabaseError, ValueError) as exc:
+        raise HTTPException(422, f"No se pudo actualizar la autorización: {exc}")
+    action = f"lista {body.lista}" if body.lista else "sin autorización"
+    return {"actualizadas": len(plates),
+            "mensaje": f"{len(plates)} camión(es) actualizado(s): {action}."}
+
+
 @router.post("/garitas", status_code=201, summary="Agregar una garita")
 def add_gate(body: schemas.GateIn, _: dict = Depends(admin_only)) -> dict[str, str]:
     _run(get_db().add_garita, body.nombre, body.ubicacion)
