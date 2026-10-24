@@ -142,9 +142,37 @@ El notebook 06 prueba si afinarlo mejora ese resultado sin sesgar la evaluación
 | Misma métrica que la app (EMR tras normalizar, CER, aceptadas con confianza ≥ 0,99) | Comparar exactamente lo que importa en producción |
 | Se adopta solo si mejora el EMR con **McNemar p < 0,05** y no aumenta las lecturas equivocadas aceptadas | Con ≈100 imágenes de *test*, cada acierto vale ≈1 punto de EMR |
 
-El flujo (preparación de datos, afinamiento, exportación a ONNX y evaluación) se probó de punta a punta con un
-conjunto sintético pequeño; los resultados reales se obtienen al correrlo en Colab con los datos de Drive. Si se
-adopta, basta con subir `models/ocr_afinado.onnx` y `models/ocr_afinado_plate_config.yaml`: la app los detecta sola.
+### 8.1 Resultados (corrida del 24/10/2026, Colab)
 
-**Estado:** ⏳ pendiente de ejecución en Colab.
+**Datos:** 330 recortes legibles de SAVH con referencia confirmada (las 69 sugerencias sin confirmar quedaron
+fuera), 297 placas distintas, repartidas por placa en 194 / 50 / 86 imágenes (*train* / *val* / *test*).
 
+**Entrenamiento:** partió de `cct_s_v2_global.keras`; la exactitud de placa en *val* subió de 0,969 (época 1) a
+**0,984** en la época 4 y el *early stopping* lo detuvo en la época 14. El modelo original obtiene 0,960 en el mismo
+*val*.
+
+![Curvas del afinamiento](../results/figures/ocr_afinamiento_curvas.png)
+
+**Comparación en *test* (86 imágenes de placas que el modelo no vio):**
+
+| Modelo | EMR | IC 95 % (Wilson) | CER | Aceptadas con confianza ≥ 0,99 | Equivocadas aceptadas |
+|---|---|---|---|---|---|
+| Original (`cct-s-v2-global-model`) | **94,2 %** | 87,1 % – 97,5 % | 0,013 | 90,7 % | 1 |
+| Afinado con placas ecuatorianas | **94,2 %** | 87,1 % – 97,5 % | 0,013 | 89,5 % | 1 |
+
+Los dos modelos aciertan y fallan **exactamente en las mismas imágenes** (0 placas que solo uno lee bien;
+McNemar *p* = 1,0).
+
+**Decisión: se mantiene el modelo original.** La mejora que se ve en *val* (0,960 → 0,984, una o dos imágenes) no se
+repite en *test*: era ajuste al conjunto usado para elegir la época. El afinado además acepta un poco menos de
+lecturas sin verificación manual (89,5 % frente a 90,7 %) sin reducir los errores aceptados.
+
+**Interpretación.**
+- El modelo general ya generaliza bien a placas ecuatorianas de una fila: los errores que quedan (≈5 de 86) son
+  difíciles para ambos modelos (placas borrosas o con caracteres ambiguos como O/Q), no un problema de «región».
+- Con 194 imágenes de entrenamiento no hay señal suficiente para mover un modelo entrenado con más de 85 000 placas.
+- Vale la pena repetir el experimento cuando haya **más y mejores datos**: la hoja de revisión confirmada
+  (`INCLUDE_UNCONFIRMED = True`, +69 imágenes difíciles) y recortes reales de la garita hechos por YOLO11-s
+  (sección 7 del notebook), que además permitirían medir el EMR punta a punta.
+
+Resultados completos en `results/metrics/ocr_afinamiento.json`.

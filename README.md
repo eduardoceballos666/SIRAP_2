@@ -97,6 +97,7 @@ Preset «completo», split *test* nunca visto en el entrenamiento (salidas del n
 | | mAP@0.5:0.95 placas pequeñas / medianas / grandes | 0,481 / 0,729 / 0,744 | — |
 | | Latencia (lote 1, FP16, GPU L4) | 22,2 ms (45 FPS) | — |
 | OCR (SAVH Guayaquil, 399 legibles) | EMR / CER | **93,7 %** / 0,010 | EMR ≥ 80 % ✅ |
+| OCR afinado con placas ecuatorianas (*test* separado por placa, n=86) | EMR original / afinado | 94,2 % / 94,2 % (McNemar *p* = 1,0): se mantiene el original | — |
 | Regla de decisión (SAVH, lista simulada) | Falsos autorizados / rechazos indebidos | 0 de 202 / 1 de 197 | — |
 | Sistema (video de la garita) | Tiempo por decisión (detección + OCR) | 90 ms | ≤ 1 s ✅ |
 | Sistema | EMR punta a punta | pendiente (requiere referencia anotada del video) | ≥ 80 % |

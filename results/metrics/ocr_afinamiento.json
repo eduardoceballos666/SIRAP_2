@@ -1,0 +1,50 @@
+{
+  "fuente": "notebooks/06_afinamiento_ocr.ipynb (Colab, 24/10/2026)",
+  "incluye_sin_confirmar": false,
+  "particion": {
+    "train": 194,
+    "val": 50,
+    "test": 86
+  },
+  "placas_distintas": 297,
+  "separacion": "por placa (60/15/25), semilla 0",
+  "original": {
+    "n": 86,
+    "emr": 0.9418604651162791,
+    "emr_ic95": [
+      0.8710198527204016,
+      0.9749134343092147
+    ],
+    "cer": 0.013422818791946308,
+    "aceptadas": 0.9069767441860465,
+    "equivocadas_aceptadas": 1
+  },
+  "afinado": {
+    "n": 86,
+    "emr": 0.9418604651162791,
+    "emr_ic95": [
+      0.8710198527204016,
+      0.9749134343092147
+    ],
+    "cer": 0.013,
+    "aceptadas": 0.895,
+    "equivocadas_aceptadas": 1
+  },
+  "solo_original": 0,
+  "solo_afinado": 0,
+  "mcnemar_p": 1.0,
+  "adoptar": false,
+  "entrenamiento": {
+    "epocas_corridas": 14,
+    "mejor_epoca": 4,
+    "val_acc_mejor": 0.984375,
+    "early_stopping": true
+  },
+  "hiperparametros": {
+    "epochs": 40,
+    "batch": 32,
+    "lr": 0.0003,
+    "weight_decay": 0.0005,
+    "seed": 0
+  }
+}
