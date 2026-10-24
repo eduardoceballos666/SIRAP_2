@@ -193,7 +193,22 @@ cd frontend && npm install && npm run dev   # interfaz en http://localhost:5173
 # o bien: npm run build → FastAPI sirve la interfaz compilada en http://localhost:8000
 ```
 
-Con Docker (API + interfaz en una sola imagen): `docker build -t sirap . && docker run -p 8000:8000 -e SIRAP_JWT_SECRET=... sirap`.
+Con Docker (API + interfaz en una sola imagen): `docker build -t sirap . && docker run -p 7860:7860 -e SIRAP_JWT_SECRET=... sirap`
+y abrir http://localhost:7860.
+
+**Publicación en Hugging Face Spaces (gratis, 2 vCPU y 16 GB de RAM).** El workflow
+[`.github/workflows/deploy-hf-space.yml`](.github/workflows/deploy-hf-space.yml) sube la app al Space
+`eduardoceballos/sirap` en cada push a `main` (o a mano desde *Actions → Run workflow*); Hugging Face construye el
+`Dockerfile`. Configuración, una sola vez, en GitHub → *Settings → Secrets and variables → Actions*:
+
+| Nombre | Tipo | Valor |
+|---|---|---|
+| `HF_TOKEN` | Secret (obligatorio) | Token de Hugging Face con permiso **Write** (huggingface.co/settings/tokens) |
+| `SIRAP_JWT_SECRET` | Secret (recomendado) | Cadena larga y aleatoria para firmar las sesiones |
+| `SIRAP_DEMO_PASSWORD` | Secret (opcional) | Contraseña de los usuarios de demostración |
+| `HF_SPACE` | Variable (opcional) | Otro Space, p. ej. `usuario/sirap` |
+
+La API usa ≈410 MB de RAM con los modelos cargados, por eso no se recomienda el plan gratuito de Render (512 MB).
 
 | Endpoint | Rol | Uso |
 |---|---|---|
@@ -220,6 +235,7 @@ SIRAP_2/
 ├── api/                    # API REST FastAPI: main.py, routers/, seguridad JWT, esquemas Pydantic
 ├── frontend/               # interfaz Vue 3 + Vite + Pinia + Vue Router + Tailwind CSS
 ├── Dockerfile              # imagen con API + frontend compilado
+├── deploy/huggingface/     # publicación automática en Hugging Face Spaces
 ├── app.py                  # punto de entrada para Streamlit Cloud (ejecuta app/app.py)
 ├── app/                    # interfaz: app.py (módulos), ui.py (componentes), assets/style.css
 ├── src/                    # backend: data_processing, model, access_control, database, train, evaluate, utils

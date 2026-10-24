@@ -1,9 +1,14 @@
 .git
+.github
 **/__pycache__
 .venv
+.pytest_cache
 frontend/node_modules
 frontend/dist
 data/processed/*.db
+data/raw
 notebooks
 SIRAP_backend.ipynb
 results/figures
+docs
+models/*.pt

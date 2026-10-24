@@ -1,0 +1,29 @@
+# Publica la versión FastAPI + Vue en Hugging Face Spaces en cada push a main que toque la app web.
+# Requiere el secret HF_TOKEN (token de Hugging Face con permiso "Write").
+name: Deploy a Hugging Face Spaces
+
+on:
+  push:
+    branches: [main]
+    paths: ["api/**", "src/**", "frontend/**", "config/**", "sql/**", "models/**", "results/metrics/**",
+            "data/samples/**", "requirements.txt", "Dockerfile", "deploy/huggingface/**",
+            ".github/workflows/deploy-hf-space.yml"]
+  workflow_dispatch:
+
+concurrency: { group: hf-space, cancel-in-progress: true }
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - run: pip install "huggingface_hub>=0.25"
+      - name: Subir al Space
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          HF_SPACE: ${{ vars.HF_SPACE }}
+          SIRAP_JWT_SECRET: ${{ secrets.SIRAP_JWT_SECRET }}
+          SIRAP_DEMO_PASSWORD: ${{ secrets.SIRAP_DEMO_PASSWORD }}
+        run: python deploy/huggingface/sync_space.py
