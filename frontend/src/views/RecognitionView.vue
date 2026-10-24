@@ -7,8 +7,11 @@ import ResultCard from '@/components/ResultCard.vue'
 import { api } from '@/lib/api'
 import { ACTION, RESULT, TONE_PILL, pct } from '@/lib/format'
 import { useSessionStore } from '@/stores/session'
+import { useAuthStore } from '@/stores/auth'
 
 const session = useSessionStore()
+const auth = useAuthStore()
+const displayClock = new Date().toLocaleString('es-EC', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
 
 const source = ref('ejemplos')
 const samples = ref([])
@@ -208,10 +211,12 @@ onMounted(async () => {
 <template>
   <div class="access-workspace">
     <div class="control-strip">
-      <label for="garita">Garita</label><select id="garita" v-model="session.garita" class="field"><option v-for="g in session.system?.garitas || []" :key="g">{{ g }}</option></select>
-      <label for="mov">Operación</label><select id="mov" v-model="session.movimiento" class="field"><option value="ENTRADA">Entrada</option><option value="SALIDA">Salida</option></select>
-      <span class="session-count">{{ session.lecturas.length }} lecturas · {{ session.lecturas.filter(l => l.registro).length }} registradas</span>
-      <button class="btn-ghost" @click="helpOpen = true"><AppIcon name="help" :size="16" /> Ayuda</button>
+      <div class="control-field"><span>Punto de control</span><strong><AppIcon name="pin" :size="17" /> Garita de acceso</strong></div>
+      <label class="control-field" for="garita"><span>Garita</span><select id="garita" v-model="session.garita" class="field"><option v-for="g in session.system?.garitas || []" :key="g">{{ g }}</option></select></label>
+      <div class="control-field"><span>Operador</span><strong><AppIcon name="user" :size="17" /> {{ auth.user?.nombre || '—' }}</strong></div>
+      <label class="control-field" for="mov"><span>Operación</span><select id="mov" v-model="session.movimiento" class="field"><option value="ENTRADA">Entrada</option><option value="SALIDA">Salida</option></select></label>
+      <button class="btn-ghost help-button" @click="helpOpen = true"><AppIcon name="help" :size="16" /> Ayuda</button>
+      <span class="workspace-clock">{{ displayClock }}</span>
     </div>
     <div class="access-grid">
       <section class="card camera-panel" aria-label="Cámara e imagen">
