@@ -1,0 +1,36 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ipynb_checkpoints/
+.venv/
+venv/
+
+# --- Secretos (nunca al repositorio) ---
+.env
+.streamlit/secrets.toml
+*.pem
+
+# --- Datos generados / pesados ---
+data/raw/*
+!data/raw/.gitkeep
+data/processed/*.db
+data/processed/*.db-journal
+results/reports/*.log
+results/runs/
+runs/
+*.mp4
+*.zip
+
+# --- Pesos: solo se versionan los de models/ (best_model.pt ≈ 19 MB, best_model.onnx ≈ 37 MB) ---
+*.pt
+*.onnx
+!models/*.pt
+!models/*.onnx
+
+# --- Sistema ---
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

@@ -1,0 +1,14 @@
+# SIRAP – dependencias de la aplicación y del backend (src/)
+# Streamlit Community Cloud instala este archivo. El detector corre con ONNX Runtime
+# (sin PyTorch) para que la app sea liviana; ultralytics solo hace falta para entrenar.
+streamlit==1.66.1
+numpy>=2.0,<3
+pandas>=2.2,<4
+pillow>=11.0
+opencv-python-headless>=4.10
+onnxruntime>=1.20,<2
+fast-plate-ocr==1.1.0
+Levenshtein>=0.25
+pyyaml>=6.0
+plotly>=6.0
+psycopg[binary]==3.3.6

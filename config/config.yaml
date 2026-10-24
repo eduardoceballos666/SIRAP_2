@@ -1,0 +1,71 @@
+# =============================================================================
+# SIRAP – Configuración central
+# Todas las rutas son relativas a la raíz del repositorio.
+# Los valores sensibles (DSN de PostgreSQL, PIN de administración, llaves de API)
+# NO van aquí: se leen de variables de entorno o de st.secrets (ver .env.example).
+# =============================================================================
+
+app:
+  nombre: "SIRAP"
+  descripcion: "Sistema de Detección y Reconocimiento Automático de Placas"
+  zona_horaria: "America/Guayaquil"
+  garitas_por_defecto: ["Garita 1", "Garita 2", "Garita 3"]
+  max_tamano_imagen_mb: 10
+  min_lado_imagen_px: 160
+  formatos_imagen: ["jpg", "jpeg", "png", "webp"]
+
+detector:
+  # Pesos del YOLO11-s entrenado en el notebook (sección 2.1). Se busca en orden:
+  # 1) ONNX (liviano, sin PyTorch, ideal para Streamlit Cloud)  2) best.pt (requiere ultralytics)
+  pesos_onnx: "models/best_model.onnx"
+  pesos_pt: "models/best_model.pt"
+  imgsz_entrenamiento: 640
+  imgsz_inferencia: 640        # el notebook usa 1280 en el video de la garita (placas lejanas); 640 en imágenes cercanas
+  conf_minima: 0.25            # se reemplaza por el umbral calibrado en val (0.30) de results/metrics/umbrales.json
+  # Umbral de decisión del detector calibrado en val (precisión ≥ 95 %): por debajo → verificación manual.
+  conf_decision: 0.30
+  iou_nms: 0.7                 # NMS por defecto de Ultralytics (igual que en el notebook)
+  margen_recorte: 0.06         # margen alrededor de la caja antes del OCR (fracción del ancho/alto)
+  # Si no hay pesos, se usa un localizador clásico (OpenCV). La interfaz lo advierte.
+  permitir_respaldo_opencv: true
+
+ocr:
+  modelo: "cct-s-v2-global-model"   # fast-plate-ocr 1.1.0 (≈5 MB, CPU)
+  dispositivo: "cpu"
+
+placas:
+  # Placas ecuatorianas: 3 letras + 3 o 4 dígitos; se escriben XXX-0000 (las de 3 dígitos se completan con 0).
+  patrones: [[3, 4], [3, 3]]
+
+decision:
+  # Confianza OCR = menor probabilidad entre los caracteres de la placa (como en el notebook).
+  # 0.99 es el umbral que sugiere el estudio de confianza en SAVH Guayaquil (sección 5 del notebook):
+  # 13 % de las placas a verificación manual y las lecturas equivocadas aceptadas bajan de 25 a 12.
+  umbral_confianza_ocr: 0.99
+  # Distancia de Levenshtein máxima para considerar que una lectura "casi coincide" con una placa registrada
+  # (posible error del OCR) → verificación manual en lugar de NO REGISTRADO.
+  distancia_max_similar: 1
+
+base_datos:
+  # motor: "sqlite" (demostración, se crea solo) o "postgresql" (producción; requiere PG_DSN).
+  # Si PG_DSN existe en el entorno o en st.secrets, se usa PostgreSQL automáticamente.
+  motor: "sqlite"
+  ruta_sqlite: "data/processed/sirap_demo.db"
+  esquema_sqlite: "sql/schema_sqlite.sql"
+  esquema_postgres: "sql/schema_postgres.sql"
+  datos_demo: "sql/seed_demo.sql"
+
+barrera:
+  # "simulada": registra la orden de apertura pero no mueve ningún dispositivo.
+  # "http": envía la orden a un controlador (relé/PLC) en la URL de BARRERA_URL con BARRERA_TOKEN.
+  modo: "simulada"
+  timeout_s: 3
+
+metas:
+  map50: 0.85
+  emr: 0.80
+  tiempo_e2e_s: 1.0
+
+logging:
+  nivel: "INFO"
+  archivo: "results/reports/sirap.log"

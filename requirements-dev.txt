@@ -1,0 +1,8 @@
+# Entrenamiento, evaluación del detector, notebooks y pruebas (además de requirements.txt)
+-r requirements.txt
+ultralytics==8.4.177
+roboflow==1.7.1
+supervision==0.30.9
+matplotlib>=3.8
+jupyter
+pytest>=8.0
