@@ -16,7 +16,7 @@
 decisión de acceso (autorizado, denegado, no registrado o verificación manual). El operador confirma, la operación
 queda registrada y la barrera se abre solo cuando corresponde.
 
-[**Aplicación en vivo (Streamlit)**](https://sirapapp.streamlit.app/) · [Versión FastAPI + Vue](#6b-versión-web-fastapi--vue-3) · [Manual de usuario](docs/manual_usuario.md) ·
+[**Aplicación en vivo (Streamlit)**](https://sirapapp.streamlit.app/) · [**Versión FastAPI + Vue en vivo**](https://eduardoceballos-sirap.hf.space) · [Manual de usuario](docs/manual_usuario.md) ·
 [Notebook de backend](notebooks/SIRAP_backend.ipynb)
 
 <img src="docs/img/app_reconocimiento.png" alt="SIRAP – Reconocimiento y Acceso" width="900">
@@ -196,7 +196,7 @@ cd frontend && npm install && npm run dev   # interfaz en http://localhost:5173
 Con Docker (API + interfaz en una sola imagen): `docker build -t sirap . && docker run -p 7860:7860 -e SIRAP_JWT_SECRET=... sirap`
 y abrir http://localhost:7860.
 
-**Publicación en Hugging Face Spaces (gratis, 2 vCPU y 16 GB de RAM).** El workflow
+**Publicada en https://eduardoceballos-sirap.hf.space** (Hugging Face Spaces, hardware *CPU basic*; en cuentas nuevas requiere PRO). El workflow
 [`.github/workflows/deploy-hf-space.yml`](.github/workflows/deploy-hf-space.yml) sube la app al Space
 `eduardoceballos/sirap` en cada push a `main` (o a mano desde *Actions → Run workflow*); Hugging Face construye el
 `Dockerfile`. Configuración, una sola vez, en GitHub → *Settings → Secrets and variables → Actions*:
