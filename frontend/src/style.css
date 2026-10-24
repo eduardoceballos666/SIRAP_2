@@ -103,7 +103,7 @@
 .help-button { min-height:34px; padding:6px 9px !important; }
 .access-grid { display:grid; grid-template-columns:minmax(0,1.22fr) minmax(340px,.9fr); gap:10px; min-height:0; }
 .access-workspace .card { min-width:0; padding:11px; border:1px solid #e2e8f0; border-radius:12px; background:var(--color-surface); box-shadow:0 2px 9px #0d1b330a; }
-.camera-panel { display:grid; grid-template-rows:auto auto minmax(0,1fr) auto auto; gap:7px; min-height:0; }
+.camera-panel { position:relative; display:grid; grid-template-rows:auto auto minmax(0,1fr) auto auto; gap:7px; min-height:0; }
 .camera-toolbar { display:flex; align-items:center; justify-content:space-between; gap:8px; min-width:0; }
 .camera-toolbar h2, .section-heading h2 { display:flex; align-items:center; gap:7px; min-width:0; margin:0; color:var(--color-ink); font-size:13px; font-weight:800; text-transform:uppercase; }
 .source-tabs { display:flex; flex:0 1 auto; gap:3px; min-width:0; padding:3px; border-radius:9px; background:var(--color-subtle-2); }
@@ -115,7 +115,7 @@
 .live-camera-tools button { min-height:34px; padding:6px 10px; font-size:12px; }
 .upload-compact { display:flex; align-items:center; justify-content:center; gap:8px; min-width:0; min-height:34px; padding:5px 9px; border:1px dashed var(--color-line); border-radius:8px; color:var(--color-ink); font-size:12px; line-height:1.2; text-align:center; cursor:pointer; }
 .upload-compact span { overflow-wrap:anywhere; }
-.camera-error { margin:0; color:var(--color-bad); font-size:12px; }
+.camera-error { position:absolute; z-index:5; top:64px; left:14px; right:14px; margin:0; padding:8px 10px; border-radius:8px; background:var(--color-bad-soft); color:var(--color-bad); font-size:12px; }
 .camera-stage { position:relative; min-height:0; overflow:hidden; border-radius:9px; background:var(--color-navy-900); }
 .camera-stage > video { position:absolute; inset:0; width:100%; height:100%; border-radius:9px; object-fit:contain; }
 .camera-stage .compact-viewer { position:absolute; inset:0; width:100%; height:100%; padding:0; border-radius:9px; }
