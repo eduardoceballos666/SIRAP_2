@@ -48,7 +48,12 @@ async function run(fn) {
     busy.value = false
   }
 }
-const saveVehicle = () => run(() => api('/api/admin/vehiculos', { method: 'POST', body: vehicle }))
+function resetVehicle() {
+  Object.assign(vehicle, { placa: '', marca: '', modelo: '', color: '', tipo: 'LIVIANO', propietario: '', transportista: '' })
+}
+const saveVehicle = async () => {
+  if (await run(() => api('/api/admin/vehiculos', { method: 'POST', body: vehicle }))) resetVehicle()
+}
 const saveAuth = () => run(() => api('/api/admin/autorizaciones', { method: 'POST', body: { ...auth_, vigente_hasta: auth_.vigente_hasta || null } }))
 const revoke = () => run(() => api(`/api/admin/autorizaciones/${encodeURIComponent(auth_.placa)}`, { method: 'DELETE' }))
 function toggleTruckSelection(plate, checked) {
@@ -107,7 +112,10 @@ onMounted(load)
           </div>
           <input v-model.trim="vehicle.propietario" class="field" placeholder="Propietario" />
           <input v-model.trim="vehicle.transportista" class="field" placeholder="Transportista (opcional)" />
-          <button class="btn-primary w-full" :disabled="busy">Guardar vehículo</button>
+          <div class="flex gap-2">
+            <button class="btn-primary flex-1" :disabled="busy">Guardar vehículo</button>
+            <button type="button" class="btn-ghost flex-1" :disabled="busy" @click="resetVehicle">Limpiar campos</button>
+          </div>
         </form>
       </template>
       <template v-else-if="tab === 'autorizaciones'">
