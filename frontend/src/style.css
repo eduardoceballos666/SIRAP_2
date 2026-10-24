@@ -198,7 +198,7 @@
 .plate-panel .section-heading > span { font-size:12px; }
 .plate-line { display:flex; align-items:center; gap:8px; min-width:0; }
 .compact-plate { flex:1; min-width:0; min-height:74px; padding:8px; border:2px solid var(--color-navy-900); border-radius:8px; background:#fff; color:#0d1b33; font-size:clamp(36px,3.2vw,50px); font-weight:900; line-height:1.15; text-align:center; white-space:nowrap; }
-.plate-line img { flex:none; width:74px; height:46px; border-radius:5px; object-fit:contain; }
+
 .plate-form { display:flex; gap:6px; min-width:0; }
 .plate-form input { min-width:0; min-height:40px; flex:1; padding:7px 11px !important; font-size:15px !important; }
 .plate-form .btn-ghost { min-height:40px; padding:7px 11px; font-size:14px; }
