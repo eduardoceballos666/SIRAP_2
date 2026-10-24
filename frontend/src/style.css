@@ -99,7 +99,7 @@
 .control-field > span { color:var(--color-muted); }
 .control-field strong { display:flex; align-items:center; gap:7px; min-height:32px; overflow:hidden; font-size:12px; text-overflow:ellipsis; white-space:nowrap; }
 .control-field .field { min-height:33px; padding:5px 9px; font-size:12px; }
-.workspace-clock { display:flex; align-items:center; justify-content:flex-end; gap:7px; min-width:0; color:var(--color-ink); font-size:12px; font-weight:650; white-space:nowrap; }
+.workspace-clock { display:flex; align-items:center; justify-content:flex-end; gap:7px; min-width:0; color:var(--color-ink); font-size:14px; font-weight:700; white-space:nowrap; }
 .help-button { min-height:34px; padding:6px 9px !important; }
 .access-grid { display:grid; grid-template-columns:minmax(0,1.22fr) minmax(340px,.9fr); gap:10px; min-height:0; }
 .access-workspace .card { min-width:0; padding:11px; border:1px solid #e2e8f0; border-radius:12px; background:var(--color-surface); box-shadow:0 2px 9px #0d1b330a; }
@@ -254,7 +254,7 @@
 @media (max-width:560px) {
   .access-content { padding:8px; }
   .control-strip { grid-template-columns:1fr 1fr; gap:7px; padding:9px; }
-  .workspace-clock { justify-content:flex-start; grid-column:span 2; font-size:10px; }
+  .workspace-clock { justify-content:flex-start; grid-column:span 2; font-size:12px; }
   .control-field strong { font-size:11px; }
   .camera-toolbar { flex-wrap:wrap; }
   .source-tabs { order:3; flex:1 1 100%; }
