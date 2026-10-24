@@ -141,7 +141,7 @@
 .reading-copy small { overflow:hidden; color:var(--color-muted); font-size:9px; text-overflow:ellipsis; white-space:nowrap; }
 .reading-empty { margin:0; padding:9px; border-radius:7px; background:var(--color-subtle); color:var(--color-muted); font-size:11px; }
 
-.decision-column { display:grid; grid-template-rows:minmax(132px,.95fr) minmax(138px,.9fr) minmax(158px,1.15fr); gap:9px; min-height:0; }
+.decision-column { display:grid; grid-template-rows:minmax(174px,1.2fr) minmax(118px,.8fr) minmax(158px,1.15fr); gap:9px; min-height:0; }
 .access-result-card {
   --result-surface-start:#dcfce7;
   --result-surface-end:#bbf7d0;
@@ -193,12 +193,15 @@
 .plate-panel, .vehicle-panel { display:flex; flex-direction:column; gap:7px; min-height:0; }
 .section-heading { display:flex; align-items:center; justify-content:space-between; gap:8px; min-width:0; }
 .section-heading > span { color:var(--color-muted); font-size:10px; font-weight:700; }
+.plate-panel .section-heading h2 { font-size:16px; }
+.plate-panel .section-heading h2 svg { width:22px; height:22px; }
+.plate-panel .section-heading > span { font-size:12px; }
 .plate-line { display:flex; align-items:center; gap:8px; min-width:0; }
-.compact-plate { flex:1; min-width:0; min-height:58px; padding:6px 8px; border:2px solid var(--color-navy-900); border-radius:8px; background:#fff; color:#0d1b33; font-size:clamp(30px,2.6vw,42px); font-weight:900; line-height:1.15; text-align:center; white-space:nowrap; }
-.plate-line img { flex:none; width:62px; height:36px; border-radius:5px; object-fit:contain; }
+.compact-plate { flex:1; min-width:0; min-height:74px; padding:8px; border:2px solid var(--color-navy-900); border-radius:8px; background:#fff; color:#0d1b33; font-size:clamp(36px,3.2vw,50px); font-weight:900; line-height:1.15; text-align:center; white-space:nowrap; }
+.plate-line img { flex:none; width:74px; height:46px; border-radius:5px; object-fit:contain; }
 .plate-form { display:flex; gap:6px; min-width:0; }
-.plate-form input { min-width:0; min-height:32px; flex:1; padding:5px 9px !important; font-size:12px !important; }
-.plate-form .btn-ghost { min-height:32px; padding:5px 9px; }
+.plate-form input { min-width:0; min-height:40px; flex:1; padding:7px 11px !important; font-size:15px !important; }
+.plate-form .btn-ghost { min-height:40px; padding:7px 11px; font-size:14px; }
 .vehicle-rows { display:grid; grid-template-columns:1fr 1fr; gap:4px 7px; margin:0; min-height:0; }
 .vehicle-rows > div { display:grid; grid-template-columns:74px minmax(0,1fr); align-items:center; gap:5px; min-width:0; padding:5px 7px; border-radius:6px; background:var(--color-subtle); font-size:11px; }
 .vehicle-rows dt { color:var(--color-muted); }
@@ -257,6 +260,8 @@
   .control-strip { grid-template-columns:repeat(2,minmax(0,1fr)); }
   .decision-column { grid-template-columns:1fr; grid-template-rows:auto; }
   .decision-column > .card { min-height:145px; }
+  .decision-column > .plate-panel { min-height:176px; }
+  .decision-column > .access-result-card { min-height:118px; }
   .access-grid { grid-template-columns:minmax(0,1fr); }
   .camera-panel { min-height:460px; }
   .access-action-bar { grid-template-columns:1fr; }
