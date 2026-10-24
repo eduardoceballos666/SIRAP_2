@@ -105,13 +105,13 @@ onMounted(load)
         <form class="space-y-3" @submit.prevent="saveVehicle">
           <input v-model.trim="vehicle.placa" class="field font-mono uppercase" placeholder="Placa (PBA-8901)" required />
           <div class="grid grid-cols-2 gap-3">
-            <input v-model.trim="vehicle.marca" class="field bg-subtle" placeholder="Marca" />
-            <input v-model.trim="vehicle.modelo" class="field bg-subtle" placeholder="Modelo" />
-            <input v-model.trim="vehicle.color" class="field bg-subtle" placeholder="Color" />
+            <input v-model.trim="vehicle.marca" class="field bg-subtle font-semibold" placeholder="Marca" />
+            <input v-model.trim="vehicle.modelo" class="field bg-subtle font-semibold" placeholder="Modelo" />
+            <input v-model.trim="vehicle.color" class="field bg-subtle font-semibold" placeholder="Color" />
             <select v-model="vehicle.tipo" class="field"><option>LIVIANO</option><option>CAMION</option><option>MOTO</option><option>OTRO</option></select>
           </div>
-          <input v-model.trim="vehicle.propietario" class="field bg-subtle" placeholder="Propietario" />
-          <input v-model.trim="vehicle.transportista" class="field bg-subtle" placeholder="Transportista (opcional)" />
+          <input v-model.trim="vehicle.propietario" class="field bg-subtle font-semibold" placeholder="Propietario" />
+          <input v-model.trim="vehicle.transportista" class="field bg-subtle font-semibold" placeholder="Transportista (opcional)" />
           <div class="flex gap-2">
             <button class="btn-primary flex-1" :disabled="busy">Guardar vehículo</button>
             <button type="button" class="btn-ghost flex-1" :disabled="busy" @click="resetVehicle">Limpiar campos</button>
