@@ -52,6 +52,10 @@ export const useSessionStore = defineStore('session', {
       const l = this.lecturas.find((x) => x.id === id)
       if (l) l.registro = accion
     },
+    clearUnregisteredLecturas(ids) {
+      const targets = new Set(ids)
+      this.lecturas = this.lecturas.filter((l) => !targets.has(l.id) || l.registro)
+    },
     clearLecturas() {
       this.lecturas = []
     },

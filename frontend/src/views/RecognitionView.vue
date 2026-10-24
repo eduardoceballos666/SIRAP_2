@@ -22,6 +22,7 @@ const samples = ref([])
 const selectedSample = ref('')
 const sourceLabel = ref('') // de dónde vino la imagen (para la tabla de lecturas)
 const lecturaId = ref(null)
+const currentReadingIds = ref([])
 const file = ref(null) // Blob a reconocer
 const preview = ref('')
 const stamp = ref('')
@@ -101,6 +102,8 @@ function reset() {
   origin.value = 'DETECCION'
   done.value = false
   registrationPromptDismissed.value = false
+  lecturaId.value = null
+  currentReadingIds.value = []
 }
 function setImage(blob, label = '') {
   sourceLabel.value = label
@@ -112,6 +115,7 @@ function setImage(blob, label = '') {
 }
 function clearCurrentReading() {
   if (loading.value || busy.value) return
+  session.clearUnregisteredLecturas(currentReadingIds.value)
   if (preview.value) URL.revokeObjectURL(preview.value)
   file.value = null
   preview.value = ''
@@ -159,6 +163,7 @@ async function recognize() {
       confianza: data.recognition.ocr_confidence, ms: data.recognition.timings_ms?.total, origen: 'DETECCION',
     })
     lecturaId.value = session.lecturas[0].id
+    currentReadingIds.value.push(lecturaId.value)
   } catch (e) {
     session.notify(e.message, 'bad')
   } finally {
@@ -179,6 +184,7 @@ async function verifyManual() {
     session.addLectura({ fuente: 'Escrita a mano', placa: data.placa, resultado: data.decision.resultado,
       confianza: null, ms: null, origen: 'MANUAL' })
     lecturaId.value = session.lecturas[0].id
+    currentReadingIds.value.push(lecturaId.value)
   } catch (e) {
     session.notify(e.message, 'bad')
   } finally {
