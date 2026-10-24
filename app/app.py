@@ -102,7 +102,7 @@ def sidebar() -> str:
             st.markdown(
                 f'<div class="side-status"><b>Estado del sistema</b><br>'
                 f'<span class="dot {det_dot}"></span>Detector: {pipeline.detector.name}<br>'
-                f'<span class="dot ok"></span>OCR: fast-plate-ocr<br>'
+                f'<span class="dot ok"></span>OCR: {"afinado (Ecuador)" if "afinado" in pipeline.reader.model_name else "fast-plate-ocr"}<br>'
                 f'<span class="dot {db_dot}"></span>Base: {"PostgreSQL" if db.engine == "postgresql" else "SQLite (demo)"}<br>'
                 f'<span class="dot {"warn" if getattr(barrier, "simulated", True) else "ok"}"></span>'
                 f'Barrera: {"simulada" if getattr(barrier, "simulated", True) else "conectada"}</div>',

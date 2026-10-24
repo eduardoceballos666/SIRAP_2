@@ -8,6 +8,7 @@
 | `03_modelado.ipynb` | Entrenamiento de YOLO11-s (no reentrena: muestra el registro y las curvas) |
 | `04_optimizacion.ipynb` | Estudio de sensibilidad de hiperparámetros (Workshop S5): Optuna + fANOVA + PDP |
 | `05_evaluacion.ipynb` | Evaluación del detector, velocidad, OCR en SAVH, regla de decisión y resultados finales |
+| `06_afinamiento_ocr.ipynb` | Afinamiento de fast-plate-ocr con placas ecuatorianas (SAVH + garita), separación por placa, comparación antes/después con McNemar y medición con recortes del detector |
 
 Los notebooks 01, 02, 03 y 05 son extractos de `SIRAP_backend.ipynb` con las mismas celdas y salidas.
 Todos corren en **Google Colab con GPU** y guardan en `MyDrive/proyecto_integrador_placas` (rutas en la sección 0).

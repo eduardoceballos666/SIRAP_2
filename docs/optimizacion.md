@@ -126,3 +126,25 @@ métrica estricta. Es uno de los hiperparámetros a incluir en el estudio.
   más impacto en el sistema que cualquier hiperparámetro: por ejemplo, el OCR pasó de un modelo de lenguaje-visión a
   uno de 5 MB que corre en CPU sin perder exactitud en SAVH.
 - La resolución de inferencia (`imgsz`) fue decisiva para las placas pequeñas del video real.
+
+## 8. Afinamiento del OCR con placas ecuatorianas (`notebooks/06_afinamiento_ocr.ipynb`)
+
+`cct-s-v2-global-model` no incluye Ecuador entre sus regiones, aunque ya logra 93,7 % de EMR en SAVH Guayaquil.
+El notebook 06 prueba si afinarlo mejora ese resultado sin sesgar la evaluación:
+
+| Decisión | Por qué |
+|---|---|
+| Separación **por placa** (60 / 15 / 25 %) | Una placa repetida en *train* y *test* inflaría el EMR |
+| Solo referencias confirmadas (`INCLUDE_UNCONFIRMED = False`) | Una etiqueta sin confirmar podría enseñar un error y además premiarlo en la evaluación |
+| Partir de `cct_s_v2_global.keras` (pesos publicados por el autor) | Afinar, no entrenar desde cero: pocos cientos de ejemplos |
+| *lr* 3e-4, *weight decay* 5e-4, sin *label smoothing*, 40 épocas con *early stopping* (10) | Cambios pequeños sobre un modelo que ya funciona |
+| Aumentos suaves (±8°, brillo, desenfoque, ruido, compresión) | La garita varía más en luz y foco que en geometría |
+| Misma métrica que la app (EMR tras normalizar, CER, aceptadas con confianza ≥ 0,99) | Comparar exactamente lo que importa en producción |
+| Se adopta solo si mejora el EMR con **McNemar p < 0,05** y no aumenta las lecturas equivocadas aceptadas | Con ≈100 imágenes de *test*, cada acierto vale ≈1 punto de EMR |
+
+El flujo (preparación de datos, afinamiento, exportación a ONNX y evaluación) se probó de punta a punta con un
+conjunto sintético pequeño; los resultados reales se obtienen al correrlo en Colab con los datos de Drive. Si se
+adopta, basta con subir `models/ocr_afinado.onnx` y `models/ocr_afinado_plate_config.yaml`: la app los detecta sola.
+
+**Estado:** ⏳ pendiente de ejecución en Colab.
+

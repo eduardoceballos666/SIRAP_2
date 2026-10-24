@@ -5,6 +5,7 @@
 | `best_model.pt` | Pesos de **YOLO11-s** entrenado (mejor época en *val*) | `MyDrive/proyecto_integrador_placas/experimentos/license-plate-recognition-rxg4e-v11/runs/YOLO11_yolo11s_completo/weights/best.pt` |
 | `best_model.onnx` | El mismo modelo exportado a ONNX (640 px) | `python -m src.train --export-only models/best_model.pt` |
 | *OCR* | `fast-plate-ocr` · `cct-s-v2-global-model` (≈5 MB) | Se descarga solo la primera vez que corre la app |
+| `ocr_afinado.onnx` + `ocr_afinado_plate_config.yaml` *(opcional)* | OCR afinado con placas ecuatorianas | `notebooks/06_afinamiento_ocr.ipynb`; súbalo **solo** si la sección 5 de ese notebook decide «adoptar». Si existen, la app los usa en lugar del modelo del hub |
 
 La app carga primero el **ONNX** con ONNX Runtime: no necesita PyTorch y cabe en Streamlit Community Cloud. Si
 no hay ONNX usa `best_model.pt` (requiere `ultralytics`). Si no hay ninguno, usa un localizador clásico de OpenCV

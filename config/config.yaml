@@ -32,6 +32,10 @@ detector:
 ocr:
   modelo: "cct-s-v2-global-model"   # fast-plate-ocr 1.1.0 (≈5 MB, CPU)
   dispositivo: "cpu"
+  # OCR afinado con placas ecuatorianas (notebooks/06_afinamiento_ocr.ipynb). Si ambos archivos existen, la app
+  # los usa en lugar del modelo del hub; si no, sigue con cct-s-v2-global-model.
+  onnx_afinado: "models/ocr_afinado.onnx"
+  plate_config_afinado: "models/ocr_afinado_plate_config.yaml"
 
 placas:
   # Placas ecuatorianas: 3 letras + 3 o 4 dígitos; se escriben XXX-0000 (las de 3 dígitos se completan con 0).

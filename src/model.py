@@ -250,13 +250,24 @@ class PlateReader:
     Args:
         model_name: modelo del hub de fast-plate-ocr (por defecto ``cct-s-v2-global-model``).
         device: ``"cpu"``, ``"cuda"`` o ``"auto"``.
+        onnx_path, plate_config_path: modelo afinado propio. Si ambos archivos existen se usan en lugar
+            del modelo del hub.
     """
 
-    def __init__(self, model_name: str = "cct-s-v2-global-model", device: str = "cpu"):
+    def __init__(self, model_name: str = "cct-s-v2-global-model", device: str = "cpu",
+                 onnx_path: str | Path | None = None, plate_config_path: str | Path | None = None):
         from fast_plate_ocr import LicensePlateRecognizer  # importación diferida: descarga el modelo
 
-        self.model_name = model_name
-        self._model = LicensePlateRecognizer(model_name, device=device)
+        onnx_file = resolve_path(onnx_path) if onnx_path else None
+        config_file = resolve_path(plate_config_path) if plate_config_path else None
+        if onnx_file and config_file and onnx_file.exists() and config_file.exists():
+            # OCR afinado con placas ecuatorianas (notebooks/06_afinamiento_ocr.ipynb)
+            self.model_name = f"{model_name} afinado ({onnx_file.name})"
+            self._model = LicensePlateRecognizer(onnx_model_path=onnx_file, plate_config_path=config_file,
+                                                 device=device)
+        else:
+            self.model_name = model_name
+            self._model = LicensePlateRecognizer(model_name, device=device)
 
     def read(self, crop: np.ndarray) -> tuple[str, float, float]:
         """Lee un recorte RGB.
@@ -302,7 +313,8 @@ class ALPRPipeline:
                                  imgsz=det_cfg.get("imgsz_inferencia", 640), conf=conf,
                                  iou=det_cfg.get("iou_nms", 0.7),
                                  allow_fallback=det_cfg.get("permitir_respaldo_opencv", True))
-        reader = PlateReader(ocr_cfg.get("modelo", "cct-s-v2-global-model"), ocr_cfg.get("dispositivo", "cpu"))
+        reader = PlateReader(ocr_cfg.get("modelo", "cct-s-v2-global-model"), ocr_cfg.get("dispositivo", "cpu"),
+                             ocr_cfg.get("onnx_afinado"), ocr_cfg.get("plate_config_afinado"))
         patterns = [tuple(p) for p in cfg.get("placas", {}).get("patrones", DEFAULT_PATTERNS)]
         return cls(detector, reader, patterns, det_cfg.get("margen_recorte", 0.06))
 

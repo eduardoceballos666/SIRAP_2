@@ -113,3 +113,14 @@ def test_low_detector_confidence_goes_to_manual(db):
     decision = decide_access("PBA-8901", 1.0, db, det_confidence=0.2, det_threshold=0.30)
     assert decision.resultado == "VERIFICACION_MANUAL" and "DETECCIÓN" in decision.detalle
     assert decide_access("PBA-8901", 1.0, db, det_confidence=0.8, det_threshold=0.30).resultado == "AUTORIZADO"
+
+
+def test_reader_falls_back_to_hub_model_without_finetuned_files(tmp_path):
+    """Si no existen los archivos del OCR afinado, se usa el modelo del hub."""
+    try:
+        from src.model import PlateReader
+
+        reader = PlateReader("cct-s-v2-global-model", "cpu", tmp_path / "no.onnx", tmp_path / "no.yaml")
+    except Exception as exc:  # noqa: BLE001 — sin red no se descarga el OCR
+        pytest.skip(f"OCR no disponible: {exc}")
+    assert reader.model_name == "cct-s-v2-global-model"
