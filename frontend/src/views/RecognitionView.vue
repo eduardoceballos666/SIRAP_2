@@ -11,7 +11,11 @@ import { useAuthStore } from '@/stores/auth'
 
 const session = useSessionStore()
 const auth = useAuthStore()
-const displayClock = new Date().toLocaleString('es-EC', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+const now = ref(new Date())
+const displayClock = computed(() => now.value.toLocaleString('es-EC', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }))
+const cameraPanel = ref(null)
+const fullscreen = ref(false)
+let clockTimer
 
 const source = ref('ejemplos')
 const samples = ref([])
@@ -42,6 +46,16 @@ const video = ref(null)
 let stream = null
 const cameraError = ref('')
 
+async function toggleFullscreen() {
+  try {
+    if (document.fullscreenElement === cameraPanel.value) await document.exitFullscreen()
+    else await cameraPanel.value?.requestFullscreen()
+  } catch {
+    session.notify('No se pudo abrir la cámara en pantalla completa.', 'warn')
+  }
+}
+function syncFullscreen() { fullscreen.value = document.fullscreenElement === cameraPanel.value }
+
 async function startCamera() {
   cameraError.value = ''
   try {
@@ -70,7 +84,11 @@ function setSource(name) {
   if (name === 'camara') setTimeout(startCamera, 0)
   else stopCamera()
 }
-onBeforeUnmount(stopCamera)
+onBeforeUnmount(() => {
+  stopCamera()
+  clearInterval(clockTimer)
+  document.removeEventListener('fullscreenchange', syncFullscreen)
+})
 
 // --- imagen -----------------------------------------------------------------------------
 function reset() {
@@ -199,6 +217,8 @@ function exportLecturas() {
 }
 
 onMounted(async () => {
+  document.addEventListener('fullscreenchange', syncFullscreen)
+  clockTimer = setInterval(() => { now.value = new Date() }, 1000)
   try {
     await session.loadSystem()
     samples.value = await api('/api/samples')
@@ -215,65 +235,96 @@ onMounted(async () => {
       <label class="control-field" for="garita"><span>Garita</span><select id="garita" v-model="session.garita" class="field"><option v-for="g in session.system?.garitas || []" :key="g">{{ g }}</option></select></label>
       <div class="control-field"><span>Operador</span><strong><AppIcon name="user" :size="17" /> {{ auth.user?.nombre || '—' }}</strong></div>
       <label class="control-field" for="mov"><span>Operación</span><select id="mov" v-model="session.movimiento" class="field"><option value="ENTRADA">Entrada</option><option value="SALIDA">Salida</option></select></label>
-      <button class="btn-ghost help-button" @click="helpOpen = true"><AppIcon name="help" :size="16" /> Ayuda</button>
-      <span class="workspace-clock">{{ displayClock }}</span>
+      <button class="btn-ghost help-button" aria-label="Ayuda" title="Ayuda" @click="helpOpen = true"><AppIcon name="help" :size="17" /><span>Ayuda</span></button>
+      <div class="workspace-clock"><AppIcon name="calendar" :size="18" /> {{ displayClock }}</div>
     </div>
+
     <div class="access-grid">
-      <section class="card camera-panel" aria-label="Cámara e imagen">
-        <div class="panel-toolbar"><h2><AppIcon name="camera" :size="18" /> Cámara / imagen</h2>
-          <div class="source-tabs" role="group" aria-label="Fuente de imagen"><button v-for="s in [['ejemplos', 'Ejemplos'], ['subir', 'Subir'], ['camara', 'Cámara']]" :key="s[0]" :aria-pressed="source === s[0]" :class="{ active: source === s[0] }" @click="setSource(s[0])">{{ s[1] }}</button></div>
+      <section ref="cameraPanel" class="card camera-panel" aria-label="Cámara e imagen">
+        <div class="panel-toolbar camera-toolbar">
+          <h2><AppIcon name="camera" :size="18" /> Lectura del vehículo</h2>
+          <div class="source-tabs" role="group" aria-label="Fuente de imagen">
+            <button v-for="s in [['camara', 'En vivo'], ['ejemplos', 'Ejemplos'], ['subir', 'Subir imagen']]" :key="s[0]" :aria-pressed="source === s[0]" :class="{ active: source === s[0] }" @click="setSource(s[0])">{{ s[1] }}</button>
+          </div>
+          <button class="btn-ghost fullscreen-button" :aria-label="fullscreen ? 'Salir de pantalla completa' : 'Ver en pantalla completa'" :title="fullscreen ? 'Salir de pantalla completa' : 'Ver en pantalla completa'" @click="toggleFullscreen">
+            <AppIcon :name="fullscreen ? 'minimize' : 'fullscreen'" :size="17" /><span>{{ fullscreen ? 'Salir' : 'Pantalla completa' }}</span>
+          </button>
         </div>
-        <select v-if="source === 'ejemplos'" :value="selectedSample" class="field" aria-label="Probar con un ejemplo" :disabled="loading" @change="pickSample($event.target.value)"><option disabled value="">Seleccionar imagen de ejemplo…</option><option v-for="s in samples" :key="s.nombre" :value="s.nombre">{{ s.etiqueta }}</option></select>
-        <label v-else-if="source === 'subir'" class="upload-compact"><AppIcon name="upload" :size="18" /> Elegir foto · JPG, PNG o WEBP · máx. 10 MB<input type="file" accept="image/jpeg,image/png,image/webp" class="hidden" @change="onUpload" /></label>
-        <div v-else class="panel-toolbar"><button class="btn-primary" :disabled="loading" @click="capture">Capturar y reconocer</button><button v-if="preview" class="btn-ghost" @click="showCapture = !showCapture">{{ showCapture ? 'Ver cámara en vivo' : 'Ver captura' }}</button></div>
-        <p v-if="source === 'camara' && cameraError" role="alert" class="text-sm text-bad">{{ cameraError }}</p>
+
+        <select v-if="source === 'ejemplos'" :value="selectedSample" class="field sample-select" aria-label="Probar con un ejemplo" :disabled="loading" @change="pickSample($event.target.value)">
+          <option disabled value="">Seleccionar imagen de ejemplo…</option><option v-for="s in samples" :key="s.nombre" :value="s.nombre">{{ s.etiqueta }}</option>
+        </select>
+        <label v-else-if="source === 'subir'" class="upload-compact"><AppIcon name="upload" :size="17" /><span>Elegir imagen · JPG, PNG o WEBP · máx. 10 MB</span><input type="file" accept="image/jpeg,image/png,image/webp" class="hidden" @change="onUpload" /></label>
+        <div v-else class="live-camera-tools">
+          <button class="btn-primary" :disabled="loading" @click="capture"><AppIcon name="camera" :size="16" /> Capturar y reconocer</button>
+          <button v-if="preview" class="btn-ghost" @click="showCapture = !showCapture">{{ showCapture ? 'Ver cámara en vivo' : 'Ver captura' }}</button>
+        </div>
+
+        <p v-if="source === 'camara' && cameraError" role="alert" class="camera-error">{{ cameraError }}</p>
         <div class="camera-stage">
           <video v-if="source === 'camara'" v-show="!showCapture" ref="video" autoplay playsinline muted></video>
           <ImageViewer v-show="source !== 'camara' || showCapture" class="compact-viewer" :src="preview" :box="recognition?.box" :width="recognition?.image_width" :height="recognition?.image_height" :tone="tone" :label="recognition?.plate" :garita="session.garita" :stamp="stamp" :loading="loading" />
         </div>
-        <div class="panel-toolbar camera-footer"><span class="text-muted">{{ recognition ? `${recognition.detector} · ${recognition.timings_ms.total?.toFixed(0)} ms` : 'Lista para reconocer una placa' }}</span><button class="btn-ghost" :disabled="loading || !file" @click="recognize"><AppIcon name="refresh" :size="16" /> Reprocesar</button></div>
+        <div class="camera-meta">
+          <span>{{ recognition ? recognition.detector + ' · ' + recognition.timings_ms.total?.toFixed(0) + ' ms' : 'Imagen de la garita · lista para procesar' }}</span>
+          <button class="btn-ghost" :disabled="loading || !file" @click="recognize"><AppIcon name="refresh" :size="15" /> Reprocesar</button>
+        </div>
+
+        <section class="reading-gallery" aria-label="Lecturas recientes">
+          <div class="reading-gallery-head"><strong>Lecturas recientes</strong><div><button class="text-link" @click="readingsOpen = true">Ver todas ({{ session.lecturas.length }})</button><RouterLink class="text-link" to="/historial">Historial</RouterLink></div></div>
+          <div v-if="session.lecturas.length" class="reading-cards">
+            <article v-for="l in session.lecturas.slice(0, 4)" :key="l.id" class="reading-card">
+              <span class="reading-icon"><AppIcon name="car" :size="20" /></span>
+              <span class="reading-copy"><strong>{{ l.placa || 'Sin placa' }}</strong><small>{{ l.hora }} · {{ RESULT[l.resultado]?.label || l.resultado }}</small></span>
+            </article>
+          </div>
+          <p v-else class="reading-empty">Las lecturas de esta sesión aparecerán aquí.</p>
+        </section>
       </section>
-      <section class="card decision-panel" aria-label="Placa, vehículo y acciones">
-        <div class="plate-heading"><h2>PLACA IDENTIFICADA</h2><span>OCR {{ origin === 'MANUAL' ? 'Manual' : pct(recognition?.ocr_confidence) }}</span></div>
-        <div class="plate-line"><div class="compact-plate">{{ plateShown || '———-————' }}</div><img v-if="recognition?.crop_jpeg_base64" :src="`data:image/jpeg;base64,${recognition.crop_jpeg_base64}`" alt="Recorte de la placa" /></div>
-        <form class="plate-form" @submit.prevent="verifyManual"><input v-model.trim="manualPlate" class="field font-mono uppercase" aria-label="Corregir o escribir placa" placeholder="Corregir / escribir placa" maxlength="12" /><button class="btn-ghost" :disabled="busy || !manualPlate">Verificar</button></form>
-        <div class="compact-status" :class="TONE_PILL[tone]" role="status"><strong>{{ loading ? 'PROCESANDO…' : RESULT[decision?.resultado]?.label || 'EN ESPERA' }}</strong><span>{{ decision?.detalle || 'Seleccione o capture una imagen' }}</span><button v-if="decision" @click="detailsOpen = true" class="status-details">Ver detalle</button></div>
-        <dl class="vehicle-rows"><div v-for="[k,v] in [['Marca / modelo', [vehicle?.marca, vehicle?.modelo].filter(Boolean).join(' ')], ['Color', vehicle?.color], ['Propietario', vehicle?.propietario], ['Transportista', vehicle?.transportista]]" :key="k"><dt>{{ k }}</dt><dd :title="v || ''">{{ v || '—' }}</dd></div></dl>
-        <button class="btn-ghost record-without-opening" :disabled="!decision || decision.permite_apertura || busy || done" @click="register(decision.resultado === 'DENEGADO' ? 'RECHAZO' : 'SOLO_REGISTRO')">{{ decision?.resultado === 'DENEGADO' ? 'Registrar rechazo' : 'Registrar sin abrir' }}</button>
-        <p v-if="done" class="text-xs font-semibold text-ok-dark" role="status">✓ Lectura registrada en el historial.</p>
-      </section>
+
+      <div class="decision-column">
+        <section class="card access-result-card" :class="tone ? 'tone-' + tone : 'tone-neutral'" role="status" aria-live="polite">
+          <span class="result-mark"><AppIcon :name="tone === 'ok' ? 'check' : tone === 'bad' ? 'x' : tone === 'warn' ? 'alert' : 'bolt'" :size="28" :stroke="2.5" /></span>
+          <div class="result-copy">
+            <span class="eyebrow">Resultado de acceso</span>
+            <strong>{{ loading ? 'PROCESANDO…' : RESULT[decision?.resultado]?.label || 'EN ESPERA' }}</strong>
+            <span class="result-detail">{{ decision?.detalle || 'Seleccione o capture una imagen para verificar' }}</span>
+            <button v-if="decision?.resultado === 'DENEGADO'" class="result-action" :disabled="busy || done" @click="register('RECHAZO')">Registrar rechazo</button>
+            <button v-else-if="decision && !decision.permite_apertura" class="result-action" :disabled="busy || done" @click="register('SOLO_REGISTRO')">Registrar sin abrir</button>
+            <button v-if="decision" class="text-link result-detail-link" @click="detailsOpen = true">Ver detalle completo</button>
+          </div>
+          <div class="ocr-meter">
+            <span><AppIcon name="chart" :size="15" /> Confianza OCR</span>
+            <strong>{{ origin === 'MANUAL' ? 'Manual' : pct(recognition?.ocr_confidence) }}</strong>
+            <div class="meter-track" role="progressbar" :aria-valuenow="Math.round((recognition?.ocr_confidence || 0) * 100)" aria-valuemin="0" aria-valuemax="100"><i :style="{ width: Math.max(0, Math.min(100, (recognition?.ocr_confidence || 0) * 100)) + '%' }"></i></div>
+          </div>
+        </section>
+
+        <section class="card plate-panel" aria-label="Placa identificada">
+          <div class="section-heading"><h2><AppIcon name="camera" :size="19" /> Placa identificada</h2><span>{{ origin === 'MANUAL' ? 'Manual' : 'OCR' }}</span></div>
+          <div class="plate-line"><div class="compact-plate">{{ plateShown || '———-————' }}</div><img v-if="recognition?.crop_jpeg_base64" :src="'data:image/jpeg;base64,' + recognition.crop_jpeg_base64" alt="Recorte de la placa" /></div>
+          <form class="plate-form" @submit.prevent="verifyManual"><input v-model.trim="manualPlate" class="field font-mono uppercase" aria-label="Corregir o escribir placa" placeholder="Corregir / escribir placa" maxlength="12" /><button class="btn-ghost" :disabled="busy || !manualPlate">Verificar</button></form>
+        </section>
+
+        <section class="card vehicle-panel" aria-label="Detalles del vehículo">
+          <div class="section-heading"><h2><AppIcon name="car" :size="19" /> Detalles del vehículo</h2><button v-if="vehicle" class="text-link" @click="detailsOpen = true">Más datos</button></div>
+          <dl class="vehicle-rows">
+            <div><dt>Marca</dt><dd :title="vehicle?.marca || ''">{{ vehicle?.marca || '—' }}</dd></div>
+            <div><dt>Modelo</dt><dd :title="vehicle?.modelo || ''">{{ vehicle?.modelo || '—' }}</dd></div>
+            <div><dt>Color</dt><dd :title="vehicle?.color || ''">{{ vehicle?.color || '—' }}</dd></div>
+            <div><dt>Propietario</dt><dd :title="vehicle?.propietario || ''">{{ vehicle?.propietario || '—' }}</dd></div>
+            <div><dt>Transportista</dt><dd :title="vehicle?.transportista || ''">{{ vehicle?.transportista || '—' }}</dd></div>
+          </dl>
+          <p v-if="done" class="registered-note" role="status">✓ Lectura registrada en el historial.</p>
+        </section>
+      </div>
     </div>
+
     <div class="access-action-bar" aria-label="Acciones de acceso">
-      <button class="btn-yellow" :disabled="!canOpen || busy" @click="register('APERTURA_AUTOMATICA')"><AppIcon name="barrier" :size="19" /> Autorizar y abrir barrera</button>
-      <button class="btn-red" :disabled="!file || loading" @click="recognize"><AppIcon name="settings" :size="19" /> Procesar detección automática</button>
-      <button class="btn-navy" :disabled="!decision || busy || done" @click="manualOpen = true"><AppIcon name="lock" :size="18" /> Apertura manual (Contingencia)</button>
+      <button class="btn-yellow action-button" :disabled="!canOpen || busy" @click="register('APERTURA_AUTOMATICA')"><AppIcon name="barrier" :size="20" /><span>Registrar y abrir barrera</span></button>
+      <button class="btn-red action-button" :disabled="!file || loading" @click="recognize"><AppIcon name="settings" :size="20" /><span>Procesar detección automática</span></button>
+      <button class="btn-navy action-button" :disabled="!decision || busy || done" @click="manualOpen = true"><AppIcon name="lock" :size="19" /><span>Apertura manual (Contingencia)</span></button>
     </div>
-    <section class="card recent-readings"><div class="panel-toolbar"><h2>Últimas 5 lecturas <span class="text-muted">· sesión actual</span></h2><div class="reading-tools"><button class="btn-ghost" @click="readingsOpen = true">Ver todas ({{ session.lecturas.length }})</button><RouterLink class="btn-ghost" to="/historial">Historial</RouterLink><button class="btn-ghost" @click="exportLecturas">CSV</button></div></div>
-    <div class="table-wrap">
-      <table class="tbl">
-        <thead><tr><th>Hora</th><th>Imagen</th><th>Placa</th><th>Resultado</th><th>Confianza OCR</th><th>Tiempo</th><th>Registro</th></tr></thead>
-        <tbody>
-          <tr v-for="l in session.lecturas.slice(0, 5)" :key="l.id">
-            <td>{{ l.hora }}</td><td class="max-w-56 truncate" :title="l.fuente">{{ l.fuente }}</td>
-            <td class="font-bold">{{ l.placa || '—' }}</td>
-            <td><span class="pill" :class="TONE_PILL[RESULT[l.resultado]?.tone]">{{ RESULT[l.resultado]?.label }}</span></td>
-            <td>
-              <div v-if="l.confianza !== null" class="flex items-center gap-2">
-                <div class="h-2 w-20 overflow-hidden rounded-full bg-subtle-2">
-                  <div class="h-full rounded-full" :class="l.confianza >= 0.99 ? 'bg-ok' : 'bg-warn'" :style="{ width: `${l.confianza * 100}%` }"></div>
-                </div>
-                {{ pct(l.confianza, 1) }}
-              </div>
-              <span v-else class="text-muted">Manual</span>
-            </td>
-            <td>{{ l.ms ? `${Math.round(l.ms)} ms` : '—' }}</td>
-            <td>{{ l.registro ? ACTION[l.registro] : '—' }}</td>
-          </tr>
-          <tr v-if="!session.lecturas.length"><td colspan="7" class="text-center text-muted">Sin lecturas todavía. Elija una imagen o capture desde la cámara.</td></tr>
-        </tbody>
-      </table>
-    </div>
-    </section>
   </div>
   <ModalDialog :open="helpOpen" title="Cómo registrar un acceso" @close="helpOpen = false"><ol class="list-decimal space-y-3 pl-5"><li>Elija un ejemplo, suba una imagen o capture desde la cámara.</li><li>Revise la placa, el vehículo y el resultado. Corrija la placa y pulse Verificar si es necesario.</li><li>Autorice y abra solo cuando el resultado lo permita, o registre sin abrir. La apertura manual requiere un motivo.</li><li>Las lecturas solo se guardan en el historial al registrar una acción.</li></ol><button class="btn-primary mt-4" @click="helpOpen = false">Entendido</button></ModalDialog>
   <ModalDialog :open="detailsOpen" title="Detalle de la verificación" @close="detailsOpen = false"><ResultCard :decision="decision" :loading="loading" /><dl v-if="vehicle" class="mt-3 space-y-2 text-sm"><div v-for="[k,v] in [['Marca', vehicle.marca], ['Modelo', vehicle.modelo], ['Color', vehicle.color], ['Propietario', vehicle.propietario], ['Transportista', vehicle.transportista]]" :key="k"><dt class="font-bold">{{ k }}</dt><dd class="break-words">{{ v || '—' }}</dd></div></dl><button class="btn-ghost mt-4" @click="detailsOpen = false">Cerrar</button></ModalDialog>
