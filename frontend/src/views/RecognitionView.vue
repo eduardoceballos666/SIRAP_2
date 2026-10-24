@@ -466,11 +466,11 @@ onMounted(async () => {
         </div>
         <div v-else-if="source === 'online'" class="online-source-tools">
           <form class="online-camera-form" @submit.prevent="connectOnlineCamera">
-            <select v-model="onlineMode" class="field" aria-label="Formato de la cámara en línea"><option value="video">Video web / HLS</option><option value="mjpeg">MJPEG</option></select>
+            <select v-model="onlineMode" class="field" aria-label="Formato de la cámara en línea"><option value="video">Video web (MP4/WebM)</option><option value="mjpeg">MJPEG</option></select>
             <input v-model.trim="onlineUrlDraft" class="field" aria-label="URL de cámara en línea" placeholder="https://dirección-de-cámara/video" />
             <button class="btn-primary" :disabled="!onlineUrlDraft.trim()">Conectar</button>
           </form>
-          <p class="camera-stream-hint">Use una URL HTTP/HTTPS accesible desde este navegador. RTSP requiere un servidor puente; para analizar fuentes externas, la cámara debe permitir CORS.</p>
+          <p class="camera-stream-hint">Use una URL HTTP/HTTPS compatible con el navegador (MP4/WebM o MJPEG). HLS solo funciona donde el navegador lo admite; RTSP requiere un servidor puente. Para analizar fuentes externas, habilite CORS.</p>
           <div v-if="onlineConnected" class="live-camera-tools">
             <button class="btn-primary" :disabled="!mediaReady || loading" @click="captureFrame({ freeze: true })"><AppIcon name="scan" :size="16" /> Analizar fotograma</button>
             <button class="btn-ghost" :disabled="!mediaReady || loading" @click="toggleContinuousAnalysis">{{ continuousAnalysis ? 'Detener análisis' : 'Analizar cada 2,5 s' }}</button>
