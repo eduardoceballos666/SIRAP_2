@@ -3,10 +3,11 @@
 Notebook: `notebooks/04_optimizacion.ipynb` · Resultados: `results/metrics/optimizacion_*.csv|json` ·
 Figuras: `results/figures/opt_*.png`
 
-> **Estado.** El modelo entregado usa la configuración base del preset «completo» (sección 2 de este documento).
-> El estudio de sensibilidad está implementado en `04_optimizacion.ipynb` y se ejecuta en Colab con GPU; las
-> tablas marcadas con ⏳ se completan con su salida (`results/metrics/optimizacion_trials.csv`). No se reportan
-> números que no se hayan medido.
+> **Estado (24/10/2026).** Estudio ejecutado en Colab (GPU T4): 24 corridas cortas (≈3,2 h) y el reentrenamiento
+> de la mejor configuración con el protocolo completo (40 épocas, 1,19 h). Todas las cifras de este documento salen
+> de esa corrida (`results/metrics/optimizacion_*.csv|json`). **Resultado:** `lr0` explica la mayor parte de la
+> variación; la configuración optimizada sube el mAP@0.5:0.95 de *test* de 0,693 a 0,704 con el mismo mAP@0.5.
+> El modelo entregado **se mantiene** (sección 5).
 
 ---
 
@@ -16,8 +17,8 @@ Figuras: `results/figures/opt_*.png`
   umbral de confianza, que se trata en la sección 6).
 - **Métrica objetivo:** mAP@0.5:0.95 en *val* (más exigente que mAP@0.5 con la localización, lo que importa para
   recortar bien la placa antes del OCR). Se reporta también mAP@0.5.
-- **Presupuesto:** 24 corridas cortas (10 épocas, 30 % de *train*, 25 % de *val* para validar cada época,
-  semilla fija), equivalente a ≈2–3 h de una T4. La mejor configuración se reentrena luego con el protocolo
+- **Presupuesto:** 24 corridas cortas (10 épocas, 30 % de *train*, validación con el *val* completo, semilla 0,
+  `deterministic=True`), ≈3,2 h en una T4 (≈8 min por *trial*). La mejor configuración se reentrena luego con el protocolo
   completo (40 épocas, 100 % de los datos) y se compara con la base **en *test***.
 
 ## 2. Configuración base (antes de optimizar)
@@ -58,38 +59,98 @@ El notebook produce, a partir de la tabla de *trials*:
    *random forest* sustituto (para no depender de un solo método).
 2. **Partial dependence plots (PDP)** 1D: efecto promedio de cada hiperparámetro sobre el mAP predicho por el
    sustituto, manteniendo los demás en su distribución observada.
-3. **Interacciones**: PDP 2D de los dos pares más importantes según el ranking (p. ej. `lr0 × batch`,
-   `imgsz × mosaic`).
-4. **Curvas de sensibilidad de un factor**: variar un hiperparámetro alrededor de la mejor configuración.
+3. **Interacciones**: PDP 2D de los dos pares formados por los tres hiperparámetros más importantes.
+4. **Historial de la búsqueda y sensibilidad a `lr0`**: mAP de cada *trial* y su relación con el hiperparámetro
+   dominante (figura generada a partir de `optimizacion_trials.csv`).
 
-### 4.1 Ranking de importancia ⏳
+### 4.0 Resultados de la búsqueda
 
-| # | Hiperparámetro | Importancia fANOVA | Importancia por permutación |
+| | Trial | `lr0` | `weight_decay` | `imgsz` | `batch` | `mosaic` | `hsv_v` | `cos_lr` | mAP@0.5:0.95 *val* | mAP@0.5 *val* |
+|---|---|---|---|---|---|---|---|---|---|---|
+| Base | 0 | 0,002 | 5,0e-4 | 640 | 16 | 1,00 | 0,40 | False | 0,534 | 0,923 |
+| **Mejor** | **12** | **1,6e-4** | **9,3e-4** | **640** | **32** | **0,78** | **0,29** | **True** | **0,565** | 0,945 |
+| 2.º | 23 | 1,2e-4 | 4,9e-4 | 640 | 32 | 0,88 | 0,32 | True | 0,564 | 0,951 |
+| 3.º | 15 | 1,2e-4 | 1,3e-4 | 640 | 32 | 0,21 | 0,16 | True | 0,563 | 0,948 |
+| Peor | 10 | 6,0e-3 | 4,9e-5 | 640 | 32 | 0,25 | 0,28 | True | 0,486 | 0,862 |
+
+Con el protocolo corto, la mejor configuración supera a la base en **+0,031** de mAP@0.5:0.95 (+5,9 % relativo).
+Los 10 *trials* con `lr0` ≤ 2e-4 promedian 0,558 (rango 0,549–0,565); los 6 con `lr0` > 1e-3, 0,521 (0,486–0,534).
+Tabla completa: `results/metrics/optimizacion_trials.csv`.
+
+![Historial y sensibilidad a lr0](../results/figures/opt_historial.png)
+
+### 4.1 Ranking de importancia
+
+| # | Hiperparámetro | Importancia fANOVA | Importancia por permutación (RF) |
 |---|---|---|---|
-| 1 | ⏳ | ⏳ | ⏳ |
-| 2 | ⏳ | ⏳ | ⏳ |
-| 3 | ⏳ | ⏳ | ⏳ |
+| 1 | `lr0` | **0,616** | **1,538** |
+| 2 | `imgsz` | 0,183 | 0,005 |
+| 3 | `mosaic` | 0,074 | 0,023 |
+| 4 | `weight_decay` | 0,060 | 0,027 |
+| 5 | `cos_lr` | 0,031 | ≈0 |
+| 6 | `hsv_v` | 0,031 | 0,005 |
+| 7 | `batch` | 0,005 | ≈0 |
 
-![Importancia](../results/figures/opt_importancia.png) ⏳
+fANOVA reparte la varianza del mAP (suma 1). La importancia por permutación es la caída del R² del *random forest*
+sustituto al desordenar cada columna, por eso puede pasar de 1.
 
-### 4.2 Partial dependence plots ⏳
+![Importancia](../results/figures/opt_importancia.png)
 
-![PDP](../results/figures/opt_pdp.png) ⏳
+**Lectura.**
+- **`lr0` domina en los dos métodos** (62 % de la varianza; correlación entre log10 `lr0` y mAP = −0,91). La base usa
+  `lr0` = 0,002, el valor que elige el optimizador automático de Ultralytics; para afinar YOLO11-s preentrenado en
+  COCO funciona mejor una tasa **≈10 veces menor** (1–2e-4).
+- **`imgsz` no es confiable como 2.º lugar:** fANOVA le da 0,18, pero la permutación casi 0 y el PDP es plano. Solo
+  2 *trials* usaron 512 px y los dos tenían `lr0` alto, así que fANOVA le atribuye parte del efecto de `lr0`
+  (variables confundidas). 768 px no mejoró a 640 px en las corridas cortas.
+- **`mosaic`, `weight_decay`, `hsv_v`, `cos_lr` y `batch` mueven poco el mAP** (< 0,01 en el PDP). Con `nbs=64`
+  Ultralytics acumula gradientes hasta un lote efectivo de 64, lo que explica que `batch` casi no importe.
+- **Limitación:** TPE concentró la búsqueda en la zona buena (20 de 24 *trials* con `batch` 32, 19 con 640 px y 19
+  con `cos_lr`), así que esos hiperparámetros quedaron poco explorados; sus importancias son orientativas.
 
-### 4.3 Interacciones ⏳
+### 4.2 Partial dependence plots
 
-![Interacciones](../results/figures/opt_interacciones.png) ⏳
+![PDP](../results/figures/opt_pdp.png)
+
+- `lr0` (eje en log10): el mAP predicho cae de forma casi monótona de ≈0,558 en 1e-4 a ≈0,519 desde 2e-3. El
+  óptimo está en el **borde inferior del rango** buscado (1e-4), así que valores aún menores podrían rendir igual o
+  mejor; queda para un estudio futuro.
+- `mosaic`: leve mejora por encima de ≈0,6 (+0,002). Las demás curvas son planas.
+
+### 4.3 Interacciones
+
+![Interacciones](../results/figures/opt_interacciones.png)
+
+Pares analizados: `lr0 × imgsz` y `lr0 × mosaic`. Las curvas de nivel son casi verticales: el mAP depende de `lr0`
+y prácticamente no de la otra variable, es decir, **no hay interacciones relevantes**. Basta con fijar bien `lr0`.
 
 ## 5. Configuración final y comparación antes / después
 
-| Configuración | mAP@0.5 *test* | mAP@0.5:0.95 *test* | mAP pequeñas | Tiempo/época |
-|---|---|---|---|---|
-| Base (preset «completo», entregada) | 0,972 | 0,693 | 0,481 | ≈63 s (GPU L4) |
-| Optimizada | ⏳ | ⏳ | ⏳ | ⏳ |
+La mejor configuración (trial 12) se reentrenó con el protocolo completo: 40 épocas, 100 % de *train*, paciencia 10,
+semilla 0. La base se evaluó con sus pesos ya entregados (no se reentrenó). Ambas en el mismo *test* (1 020 imágenes,
+1 085 placas).
 
-**Criterio de selección:** se adopta la configuración optimizada solo si mejora el mAP@0.5:0.95 de *test* en más
-que la variación entre semillas (se reentrena con 2 semillas); si no, se conserva la base por simplicidad y se
-documenta el hallazgo.
+| Configuración | mAP@0.5 *test* | mAP@0.5:0.95 *test* | Precisión | Recall | mAP@0.5:0.95 *val* | Tiempo/época |
+|---|---|---|---|---|---|---|
+| Base (preset «completo», entregada) | 0,972 | 0,693 | 0,987 | 0,952 | 0,691 | ≈63 s (GPU L4) |
+| Optimizada (trial 12) | 0,973 | **0,704** | 0,988 | 0,946 | 0,699 | ≈107 s (GPU T4) |
+| Diferencia | +0,001 | **+0,011** (+1,6 %) | +0,002 | −0,006 | +0,008 | GPU distinta, no comparable |
+
+Precisión y recall son los de Ultralytics (umbral de máximo F1). El mAP de placas pequeñas de la configuración
+optimizada no se midió. La corrida completa terminó las 40 épocas sin que actuara el *early stopping*.
+
+**Decisión: se mantiene el modelo entregado.**
+- La mejora está en **mAP@0.5:0.95** (cajas más ajustadas), no en **encontrar** placas: el mAP@0.5 es el mismo
+  (0,972 frente a 0,973) y el recall baja levemente (−0,006, ≈7 de 1 085 placas). SIRAP recorta la placa con un
+  margen antes del OCR, así que una caja algo más ajustada casi no cambia la lectura.
+- El criterio fijado de antemano pedía que la mejora superara la variación entre semillas. El notebook entrenó una
+  sola semilla por configuración, así que +0,011 no se puede separar de esa variación; queda pendiente repetir con 2–3
+  semillas.
+- Cambiar el modelo obligaría a volver a exportar el ONNX, recalibrar el umbral del detector y repetir las
+  evaluaciones de la app.
+
+**Recomendación** para el próximo reentrenamiento: usar la configuración del trial 12, en especial `lr0` ≈ 1,6e-4
+con `optimizer="AdamW"` y `cos_lr=True` (`results/metrics/optimizacion_resumen.json`).
 
 ## 6. Optimización de umbrales (ya aplicada)
 
@@ -118,7 +179,8 @@ seguridad a costa de más verificaciones manuales.
 
 El mAP@0.5 de validación supera la meta (0,85) desde la época 2 y el mAP@0.5:0.95 sigue subiendo hasta la época 40
 (0,691): el *early stopping* (paciencia 10) no se activó, lo que sugiere que más épocas podrían aportar algo en la
-métrica estricta. Es uno de los hiperparámetros a incluir en el estudio.
+métrica estricta. Lo mismo ocurrió con la configuración optimizada (sección 5), así que `epochs` sigue siendo un
+candidato para un estudio futuro.
 
 ## 7. Lecciones
 
@@ -126,6 +188,11 @@ métrica estricta. Es uno de los hiperparámetros a incluir en el estudio.
   más impacto en el sistema que cualquier hiperparámetro: por ejemplo, el OCR pasó de un modelo de lenguaje-visión a
   uno de 5 MB que corre en CPU sin perder exactitud en SAVH.
 - La resolución de inferencia (`imgsz`) fue decisiva para las placas pequeñas del video real.
+- Entre los hiperparámetros de entrenamiento, **solo `lr0` importó de verdad**: el valor automático (0,002) era
+  ≈10 veces alto para afinar un modelo preentrenado. Con el protocolo completo, corregirlo sube el mAP@0.5:0.95 en
+  ≈0,01 y no cambia el mAP@0.5; los demás hiperparámetros mueven el mAP menos de 0,01.
+- Las corridas cortas (10 épocas, 30 % de los datos) exageran las diferencias: +0,031 en la búsqueda frente a
+  +0,011 con el protocolo completo.
 
 ## 8. Afinamiento del OCR con placas ecuatorianas (`notebooks/06_afinamiento_ocr.ipynb`)
 

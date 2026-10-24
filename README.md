@@ -80,8 +80,9 @@ defecto de Ultralytics; recorte con margen antes del OCR.
 **Entrenamiento:** `yolo11s.pt` (COCO) → 40 épocas, imgsz 640, batch 16 (nbs 64), paciencia 10, semilla 0, AdamW.
 **Optimización:** calibración de umbrales en *val* (detector: precisión ≥ 95 %; OCR: estudio de confianza en SAVH),
 resolución de inferencia en video (640 → 1280 px) y estudio de sensibilidad de hiperparámetros (Optuna + fANOVA +
-PDP) en [`notebooks/04_optimizacion.ipynb`](notebooks/04_optimizacion.ipynb) — ver
-[`docs/optimizacion.md`](docs/optimizacion.md).
+PDP, 24 *trials*) en [`notebooks/04_optimizacion.ipynb`](notebooks/04_optimizacion.ipynb): `lr0` explica el 62 % de
+la variación del mAP; la mejor configuración (`lr0` ≈ 1,6e-4) sube el mAP@0.5:0.95 de *test* de 0,693 a 0,704 con el
+mismo mAP@0.5, y se mantiene el modelo entregado — ver [`docs/optimizacion.md`](docs/optimizacion.md).
 **Métricas:** mAP@0.5 y mAP@0.5:0.95 (también por tamaño de placa), precisión, recall y F1 al umbral calibrado;
 EMR y CER para el OCR; falsos autorizados y tiempo por decisión para el sistema.
 
@@ -98,6 +99,7 @@ Preset «completo», split *test* nunca visto en el entrenamiento (salidas del n
 | | Precisión / Recall / F1 (umbral 0,30) | 0,986 / 0,956 / 0,971 | — |
 | | mAP@0.5:0.95 placas pequeñas / medianas / grandes | 0,481 / 0,729 / 0,744 | — |
 | | Latencia (lote 1, FP16, GPU L4) | 22,2 ms (45 FPS) | — |
+| Detector con hiperparámetros optimizados (Optuna, 24 *trials*) | mAP@0.5 / mAP@0.5:0.95 *test* | 0,973 / 0,704 (+0,011, una semilla): se mantiene el entregado | — |
 | OCR (SAVH Guayaquil, 399 legibles) | EMR / CER | **93,7 %** / 0,010 | EMR ≥ 80 % ✅ |
 | OCR afinado con placas ecuatorianas (*test* separado por placa, n=86) | EMR original / afinado | 94,2 % / 94,2 % (McNemar *p* = 1,0): se mantiene el original | — |
 | Regla de decisión (SAVH, lista simulada) | Falsos autorizados / rechazos indebidos | 0 de 202 / 1 de 197 | — |
