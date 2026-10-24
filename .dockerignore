@@ -12,3 +12,4 @@ SIRAP_backend.ipynb
 results/figures
 docs
 models/*.pt
+.env

@@ -87,6 +87,8 @@ def dashboard(days: int = Query(7, ge=1, le=365), include_demo: bool = True,
 @router.get("/model/info", summary="Métricas y descripción del modelo")
 def model_info(_: dict = Depends(current_user)) -> dict[str, Any]:
     names = ("detector_test", "ocr_savh", "e2e", "velocidad", "entrenamiento", "umbrales", "ocr_afinamiento",
-             "regla_decision_savh")
+             "regla_decision_savh", "optimizacion_resumen")
+    ocr_threshold, det_threshold, _ = thresholds()
     return {"metricas": {n: load_json(f"results/metrics/{n}.json") for n in names},
-            "detector": get_pipeline().detector.name, "ocr": get_pipeline().reader.model_name}
+            "detector": get_pipeline().detector.name, "ocr": get_pipeline().reader.model_name,
+            "umbral_ocr": ocr_threshold, "umbral_detector": det_threshold}

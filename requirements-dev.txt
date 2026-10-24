@@ -6,3 +6,4 @@ supervision==0.30.9
 matplotlib>=3.8
 jupyter
 pytest>=8.0
+httpx==0.28.1           # pruebas de la API (fastapi.testclient)

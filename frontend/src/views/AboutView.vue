@@ -1,6 +1,7 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue'
 import { api } from '@/lib/api'
+import AppIcon from '@/components/AppIcon.vue'
 import { num, pct } from '@/lib/format'
 import { useSessionStore } from '@/stores/session'
 
@@ -23,6 +24,7 @@ const cards = computed(() => {
 })
 const tr = computed(() => m.value.entrenamiento || {})
 const ft = computed(() => m.value.ocr_afinamiento || {})
+const opt = computed(() => m.value.optimizacion_resumen || {})
 </script>
 
 <template>
@@ -49,10 +51,29 @@ const ft = computed(() => m.value.ocr_afinamiento || {})
       <h2 class="card-title">Entrenamiento y validación</h2>
       <p>YOLO11-s entrenado {{ tr.epocas_corridas ?? '—' }} épocas (imgsz {{ tr.imgsz ?? 640 }}, batch {{ tr.batch ?? 16 }},
         {{ tr.optimizer || 'AdamW' }}) sobre <i>{{ tr.dataset || 'license-plate-recognition' }}</i>, en {{ num(tr.horas, 2) }} h de GPU.</p>
+      <p v-if="opt.comparacion_test">Optimización de hiperparámetros (Optuna, 24 <i>trials</i>): <code>lr0</code> fue el factor dominante.
+        Con <code>lr0</code> ≈ {{ opt.mejor_config?.lr0?.toExponential(1) }} el mAP@0.5:0.95 de <i>test</i> pasa de
+        {{ num(opt.comparacion_test.map50_95?.base) }} a {{ num(opt.comparacion_test.map50_95?.optimizada) }} con el mismo mAP@0.5;
+        se mantiene el modelo entregado (detalles en <code>docs/optimizacion.md</code>).</p>
       <p>El OCR se evaluó con placas reales de Guayaquil (SAVH). Un afinamiento con placas ecuatorianas
         ({{ ft.particion?.train ?? '—' }} recortes de entrenamiento) no mejoró de forma significativa
         (EMR {{ pct(ft.original?.emr, 1) }} original), por lo que se mantiene el modelo preentrenado.</p>
       <p class="text-sm text-muted">Las métricas provienen de <code>results/metrics/*.json</code>, generadas por los notebooks del repositorio.</p>
+    </section>
+    <section class="card space-y-3 leading-relaxed xl:col-span-2 border-l-4 border-warn">
+      <h2 class="card-title"><span class="icon-chip !bg-warn"><AppIcon name="alert" /></span> Limitaciones y advertencias</h2>
+      <ul class="list-disc space-y-1.5 pl-5">
+        <li>El detector se entrenó con placas de varios países; no es específico de Ecuador. El OCR se validó con placas reales
+          de <b>SAVH Guayaquil</b>, pero rinde menos con placas sucias, dañadas, de noche, muy inclinadas o lejanas
+          (mAP@0.5:0.95 de placas pequeñas: {{ num(m.detector_test?.map50_95_pequenas) }}).</li>
+        <li>Una lectura con confianza OCR menor a {{ pct(info?.umbral_ocr ?? 0.99) }} <b>no</b> se decide sola: pasa a verificación manual.
+          El operador confirma siempre; la barrera nunca se abre sin una acción humana.</li>
+        <li>El EMR punta a punta en la garita real aún no se midió (falta la referencia anotada del video).</li>
+        <li>Las imágenes de ejemplo derivan del diseño de la interfaz; no son capturas reales. La barrera de esta versión es
+          <b>simulada</b> y la base de demostración contiene datos <b>ficticios</b> que se borran al reiniciar el servidor.</li>
+        <li>SIRAP <b>no</b> debe usarse para vigilancia masiva, rastreo de personas ni fines distintos al control de acceso de la
+          instalación. Detalles en <code>docs/consideraciones_eticas.md</code>.</li>
+      </ul>
     </section>
   </div>
 </template>

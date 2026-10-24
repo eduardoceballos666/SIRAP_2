@@ -24,6 +24,10 @@ const PATHS = {
   menu: 'M3 6h18M3 12h18M3 18h18',
   chart: 'M4 20V10M10 20V4M16 20v-7M22 20H2',
   user: 'M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z',
+  sun: 'M12 17a5 5 0 1 0 0-10 5 5 0 0 0 0 10zM12 1v2M12 21v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M1 12h2M21 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4',
+  moon: 'M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z',
+  help: 'M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20zM9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3M12 17h.01',
+  trash: 'M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6',
   refresh: 'M23 4v6h-6M1 20v-6h6M3.5 9a9 9 0 0 1 14.9-3.4L23 10M1 14l4.6 4.4A9 9 0 0 0 20.5 15',
 }
 defineProps({ name: { type: String, required: true }, size: { type: [Number, String], default: 20 }, stroke: { type: Number, default: 2 } })

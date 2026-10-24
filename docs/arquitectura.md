@@ -1,4 +1,4 @@
-# Arquitectura – SIRAP
+# Arquitectura – SIRAP 2 (FastAPI + Vue 3)
 
 ## 1. Visión general
 
@@ -11,14 +11,52 @@ flowchart LR
     OCR -->|texto + prob. por carácter| NORM[Normalización<br/>XXX-0000]
     NORM --> DEC{Regla de decisión}
     DB[(PostgreSQL / SQLite<br/>vehículos · listas · historial)] <--> DEC
-    DEC --> UI[Interfaz Streamlit<br/>operador]
-    UI -->|confirma| BAR[Controlador de barrera<br/>simulado / HTTP]
-    UI -->|registra| DB
+    DEC --> API[API REST FastAPI<br/>JWT · roles]
+    API <-->|JSON / HTTPS| UI[Frontend Vue 3<br/>navegador del operador]
+    UI -->|confirma| API
+    API -->|abre| BAR[Controlador de barrera<br/>simulado / HTTP]
+    API -->|registra| DB
 ```
+
+### 1.1 Arquitectura web (cliente-servidor)
+
+```mermaid
+flowchart TB
+    subgraph Navegador["Navegador (Vue 3 + Vite)"]
+        V[Vistas<br/>Login · Reconocimiento · Dashboard · Historial · Administración · Acerca de]
+        R[Vue Router<br/>rutas protegidas por sesión y rol]
+        P[Pinia<br/>auth: token y rol · session: garita, tema, lecturas]
+        C[lib/api.js<br/>fetch + Bearer token + errores legibles]
+        V --> R --> P --> C
+    end
+    subgraph Servidor["Servidor (Docker · Hugging Face Spaces)"]
+        M[api/main.py<br/>FastAPI · CORS · sirve frontend/dist]
+        RT[routers/<br/>auth · recognition · reports · admin]
+        S[security.py<br/>PBKDF2 · JWT HS256]
+        D[deps.py<br/>Database · ALPRPipeline · barrera · umbrales]
+        M --> RT --> D
+        RT --> S
+    end
+    C -- "HTTPS /api/* (JSON, multipart)" --> M
+    D --> SRC[src/<br/>model · data_processing · access_control · database]
+    SRC --> DB[(SQLite demo / PostgreSQL)]
+```
+
+**Flujo de una lectura:** (1) el navegador envía la imagen a `POST /api/recognize`; (2) el servidor la valida, corre
+YOLO11-s y el OCR, normaliza la placa y aplica la regla de decisión; (3) responde con placa, confianzas, caja,
+recorte (JPEG en base64) y decisión, **sin registrar nada**; (4) el operador confirma con `POST /api/operations`;
+(5) el servidor **vuelve a calcular la decisión** con la placa final: solo abre automáticamente si es AUTORIZADO y
+exige motivo para la apertura manual; (6) registra la operación con el usuario de la sesión.
+
+**Seguridad:** contraseñas con PBKDF2-SHA256 (240 000 iteraciones, sal aleatoria) en la tabla `api_credenciales`;
+sesiones con JWT HS256 de 12 h firmadas con `SIRAP_JWT_SECRET`; permisos por rol en cada endpoint (operador,
+supervisor, administrador); validación de entradas con Pydantic; mensajes de error sin trazas técnicas.
 
 | Capa | Módulo | Responsabilidad |
 |---|---|---|
-| Presentación | `app/app.py`, `app/ui.py`, `app/assets/style.css` | Interfaz de operador y administrador (4 módulos + Acerca de) |
+| Presentación | `frontend/src/` (Vue 3) | Interfaz web de operador, supervisor y administrador (5 módulos + inicio de sesión) |
+| API | `api/main.py`, `api/routers/`, `api/security.py`, `api/schemas.py` | Endpoints REST, autenticación, permisos y validación |
+| Presentación alternativa | `app/app.py`, `app/ui.py`, `app/assets/style.css` | La misma funcionalidad en Streamlit |
 | Dominio | `src/access_control.py` | Regla de decisión, barrera |
 | Modelo | `src/model.py` | Detector, OCR, pipeline ALPR |
 | Datos | `src/data_processing.py`, `src/database.py`, `sql/` | Validación, normalización, persistencia |
@@ -161,15 +199,15 @@ parametrizadas.
 
 | Entorno | Detector | Base | Barrera |
 |---|---|---|---|
-| Streamlit Community Cloud (demo pública) | ONNX Runtime (CPU) | SQLite con datos ficticios | Simulada |
+| **Hugging Face Spaces (demo pública, Docker)** | ONNX Runtime (CPU, 2 vCPU · 16 GB) | SQLite con datos ficticios | Simulada |
+| Streamlit Community Cloud (interfaz alternativa, repo SIRAP) | ONNX Runtime (CPU) | SQLite con datos ficticios | Simulada |
 | Garita (producción) | ONNX Runtime o Ultralytics con GPU | PostgreSQL (`PG_DSN`) | HTTP con token (`BARRERA_URL`) |
 | Colab (investigación) | Ultralytics con GPU T4 | PostgreSQL instalado en la sesión | — |
-| API FastAPI + Vue 3 (`api/`, `frontend/`, `Dockerfile`) | ONNX Runtime (CPU) | SQLite propia o PostgreSQL (`PG_DSN`) | Simulada o HTTP |
 
-La versión FastAPI + Vue reutiliza los mismos módulos de `src/`: el navegador envía la imagen a `POST /api/recognize`,
-muestra la caja y la decisión, y el operador confirma con `POST /api/operations`. El servidor vuelve a calcular la
-decisión antes de registrar, de modo que el cliente no puede forzar una apertura automática. La autenticación usa
-JWT con rol (operador, supervisor, administrador).
+**Publicación:** cada push a `main` ejecuta `.github/workflows/deploy-hf-space.yml`, que copia al Space solo lo que la
+imagen necesita (≈37 MB) y Hugging Face construye el `Dockerfile` en dos etapas: (1) `node:22-slim` compila el
+frontend (`npm ci && npm run build`); (2) `python:3.11-slim` instala `requirements.txt`, descarga el OCR, copia
+`frontend/dist` y arranca `uvicorn api.main:app` en el puerto 7860 con usuario no root.
 
 ## 7. Tecnologías y versiones
 
@@ -184,7 +222,18 @@ JWT con rol (operador, supervisor, administrador).
 | trackers | 2.6.1 | OC-SORT (notebook) |
 | Levenshtein | ≥ 0.25 | Distancia entre placas, CER |
 | psycopg[binary] | 3.3.6 | PostgreSQL |
-| streamlit | 1.66.1 | Interfaz |
-| plotly | ≥ 6.0 | Gráficos interactivos del Dashboard |
+| fastapi | 0.162.0 | API REST |
+| uvicorn[standard] | 0.54.0 | Servidor ASGI |
+| PyJWT | 2.15.0 | Tokens de sesión |
+| python-multipart | 0.0.32 | Subida de imágenes |
+| pydantic | 2.x (con FastAPI) | Validación de entradas y salidas |
+| vue | 3.5.44 | Frontend |
+| vite | 8.3.5 | Compilación y servidor de desarrollo |
+| pinia | 4.1.0 | Estado (sesión, tema, lecturas) |
+| vue-router | 5.4.0 | Rutas y permisos por rol |
+| tailwindcss | 4.3.3 | Estilos y tema claro/oscuro |
+| echarts / vue-echarts | 6.1.0 / 8.3.2 | Gráficos interactivos del Dashboard |
+| streamlit | 1.66.1 | Interfaz alternativa |
+| plotly | ≥ 6.0 | Gráficos de la interfaz alternativa |
 | pandas / numpy / pillow / pyyaml | ver `requirements.txt` | Datos e imágenes |
 | roboflow | 1.7.1 | Descarga del dataset |

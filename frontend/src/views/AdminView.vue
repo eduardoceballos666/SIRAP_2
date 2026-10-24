@@ -58,9 +58,9 @@ onMounted(load)
 </script>
 
 <template>
-  <div class="mb-4 flex flex-wrap gap-1 rounded-xl bg-white p-1 shadow-sm">
+  <div class="mb-4 flex flex-wrap gap-1 rounded-xl bg-surface p-1 shadow-sm">
     <button v-for="[k, l] in TABS" :key="k" class="rounded-lg px-4 py-2 text-sm font-semibold transition"
-            :class="tab === k ? 'bg-brand-600 text-white' : 'text-muted hover:bg-slate-100'" @click="tab = k">{{ l }}</button>
+            :class="tab === k ? 'bg-brand-600 text-white' : 'text-muted hover:bg-subtle-2'" @click="tab = k">{{ l }}</button>
   </div>
   <p v-if="!isAdmin" class="mb-4 rounded-xl bg-warn-soft px-4 py-3 text-sm font-semibold text-warn">
     Modo de consulta: solo el rol Administrador puede modificar datos.

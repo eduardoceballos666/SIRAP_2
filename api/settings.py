@@ -6,9 +6,28 @@ import os
 import secrets
 from dataclasses import dataclass, field
 
-from src.utils import get_logger, get_secret
+from src.utils import ROOT_DIR, get_logger, get_secret
 
 logger = get_logger("sirap.api")
+
+
+def _load_dotenv(path=ROOT_DIR / ".env") -> None:
+    """Carga ``.env`` de la raíz en ``os.environ`` sin pisar variables ya definidas (formato ``NOMBRE=valor``)."""
+    try:
+        lines = path.read_text(encoding="utf-8").splitlines()
+    except OSError:
+        return
+    for line in lines:
+        line = line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        name, value = line.split("=", 1)
+        value = value.split(" #", 1)[0].strip().strip('"').strip("'")
+        if name.strip() and value:
+            os.environ.setdefault(name.strip(), value)
+
+
+_load_dotenv()
 
 
 def _env(name: str, default: str | None = None) -> str | None:

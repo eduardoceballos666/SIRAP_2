@@ -4,10 +4,12 @@ import VChart from 'vue-echarts'
 import AppIcon from '@/components/AppIcon.vue'
 import { api } from '@/lib/api'
 import { ACTION } from '@/lib/format'
-import { BASE, RESULT_COLORS } from '@/lib/charts'
+import { RESULT_COLORS, baseOption, chartTheme } from '@/lib/charts'
 import { useSessionStore } from '@/stores/session'
 
 const session = useSessionStore()
+const dark = computed(() => session.theme === 'dark')
+const theme = computed(() => chartTheme(dark.value))
 const days = ref(7)
 const includeDemo = ref(true)
 const data = ref(null)
@@ -41,9 +43,9 @@ const hourly = computed(() => {
   const hours = Array.from({ length: 24 }, (_, h) => h)
   const results = [...new Set(rows.map((r) => r.resultado))]
   return {
-    ...BASE,
-    xAxis: { type: 'category', data: hours.map((h) => `${String(h).padStart(2, '0')}h`), axisTick: { show: false } },
-    yAxis: { type: 'value', minInterval: 1, splitLine: { lineStyle: { color: '#e6ebf3' } } },
+    ...baseOption(dark.value),
+    xAxis: { type: 'category', data: hours.map((h) => `${String(h).padStart(2, '0')}h`), axisTick: { show: false }, axisLabel: { color: theme.value.text } },
+    yAxis: { type: 'value', minInterval: 1, axisLabel: { color: theme.value.text }, splitLine: { lineStyle: { color: theme.value.grid } } },
     series: results.map((r) => ({
       name: r, type: 'bar', stack: 'total', barMaxWidth: 22, itemStyle: { color: RESULT_COLORS[r] },
       data: hours.map((h) => rows.find((x) => x.hora === h && x.resultado === r)?.n || 0),
@@ -52,10 +54,10 @@ const hourly = computed(() => {
 })
 
 const byResult = computed(() => ({
-  ...BASE,
+  ...baseOption(dark.value),
   tooltip: { trigger: 'item' },
   series: [{
-    type: 'pie', radius: ['52%', '78%'], center: ['50%', '42%'], itemStyle: { borderColor: '#fff', borderWidth: 3 },
+    type: 'pie', radius: ['52%', '78%'], center: ['50%', '42%'], itemStyle: { borderColor: theme.value.surface, borderWidth: 3 },
     label: { show: false }, tooltip: { formatter: '{b}: {c} ({d}%)' },
     data: (data.value?.por_resultado || []).map((r) => ({ name: r.resultado, value: r.n, itemStyle: { color: RESULT_COLORS[r.resultado] } })),
   }],
@@ -65,9 +67,9 @@ const byGate = computed(() => {
   const rows = data.value?.por_garita || []
   const gates = [...new Set(rows.map((r) => r.garita))]
   return {
-    ...BASE,
-    xAxis: { type: 'category', data: gates },
-    yAxis: { type: 'value', minInterval: 1, splitLine: { lineStyle: { color: '#e6ebf3' } } },
+    ...baseOption(dark.value),
+    xAxis: { type: 'category', data: gates, axisLabel: { color: theme.value.text } },
+    yAxis: { type: 'value', minInterval: 1, axisLabel: { color: theme.value.text }, splitLine: { lineStyle: { color: theme.value.grid } } },
     series: [['ENTRADA', 'Entradas', '#2156e8'], ['SALIDA', 'Salidas', '#f7b900']].map(([m, name, color]) => ({
       name, type: 'bar', barMaxWidth: 34, itemStyle: { color, borderRadius: [6, 6, 0, 0] },
       data: gates.map((g) => rows.find((r) => r.garita === g && r.movimiento === m)?.n || 0),

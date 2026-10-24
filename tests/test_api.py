@@ -137,3 +137,25 @@ def test_dashboard_y_modelo(client):
     assert client.delete("/api/admin/demo", headers=h).json()["borradas"] > 0
     info = client.get("/api/model/info", headers=h).json()
     assert info["metricas"]["detector_test"]
+
+
+def test_info_del_modelo_incluye_umbrales_y_optimizacion(client):
+    info = client.get("/api/model/info", headers=_token(client)).json()
+    assert 0 < info["umbral_ocr"] <= 1 and 0 < info["umbral_detector"] < 1
+    assert info["metricas"]["optimizacion_resumen"]["mejor_config"]["lr0"] > 0
+
+
+def test_carga_de_archivo_env(tmp_path, monkeypatch):
+    from api.settings import _load_dotenv
+
+    env = tmp_path / ".env"
+    env.write_text('# comentario\nSIRAP_PRUEBA_A=uno  # nota\nSIRAP_PRUEBA_B="dos"\nSIRAP_PRUEBA_VACIA=\n', encoding="utf-8")
+    monkeypatch.delenv("SIRAP_PRUEBA_A", raising=False)
+    monkeypatch.setenv("SIRAP_PRUEBA_B", "ya definida")
+    _load_dotenv(env)
+    import os
+
+    assert os.environ["SIRAP_PRUEBA_A"] == "uno"
+    assert os.environ["SIRAP_PRUEBA_B"] == "ya definida"      # no pisa variables existentes
+    assert "SIRAP_PRUEBA_VACIA" not in os.environ
+    monkeypatch.delenv("SIRAP_PRUEBA_A")

@@ -4,4 +4,8 @@ import App from './App.vue'
 import router from './router'
 import './style.css'
 
-createApp(App).use(createPinia()).use(router).mount('#app')
+import { useSessionStore } from './stores/session'
+
+const app = createApp(App).use(createPinia()).use(router)
+useSessionStore().applyTheme() // tema claro/oscuro antes del primer pintado
+app.mount('#app')
