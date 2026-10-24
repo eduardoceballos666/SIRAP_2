@@ -34,3 +34,7 @@ runs/
 Thumbs.db
 .vscode/
 .idea/
+
+# --- Frontend Vue ---
+frontend/node_modules/
+frontend/dist/

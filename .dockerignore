@@ -1,0 +1,9 @@
+.git
+**/__pycache__
+.venv
+frontend/node_modules
+frontend/dist
+data/processed/*.db
+notebooks
+SIRAP_backend.ipynb
+results/figures

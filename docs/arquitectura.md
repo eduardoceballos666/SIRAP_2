@@ -164,6 +164,12 @@ parametrizadas.
 | Streamlit Community Cloud (demo pública) | ONNX Runtime (CPU) | SQLite con datos ficticios | Simulada |
 | Garita (producción) | ONNX Runtime o Ultralytics con GPU | PostgreSQL (`PG_DSN`) | HTTP con token (`BARRERA_URL`) |
 | Colab (investigación) | Ultralytics con GPU T4 | PostgreSQL instalado en la sesión | — |
+| API FastAPI + Vue 3 (`api/`, `frontend/`, `Dockerfile`) | ONNX Runtime (CPU) | SQLite propia o PostgreSQL (`PG_DSN`) | Simulada o HTTP |
+
+La versión FastAPI + Vue reutiliza los mismos módulos de `src/`: el navegador envía la imagen a `POST /api/recognize`,
+muestra la caja y la decisión, y el operador confirma con `POST /api/operations`. El servidor vuelve a calcular la
+decisión antes de registrar, de modo que el cliente no puede forzar una apertura automática. La autenticación usa
+JWT con rol (operador, supervisor, administrador).
 
 ## 7. Tecnologías y versiones
 

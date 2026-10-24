@@ -1,0 +1,47 @@
+@import "tailwindcss";
+
+/* Paleta de la guía visual (docs/img/SIRAP_Dashboard.png), igual que la app de Streamlit. */
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, "Segoe UI", Roboto, Arial, sans-serif;
+  --color-navy-950: #0a1529;
+  --color-navy-900: #0d1b33;
+  --color-navy-800: #13264a;
+  --color-navy-700: #0b2a6b;
+  --color-brand-600: #2156e8;
+  --color-brand-500: #2f6bff;
+  --color-sirap-yellow: #f7b900;
+  --color-sirap-yellow-light: #ffc61a;
+  --color-ok: #16a34a;
+  --color-ok-dark: #0f8a3c;
+  --color-ok-soft: #eafaf0;
+  --color-bad: #dc1f26;
+  --color-bad-soft: #fdecec;
+  --color-warn: #d98a00;
+  --color-warn-soft: #fff6e0;
+  --color-canvas: #eef2f7;
+  --color-ink: #0d1b33;
+  --color-muted: #5b6b85;
+}
+
+@layer base {
+  html, body { @apply bg-canvas text-ink antialiased; }
+  input, select, textarea { @apply text-ink; }
+}
+
+@layer components {
+  .card { @apply rounded-2xl bg-white p-5 shadow-[0_2px_10px_rgba(13,27,51,.06)]; }
+  .card-title { @apply mb-4 flex items-center gap-3 text-lg font-bold; }
+  .icon-chip { @apply grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-navy-900 text-white; }
+  .field { @apply w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-500/25; }
+  .field-label { @apply mb-1 block text-sm font-semibold text-muted; }
+    .btn-primary { @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 font-semibold transition disabled:cursor-not-allowed disabled:opacity-50 bg-brand-600 text-white hover:bg-brand-500; }
+  .btn-ghost { @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 font-semibold transition disabled:cursor-not-allowed disabled:opacity-50 border border-slate-300 bg-white hover:bg-slate-50; }
+  .btn-yellow { @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 font-semibold transition disabled:cursor-not-allowed disabled:opacity-50 bg-sirap-yellow text-ink hover:bg-sirap-yellow-light; }
+  .btn-red { @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 font-semibold transition disabled:cursor-not-allowed disabled:opacity-50 bg-bad text-white hover:brightness-110; }
+  .btn-navy { @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 font-semibold transition disabled:cursor-not-allowed disabled:opacity-50 bg-navy-700 text-white hover:bg-navy-800; }
+  .table-wrap { @apply overflow-auto rounded-xl border border-slate-200; }
+  .tbl { @apply w-full text-left text-sm; }
+  .tbl th { @apply sticky top-0 bg-slate-100 px-3 py-2 font-semibold whitespace-nowrap text-muted; }
+  .tbl td { @apply border-t border-slate-100 px-3 py-2 whitespace-nowrap; }
+  .pill { @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold; }
+}

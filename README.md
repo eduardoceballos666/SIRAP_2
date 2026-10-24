@@ -5,6 +5,8 @@
 
 ![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?logo=python&logoColor=white)
 ![Streamlit](https://img.shields.io/badge/Streamlit-1.66-FF4B4B?logo=streamlit&logoColor=white)
+![FastAPI](https://img.shields.io/badge/API-FastAPI-009688?logo=fastapi&logoColor=white)
+![Vue](https://img.shields.io/badge/Frontend-Vue%203-42b883?logo=vuedotjs&logoColor=white)
 ![YOLO11](https://img.shields.io/badge/Detector-YOLO11--s-0b2a6b)
 ![OCR](https://img.shields.io/badge/OCR-fast--plate--ocr-2156e8)
 ![Tests](https://img.shields.io/badge/tests-pytest-0f8a3c)
@@ -14,7 +16,7 @@
 decisión de acceso (autorizado, denegado, no registrado o verificación manual). El operador confirma, la operación
 queda registrada y la barrera se abre solo cuando corresponde.
 
-[**Aplicación en vivo**](https://sirapapp.streamlit.app/) · [Manual de usuario](docs/manual_usuario.md) ·
+[**Aplicación en vivo (Streamlit)**](https://sirapapp.streamlit.app/) · [Versión FastAPI + Vue](#6b-versión-web-fastapi--vue-3) · [Manual de usuario](docs/manual_usuario.md) ·
 [Notebook de backend](notebooks/SIRAP_backend.ipynb)
 
 <img src="docs/img/app_reconocimiento.png" alt="SIRAP – Reconocimiento y Acceso" width="900">
@@ -30,7 +32,7 @@ queda registrada y la barrera se abre solo cuando corresponde.
 3. [Metodología](#3-metodología)
 4. [Resultados](#4-resultados)
 5. [Instalación y uso](#5-instalación-y-uso)
-6. [Interfaz de usuario](#6-interfaz-de-usuario)
+6. [Interfaz de usuario](#6-interfaz-de-usuario) · [6b. FastAPI + Vue 3](#6b-versión-web-fastapi--vue-3)
 7. [Estructura del proyecto](#7-estructura-del-proyecto)
 8. [Consideraciones éticas](#8-consideraciones-éticas)
 9. [Autores](#9-autores-y-contribuciones)
@@ -118,8 +120,8 @@ verificación manual.
 **Requisitos:** Python 3.11+, 2 GB de RAM; GPU solo para entrenar (Colab).
 
 ```bash
-git clone https://github.com/eduardoceballos666/SIRAP.git
-cd SIRAP
+git clone https://github.com/eduardoceballos666/SIRAP_2.git
+cd SIRAP_2
 python -m venv .venv && source .venv/bin/activate      # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 streamlit run app.py                                    # abre http://localhost:8501
@@ -176,10 +178,48 @@ mensajes de error comprensibles, ejemplos precargados, diseño adaptable a celul
 > operar en una garita real faltan: conectar la cámara IP, PostgreSQL, el controlador de la barrera y autenticación
 > por usuario.
 
+## 6b. Versión web: FastAPI + Vue 3
+
+Además de la app de Streamlit (que se mantiene igual), SIRAP_2 incluye una versión con **backend REST en FastAPI**
+y **frontend en Vue 3** (Vite, Pinia, Vue Router, Tailwind CSS). Ambas usan el mismo backend de `src/`
+(YOLO11-s + fast-plate-ocr + regla de decisión + base de datos).
+
+```bash
+pip install -r api/requirements.txt
+cp api/.env.example .env                    # defina SIRAP_JWT_SECRET
+uvicorn api.main:app --reload               # API en http://localhost:8000 · documentación en /docs
+
+cd frontend && npm install && npm run dev   # interfaz en http://localhost:5173
+# o bien: npm run build → FastAPI sirve la interfaz compilada en http://localhost:8000
+```
+
+Con Docker (API + interfaz en una sola imagen): `docker build -t sirap . && docker run -p 8000:8000 -e SIRAP_JWT_SECRET=... sirap`.
+
+| Endpoint | Rol | Uso |
+|---|---|---|
+| `POST /api/auth/login` · `GET /api/auth/me` | — | Inicio de sesión (JWT con rol) |
+| `POST /api/recognize` | todos | Imagen → placa, confianza, caja, recorte y decisión (no registra) |
+| `POST /api/plates/verify` | todos | Verificar una placa escrita o corregida a mano |
+| `POST /api/operations` | todos | Registrar la operación; el servidor recalcula la decisión, solo abre automáticamente si está AUTORIZADO y exige motivo en la apertura manual |
+| `GET /api/operations` · `/api/operations/export.csv` | todos · supervisor/admin | Historial filtrado y exportación CSV |
+| `GET /api/dashboard` | todos | Indicadores y datos de los gráficos |
+| `GET/POST/DELETE /api/admin/...` | admin (lectura: supervisor) | Vehículos, listas, garitas, usuarios, datos de demostración |
+| `GET /api/system` · `/api/model/info` · `/api/samples` | todos | Estado, métricas del modelo e imágenes de ejemplo |
+
+Usuarios de demostración: `operador`, `supervisor` y `admin`, con la contraseña definida en `SIRAP_DEMO_PASSWORD`
+(se guarda como hash PBKDF2 en la tabla `api_credenciales`, separada de la que usa Streamlit).
+
+| Reconocimiento | Dashboard | Celular |
+|---|---|---|
+| <img src="docs/img/vue_reconocimiento.png" width="380"> | <img src="docs/img/vue_dashboard.png" width="380"> | <img src="docs/img/vue_movil.png" width="140"> |
+
 ## 7. Estructura del proyecto
 
 ```
-SIRAP/
+SIRAP_2/
+├── api/                    # API REST FastAPI: main.py, routers/, seguridad JWT, esquemas Pydantic
+├── frontend/               # interfaz Vue 3 + Vite + Pinia + Vue Router + Tailwind CSS
+├── Dockerfile              # imagen con API + frontend compilado
 ├── app.py                  # punto de entrada para Streamlit Cloud (ejecuta app/app.py)
 ├── app/                    # interfaz: app.py (módulos), ui.py (componentes), assets/style.css
 ├── src/                    # backend: data_processing, model, access_control, database, train, evaluate, utils

@@ -1,0 +1,7 @@
+# API FastAPI de SIRAP. Reutiliza el backend de src/ (mismas dependencias que la app de Streamlit).
+-r ../requirements.txt
+fastapi>=0.115
+uvicorn[standard]>=0.30
+python-multipart>=0.0.9
+PyJWT>=2.8
+httpx>=0.27            # solo para las pruebas (TestClient)
