@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
 import AppIcon from '@/components/AppIcon.vue'
 import ImageViewer from '@/components/ImageViewer.vue'
 import ModalDialog from '@/components/ModalDialog.vue'
@@ -38,6 +38,9 @@ const manualOpen = ref(false)
 const helpOpen = ref(false)
 const detailsOpen = ref(false)
 const readingsOpen = ref(false)
+const registrationOpen = ref(false)
+const registrationPromptDismissed = ref(false)
+const vehicleDraft = reactive({ marca: '', modelo: '', color: '', propietario: '', transportista: '' })
 const showCapture = ref(false)
 const motivo = ref('')
 
@@ -97,6 +100,7 @@ function reset() {
   manualPlate.value = ''
   origin.value = 'DETECCION'
   done.value = false
+  registrationPromptDismissed.value = false
 }
 function setImage(blob, label = '') {
   sourceLabel.value = label
@@ -155,6 +159,7 @@ async function verifyManual() {
     decision.value = data.decision
     origin.value = 'MANUAL'
     done.value = false
+    registrationPromptDismissed.value = false
     session.addLectura({ fuente: 'Escrita a mano', placa: data.placa, resultado: data.decision.resultado,
       confianza: null, ms: null, origen: 'MANUAL' })
     lecturaId.value = session.lecturas[0].id
@@ -170,6 +175,37 @@ const tone = computed(() => RESULT[decision.value?.resultado]?.tone)
 const plateShown = computed(() => (origin.value === 'MANUAL' ? manualPlate.value : recognition.value?.plate) || '')
 const canOpen = computed(() => decision.value?.permite_apertura && !done.value)
 const vehicle = computed(() => decision.value?.vehiculo)
+const decisionLabel = computed(() => decision.value?.resultado === 'NO_REGISTRADO' && vehicle.value
+  ? 'SIN AUTORIZACIÓN'
+  : RESULT[decision.value?.resultado]?.label || 'EN ESPERA')
+const needsVehicleRegistration = computed(() => decision.value?.resultado === 'NO_REGISTRADO' && !vehicle.value && !!plateShown.value)
+
+function startVehicleRegistration() {
+  Object.assign(vehicleDraft, { marca: '', modelo: '', color: '', propietario: '', transportista: '' })
+  registrationOpen.value = true
+}
+
+async function saveVehicle() {
+  if (!plateShown.value) return
+  busy.value = true
+  try {
+    const saved = await api('/api/plates/register', {
+      method: 'POST',
+      body: { placa: plateShown.value, ...vehicleDraft, tipo: 'CAMION' },
+    })
+    const checked = await api('/api/plates/verify', { method: 'POST', body: { placa: saved.placa } })
+    manualPlate.value = checked.placa
+    decision.value = checked.decision
+    origin.value = 'MANUAL'
+    registrationOpen.value = false
+    registrationPromptDismissed.value = true
+    session.notify(`${saved.mensaje} Sigue sin autorización de acceso.`, 'ok')
+  } catch (e) {
+    session.notify(e.message, 'bad')
+  } finally {
+    busy.value = false
+  }
+}
 
 async function register(accion) {
   if (!decision.value) {
@@ -282,12 +318,12 @@ onMounted(async () => {
         </section>
       </section>
 
-      <div class="decision-column">
+      <div class="decision-column" :class="tone ? 'tone-' + tone : 'tone-neutral'">
         <section class="card access-result-card" :class="tone ? 'tone-' + tone : 'tone-neutral'" role="status" aria-live="polite">
           <span class="result-mark"><AppIcon :name="tone === 'ok' ? 'check' : tone === 'bad' ? 'x' : tone === 'warn' ? 'alert' : 'bolt'" :size="28" :stroke="2.5" /></span>
           <div class="result-copy">
             <span class="eyebrow">Resultado de acceso</span>
-            <strong>{{ loading ? 'PROCESANDO…' : RESULT[decision?.resultado]?.label || 'EN ESPERA' }}</strong>
+            <strong>{{ loading ? 'PROCESANDO…' : decisionLabel }}</strong>
             <span class="result-detail">{{ decision?.detalle || 'Seleccione o capture una imagen para verificar' }}</span>
             <button v-if="decision?.resultado === 'DENEGADO'" class="result-action" :disabled="busy || done" @click="register('RECHAZO')">Registrar rechazo</button>
             <button v-else-if="decision && !decision.permite_apertura" class="result-action" :disabled="busy || done" @click="register('SOLO_REGISTRO')">Registrar sin abrir</button>
@@ -308,6 +344,10 @@ onMounted(async () => {
 
         <section class="card vehicle-panel" aria-label="Detalles del vehículo">
           <div class="section-heading"><h2><AppIcon name="car" :size="19" /> Detalles del vehículo</h2><button v-if="vehicle" class="text-link" @click="detailsOpen = true">Más datos</button></div>
+          <div v-if="needsVehicleRegistration && !registrationPromptDismissed" class="registration-prompt" role="status">
+            <div><strong>Esta placa no está registrada.</strong><span>¿Desea guardar el camión en la base de datos?</span></div>
+            <div class="registration-prompt-actions"><button class="btn-primary" :disabled="busy" @click="startVehicleRegistration">Sí, registrar</button><button class="btn-ghost" @click="registrationPromptDismissed = true">No, continuar</button></div>
+          </div>
           <dl class="vehicle-rows">
             <div><dt>Marca</dt><dd :title="vehicle?.marca || ''">{{ vehicle?.marca || '—' }}</dd></div>
             <div><dt>Modelo</dt><dd :title="vehicle?.modelo || ''">{{ vehicle?.modelo || '—' }}</dd></div>
@@ -327,6 +367,18 @@ onMounted(async () => {
     </div>
   </div>
   <ModalDialog :open="helpOpen" title="Cómo registrar un acceso" @close="helpOpen = false"><ol class="list-decimal space-y-3 pl-5"><li>Elija un ejemplo, suba una imagen o capture desde la cámara.</li><li>Revise la placa, el vehículo y el resultado. Corrija la placa y pulse Verificar si es necesario.</li><li>Autorice y abra solo cuando el resultado lo permita, o registre sin abrir. La apertura manual requiere un motivo.</li><li>Las lecturas solo se guardan en el historial al registrar una acción.</li></ol><button class="btn-primary mt-4" @click="helpOpen = false">Entendido</button></ModalDialog>
+  <ModalDialog :open="registrationOpen" title="Registrar camión nuevo" @close="registrationOpen = false">
+    <form class="vehicle-registration-form" @submit.prevent="saveVehicle">
+      <div class="registration-plate"><span>Placa detectada</span><strong>{{ plateShown }}</strong></div>
+      <label class="field-label" for="vehicle-make">Marca *</label><input id="vehicle-make" v-model.trim="vehicleDraft.marca" class="field" required maxlength="80" placeholder="Ej.: Chevrolet" />
+      <label class="field-label" for="vehicle-model">Modelo *</label><input id="vehicle-model" v-model.trim="vehicleDraft.modelo" class="field" required maxlength="80" placeholder="Ej.: NLR Reward" />
+      <label class="field-label" for="vehicle-color">Color *</label><input id="vehicle-color" v-model.trim="vehicleDraft.color" class="field" required maxlength="40" placeholder="Ej.: Blanco" />
+      <label class="field-label" for="vehicle-owner">Propietario *</label><input id="vehicle-owner" v-model.trim="vehicleDraft.propietario" class="field" required maxlength="120" placeholder="Nombre del propietario" />
+      <label class="field-label" for="vehicle-carrier">Transportista</label><input id="vehicle-carrier" v-model.trim="vehicleDraft.transportista" class="field" maxlength="120" placeholder="Empresa transportista (opcional)" />
+      <p class="registration-note">Se guardará como camión en vehículos registrados. El registro no autoriza el acceso automáticamente.</p>
+      <div class="mt-4 flex justify-end gap-2"><button type="button" class="btn-ghost" @click="registrationOpen = false">Cancelar</button><button type="submit" class="btn-primary" :disabled="busy">{{ busy ? 'Guardando…' : 'Guardar camión' }}</button></div>
+    </form>
+  </ModalDialog>
   <ModalDialog :open="detailsOpen" title="Detalle de la verificación" @close="detailsOpen = false"><ResultCard :decision="decision" :loading="loading" /><dl v-if="vehicle" class="mt-3 space-y-2 text-sm"><div v-for="[k,v] in [['Marca', vehicle.marca], ['Modelo', vehicle.modelo], ['Color', vehicle.color], ['Propietario', vehicle.propietario], ['Transportista', vehicle.transportista]]" :key="k"><dt class="font-bold">{{ k }}</dt><dd class="break-words">{{ v || '—' }}</dd></div></dl><button class="btn-ghost mt-4" @click="detailsOpen = false">Cerrar</button></ModalDialog>
   <ModalDialog :open="readingsOpen" title="Lecturas de esta sesión" @close="readingsOpen = false"><div class="max-h-[60vh] overflow-auto">
     <div class="table-wrap">
