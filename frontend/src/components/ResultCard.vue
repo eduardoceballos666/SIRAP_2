@@ -13,7 +13,7 @@ const s = computed(() => STYLE[props.decision?.resultado])
 </script>
 
 <template>
-  <div class="rounded-2xl border-4 p-5 transition" :class="s ? s.box : 'border-slate-200 bg-white'">
+  <div class="rounded-2xl border-4 p-5 transition" :class="s ? s.box : 'border-line bg-surface'">
     <div class="flex items-center gap-4">
       <div class="grid h-20 w-20 shrink-0 place-items-center rounded-full text-white" :class="s ? s.circle : 'bg-slate-300'">
         <AppIcon v-if="s" :name="s.icon" :size="44" :stroke="3.2" />
@@ -34,7 +34,7 @@ const s = computed(() => STYLE[props.decision?.resultado])
       <li v-for="m in decision.motivos" :key="m">{{ m }}</li>
     </ul>
     <p v-if="decision?.sugerencia" class="mt-2 text-sm font-semibold text-ink/80">
-      ¿Quiso decir <span class="rounded bg-white px-1.5 py-0.5 font-mono">{{ decision.sugerencia }}</span>? (placa registrada parecida)
+      ¿Quiso decir <span class="rounded bg-surface px-1.5 py-0.5 font-mono">{{ decision.sugerencia }}</span>? (placa registrada parecida)
     </p>
   </div>
 </template>

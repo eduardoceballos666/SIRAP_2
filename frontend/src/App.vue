@@ -5,10 +5,12 @@ import AppIcon from '@/components/AppIcon.vue'
 import SirapLogo from '@/components/SirapLogo.vue'
 import ToastStack from '@/components/ToastStack.vue'
 import { useAuthStore } from '@/stores/auth'
+import { useSessionStore } from '@/stores/session'
 
 const route = useRoute()
 const router = useRouter()
 const auth = useAuthStore()
+const session = useSessionStore()
 const menuOpen = ref(false)
 const now = ref(new Date())
 let timer
@@ -36,7 +38,7 @@ function logout() {
 
 <template>
   <RouterView v-if="isPublic" />
-  <div v-else class="flex min-h-screen">
+  <div v-else class="flex min-h-screen lg:bg-[linear-gradient(to_right,var(--color-navy-900)_18rem,transparent_18rem)]">
     <!-- Barra lateral -->
     <aside :class="menuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'"
            class="fixed inset-y-0 left-0 z-30 flex w-72 flex-col bg-navy-900 px-4 py-6 text-white transition-transform lg:sticky lg:top-0 lg:h-screen">
@@ -68,7 +70,7 @@ function logout() {
     <main class="min-w-0 flex-1 px-4 py-5 sm:px-6 lg:px-8">
       <header class="mb-5 flex items-start justify-between gap-4">
         <div class="flex items-start gap-3">
-          <button class="mt-1 rounded-lg bg-white p-2 shadow lg:hidden" aria-label="Abrir menú" @click="menuOpen = true">
+          <button class="mt-1 rounded-lg bg-surface p-2 shadow lg:hidden" aria-label="Abrir menú" @click="menuOpen = true">
             <AppIcon name="menu" />
           </button>
           <div>
@@ -76,7 +78,15 @@ function logout() {
             <h1 class="text-2xl font-extrabold tracking-tight sm:text-3xl">{{ route.meta.title }}</h1>
           </div>
         </div>
-        <p class="hidden pt-1 text-sm text-muted sm:block">{{ clock }}</p>
+        <div class="flex items-center gap-3 pt-1">
+          <p class="hidden text-sm text-muted sm:block">{{ clock }}</p>
+          <button class="grid h-9 w-9 place-items-center rounded-lg border border-line bg-surface text-muted hover:text-ink"
+                  :title="session.theme === 'dark' ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro'"
+                  :aria-label="session.theme === 'dark' ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro'"
+                  @click="session.toggleTheme()">
+            <AppIcon :name="session.theme === 'dark' ? 'sun' : 'moon'" :size="18" />
+          </button>
+        </div>
       </header>
       <RouterView />
     </main>

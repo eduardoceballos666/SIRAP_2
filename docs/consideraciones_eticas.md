@@ -1,4 +1,4 @@
-# Consideraciones éticas – SIRAP
+# Consideraciones éticas – SIRAP 2
 
 SIRAP lee placas de vehículos, las asocia con personas y empresas y decide si una barrera se abre. Una placa no es
 solo un número: **identifica indirectamente a una persona** y, acumulada en un historial, revela sus horarios y
@@ -70,6 +70,13 @@ reparte igual** entre grupos de vehículos/placas. Por eso:
   antigua del notebook tenía llaves de Roboflow en celdas; se revocaron y se pasó a *Secrets*.
 - **Consultas parametrizadas** (sin inyección SQL) y escape de HTML en la interfaz.
 - **Conexión cifrada** recomendada a PostgreSQL (`sslmode=require`) y HTTPS obligatorio para la barrera.
+- **Versión web (SIRAP 2):** la imagen viaja por HTTPS hasta la API, se procesa en memoria y se descarta; la respuesta
+  solo devuelve el recorte de la placa. Las «lecturas de esta sesión» se guardan únicamente en la memoria del
+  navegador del operador (no en el servidor) hasta que se registran. La demo pública reinicia su base en cada
+  reinicio del servidor y solo contiene datos ficticios.
+- **Contraseñas y sesiones:** nunca se guardan en texto plano (PBKDF2-SHA256, 240 000 iteraciones); el token de
+  sesión se guarda en el navegador y vence a las 12 h; la clave de firma (`SIRAP_JWT_SECRET`) es un *secret* del
+  despliegue, no del código.
 
 ### 3.3 Cumplimiento normativo
 
@@ -119,8 +126,13 @@ sustituto: siempre hay un humano que confirma.
 - **Si el modelo falla, la decisión final es del operador**, que confirma cada apertura; el sistema no abre solo.
 - La **apertura manual** exige motivo (≥ 10 caracteres) y confirmación explícita, y queda registrada con nombre.
 - El **historial es de solo inserción**: la app no permite editar ni borrar operaciones.
-- Roles: operador (registra), supervisor (revisa el historial), administrador (gestiona listas y usuarios; protegido
-  por PIN en la demo, debe migrar a autenticación completa en producción).
+- **Autenticación por usuario (SIRAP 2):** cada persona inicia sesión con su contraseña (guardada solo como hash
+  PBKDF2-SHA256 con sal) y recibe una sesión firmada (JWT) que vence a las 12 h. Cada operación queda asociada al
+  usuario autenticado, no a un nombre escrito a mano, lo que permite auditar quién abrió la barrera.
+- **Permisos por rol, comprobados en el servidor:** operador (reconoce y registra), supervisor (además exporta el
+  historial y consulta la administración), administrador (gestiona vehículos, listas, garitas y usuarios).
+- **La interfaz no puede forzar una apertura:** antes de registrar, la API vuelve a calcular la decisión con la placa
+  final; solo abre automáticamente un AUTORIZADO y la apertura manual exige motivo.
 - **Responsables:** la instalación que opera SIRAP es responsable del tratamiento de datos; el equipo desarrollador
   responde por los defectos del software documentados aquí.
 

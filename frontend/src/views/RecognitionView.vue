@@ -5,7 +5,7 @@ import ImageViewer from '@/components/ImageViewer.vue'
 import ModalDialog from '@/components/ModalDialog.vue'
 import ResultCard from '@/components/ResultCard.vue'
 import { api } from '@/lib/api'
-import { RESULT, pct } from '@/lib/format'
+import { ACTION, RESULT, TONE_PILL, pct } from '@/lib/format'
 import { useAuthStore } from '@/stores/auth'
 import { useSessionStore } from '@/stores/session'
 
@@ -15,6 +15,8 @@ const session = useSessionStore()
 const source = ref('ejemplos')
 const samples = ref([])
 const selectedSample = ref('')
+const sourceLabel = ref('') // de dónde vino la imagen (para la tabla de lecturas)
+const lecturaId = ref(null)
 const file = ref(null) // Blob a reconocer
 const preview = ref('')
 const stamp = ref('')
@@ -55,7 +57,7 @@ function capture() {
   canvas.width = v.videoWidth
   canvas.height = v.videoHeight
   canvas.getContext('2d').drawImage(v, 0, 0)
-  canvas.toBlob((blob) => { setImage(blob); recognize() }, 'image/jpeg', 0.92)
+  canvas.toBlob((blob) => { setImage(blob, 'Cámara'); recognize() }, 'image/jpeg', 0.92)
 }
 function setSource(name) {
   source.value = name
@@ -72,7 +74,8 @@ function reset() {
   origin.value = 'DETECCION'
   done.value = false
 }
-function setImage(blob) {
+function setImage(blob, label = '') {
+  sourceLabel.value = label
   if (preview.value) URL.revokeObjectURL(preview.value)
   file.value = blob
   preview.value = URL.createObjectURL(blob)
@@ -82,13 +85,13 @@ function setImage(blob) {
 async function pickSample(name) {
   selectedSample.value = name
   const res = await api(`/api/samples/${name}`, { raw: true })
-  setImage(await res.blob())
+  setImage(await res.blob(), samples.value.find((s) => s.nombre === name)?.etiqueta.split(' (')[0] || name)
   await recognize()
 }
 async function onUpload(event) {
   const f = event.target.files?.[0]
   if (!f) return
-  setImage(f)
+  setImage(f, f.name)
   await recognize()
   event.target.value = ''
 }
@@ -107,6 +110,11 @@ async function recognize() {
     recognition.value = data.recognition
     decision.value = data.decision
     manualPlate.value = data.recognition.plate || ''
+    session.addLectura({
+      fuente: sourceLabel.value || 'Imagen', placa: data.recognition.plate, resultado: data.decision.resultado,
+      confianza: data.recognition.ocr_confidence, ms: data.recognition.timings_ms?.total, origen: 'DETECCION',
+    })
+    lecturaId.value = session.lecturas[0].id
   } catch (e) {
     session.notify(e.message, 'bad')
   } finally {
@@ -123,6 +131,9 @@ async function verifyManual() {
     decision.value = data.decision
     origin.value = 'MANUAL'
     done.value = false
+    session.addLectura({ fuente: 'Escrita a mano', placa: data.placa, resultado: data.decision.resultado,
+      confianza: null, ms: null, origen: 'MANUAL' })
+    lecturaId.value = session.lecturas[0].id
   } catch (e) {
     session.notify(e.message, 'bad')
   } finally {
@@ -159,6 +170,7 @@ async function register(accion) {
       },
     })
     done.value = true
+    session.markRegistered(lecturaId.value, out.accion)
     manualOpen.value = false
     motivo.value = ''
     const sim = out.barrera_abierta && out.barrera_simulada ? ' (barrera simulada)' : ''
@@ -168,6 +180,16 @@ async function register(accion) {
   } finally {
     busy.value = false
   }
+}
+
+function exportLecturas() {
+  const head = ['hora', 'fuente', 'placa', 'resultado', 'confianza_ocr', 'tiempo_ms', 'origen', 'registro']
+  const rows = session.lecturas.map((l) => [l.hora, l.fuente, l.placa || '', l.resultado,
+    l.confianza ?? '', l.ms ? Math.round(l.ms) : '', l.origen, l.registro || ''])
+  const csv = [head, ...rows].map((r) => r.map((v) => `"${String(v).replaceAll('"', '""')}"`).join(',')).join('\n')
+  const url = URL.createObjectURL(new Blob(['\ufeff' + csv], { type: 'text/csv' }))
+  Object.assign(document.createElement('a'), { href: url, download: 'sirap_lecturas_sesion.csv' }).click()
+  URL.revokeObjectURL(url)
 }
 
 onMounted(async () => {
@@ -181,29 +203,46 @@ onMounted(async () => {
 </script>
 
 <template>
+  <details class="card mb-5 !py-3" :open="!session.lecturas.length">
+    <summary class="flex cursor-pointer items-center gap-2 font-semibold select-none">
+      <AppIcon name="help" :size="18" class="text-brand-600" /> ¿Cómo se usa esta pantalla?
+    </summary>
+    <ol class="mt-3 grid gap-2 text-sm sm:grid-cols-2 xl:grid-cols-4">
+      <li class="rounded-xl bg-subtle p-3"><b>1. Elija la imagen.</b> Pulse un ejemplo («Probar con un ejemplo»), suba una foto
+        (JPG, PNG o WEBP, máx. 10 MB) o use la cámara.</li>
+      <li class="rounded-xl bg-subtle p-3"><b>2. Revise el resultado.</b> Verde = autorizado, rojo = denegado, ámbar = no
+        registrado o verificación manual. La confianza OCR es la del carácter menos claro.</li>
+      <li class="rounded-xl bg-subtle p-3"><b>3. Corrija si hace falta.</b> Si la placa leída no coincide con la imagen,
+        escríbala y pulse «Verificar».</li>
+      <li class="rounded-xl bg-subtle p-3"><b>4. Registre.</b> Solo un AUTORIZADO abre la barrera automáticamente; en
+        otro caso registre el rechazo o use la apertura manual con un motivo.</li>
+    </ol>
+  </details>
+
   <div class="grid gap-5 xl:grid-cols-12">
     <!-- Cámara / imagen -->
     <section class="card xl:col-span-7">
       <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
         <h2 class="card-title !mb-0"><span class="icon-chip"><AppIcon name="camera" /></span> Cámara ({{ session.garita || '—' }})</h2>
-        <div class="flex rounded-xl bg-slate-100 p-1 text-sm font-semibold" role="tablist">
+        <div class="flex rounded-xl bg-subtle-2 p-1 text-sm font-semibold" role="tablist">
           <button v-for="s in [['ejemplos', 'Ejemplos'], ['subir', 'Subir imagen'], ['camara', 'Cámara']]" :key="s[0]"
-                  class="rounded-lg px-3 py-1.5 transition" :class="source === s[0] ? 'bg-white shadow text-ink' : 'text-muted'"
+                  class="rounded-lg px-3 py-1.5 transition" :class="source === s[0] ? 'bg-surface shadow text-ink' : 'text-muted'"
                   role="tab" :aria-selected="source === s[0]" @click="setSource(s[0])">{{ s[1] }}</button>
         </div>
       </div>
 
+      <p v-if="source === 'ejemplos'" class="mb-2 text-sm font-semibold text-muted">Probar con un ejemplo:</p>
       <div v-if="source === 'ejemplos'" class="mb-4 grid grid-cols-2 gap-2 lg:grid-cols-4">
         <button v-for="s in samples" :key="s.nombre" :disabled="loading"
                 class="overflow-hidden rounded-xl border-2 text-left text-xs font-semibold transition hover:border-brand-500"
-                :class="selectedSample === s.nombre ? 'border-brand-600' : 'border-transparent bg-slate-50'"
+                :class="selectedSample === s.nombre ? 'border-brand-600' : 'border-transparent bg-subtle'"
                 @click="pickSample(s.nombre)">
           <img :src="s.url" alt="" class="aspect-video w-full object-cover" loading="lazy" />
           <span class="block px-2 py-1.5 leading-tight">{{ s.etiqueta }}</span>
         </button>
       </div>
       <label v-else-if="source === 'subir'"
-             class="mb-4 flex cursor-pointer items-center justify-center gap-2 rounded-xl border-2 border-dashed border-slate-300 py-4 font-semibold text-muted hover:border-brand-500 hover:text-brand-600">
+             class="mb-4 flex cursor-pointer items-center justify-center gap-2 rounded-xl border-2 border-dashed border-line py-4 font-semibold text-muted hover:border-brand-500 hover:text-brand-600">
         <AppIcon name="upload" /> Elegir foto (JPG, PNG o WEBP · máx. 10 MB)
         <input type="file" accept="image/jpeg,image/png,image/webp" class="hidden" @change="onUpload" />
       </label>
@@ -226,7 +265,7 @@ onMounted(async () => {
       <ResultCard :decision="decision" :loading="loading" />
       <div class="card">
         <h2 class="card-title"><span class="icon-chip"><AppIcon name="car" /></span> PLACA IDENTIFICADA</h2>
-        <div class="rounded-2xl border-[6px] border-ink bg-white px-4 py-3 text-center shadow-[inset_0_0_0_3px_#d7deea]">
+        <div class="rounded-2xl border-[6px] border-navy-900 bg-white px-4 py-3 text-navy-900 text-center shadow-[inset_0_0_0_3px_#d7deea]">
           <p class="text-5xl font-black tracking-wide sm:text-6xl" :class="plateShown ? '' : 'text-slate-300'">
             {{ plateShown || '———-————' }}
           </p>
@@ -256,7 +295,7 @@ onMounted(async () => {
           <option v-for="g in session.system?.garitas || []" :key="g">{{ g }}</option>
         </select>
         <span class="font-medium">Operador</span>
-        <div class="field bg-slate-100">{{ auth.user?.nombre }}</div>
+        <div class="field bg-subtle-2">{{ auth.user?.nombre }}</div>
         <label class="font-medium" for="mov">Operación</label>
         <select id="mov" v-model="session.movimiento" class="field">
           <option value="ENTRADA">Entrada</option>
@@ -270,11 +309,11 @@ onMounted(async () => {
       <h2 class="card-title"><span class="icon-chip"><AppIcon name="car" /></span> Detalles del vehículo</h2>
       <dl v-if="vehicle" class="space-y-1.5">
         <div v-for="[k, v] in [['Marca', vehicle.marca], ['Modelo', vehicle.modelo], ['Color', vehicle.color], ['Propietario', vehicle.propietario], ...(vehicle.transportista ? [['Transportista', vehicle.transportista]] : [])]"
-             :key="k" class="grid grid-cols-[120px_1fr] rounded-lg bg-slate-50 px-3 py-2">
+             :key="k" class="grid grid-cols-[120px_1fr] rounded-lg bg-subtle px-3 py-2">
           <dt class="font-bold">{{ k }}:</dt><dd>{{ v || '—' }}</dd>
         </div>
       </dl>
-      <p v-else class="rounded-lg bg-slate-50 px-3 py-6 text-center text-muted">
+      <p v-else class="rounded-lg bg-subtle px-3 py-6 text-center text-muted">
         {{ decision ? 'La placa no está registrada en la base.' : 'Sin vehículo identificado.' }}
       </p>
     </section>
@@ -301,6 +340,41 @@ onMounted(async () => {
       </div>
     </section>
   </div>
+
+  <section v-if="session.lecturas.length" class="card mt-5">
+    <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
+      <h2 class="card-title !mb-0"><span class="icon-chip"><AppIcon name="history" /></span> Lecturas de esta sesión</h2>
+      <div class="flex gap-2">
+        <button class="btn-ghost !py-2 text-sm" @click="exportLecturas"><AppIcon name="download" :size="16" /> CSV</button>
+        <button class="btn-ghost !py-2 text-sm" @click="session.clearLecturas()"><AppIcon name="trash" :size="16" /> Limpiar</button>
+      </div>
+    </div>
+    <p class="mb-3 text-sm text-muted">Compare las lecturas hechas en este navegador. Solo las que tienen «Registro» quedaron
+      en el historial.</p>
+    <div class="table-wrap max-h-80">
+      <table class="tbl">
+        <thead><tr><th>Hora</th><th>Imagen</th><th>Placa</th><th>Resultado</th><th>Confianza OCR</th><th>Tiempo</th><th>Registro</th></tr></thead>
+        <tbody>
+          <tr v-for="l in session.lecturas" :key="l.id">
+            <td>{{ l.hora }}</td><td class="max-w-56 truncate" :title="l.fuente">{{ l.fuente }}</td>
+            <td class="font-bold">{{ l.placa || '—' }}</td>
+            <td><span class="pill" :class="TONE_PILL[RESULT[l.resultado]?.tone]">{{ RESULT[l.resultado]?.label }}</span></td>
+            <td>
+              <div v-if="l.confianza !== null" class="flex items-center gap-2">
+                <div class="h-2 w-20 overflow-hidden rounded-full bg-subtle-2">
+                  <div class="h-full rounded-full" :class="l.confianza >= 0.99 ? 'bg-ok' : 'bg-warn'" :style="{ width: `${l.confianza * 100}%` }"></div>
+                </div>
+                {{ pct(l.confianza, 1) }}
+              </div>
+              <span v-else class="text-muted">Manual</span>
+            </td>
+            <td>{{ l.ms ? `${Math.round(l.ms)} ms` : '—' }}</td>
+            <td>{{ l.registro ? ACTION[l.registro] : '—' }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
 
   <ModalDialog :open="manualOpen" title="Apertura manual (contingencia)" @close="manualOpen = false">
     <p class="mb-3 text-sm text-muted">

@@ -1,25 +1,27 @@
 <div align="center">
 
-# 🚧 SIRAP
-### Sistema de Detección y Reconocimiento Automático de Placas
+# 🚧 SIRAP 2
+### Sistema de Detección y Reconocimiento Automático de Placas · versión web FastAPI + Vue 3
 
 ![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?logo=python&logoColor=white)
-![Streamlit](https://img.shields.io/badge/Streamlit-1.66-FF4B4B?logo=streamlit&logoColor=white)
-![FastAPI](https://img.shields.io/badge/API-FastAPI-009688?logo=fastapi&logoColor=white)
-![Vue](https://img.shields.io/badge/Frontend-Vue%203-42b883?logo=vuedotjs&logoColor=white)
+![FastAPI](https://img.shields.io/badge/API-FastAPI%200.162-009688?logo=fastapi&logoColor=white)
+![Vue](https://img.shields.io/badge/Frontend-Vue%203.5-42b883?logo=vuedotjs&logoColor=white)
+![Tailwind](https://img.shields.io/badge/Tailwind%20CSS-4-06b6d4?logo=tailwindcss&logoColor=white)
 ![YOLO11](https://img.shields.io/badge/Detector-YOLO11--s-0b2a6b)
 ![OCR](https://img.shields.io/badge/OCR-fast--plate--ocr-2156e8)
 ![Tests](https://img.shields.io/badge/tests-pytest-0f8a3c)
+![Deploy](https://img.shields.io/badge/Hugging%20Face-Space-ffcc4d?logo=huggingface&logoColor=black)
 ![License](https://img.shields.io/badge/License-MIT-yellow)
 
 **SIRAP** reconoce la placa del vehículo que llega a una garita, la busca en la base de datos y propone una
 decisión de acceso (autorizado, denegado, no registrado o verificación manual). El operador confirma, la operación
-queda registrada y la barrera se abre solo cuando corresponde.
+queda registrada y la barrera se abre solo cuando corresponde. **SIRAP 2** ofrece el mismo sistema como una
+aplicación web profesional: **API REST en FastAPI** con autenticación por usuario y **frontend en Vue 3**.
 
-[**Aplicación en vivo (Streamlit)**](https://sirapapp.streamlit.app/) · [**Versión FastAPI + Vue en vivo**](https://eduardoceballos-sirap.hf.space) · [Manual de usuario](docs/manual_usuario.md) ·
-[Notebook de backend](notebooks/SIRAP_backend.ipynb)
+[**Aplicación en vivo**](https://eduardoceballos-sirap.hf.space) · [Manual de usuario](docs/manual_usuario.md) ·
+[Documentación de la API](https://eduardoceballos-sirap.hf.space/docs) · [Notebook de backend](notebooks/SIRAP_backend.ipynb)
 
-<img src="docs/img/app_reconocimiento.png" alt="SIRAP – Reconocimiento y Acceso" width="900">
+<img src="docs/img/vue_reconocimiento.png" alt="SIRAP 2 – Reconocimiento y Acceso" width="900">
 
 </div>
 
@@ -32,7 +34,7 @@ queda registrada y la barrera se abre solo cuando corresponde.
 3. [Metodología](#3-metodología)
 4. [Resultados](#4-resultados)
 5. [Instalación y uso](#5-instalación-y-uso)
-6. [Interfaz de usuario](#6-interfaz-de-usuario) · [6b. FastAPI + Vue 3](#6b-versión-web-fastapi--vue-3)
+6. [Interfaz de usuario](#6-interfaz-de-usuario)
 7. [Estructura del proyecto](#7-estructura-del-proyecto)
 8. [Consideraciones éticas](#8-consideraciones-éticas)
 9. [Autores](#9-autores-y-contribuciones)
@@ -119,30 +121,50 @@ verificación manual.
 
 ## 5. Instalación y uso
 
-**Requisitos:** Python 3.11+, 2 GB de RAM; GPU solo para entrenar (Colab).
+**Requisitos:** Python 3.11+, Node.js 20.19+ (solo para compilar el frontend), 2 GB de RAM; GPU solo para entrenar
+(Colab). Alternativa sin instalar nada: Docker.
 
 ```bash
 git clone https://github.com/eduardoceballos666/SIRAP_2.git
 cd SIRAP_2
 python -m venv .venv && source .venv/bin/activate      # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
-streamlit run app.py                                    # abre http://localhost:8501
+cp .env.example .env                                   # defina SIRAP_JWT_SECRET (cadena larga y aleatoria)
+
+cd frontend && npm ci && npm run build && cd ..        # compila la interfaz Vue en frontend/dist
+uvicorn api.main:app --port 8000                       # abre http://localhost:8000 (API + interfaz)
 ```
+
+Usuarios de demostración: `operador`, `supervisor` y `admin`; contraseña `sirap2026` (se cambia con
+`SIRAP_DEMO_PASSWORD`).
 
 | Tarea | Comando |
 |---|---|
-| Pruebas unitarias | `pip install pytest && pytest` |
-| Exportar los pesos entrenados a ONNX | `pip install -r requirements-dev.txt && python -m src.train --export-only models/best_model.pt` |
+| Desarrollo con recarga en caliente | `uvicorn api.main:app --reload` y, en otra terminal, `cd frontend && npm run dev` (http://localhost:5173) |
+| Docker (API + interfaz) | `docker build -t sirap2 . && docker run -p 7860:7860 -e SIRAP_JWT_SECRET=... sirap2` → http://localhost:7860 |
+| Documentación interactiva de la API | http://localhost:8000/docs (Swagger) |
+| Pruebas (unitarias, integración y API) | `pip install -r requirements-dev.txt && pytest` |
+| Interfaz alternativa en Streamlit | `streamlit run app.py` → http://localhost:8501 |
+| Exportar los pesos entrenados a ONNX | `python -m src.train --export-only models/best_model.pt` |
 | Reentrenar (no hace falta) | `ROBOFLOW_API_KEY=... python -m src.train --roboflow --force` |
 | Evaluar el detector en *test* | `python -m src.evaluate detector --data <data.yaml>` |
-| Evaluar punta a punta | `python -m src.evaluate e2e --csv <image_path,plate_gt>.csv` |
 
-**Configuración:** parámetros en [`config/config.yaml`](config/config.yaml); secretos (`PG_DSN`, `SIRAP_ADMIN_PIN`,
-`BARRERA_URL`, `BARRERA_TOKEN`, `ROBOFLOW_API_KEY`) en variables de entorno o en los *Secrets* de Streamlit
-(plantilla en [`.env.example`](.env.example)). Sin `PG_DSN`, la app crea una base SQLite de demostración.
-Para PostgreSQL: `psql "$PG_DSN" -f sql/schema_postgres.sql`.
+**Configuración:** parámetros en [`config/config.yaml`](config/config.yaml); secretos en variables de entorno
+(plantillas [`.env.example`](.env.example) y [`api/.env.example`](api/.env.example)): `SIRAP_JWT_SECRET`,
+`SIRAP_DEMO_PASSWORD`, `PG_DSN`, `BARRERA_URL`, `BARRERA_TOKEN`, `ROBOFLOW_API_KEY`. Sin `PG_DSN`, la API crea una base
+SQLite de demostración; para PostgreSQL: `psql "$PG_DSN" -f sql/schema_postgres.sql`.
 
-**Ejemplo de uso desde Python:**
+**Ejemplo de uso de la API:**
+
+```bash
+TOKEN=$(curl -s -X POST localhost:8000/api/auth/login -H 'Content-Type: application/json' \
+        -d '{"usuario":"operador","password":"sirap2026"}' | python -c "import sys,json;print(json.load(sys.stdin)['access_token'])")
+curl -s -X POST localhost:8000/api/recognize -H "Authorization: Bearer $TOKEN" \
+     -F file=@data/samples/garita3_PBA-8901.jpg
+# {"recognition": {"plate": "PBA-8901", "ocr_confidence": 0.9999, ...}, "decision": {"resultado": "AUTORIZADO", ...}}
+```
+
+**Desde Python:**
 
 ```python
 from src.model import ALPRPipeline
@@ -158,63 +180,35 @@ print(decide_access(rec.plate, rec.ocr_confidence, db).titulo)      # ACCESO AUT
 
 ## 6. Interfaz de usuario
 
-App en **Streamlit + CSS** siguiendo la guía de diseño [`docs/img/SIRAP_Dashboard.png`](docs/img/SIRAP_Dashboard.png).
-Desplegada en **https://sirapapp.streamlit.app/**.
+**Opción D del enunciado: FastAPI + frontend Vue 3** (Vite, Pinia, Vue Router, Tailwind CSS, ECharts), con el diseño
+de la guía [`docs/img/SIRAP_Dashboard.png`](docs/img/SIRAP_Dashboard.png). Publicada en
+**https://eduardoceballos-sirap.hf.space** (Hugging Face Spaces). Guía completa: [manual de usuario](docs/manual_usuario.md).
 
 | Módulo | Qué hace |
 |---|---|
-| **Reconocimiento y Acceso** | Imagen (ejemplos, archivo o cámara) → placa, confianza OCR, resultado de acceso, datos del vehículo; acciones: registrar y abrir, reprocesar, apertura manual con motivo, registrar rechazo; corrección manual de la placa |
-| **Dashboard** | Ingresos, salidas, vehículos identificados y alertas; gráficos interactivos (Plotly) por hora, resultado y garita |
-| **Historial** | Filtros por fecha, placa, garita, resultado y movimiento; exportación CSV |
-| **Administración** | Vehículos, listas blanca/restringida con vigencia, propietarios, garitas, usuarios; datos de demostración |
-| **Acerca del modelo** | Funcionamiento, métricas frente a metas, gráficos y limitaciones |
+| **Inicio de sesión** | Usuario y contraseña; cada operación queda firmada por el usuario y su rol (operador, supervisor, administrador) |
+| **Reconocimiento y Acceso** | Botones «Probar con un ejemplo», subir foto o cámara → caja de la placa sobre la imagen, placa, confianza OCR, recorte, resultado de acceso y datos del vehículo; registrar y abrir, reprocesar, apertura manual con motivo, registrar rechazo; corrección manual de la placa; **lecturas de la sesión** para comparar y exportar a CSV; ayuda «¿Cómo se usa esta pantalla?» |
+| **Dashboard** | Ingresos, salidas, placas identificadas y alertas; gráficos interactivos (ECharts) por hora, resultado y garita |
+| **Historial** | Filtros por fecha, placa, garita, resultado y movimiento; exportación CSV (supervisor y administrador) |
+| **Administración** | Vehículos, listas blanca/restringida con vigencia, propietarios, garitas, usuarios con contraseña; datos de demostración |
+| **Acerca del modelo** | Funcionamiento, métricas, entrenamiento, optimización y **limitaciones y advertencias** |
 
-Incluye validación de entradas (formato, tamaño y resolución de imagen; formato de placa), indicador de carga,
-mensajes de error comprensibles, ejemplos precargados, diseño adaptable a celular y registro de cada operación.
+**Requisitos de la interfaz cubiertos:** validación de entradas (tipo, tamaño y resolución de imagen en el servidor;
+formato de placa), indicador de carga, mensajes de error comprensibles (sin trazas técnicas), confianza OCR y de
+detección, visualizaciones (caja sobre la imagen, recorte, gráficos), ejemplos precargados, diseño adaptable a
+celular, **tema claro/oscuro** (botón sol/luna), historial y comparación de las lecturas de la sesión y exportación CSV.
 
-| Dashboard | Verificación manual | Celular |
-|---|---|---|
-| <img src="docs/img/app_dashboard.png" width="380"> | <img src="docs/img/app_verificacion.png" width="380"> | <img src="docs/img/app_movil.png" width="140"> |
+| Reconocimiento (anotado en el manual) | Dashboard | Tema oscuro | Celular |
+|---|---|---|---|
+| <img src="docs/img/vue_reconocimiento.png" width="300"> | <img src="docs/img/vue_dashboard.png" width="300"> | <img src="docs/img/vue_verificacion.png" width="300"> | <img src="docs/img/vue_movil.png" width="110"> |
 
-> **Estado:** prototipo funcional. La barrera es **simulada** y la base pública contiene **datos ficticios**. Para
-> operar en una garita real faltan: conectar la cámara IP, PostgreSQL, el controlador de la barrera y autenticación
-> por usuario.
+### 6.1 API REST
 
-## 6b. Versión web: FastAPI + Vue 3
-
-Además de la app de Streamlit (que se mantiene igual), SIRAP_2 incluye una versión con **backend REST en FastAPI**
-y **frontend en Vue 3** (Vite, Pinia, Vue Router, Tailwind CSS). Ambas usan el mismo backend de `src/`
-(YOLO11-s + fast-plate-ocr + regla de decisión + base de datos).
-
-```bash
-pip install -r api/requirements.txt
-cp api/.env.example .env                    # defina SIRAP_JWT_SECRET
-uvicorn api.main:app --reload               # API en http://localhost:8000 · documentación en /docs
-
-cd frontend && npm install && npm run dev   # interfaz en http://localhost:5173
-# o bien: npm run build → FastAPI sirve la interfaz compilada en http://localhost:8000
-```
-
-Con Docker (API + interfaz en una sola imagen): `docker build -t sirap . && docker run -p 7860:7860 -e SIRAP_JWT_SECRET=... sirap`
-y abrir http://localhost:7860.
-
-**Publicada en https://eduardoceballos-sirap.hf.space** (Hugging Face Spaces, hardware *CPU basic*; en cuentas nuevas requiere PRO). El workflow
-[`.github/workflows/deploy-hf-space.yml`](.github/workflows/deploy-hf-space.yml) sube la app al Space
-`eduardoceballos/sirap` en cada push a `main` (o a mano desde *Actions → Run workflow*); Hugging Face construye el
-`Dockerfile`. Configuración, una sola vez, en GitHub → *Settings → Secrets and variables → Actions*:
-
-| Nombre | Tipo | Valor |
-|---|---|---|
-| `HF_TOKEN` | Secret (obligatorio) | Token de Hugging Face con permiso **Write** (huggingface.co/settings/tokens) |
-| `SIRAP_JWT_SECRET` | Secret (recomendado) | Cadena larga y aleatoria para firmar las sesiones |
-| `SIRAP_DEMO_PASSWORD` | Secret (opcional) | Contraseña de los usuarios de demostración |
-| `HF_SPACE` | Variable (opcional) | Otro Space, p. ej. `usuario/sirap` |
-
-La API usa ≈410 MB de RAM con los modelos cargados, por eso no se recomienda el plan gratuito de Render (512 MB).
+Documentación interactiva (Swagger) en [`/docs`](https://eduardoceballos-sirap.hf.space/docs).
 
 | Endpoint | Rol | Uso |
 |---|---|---|
-| `POST /api/auth/login` · `GET /api/auth/me` | — | Inicio de sesión (JWT con rol) |
+| `POST /api/auth/login` · `GET /api/auth/me` | — | Inicio de sesión (JWT con rol, 12 h) |
 | `POST /api/recognize` | todos | Imagen → placa, confianza, caja, recorte y decisión (no registra) |
 | `POST /api/plates/verify` | todos | Verificar una placa escrita o corregida a mano |
 | `POST /api/operations` | todos | Registrar la operación; el servidor recalcula la decisión, solo abre automáticamente si está AUTORIZADO y exige motivo en la apertura manual |
@@ -223,33 +217,52 @@ La API usa ≈410 MB de RAM con los modelos cargados, por eso no se recomienda e
 | `GET/POST/DELETE /api/admin/...` | admin (lectura: supervisor) | Vehículos, listas, garitas, usuarios, datos de demostración |
 | `GET /api/system` · `/api/model/info` · `/api/samples` | todos | Estado, métricas del modelo e imágenes de ejemplo |
 
-Usuarios de demostración: `operador`, `supervisor` y `admin`, con la contraseña definida en `SIRAP_DEMO_PASSWORD`
-(se guarda como hash PBKDF2 en la tabla `api_credenciales`, separada de la que usa Streamlit).
+### 6.2 Despliegue
 
-| Reconocimiento | Dashboard | Celular |
+El workflow [`.github/workflows/deploy-hf-space.yml`](.github/workflows/deploy-hf-space.yml) publica la app en el
+Space `eduardoceballos/sirap` en cada push a `main` (o a mano desde *Actions → Run workflow*); Hugging Face construye
+el [`Dockerfile`](Dockerfile) (frontend compilado + API, puerto 7860). Configuración, una sola vez, en GitHub →
+*Settings → Secrets and variables → Actions*:
+
+| Nombre | Tipo | Valor |
 |---|---|---|
-| <img src="docs/img/vue_reconocimiento.png" width="380"> | <img src="docs/img/vue_dashboard.png" width="380"> | <img src="docs/img/vue_movil.png" width="140"> |
+| `HF_TOKEN` | Secret (obligatorio) | Token de Hugging Face con permiso **Write** |
+| `SIRAP_JWT_SECRET` | Secret (recomendado) | Cadena larga y aleatoria para firmar las sesiones |
+| `SIRAP_DEMO_PASSWORD` | Secret (opcional) | Contraseña de los usuarios de demostración |
+| `HF_SPACE` | Variable (opcional) | Otro Space, p. ej. `usuario/sirap` |
+
+El Space usa el hardware *CPU basic* (en cuentas nuevas de Hugging Face requiere PRO). La API ocupa ≈410 MB de RAM
+con los modelos cargados, por eso no se recomiendan planes gratuitos de 512 MB (Render, Railway).
+
+> **Interfaz alternativa.** El repositorio conserva la app de **Streamlit** (`app/`, `streamlit run app.py`), que usa
+> el mismo backend. Su versión publicada vive en el repositorio original
+> [SIRAP](https://github.com/eduardoceballos666/SIRAP) (https://sirapapp.streamlit.app/).
+
+> **Estado:** prototipo funcional. La barrera es **simulada** y la base pública contiene **datos ficticios** que se
+> reinician con el servidor. Para operar en una garita real faltan: la cámara IP, PostgreSQL y el controlador de la
+> barrera.
 
 ## 7. Estructura del proyecto
 
 ```
 SIRAP_2/
-├── api/                    # API REST FastAPI: main.py, routers/, seguridad JWT, esquemas Pydantic
-├── frontend/               # interfaz Vue 3 + Vite + Pinia + Vue Router + Tailwind CSS
-├── Dockerfile              # imagen con API + frontend compilado
-├── deploy/huggingface/     # publicación automática en Hugging Face Spaces
-├── app.py                  # punto de entrada para Streamlit Cloud (ejecuta app/app.py)
-├── app/                    # interfaz: app.py (módulos), ui.py (componentes), assets/style.css
+├── api/                    # API REST FastAPI: main.py, routers/ (auth, recognition, reports, admin), security.py (JWT + PBKDF2), schemas.py
+├── frontend/               # interfaz Vue 3: src/views, src/components, src/stores (Pinia), src/router, src/lib
 ├── src/                    # backend: data_processing, model, access_control, database, train, evaluate, utils
-├── notebooks/              # SIRAP_backend.ipynb (completo) y 01–05 (EDA, preprocesamiento, modelado, optimización, evaluación)
+├── app/                    # interfaz alternativa en Streamlit: app.py, ui.py, assets/style.css, requirements.txt
+├── app.py                  # punto de entrada de Streamlit (ejecuta app/app.py)
+├── notebooks/              # SIRAP_backend.ipynb (completo) y 01–06 (EDA, preprocesamiento, modelado, optimización, evaluación, OCR)
 ├── models/                 # pesos de YOLO11-s (best_model.pt / .onnx) y ficha del modelo
 ├── data/                   # samples/ (ejemplos de la app), raw/, processed/ y descripción de los datos
 ├── sql/                    # esquemas PostgreSQL/SQLite y datos de demostración
 ├── config/config.yaml      # parámetros (sin secretos)
 ├── docs/                   # planificación, EDA, arquitectura, optimización, ética, manual e imágenes
 ├── results/                # figures/, metrics/ (JSON/CSV del notebook), reports/
-├── tests/                  # pruebas unitarias e integración (pytest)
-├── requirements.txt        # dependencias de la app (Streamlit Cloud)
+├── tests/                  # pytest: procesamiento, modelo, decisión, base de datos, app y API
+├── deploy/huggingface/     # README del Space y script de publicación
+├── .github/workflows/      # despliegue automático en Hugging Face Spaces
+├── Dockerfile              # imagen única: frontend compilado + API
+├── requirements.txt        # dependencias con versiones (backend, API y Streamlit)
 └── requirements-dev.txt    # entrenamiento, notebooks y pruebas
 ```
 
@@ -264,6 +277,8 @@ Resumen de [`docs/consideraciones_eticas.md`](docs/consideraciones_eticas.md):
   placas pequeñas (mAP 0,481), nocturnas o deterioradas.
 - **Mitigación:** umbrales calibrados, verificación manual de todo lo dudoso, corrección manual, la barrera nunca se
   abre sola, apertura de contingencia con motivo y auditoría de solo inserción.
+- **Responsabilidad:** cada operación queda asociada al usuario autenticado y su rol; el servidor vuelve a calcular la
+  decisión antes de registrar, de modo que la interfaz no puede forzar una apertura automática.
 - **Uso indebido:** no usar para vigilancia masiva, seguimiento de personas, multas o decisiones sin operador.
 
 ## 9. Autores y contribuciones
@@ -287,7 +302,10 @@ el dataset de Roboflow es CC BY 4.0.
 - OC-SORT / `trackers` y `supervision` de Roboflow — https://github.com/roboflow/trackers
 - Roboflow Universe, *License Plate Recognition* — https://universe.roboflow.com/roboflow-universe-projects/license-plate-recognition-rxg4e
 - SAVH Guayaquil ANPR Plate Images Dataset — Zenodo
-- Streamlit — https://streamlit.io/ · Plotly — https://plotly.com/python/
+- FastAPI — https://fastapi.tiangolo.com/ · Vue 3 — https://vuejs.org/ · Vite — https://vite.dev/ · Pinia —
+  https://pinia.vuejs.org/ · Vue Router — https://router.vuejs.org/ · Tailwind CSS — https://tailwindcss.com/ ·
+  Apache ECharts — https://echarts.apache.org/
+- Streamlit — https://streamlit.io/ · Plotly — https://plotly.com/python/ · Hugging Face Spaces — https://huggingface.co/spaces
 - A la empresa que autorizó la toma de imágenes en su garita, y a los docentes del programa.
 
 ## 12. Videos

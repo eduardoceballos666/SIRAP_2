@@ -1,6 +1,6 @@
-# SIRAP – dependencias de la aplicación y del backend (src/)
-# Streamlit Community Cloud instala este archivo. El detector corre con ONNX Runtime
-# (sin PyTorch) para que la app sea liviana; ultralytics solo hace falta para entrenar.
+# SIRAP_2 – dependencias del backend (src/), la API FastAPI (api/) y la interfaz Streamlit (app/).
+# El detector corre con ONNX Runtime (sin PyTorch); ultralytics solo hace falta para entrenar
+# (requirements-dev.txt). El frontend Vue tiene sus versiones fijadas en frontend/package-lock.json.
 streamlit==1.66.1
 numpy>=2.0,<3
 pandas>=2.2,<4
@@ -12,3 +12,8 @@ Levenshtein>=0.25
 pyyaml>=6.0
 plotly>=6.0
 psycopg[binary]==3.3.6
+# --- API REST (api/) ---
+fastapi==0.162.0
+uvicorn[standard]==0.54.0
+python-multipart==0.0.32
+PyJWT==2.15.0

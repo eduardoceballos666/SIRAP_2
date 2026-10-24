@@ -1,4 +1,4 @@
-# Planificación del proyecto – SIRAP
+# Planificación del proyecto – SIRAP 2 (FastAPI + Vue 3)
 
 **Proyecto Integrador en IA (MIAR0545)** · Eduardo Alejandro Ceballos Jijón · Christian Xavier Valle Maridueña
 Periodo: 12/09/2026 – 24/10/2026 (6 semanas) · Dedicación: ≈8 h/semana por integrante (Python / Google Colab)
@@ -31,7 +31,7 @@ un operador de garita, que lea placas ecuatorianas y registre cada operación.
 | O3 | Responder a tiempo para la garita | Tiempo punta a punta por imagen | ≤ 1 s |
 | O4 | No decidir a ciegas | Lecturas dudosas enviadas a verificación manual | 100 % bajo el umbral |
 | O5 | Auditar | Operaciones registradas con fecha, garita, operador, placa y resultado | 100 % |
-| O6 | Entregar una interfaz usable | App Streamlit con los 4 módulos de la guía de diseño | Desplegada |
+| O6 | Entregar una interfaz usable | App web FastAPI + Vue 3 con los 4 módulos de la guía de diseño, inicio de sesión y Acerca del modelo | Desplegada en Hugging Face Spaces |
 
 ## 3. Justificación y relevancia
 
@@ -49,8 +49,10 @@ un operador de garita, que lea placas ecuatorianas y registre cada operación.
 - Regla de decisión con listas blanca/restringida, umbral de confianza y detección de lecturas «casi iguales».
 - Base de datos (PostgreSQL en producción, SQLite en la demo) con vehículos, propietarios, listas, garitas,
   usuarios e historial.
-- Aplicación Streamlit: Dashboard, Reconocimiento y Acceso, Historial (con exportación CSV), Administración y
-  Acerca del modelo.
+- **Aplicación web SIRAP 2:** API REST en FastAPI con autenticación por usuario y roles (operador, supervisor,
+  administrador) y frontend en Vue 3 (Vite, Pinia, Vue Router, Tailwind CSS) con Dashboard, Reconocimiento y Acceso,
+  Historial (con exportación CSV), Administración y Acerca del modelo; publicada en Hugging Face Spaces con Docker.
+- Interfaz alternativa en Streamlit con la misma funcionalidad (heredada del repositorio SIRAP).
 - Pipeline de video y modo en vivo en el notebook (seguimiento OC-SORT, voto de lecturas).
 - Documentación técnica, ética y manual de usuario; pruebas unitarias.
 
@@ -61,7 +63,8 @@ un operador de garita, que lea placas ecuatorianas y registre cada operación.
 - Conexión directa de la app web a las cámaras IP de la garita (la app recibe imágenes o la cámara del navegador;
   el video en vivo corre en el notebook).
 - Integración con SRI / ANT en la app (se probó en el notebook; depende de acceso a esos servicios).
-- Autenticación completa con contraseñas por usuario (la demo usa un PIN de administración opcional).
+- Gestión avanzada de cuentas (recuperar contraseña, bloqueo por intentos fallidos, inicio de sesión único de la
+  empresa).
 - Reconocimiento de placas de motos o de otros países.
 
 ## 5. Cronograma (planificado vs real)
@@ -73,20 +76,22 @@ un operador de garita, que lea placas ecuatorianas y registre cada operación.
 | 3 (26/09–02/10) | Preparación de datos y primer entrenamiento | Dataset de Roboflow (10 125 imágenes) como base de detección; SAVH para el OCR |
 | 4 (03–09/10) | Pipeline completo y regla de decisión | 07/10: YOLOv8n + GLM-OCR local, normalización, validación de formato y regla de 3 estados |
 | 5 (10–16/10) | Optimización y evaluación | Base de la planta en PostgreSQL, verificación SRI, pipeline de video y modo en vivo |
-| 6 (17–24/10) | Interfaz, documentación y videos | 23/10: detector final YOLO11-s y OCR fast-plate-ocr; app SIRAP en Streamlit; repositorio y documentación |
+| 6 (17–24/10) | Interfaz, documentación y videos | 23/10: detector final YOLO11-s y OCR fast-plate-ocr; app SIRAP en Streamlit; repositorio y documentación. 24/10: afinamiento del OCR, estudio de hiperparámetros (Optuna, 24 *trials*) y **SIRAP 2**: API FastAPI + frontend Vue 3 publicada en Hugging Face Spaces |
 
 **Desviaciones.** El detector cambió cuatro veces (YOLOv8 → RF-DETR → YOLOv8n → YOLO11-s) y el OCR tres
 (EasyOCR/PaddleOCR → GLM-OCR → fast-plate-ocr). Los cambios se debieron a costo de cómputo en Colab (RF-DETR y
-GLM-OCR son pesados) y a la necesidad de correr en CPU dentro de la app. Esto consumió tiempo que estaba previsto
-para la optimización de hiperparámetros (ver `optimizacion.md`).
+GLM-OCR son pesados) y a la necesidad de correr en CPU dentro de la app. Esto desplazó la optimización de
+hiperparámetros al último día (ver `optimizacion.md`). La versión web FastAPI + Vue no estaba en el plan original:
+se agregó al final para tener una arquitectura cliente-servidor con autenticación por usuario, sin modificar la app de
+Streamlit.
 
 ## 6. Recursos
 
 | Tipo | Recurso |
 |---|---|
 | Datos | License Plate Recognition v11 (Roboflow, CC BY 4.0); SAVH Guayaquil (Zenodo); imágenes y video de la garita (con autorización); base de la planta |
-| Hardware | Google Colab con GPU (T4 para pruebas; el entrenamiento final y las mediciones se hicieron en una NVIDIA L4); CPU para el OCR y la app; Streamlit Community Cloud (despliegue) |
-| Software | Python 3.11+, Ultralytics 8.4.177, fast-plate-ocr 1.1.0, ONNX Runtime, supervision, trackers (OC-SORT), PostgreSQL / psycopg 3, Streamlit, Plotly |
+| Hardware | Google Colab con GPU (T4 para pruebas; el entrenamiento final y las mediciones se hicieron en una NVIDIA L4); CPU para el OCR y la app; Hugging Face Spaces (Docker, CPU basic) para SIRAP 2 |
+| Software | Python 3.11+, Ultralytics 8.4.177, fast-plate-ocr 1.1.0, ONNX Runtime, supervision, trackers (OC-SORT), PostgreSQL / psycopg 3, FastAPI, Vue 3, Vite, Pinia, Vue Router, Tailwind CSS, ECharts, Docker, Streamlit |
 | Personas | 2 integrantes, ≈8 h/semana cada uno |
 
 ## 7. Riesgos y mitigación
@@ -100,3 +105,5 @@ para la optimización de hiperparámetros (ver `optimizacion.md`).
 | Llaves de API expuestas | Media | Alto | Secretos de Colab/Streamlit; se revocaron las llaves que quedaron en una versión antigua del notebook |
 | Datos personales (placas, propietarios) | Alta | Alto | Datos ficticios en la demo; minimización; ver `consideraciones_eticas.md` |
 | Cambios de tecnología a mitad del proyecto | Alta | Medio | Pipeline modular: detector, OCR y decisión se cambian por separado |
+| La plataforma de despliegue no da recursos gratuitos | Media | Medio | Ocurrió: Hugging Face exigió PRO para *CPU basic* en una cuenta nueva. Imagen Docker portátil (sirve en cualquier servidor) y análisis de alternativas (Render y Railway: 512 MB, insuficientes para ≈410 MB de la API) |
+| Acceso no autorizado a la app publicada | Media | Alto | Inicio de sesión con contraseña (PBKDF2), JWT con vencimiento, permisos por rol y decisión recalculada en el servidor |

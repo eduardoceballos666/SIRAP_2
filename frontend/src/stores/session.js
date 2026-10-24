@@ -1,13 +1,26 @@
 import { defineStore } from 'pinia'
 import { api } from '@/lib/api'
 
-// Estado del puesto de control: garita y tipo de movimiento elegidos, datos del sistema y avisos.
+const THEME_KEY = 'sirap_theme'
+
+function initialTheme() {
+  try {
+    const saved = localStorage.getItem(THEME_KEY)
+    if (saved === 'dark' || saved === 'light') return saved
+  } catch { /* sin almacenamiento */ }
+  return window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+}
+
+// Estado del puesto de control: garita y movimiento elegidos, datos del sistema, tema, avisos y
+// las lecturas hechas en esta sesión (para compararlas; no se guardan en el servidor hasta que se registran).
 export const useSessionStore = defineStore('session', {
   state: () => ({
     system: null,
     garita: null,
     movimiento: 'ENTRADA',
     toasts: [],
+    theme: initialTheme(),
+    lecturas: [],
   }),
   actions: {
     async loadSystem(force = false) {
@@ -22,6 +35,25 @@ export const useSessionStore = defineStore('session', {
       const id = Date.now() + Math.random()
       this.toasts.push({ id, message, kind })
       setTimeout(() => { this.toasts = this.toasts.filter((t) => t.id !== id) }, 4500)
+    },
+    applyTheme() {
+      document.documentElement.classList.toggle('dark', this.theme === 'dark')
+    },
+    toggleTheme() {
+      this.theme = this.theme === 'dark' ? 'light' : 'dark'
+      try { localStorage.setItem(THEME_KEY, this.theme) } catch { /* sin almacenamiento */ }
+      this.applyTheme()
+    },
+    addLectura(lectura) {
+      this.lecturas.unshift({ id: Date.now() + Math.random(), hora: new Date().toLocaleTimeString('es-EC'), ...lectura })
+      this.lecturas = this.lecturas.slice(0, 50)
+    },
+    markRegistered(id, accion) {
+      const l = this.lecturas.find((x) => x.id === id)
+      if (l) l.registro = accion
+    },
+    clearLecturas() {
+      this.lecturas = []
     },
   },
 })

@@ -5,4 +5,4 @@ Expone la misma lógica que usa la app de Streamlit (``src/``) para un frontend 
 convivir y compartir la base PostgreSQL de producción (``PG_DSN``).
 """
 
-__version__ = "1.0.0"
+__version__ = "2.0.0"
