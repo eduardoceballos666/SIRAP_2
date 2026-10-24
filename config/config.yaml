@@ -26,8 +26,8 @@ detector:
   conf_decision: 0.30
   iou_nms: 0.7                 # NMS por defecto de Ultralytics (igual que en el notebook)
   margen_recorte: 0.06         # margen alrededor de la caja antes del OCR (fracción del ancho/alto)
-  # Si no hay pesos, se usa un localizador clásico (OpenCV). La interfaz lo advierte.
-  permitir_respaldo_opencv: true
+  # Sin pesos YOLO, el reconocimiento falla explícitamente; no se usa un detector alternativo.
+  permitir_respaldo_opencv: false
 
 ocr:
   modelo: "cct-s-v2-global-model"   # fast-plate-ocr 1.1.0 (≈5 MB, CPU)
