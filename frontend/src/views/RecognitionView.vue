@@ -39,6 +39,7 @@ const hasActiveVideo = computed(() => source.value === 'camara' || (source.value
 
 const loading = ref(false)
 const recognition = ref(null)
+const detection = ref(null)
 const decision = ref(null)
 const manualPlate = ref('') // placa corregida o escrita por el operador
 const origin = ref('DETECCION')
@@ -225,6 +226,7 @@ onBeforeUnmount(() => {
 // --- imagen -----------------------------------------------------------------------------
 function reset() {
   recognition.value = null
+  detection.value = null
   decision.value = null
   manualPlate.value = ''
   origin.value = 'DETECCION'
@@ -304,10 +306,11 @@ async function recognize() {
     const form = new FormData()
     form.append('file', file.value, 'imagen.jpg')
     const data = await api('/api/recognize', { method: 'POST', form })
-    const accepted = Boolean(data.recognition.plate) && Number(data.recognition.ocr_confidence) >= 0.95
+    detection.value = data.recognition
+    const accepted = Boolean(data.recognition.plate) && Number(data.recognition.ocr_confidence) >= 0.96
     if (!accepted) return
 
-    // Solo publicamos lecturas con placa válida y confianza OCR mínima de 93 %.
+    // Solo publicamos lecturas con placa válida y confianza OCR mínima de 96 %.
     recognition.value = data.recognition
     if (continuousAnalysis.value) stopContinuousAnalysis()
     decision.value = data.decision
@@ -506,10 +509,21 @@ onMounted(async () => {
             <video v-if="onlineMode === 'video'" v-show="!showCapture" ref="mediaVideo" :src="onlineUrl" controls autoplay playsinline muted @loadedmetadata="mediaLoaded" @playing="mediaPlaying" @error="mediaFailed"></video>
             <img v-else v-show="!showCapture" ref="networkImage" :src="onlineUrl" alt="Video en vivo de cámara en línea" @load="mediaLoaded" @error="mediaFailed" />
           </template>
-          <ImageViewer v-show="imagePreviewVisible" class="compact-viewer" :src="preview" :box="recognition?.box" :width="recognition?.image_width" :height="recognition?.image_height" :tone="tone" :label="recognition?.plate" :garita="session.garita" :stamp="stamp" :loading="loading" />
+          <svg v-if="hasActiveVideo && !showCapture && detection?.box && detection?.image_width && detection?.image_height" :viewBox="`0 0 ${detection.image_width} ${detection.image_height}`" preserveAspectRatio="xMidYMid meet" class="pointer-events-none absolute inset-0 z-10 h-full w-full" aria-label="Recuadro de detección YOLO">
+            <rect :x="detection.box[0]" :y="detection.box[1]" :width="detection.box[2] - detection.box[0]" :height="detection.box[3] - detection.box[1]" fill="none" stroke="#31e981" :stroke-width="Math.max(3, Math.round(detection.image_width / 220))" rx="4" />
+          </svg>
+          <ImageViewer v-show="imagePreviewVisible" class="compact-viewer" :src="preview" :box="detection?.box" :width="detection?.image_width" :height="detection?.image_height" :tone="tone" :label="recognition?.plate" :garita="session.garita" :stamp="stamp" :loading="loading" />
         </div>
+        <section class="detector-metrics rounded-xl bg-subtle-2 px-3 py-2" aria-label="Métricas de evaluación de YOLO11-s">
+          <div class="grid grid-cols-3 gap-2 text-center">
+            <div><strong class="block text-sm text-ink">98,57 %</strong><span class="text-[10px] text-muted">Precisión</span></div>
+            <div><strong class="block text-sm text-ink">95,63 %</strong><span class="text-[10px] text-muted">Recall</span></div>
+            <div><strong class="block text-sm text-ink">97,22 %</strong><span class="text-[10px] text-muted">mAP@0.5</span></div>
+          </div>
+          <p class="mt-1 text-center text-[9px] text-muted">YOLO11-s · prueba: 1.020 imágenes / 1.085 placas · precisión y recall con umbral 0,30</p>
+        </section>
         <div class="camera-meta">
-          <span>{{ recognition ? recognition.detector + ' · ' + recognition.timings_ms.total?.toFixed(0) + ' ms' : sourceLabel || 'Seleccione una imagen o fuente de video' }}</span>
+          <span>{{ detection ? detection.detector + (recognition ? ' · ' + recognition.timings_ms.total?.toFixed(0) + ' ms' : ' · esperando OCR ≥ 96 %') : sourceLabel || 'Seleccione una imagen o fuente de video' }}</span>
           <div class="camera-meta-actions">
             <button class="btn-ghost clear-reading-button" :disabled="loading || busy || (!file && !decision && !manualPlate)" @click="clearCurrentReading"><AppIcon name="trash" :size="14" /> Limpiar lectura</button>
             <button class="btn-ghost" :disabled="loading || (!file && !mediaReady)" @click="processCurrentMedia"><AppIcon name="refresh" :size="15" /> Reprocesar</button>
@@ -576,7 +590,7 @@ onMounted(async () => {
       <button class="btn-navy action-button" :disabled="!decision || busy || done" @click="manualOpen = true"><AppIcon name="lock" :size="19" /><span>Apertura manual (Contingencia)</span></button>
     </div>
   </div>
-  <ModalDialog :open="helpOpen" title="Cómo registrar un acceso" @close="helpOpen = false"><ol class="list-decimal space-y-3 pl-5"><li>Elija un ejemplo, suba una imagen o video, o conecte una cámara local o una URL compatible.</li><li>Las imágenes se analizan al seleccionarlas. Los videos y cámaras se analizan automáticamente cada 2,5 segundos hasta leer una placa válida con al menos 95 % de confianza OCR; las lecturas inferiores no se muestran.</li><li>Revise la placa, el vehículo y el resultado. Corrija la placa y pulse Verificar si es necesario.</li><li>Autorice y abra solo cuando el resultado lo permita, o registre sin abrir. La apertura manual requiere un motivo.</li><li>Las lecturas solo se guardan en el historial al registrar una acción.</li></ol><button class="btn-primary mt-4" @click="helpOpen = false">Entendido</button></ModalDialog>
+  <ModalDialog :open="helpOpen" title="Cómo registrar un acceso" @close="helpOpen = false"><ol class="list-decimal space-y-3 pl-5"><li>Elija un ejemplo, suba una imagen o video, o conecte una cámara local o una URL compatible.</li><li>Las imágenes se analizan al seleccionarlas. Los videos y cámaras se analizan automáticamente cada 2,5 segundos hasta leer una placa válida con al menos 96 % de confianza OCR; las lecturas inferiores no se muestran.</li><li>Revise la placa, el vehículo y el resultado. Corrija la placa y pulse Verificar si es necesario.</li><li>Autorice y abra solo cuando el resultado lo permita, o registre sin abrir. La apertura manual requiere un motivo.</li><li>Las lecturas solo se guardan en el historial al registrar una acción.</li></ol><button class="btn-primary mt-4" @click="helpOpen = false">Entendido</button></ModalDialog>
   <ModalDialog :open="registrationOpen" title="Registrar camión nuevo" @close="registrationOpen = false">
     <form class="vehicle-registration-form" @submit.prevent="saveVehicle">
       <div class="registration-plate"><span>Placa detectada</span><strong>{{ plateShown }}</strong></div>
