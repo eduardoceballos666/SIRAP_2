@@ -141,7 +141,7 @@
 .reading-copy small { overflow:hidden; color:var(--color-muted); font-size:9px; text-overflow:ellipsis; white-space:nowrap; }
 .reading-empty { margin:0; padding:9px; border-radius:7px; background:var(--color-subtle); color:var(--color-muted); font-size:11px; }
 
-.decision-column { display:grid; grid-template-rows:minmax(132px,.95fr) minmax(116px,.82fr) minmax(158px,1.15fr); gap:9px; min-height:0; }
+.decision-column { display:grid; grid-template-rows:minmax(132px,.95fr) minmax(138px,.9fr) minmax(158px,1.15fr); gap:9px; min-height:0; }
 .access-result-card { display:grid; grid-template-columns:56px minmax(0,1fr) minmax(100px,.45fr); align-items:center; gap:10px; min-height:0; padding:13px !important; border-color:#3b8c5d !important; background:linear-gradient(115deg,#1e7642 0%,#2c894f 100%) !important; color:#fff; }
 .access-result-card.tone-bad { border-color:#b2313a !important; background:linear-gradient(115deg,#a42630 0%,#c0333d 100%) !important; }
 .access-result-card.tone-warn { border-color:#9c6918 !important; background:linear-gradient(115deg,#895810 0%,#9f6717 100%) !important; }
@@ -184,7 +184,7 @@
 .section-heading { display:flex; align-items:center; justify-content:space-between; gap:8px; min-width:0; }
 .section-heading > span { color:var(--color-muted); font-size:10px; font-weight:700; }
 .plate-line { display:flex; align-items:center; gap:8px; min-width:0; }
-.compact-plate { flex:1; min-width:0; padding:2px 8px; border:2px solid var(--color-navy-900); border-radius:8px; background:#fff; color:#0d1b33; font-size:clamp(24px,2.1vw,34px); font-weight:900; line-height:1.15; text-align:center; white-space:nowrap; }
+.compact-plate { flex:1; min-width:0; min-height:58px; padding:6px 8px; border:2px solid var(--color-navy-900); border-radius:8px; background:#fff; color:#0d1b33; font-size:clamp(30px,2.6vw,42px); font-weight:900; line-height:1.15; text-align:center; white-space:nowrap; }
 .plate-line img { flex:none; width:62px; height:36px; border-radius:5px; object-fit:contain; }
 .plate-form { display:flex; gap:6px; min-width:0; }
 .plate-form input { min-width:0; min-height:32px; flex:1; padding:5px 9px !important; font-size:12px !important; }
