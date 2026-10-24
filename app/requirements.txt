@@ -1,0 +1,2 @@
+# Dependencias de la interfaz: son las mismas del backend (la app importa src/).
+-r ../requirements.txt
