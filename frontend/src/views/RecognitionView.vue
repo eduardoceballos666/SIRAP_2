@@ -346,7 +346,7 @@ onMounted(async () => {
       <div class="decision-column" :class="tone ? 'tone-' + tone : 'tone-neutral'">
         <section class="card plate-panel" aria-label="Placa identificada">
           <div class="section-heading"><h2><AppIcon name="camera" :size="19" /> Placa identificada</h2><span>{{ origin === 'MANUAL' ? 'Manual' : 'OCR' }}</span></div>
-          <div class="plate-line"><div class="compact-plate">{{ plateShown || '———-————' }}</div><img v-if="recognition?.crop_jpeg_base64" :src="'data:image/jpeg;base64,' + recognition.crop_jpeg_base64" alt="Recorte de la placa" /></div>
+          <div class="plate-line"><div class="compact-plate">{{ plateShown || '———-————' }}</div></div>
           <form class="plate-form" @submit.prevent="verifyManual"><input v-model.trim="manualPlate" class="field font-mono uppercase" aria-label="Corregir o escribir placa" placeholder="Corregir / escribir placa" maxlength="12" /><button class="btn-ghost" :disabled="busy || !manualPlate">Verificar</button></form>
         </section>
 
