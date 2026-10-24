@@ -311,10 +311,10 @@ async function recognize() {
     const data = await api('/api/recognize', { method: 'POST', form })
     detection.value = data.recognition
     ocrAttempt.value = { confidence: Number(data.recognition.ocr_confidence) || 0, hasPlate: Boolean(data.recognition.plate) }
-    const accepted = Boolean(data.recognition.plate) && Number(data.recognition.ocr_confidence) >= 0.96
+    const accepted = Boolean(data.recognition.plate) && Number(data.recognition.ocr_confidence) >= 0.94
     if (!accepted) return
 
-    // Solo publicamos lecturas con placa válida y confianza OCR mínima de 96 %.
+    // Solo publicamos lecturas con placa válida y confianza OCR mínima de 94 %.
     recognition.value = data.recognition
     if (continuousAnalysis.value) stopContinuousAnalysis()
     decision.value = data.decision
@@ -521,12 +521,12 @@ onMounted(async () => {
         <section class="rounded-xl border border-line bg-surface px-3 py-2" aria-label="Análisis OCR" aria-live="polite">
           <div class="flex items-center justify-between gap-2">
             <strong class="text-xs uppercase text-ink">Análisis OCR</strong>
-            <span class="text-xs font-semibold text-brand-700">{{ loading ? 'Analizando fotograma…' : recognition ? 'Lectura aceptada' : ocrAttempt ? (ocrAttempt.hasPlate ? 'Buscando confianza ≥96 %' : 'No se leyó placa; continúa el análisis') : 'Esperando imagen o video' }}</span>
+            <span class="text-xs font-semibold text-brand-700">{{ loading ? 'Analizando fotograma…' : recognition ? 'Lectura aceptada' : ocrAttempt ? (ocrAttempt.hasPlate ? 'Buscando confianza ≥94 %' : 'No se leyó placa; continúa el análisis') : 'Esperando imagen o video' }}</span>
           </div>
           <div class="mt-1 h-2 overflow-hidden rounded-full bg-subtle-2" role="progressbar" :aria-valuenow="Math.round((ocrAttempt?.confidence || 0) * 100)" aria-valuemin="0" aria-valuemax="100" aria-label="Confianza OCR actual">
             <i class="block h-full rounded-full bg-brand-600 transition-all" :style="{ width: Math.max(0, Math.min(100, (ocrAttempt?.confidence || 0) * 100)) + '%' }"></i>
           </div>
-          <p class="mt-1 text-[10px] text-muted">{{ ocrAttempt ? 'Confianza OCR: ' + pct(ocrAttempt.confidence) + ' · la placa y el resultado se muestran solo desde 96 %' : 'El sistema seguirá analizando hasta alcanzar 96 % de confianza.' }}</p>
+          <p class="mt-1 text-[10px] text-muted">{{ ocrAttempt ? 'Confianza OCR: ' + pct(ocrAttempt.confidence) + ' · la placa y el resultado se muestran solo desde 94 %' : 'El sistema seguirá analizando hasta alcanzar 94 % de confianza.' }}</p>
         </section>
         <section class="detector-metrics rounded-xl bg-subtle-2 px-3 py-2" aria-label="Métricas de evaluación de YOLO11-s">
           <div class="grid grid-cols-3 gap-2 text-center">
@@ -604,7 +604,7 @@ onMounted(async () => {
       <button class="btn-navy action-button" :disabled="!decision || busy || done" @click="manualOpen = true"><AppIcon name="lock" :size="19" /><span>Apertura manual (Contingencia)</span></button>
     </div>
   </div>
-  <ModalDialog :open="helpOpen" title="Cómo registrar un acceso" @close="helpOpen = false"><ol class="list-decimal space-y-3 pl-5"><li>Elija un ejemplo, suba una imagen o video, o conecte una cámara local o una URL compatible.</li><li>Las imágenes se analizan al seleccionarlas. Los videos y cámaras se analizan automáticamente cada 2,5 segundos hasta leer una placa válida con al menos 96 % de confianza OCR; las lecturas inferiores no se muestran.</li><li>Revise la placa, el vehículo y el resultado. Corrija la placa y pulse Verificar si es necesario.</li><li>Autorice y abra solo cuando el resultado lo permita, o registre sin abrir. La apertura manual requiere un motivo.</li><li>Las lecturas solo se guardan en el historial al registrar una acción.</li></ol><button class="btn-primary mt-4" @click="helpOpen = false">Entendido</button></ModalDialog>
+  <ModalDialog :open="helpOpen" title="Cómo registrar un acceso" @close="helpOpen = false"><ol class="list-decimal space-y-3 pl-5"><li>Elija un ejemplo, suba una imagen o video, o conecte una cámara local o una URL compatible.</li><li>Las imágenes se analizan al seleccionarlas. Los videos y cámaras se analizan automáticamente cada 2,5 segundos hasta leer una placa válida con al menos 94 % de confianza OCR; las lecturas inferiores no se muestran.</li><li>Revise la placa, el vehículo y el resultado. Corrija la placa y pulse Verificar si es necesario.</li><li>Autorice y abra solo cuando el resultado lo permita, o registre sin abrir. La apertura manual requiere un motivo.</li><li>Las lecturas solo se guardan en el historial al registrar una acción.</li></ol><button class="btn-primary mt-4" @click="helpOpen = false">Entendido</button></ModalDialog>
   <ModalDialog :open="registrationOpen" title="Registrar camión nuevo" @close="registrationOpen = false">
     <form class="vehicle-registration-form" @submit.prevent="saveVehicle">
       <div class="registration-plate"><span>Placa detectada</span><strong>{{ plateShown }}</strong></div>
