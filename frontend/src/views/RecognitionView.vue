@@ -23,9 +23,19 @@ const selectedSample = ref('')
 const sourceLabel = ref('') // de dónde vino la imagen (para la tabla de lecturas)
 const lecturaId = ref(null)
 const currentReadingIds = ref([])
-const file = ref(null) // Blob a reconocer
+const file = ref(null) // imagen que se enviará al reconocimiento
 const preview = ref('')
 const stamp = ref('')
+const mediaUrl = ref('')
+const mediaKind = ref('image')
+const mediaReady = ref(false)
+const uploadedVideoName = ref('')
+const onlineUrlDraft = ref('')
+const onlineUrl = ref('')
+const onlineMode = ref('video')
+const onlineConnected = ref(false)
+const imagePreviewVisible = computed(() => source.value === 'ejemplos' || (source.value === 'subir' && mediaKind.value === 'image') || showCapture.value)
+const hasActiveVideo = computed(() => source.value === 'camara' || (source.value === 'subir' && mediaKind.value === 'video') || (source.value === 'online' && onlineConnected.value))
 
 const loading = ref(false)
 const recognition = ref(null)
@@ -47,7 +57,12 @@ const motivo = ref('')
 
 // --- cámara -----------------------------------------------------------------------------
 const video = ref(null)
+const mediaVideo = ref(null)
+const networkImage = ref(null)
 let stream = null
+let analysisTimer = null
+let framePending = false
+const continuousAnalysis = ref(false)
 const cameraError = ref('')
 
 async function toggleFullscreen() {
@@ -62,34 +77,137 @@ function syncFullscreen() { fullscreen.value = document.fullscreenElement === ca
 
 async function startCamera() {
   cameraError.value = ''
+  mediaReady.value = false
   try {
+    if (!navigator.mediaDevices?.getUserMedia) throw new Error('getUserMedia no disponible')
     stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment', width: { ideal: 1280 } } })
-    video.value.srcObject = stream
+    if (video.value) video.value.srcObject = stream
   } catch {
-    cameraError.value = 'No se pudo acceder a la cámara (permiso denegado o no disponible).'
+    cameraError.value = 'No se pudo acceder a la cámara local. Verifique el permiso del navegador y use HTTPS o localhost.'
   }
 }
 function stopCamera() {
   stream?.getTracks().forEach((t) => t.stop())
   stream = null
 }
-function capture() {
-  const v = video.value
-  if (!v?.videoWidth) return
+function stopContinuousAnalysis() {
+  if (analysisTimer) clearInterval(analysisTimer)
+  analysisTimer = null
+  continuousAnalysis.value = false
+}
+function activeMediaElement() {
+  if (source.value === 'camara') return video.value
+  if (source.value === 'online' && onlineMode.value === 'mjpeg') return networkImage.value
+  if ((source.value === 'subir' && mediaKind.value === 'video') || (source.value === 'online' && onlineMode.value === 'video')) return mediaVideo.value
+  return null
+}
+function mediaLoaded() {
+  mediaReady.value = true
+  cameraError.value = ''
+}
+function mediaFailed() {
+  mediaReady.value = false
+  cameraError.value = source.value === 'online'
+    ? 'No se pudo reproducir el enlace. Use una URL HTTP/HTTPS compatible con el navegador.'
+    : 'No se pudo reproducir este video. Pruebe un archivo MP4 o WebM.'
+}
+function frameLabel(media) {
+  const time = Number.isFinite(media?.currentTime) && media.currentTime > 0
+    ? new Date(Math.floor(media.currentTime) * 1000).toISOString().slice(14, 19)
+    : new Date().toLocaleTimeString('es-EC')
+  if (source.value === 'camara') return `Cámara local · ${time}`
+  if (source.value === 'online') return `Cámara en línea · ${time}`
+  return `${uploadedVideoName.value || 'Video'} · ${time}`
+}
+function captureFrame({ freeze = true } = {}) {
+  if (framePending || loading.value) return
+  const media = activeMediaElement()
+  const width = media?.videoWidth || media?.naturalWidth
+  const height = media?.videoHeight || media?.naturalHeight
+  if (!mediaReady.value || !width || !height) {
+    session.notify('Espere a que el video esté reproduciéndose antes de analizar un fotograma.', 'warn')
+    return
+  }
   const canvas = document.createElement('canvas')
-  canvas.width = v.videoWidth
-  canvas.height = v.videoHeight
-  canvas.getContext('2d').drawImage(v, 0, 0)
-  canvas.toBlob((blob) => { setImage(blob, 'Cámara'); showCapture.value = true; recognize() }, 'image/jpeg', 0.92)
+  canvas.width = width
+  canvas.height = height
+  const label = frameLabel(media)
+  try {
+    const context = canvas.getContext('2d')
+    context.drawImage(media, 0, 0, width, height)
+    framePending = true
+    canvas.toBlob((blob) => {
+      framePending = false
+      if (!blob) {
+        session.notify('No se pudo leer el fotograma. La cámara en línea debe permitir acceso CORS para analizarla.', 'bad')
+        return
+      }
+      setImage(blob, label)
+      if (freeze) showCapture.value = true
+      recognize()
+    }, 'image/jpeg', 0.92)
+  } catch {
+    framePending = false
+    session.notify('El navegador no permite leer fotogramas de esta cámara. Verifique CORS o use una fuente local/HTTPS compatible.', 'bad')
+  }
+}
+function capture() {
+  captureFrame({ freeze: true })
+}
+function toggleContinuousAnalysis() {
+  if (continuousAnalysis.value) {
+    stopContinuousAnalysis()
+    return
+  }
+  if (!mediaReady.value) {
+    session.notify('Conecte una cámara o reproduzca un video antes de iniciar el análisis.', 'warn')
+    return
+  }
+  showCapture.value = false
+  continuousAnalysis.value = true
+  captureFrame({ freeze: false })
+  analysisTimer = setInterval(() => {
+    if (continuousAnalysis.value && mediaReady.value && !loading.value && !framePending) captureFrame({ freeze: false })
+  }, 2500)
+}
+function connectOnlineCamera() {
+  let parsed
+  try {
+    parsed = new URL(onlineUrlDraft.value.trim())
+  } catch {
+    session.notify('Ingrese una URL válida de cámara.', 'warn')
+    return
+  }
+  if (!['http:', 'https:'].includes(parsed.protocol)) {
+    session.notify('Use una URL HTTP/HTTPS reproducible en el navegador. RTSP requiere un servidor puente.', 'warn')
+    return
+  }
+  stopContinuousAnalysis()
+  stopCamera()
+  source.value = 'online'
+  onlineUrl.value = parsed.href
+  onlineUrlDraft.value = parsed.href
+  onlineConnected.value = true
+  showCapture.value = false
+  mediaReady.value = false
+  cameraError.value = ''
+  sourceLabel.value = 'Cámara en línea'
+  reset()
 }
 function setSource(name) {
+  stopContinuousAnalysis()
   source.value = name
   showCapture.value = false
+  mediaReady.value = false
+  cameraError.value = ''
   if (name === 'camara') setTimeout(startCamera, 0)
   else stopCamera()
 }
 onBeforeUnmount(() => {
+  stopContinuousAnalysis()
   stopCamera()
+  if (preview.value) URL.revokeObjectURL(preview.value)
+  if (mediaUrl.value) URL.revokeObjectURL(mediaUrl.value)
   clearInterval(clockTimer)
   document.removeEventListener('fullscreenchange', syncFullscreen)
 })
@@ -115,6 +233,7 @@ function setImage(blob, label = '') {
 }
 function clearCurrentReading() {
   if (loading.value || busy.value) return
+  stopContinuousAnalysis()
   session.clearUnregisteredLecturas(currentReadingIds.value)
   if (preview.value) URL.revokeObjectURL(preview.value)
   file.value = null
@@ -139,8 +258,28 @@ async function pickSample(name) {
 async function onUpload(event) {
   const f = event.target.files?.[0]
   if (!f) return
-  setImage(f, f.name)
-  await recognize()
+  const isVideo = f.type.startsWith('video/') || /\.(mp4|webm|mov|m4v|ogv|ogg)$/i.test(f.name)
+  stopContinuousAnalysis()
+  mediaReady.value = false
+  showCapture.value = false
+  if (mediaUrl.value) URL.revokeObjectURL(mediaUrl.value)
+  mediaUrl.value = ''
+  uploadedVideoName.value = ''
+  if (isVideo) {
+    if (preview.value) URL.revokeObjectURL(preview.value)
+    preview.value = ''
+    file.value = null
+    mediaKind.value = 'video'
+    uploadedVideoName.value = f.name
+    mediaUrl.value = URL.createObjectURL(f)
+    sourceLabel.value = f.name
+    stamp.value = new Date().toLocaleString('es-EC')
+    reset()
+  } else {
+    mediaKind.value = 'image'
+    setImage(f, f.name)
+    await recognize()
+  }
   event.target.value = ''
 }
 
@@ -169,6 +308,11 @@ async function recognize() {
   } finally {
     loading.value = false
   }
+}
+
+function processCurrentMedia() {
+  if (hasActiveVideo.value && mediaReady.value) captureFrame({ freeze: true })
+  else recognize()
 }
 
 async function verifyManual() {
@@ -302,7 +446,7 @@ onMounted(async () => {
         <div class="panel-toolbar camera-toolbar">
           <h2><AppIcon name="camera" :size="18" /> Lectura del vehículo</h2>
           <div class="source-tabs" role="group" aria-label="Fuente de imagen">
-            <button v-for="s in [['camara', 'En vivo'], ['ejemplos', 'Ejemplos'], ['subir', 'Subir imagen']]" :key="s[0]" :aria-pressed="source === s[0]" :class="{ active: source === s[0] }" @click="setSource(s[0])">{{ s[1] }}</button>
+            <button v-for="s in [['camara', 'En vivo'], ['ejemplos', 'Ejemplos'], ['subir', 'Subir archivo'], ['online', 'Cámara URL']]" :key="s[0]" :aria-pressed="source === s[0]" :class="{ active: source === s[0] }" @click="setSource(s[0])">{{ s[1] }}</button>
           </div>
           <button class="btn-ghost fullscreen-button" :aria-label="fullscreen ? 'Salir de pantalla completa' : 'Ver en pantalla completa'" :title="fullscreen ? 'Salir de pantalla completa' : 'Ver en pantalla completa'" @click="toggleFullscreen">
             <AppIcon :name="fullscreen ? 'minimize' : 'fullscreen'" :size="17" /><span>{{ fullscreen ? 'Salir' : 'Pantalla completa' }}</span>
@@ -312,22 +456,48 @@ onMounted(async () => {
         <select v-if="source === 'ejemplos'" :value="selectedSample" class="field sample-select" aria-label="Probar con un ejemplo" :disabled="loading" @change="pickSample($event.target.value)">
           <option disabled value="">Seleccionar imagen de ejemplo…</option><option v-for="s in samples" :key="s.nombre" :value="s.nombre">{{ s.etiqueta }}</option>
         </select>
-        <label v-else-if="source === 'subir'" class="upload-compact"><AppIcon name="upload" :size="17" /><span>Elegir imagen · JPG, PNG o WEBP · máx. 10 MB</span><input type="file" accept="image/jpeg,image/png,image/webp" class="hidden" @change="onUpload" /></label>
+        <div v-else-if="source === 'subir'" class="media-source-tools">
+          <label class="upload-compact"><AppIcon name="upload" :size="17" /><span>{{ mediaKind === 'video' ? 'Cambiar archivo' : 'Elegir imagen o video' }} · JPG, PNG, WEBP, MP4 o WEBM</span><input type="file" accept="image/jpeg,image/png,image/webp,video/*" class="hidden" @change="onUpload" /></label>
+          <div v-if="mediaKind === 'video'" class="live-camera-tools">
+            <button class="btn-primary" :disabled="!mediaReady || loading" @click="captureFrame({ freeze: true })"><AppIcon name="scan" :size="16" /> Analizar fotograma</button>
+            <button class="btn-ghost" :disabled="!mediaReady || loading" @click="toggleContinuousAnalysis">{{ continuousAnalysis ? 'Detener análisis' : 'Analizar cada 2,5 s' }}</button>
+            <button v-if="showCapture" class="btn-ghost" @click="showCapture = false">Volver al video</button>
+          </div>
+        </div>
+        <div v-else-if="source === 'online'" class="online-source-tools">
+          <form class="online-camera-form" @submit.prevent="connectOnlineCamera">
+            <select v-model="onlineMode" class="field" aria-label="Formato de la cámara en línea"><option value="video">Video web (MP4/WebM)</option><option value="mjpeg">MJPEG</option></select>
+            <input v-model.trim="onlineUrlDraft" class="field" aria-label="URL de cámara en línea" placeholder="https://dirección-de-cámara/video" />
+            <button class="btn-primary" :disabled="!onlineUrlDraft.trim()">Conectar</button>
+          </form>
+          <p class="camera-stream-hint">Use una URL HTTP/HTTPS compatible con el navegador (MP4/WebM o MJPEG). HLS solo funciona donde el navegador lo admite; RTSP requiere un servidor puente. Para analizar fuentes externas, habilite CORS.</p>
+          <div v-if="onlineConnected" class="live-camera-tools">
+            <button class="btn-primary" :disabled="!mediaReady || loading" @click="captureFrame({ freeze: true })"><AppIcon name="scan" :size="16" /> Analizar fotograma</button>
+            <button class="btn-ghost" :disabled="!mediaReady || loading" @click="toggleContinuousAnalysis">{{ continuousAnalysis ? 'Detener análisis' : 'Analizar cada 2,5 s' }}</button>
+            <button v-if="showCapture" class="btn-ghost" @click="showCapture = false">Volver al video</button>
+          </div>
+        </div>
         <div v-else class="live-camera-tools">
-          <button class="btn-primary" :disabled="loading" @click="capture"><AppIcon name="camera" :size="16" /> Capturar y reconocer</button>
-          <button v-if="preview" class="btn-ghost" @click="showCapture = !showCapture">{{ showCapture ? 'Ver cámara en vivo' : 'Ver captura' }}</button>
+          <button class="btn-primary" :disabled="!mediaReady || loading" @click="capture"><AppIcon name="camera" :size="16" /> Capturar y reconocer</button>
+          <button class="btn-ghost" :disabled="!mediaReady || loading" @click="toggleContinuousAnalysis">{{ continuousAnalysis ? 'Detener análisis' : 'Analizar cada 2,5 s' }}</button>
+          <button v-if="showCapture" class="btn-ghost" @click="showCapture = false">Volver a cámara en vivo</button>
         </div>
 
-        <p v-if="source === 'camara' && cameraError" role="alert" class="camera-error">{{ cameraError }}</p>
+        <p v-if="cameraError" role="alert" class="camera-error">{{ cameraError }}</p>
         <div class="camera-stage">
-          <video v-if="source === 'camara'" v-show="!showCapture" ref="video" autoplay playsinline muted></video>
-          <ImageViewer v-show="source !== 'camara' || showCapture" class="compact-viewer" :src="preview" :box="recognition?.box" :width="recognition?.image_width" :height="recognition?.image_height" :tone="tone" :label="recognition?.plate" :garita="session.garita" :stamp="stamp" :loading="loading" />
+          <video v-if="source === 'camara'" v-show="!showCapture" ref="video" autoplay playsinline muted @loadedmetadata="mediaLoaded" @error="mediaFailed"></video>
+          <video v-else-if="source === 'subir' && mediaKind === 'video'" v-show="!showCapture" ref="mediaVideo" :src="mediaUrl" controls playsinline @loadedmetadata="mediaLoaded" @error="mediaFailed"></video>
+          <template v-else-if="source === 'online' && onlineConnected">
+            <video v-if="onlineMode === 'video'" v-show="!showCapture" ref="mediaVideo" :src="onlineUrl" controls autoplay playsinline muted @loadedmetadata="mediaLoaded" @error="mediaFailed"></video>
+            <img v-else v-show="!showCapture" ref="networkImage" :src="onlineUrl" alt="Video en vivo de cámara en línea" @load="mediaLoaded" @error="mediaFailed" />
+          </template>
+          <ImageViewer v-show="imagePreviewVisible" class="compact-viewer" :src="preview" :box="recognition?.box" :width="recognition?.image_width" :height="recognition?.image_height" :tone="tone" :label="recognition?.plate" :garita="session.garita" :stamp="stamp" :loading="loading" />
         </div>
         <div class="camera-meta">
-          <span>{{ recognition ? recognition.detector + ' · ' + recognition.timings_ms.total?.toFixed(0) + ' ms' : 'Imagen de la garita · lista para procesar' }}</span>
+          <span>{{ recognition ? recognition.detector + ' · ' + recognition.timings_ms.total?.toFixed(0) + ' ms' : sourceLabel || 'Seleccione una imagen o fuente de video' }}</span>
           <div class="camera-meta-actions">
             <button class="btn-ghost clear-reading-button" :disabled="loading || busy || (!file && !decision && !manualPlate)" @click="clearCurrentReading"><AppIcon name="trash" :size="14" /> Limpiar lectura</button>
-            <button class="btn-ghost" :disabled="loading || !file" @click="recognize"><AppIcon name="refresh" :size="15" /> Reprocesar</button>
+            <button class="btn-ghost" :disabled="loading || (!file && !mediaReady)" @click="processCurrentMedia"><AppIcon name="refresh" :size="15" /> Reprocesar</button>
           </div>
         </div>
 
@@ -387,11 +557,11 @@ onMounted(async () => {
 
     <div class="access-action-bar" aria-label="Acciones de acceso">
       <button class="btn-yellow action-button" :disabled="!canOpen || busy" @click="register('APERTURA_AUTOMATICA')"><AppIcon name="barrier" :size="20" /><span>Registrar y abrir barrera</span></button>
-      <button class="btn-red action-button" :disabled="!file || loading" @click="recognize"><AppIcon name="settings" :size="20" /><span>Procesar detección automática</span></button>
+      <button class="btn-red action-button" :disabled="loading || (!file && !mediaReady)" @click="processCurrentMedia"><AppIcon name="settings" :size="20" /><span>Procesar detección automática</span></button>
       <button class="btn-navy action-button" :disabled="!decision || busy || done" @click="manualOpen = true"><AppIcon name="lock" :size="19" /><span>Apertura manual (Contingencia)</span></button>
     </div>
   </div>
-  <ModalDialog :open="helpOpen" title="Cómo registrar un acceso" @close="helpOpen = false"><ol class="list-decimal space-y-3 pl-5"><li>Elija un ejemplo, suba una imagen o capture desde la cámara.</li><li>Revise la placa, el vehículo y el resultado. Corrija la placa y pulse Verificar si es necesario.</li><li>Autorice y abra solo cuando el resultado lo permita, o registre sin abrir. La apertura manual requiere un motivo.</li><li>Las lecturas solo se guardan en el historial al registrar una acción.</li></ol><button class="btn-primary mt-4" @click="helpOpen = false">Entendido</button></ModalDialog>
+  <ModalDialog :open="helpOpen" title="Cómo registrar un acceso" @close="helpOpen = false"><ol class="list-decimal space-y-3 pl-5"><li>Elija un ejemplo, suba una imagen o video, o conecte una cámara local o una URL compatible.</li><li>En video, analice un fotograma o inicie el análisis continuo cada 2,5 segundos.</li><li>Revise la placa, el vehículo y el resultado. Corrija la placa y pulse Verificar si es necesario.</li><li>Autorice y abra solo cuando el resultado lo permita, o registre sin abrir. La apertura manual requiere un motivo.</li><li>Las lecturas solo se guardan en el historial al registrar una acción.</li></ol><button class="btn-primary mt-4" @click="helpOpen = false">Entendido</button></ModalDialog>
   <ModalDialog :open="registrationOpen" title="Registrar camión nuevo" @close="registrationOpen = false">
     <form class="vehicle-registration-form" @submit.prevent="saveVehicle">
       <div class="registration-plate"><span>Placa detectada</span><strong>{{ plateShown }}</strong></div>
