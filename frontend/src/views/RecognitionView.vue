@@ -104,6 +104,21 @@ function activeMediaElement() {
 function mediaLoaded() {
   mediaReady.value = true
   cameraError.value = ''
+  // MJPEG entrega fotogramas como imágenes: iniciar el análisis al llegar el primero.
+  if (source.value === 'online' && onlineMode.value === 'mjpeg') startAutomaticAnalysis()
+}
+function mediaPlaying() {
+  mediaLoaded()
+  startAutomaticAnalysis()
+}
+function startAutomaticAnalysis() {
+  if (continuousAnalysis.value || !mediaReady.value) return
+  showCapture.value = false
+  continuousAnalysis.value = true
+  captureFrame({ freeze: false })
+  analysisTimer = setInterval(() => {
+    if (continuousAnalysis.value && mediaReady.value && !loading.value && !framePending) captureFrame({ freeze: false })
+  }, 2500)
 }
 function mediaFailed() {
   mediaReady.value = false
@@ -160,15 +175,10 @@ function toggleContinuousAnalysis() {
     return
   }
   if (!mediaReady.value) {
-    session.notify('Conecte una cámara o reproduzca un video antes de iniciar el análisis.', 'warn')
+    session.notify('Espere a que el video o la cámara esté listo para analizar.', 'warn')
     return
   }
-  showCapture.value = false
-  continuousAnalysis.value = true
-  captureFrame({ freeze: false })
-  analysisTimer = setInterval(() => {
-    if (continuousAnalysis.value && mediaReady.value && !loading.value && !framePending) captureFrame({ freeze: false })
-  }, 2500)
+  startAutomaticAnalysis()
 }
 function connectOnlineCamera() {
   let parsed
@@ -486,10 +496,10 @@ onMounted(async () => {
 
         <p v-if="cameraError" role="alert" class="camera-error">{{ cameraError }}</p>
         <div class="camera-stage">
-          <video v-if="source === 'camara'" v-show="!showCapture" ref="video" autoplay playsinline muted @loadedmetadata="mediaLoaded" @error="mediaFailed"></video>
-          <video v-else-if="source === 'subir' && mediaKind === 'video'" v-show="!showCapture" ref="mediaVideo" :src="mediaUrl" controls playsinline @loadedmetadata="mediaLoaded" @error="mediaFailed"></video>
+          <video v-if="source === 'camara'" v-show="!showCapture" ref="video" autoplay playsinline muted @loadedmetadata="mediaLoaded" @playing="mediaPlaying" @error="mediaFailed"></video>
+          <video v-else-if="source === 'subir' && mediaKind === 'video'" v-show="!showCapture" ref="mediaVideo" :src="mediaUrl" controls autoplay playsinline muted @loadedmetadata="mediaLoaded" @playing="mediaPlaying" @error="mediaFailed"></video>
           <template v-else-if="source === 'online' && onlineConnected">
-            <video v-if="onlineMode === 'video'" v-show="!showCapture" ref="mediaVideo" :src="onlineUrl" controls autoplay playsinline muted @loadedmetadata="mediaLoaded" @error="mediaFailed"></video>
+            <video v-if="onlineMode === 'video'" v-show="!showCapture" ref="mediaVideo" :src="onlineUrl" controls autoplay playsinline muted @loadedmetadata="mediaLoaded" @playing="mediaPlaying" @error="mediaFailed"></video>
             <img v-else v-show="!showCapture" ref="networkImage" :src="onlineUrl" alt="Video en vivo de cámara en línea" @load="mediaLoaded" @error="mediaFailed" />
           </template>
           <ImageViewer v-show="imagePreviewVisible" class="compact-viewer" :src="preview" :box="recognition?.box" :width="recognition?.image_width" :height="recognition?.image_height" :tone="tone" :label="recognition?.plate" :garita="session.garita" :stamp="stamp" :loading="loading" />
@@ -562,7 +572,7 @@ onMounted(async () => {
       <button class="btn-navy action-button" :disabled="!decision || busy || done" @click="manualOpen = true"><AppIcon name="lock" :size="19" /><span>Apertura manual (Contingencia)</span></button>
     </div>
   </div>
-  <ModalDialog :open="helpOpen" title="Cómo registrar un acceso" @close="helpOpen = false"><ol class="list-decimal space-y-3 pl-5"><li>Elija un ejemplo, suba una imagen o video, o conecte una cámara local o una URL compatible.</li><li>En video, analice un fotograma o inicie el análisis continuo cada 2,5 segundos.</li><li>Revise la placa, el vehículo y el resultado. Corrija la placa y pulse Verificar si es necesario.</li><li>Autorice y abra solo cuando el resultado lo permita, o registre sin abrir. La apertura manual requiere un motivo.</li><li>Las lecturas solo se guardan en el historial al registrar una acción.</li></ol><button class="btn-primary mt-4" @click="helpOpen = false">Entendido</button></ModalDialog>
+  <ModalDialog :open="helpOpen" title="Cómo registrar un acceso" @close="helpOpen = false"><ol class="list-decimal space-y-3 pl-5"><li>Elija un ejemplo, suba una imagen o video, o conecte una cámara local o una URL compatible.</li><li>Las imágenes se analizan al seleccionarlas. Los videos y cámaras se analizan automáticamente cada 2,5 segundos y el análisis se detiene cuando detecta una placa; también puede detenerlo manualmente.</li><li>Revise la placa, el vehículo y el resultado. Corrija la placa y pulse Verificar si es necesario.</li><li>Autorice y abra solo cuando el resultado lo permita, o registre sin abrir. La apertura manual requiere un motivo.</li><li>Las lecturas solo se guardan en el historial al registrar una acción.</li></ol><button class="btn-primary mt-4" @click="helpOpen = false">Entendido</button></ModalDialog>
   <ModalDialog :open="registrationOpen" title="Registrar camión nuevo" @close="registrationOpen = false">
     <form class="vehicle-registration-form" @submit.prevent="saveVehicle">
       <div class="registration-plate"><span>Placa detectada</span><strong>{{ plateShown }}</strong></div>
