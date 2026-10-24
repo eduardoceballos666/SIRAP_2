@@ -40,6 +40,7 @@ const hasActiveVideo = computed(() => source.value === 'camara' || (source.value
 const loading = ref(false)
 const recognition = ref(null)
 const detection = ref(null)
+const ocrAttempt = ref(null)
 const decision = ref(null)
 const manualPlate = ref('') // placa corregida o escrita por el operador
 const origin = ref('DETECCION')
@@ -228,6 +229,7 @@ onBeforeUnmount(() => {
 function reset() {
   recognition.value = null
   detection.value = null
+  ocrAttempt.value = null
   decision.value = null
   manualPlate.value = ''
   origin.value = 'DETECCION'
@@ -308,6 +310,7 @@ async function recognize() {
     form.append('file', file.value, 'imagen.jpg')
     const data = await api('/api/recognize', { method: 'POST', form })
     detection.value = data.recognition
+    ocrAttempt.value = { confidence: Number(data.recognition.ocr_confidence) || 0, hasPlate: Boolean(data.recognition.plate) }
     const accepted = Boolean(data.recognition.plate) && Number(data.recognition.ocr_confidence) >= 0.96
     if (!accepted) return
 
@@ -515,6 +518,16 @@ onMounted(async () => {
           </svg>
           <ImageViewer v-show="imagePreviewVisible" class="compact-viewer" :src="preview" :box="detection?.box" :width="detection?.image_width" :height="detection?.image_height" :tone="tone" :label="recognition?.plate" :garita="session.garita" :stamp="stamp" :loading="loading" />
         </div>
+        <section class="rounded-xl border border-line bg-surface px-3 py-2" aria-label="Análisis OCR" aria-live="polite">
+          <div class="flex items-center justify-between gap-2">
+            <strong class="text-xs uppercase text-ink">Análisis OCR</strong>
+            <span class="text-xs font-semibold text-brand-700">{{ loading ? 'Analizando fotograma…' : recognition ? 'Lectura aceptada' : ocrAttempt ? (ocrAttempt.hasPlate ? 'Buscando confianza ≥96 %' : 'No se leyó placa; continúa el análisis') : 'Esperando imagen o video' }}</span>
+          </div>
+          <div class="mt-1 h-2 overflow-hidden rounded-full bg-subtle-2" role="progressbar" :aria-valuenow="Math.round((ocrAttempt?.confidence || 0) * 100)" aria-valuemin="0" aria-valuemax="100" aria-label="Confianza OCR actual">
+            <i class="block h-full rounded-full bg-brand-600 transition-all" :style="{ width: Math.max(0, Math.min(100, (ocrAttempt?.confidence || 0) * 100)) + '%' }"></i>
+          </div>
+          <p class="mt-1 text-[10px] text-muted">{{ ocrAttempt ? 'Confianza OCR: ' + pct(ocrAttempt.confidence) + ' · la placa y el resultado se muestran solo desde 96 %' : 'El sistema seguirá analizando hasta alcanzar 96 % de confianza.' }}</p>
+        </section>
         <section class="detector-metrics rounded-xl bg-subtle-2 px-3 py-2" aria-label="Métricas de evaluación de YOLO11-s">
           <div class="grid grid-cols-3 gap-2 text-center">
             <div><strong class="block text-sm text-ink">98,57 %</strong><span class="text-[10px] text-muted">Precisión</span></div>
