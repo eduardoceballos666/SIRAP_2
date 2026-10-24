@@ -211,8 +211,8 @@ Resumen de [`docs/consideraciones_eticas.md`](docs/consideraciones_eticas.md):
 
 | Integrante | Rol |
 |---|---|
-| **Eduardo Alejandro Ceballos Jijón** | _por completar_ |
-| **Christian Xavier Valle Maridueña** | _por completar_ |
+| **Eduardo Alejandro Ceballos Jijón** | Modelado y entrenamiento de YOLO11-s, OCR (fast-plate-ocr) y base de datos PostgreSQL |
+| **Christian Xavier Valle Maridueña** | Datos (SAVH Guayaquil e imágenes de la garita) y aplicación Streamlit |
 
 *Maestría en Inteligencia Artificial — Proyecto Integrador en IA (MIAR0545), 2026.*
 
