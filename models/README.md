@@ -11,7 +11,7 @@ La app carga primero el **ONNX** con ONNX Runtime: no necesita PyTorch y cabe en
 no hay ONNX usa `best_model.pt` (requiere `ultralytics`). Si no hay ninguno, usa un localizador clásico de OpenCV
 y la interfaz muestra el aviso **«Detector de respaldo activo»**.
 
-> **No reentrenar.** El entrenamiento ya se hizo en Colab (sección 2.1 del notebook, preset `completo`).
+> **No reentrenar.** El entrenamiento ya se hizo en Colab (sección 3.2 del notebook, preset `completo`).
 > `best_model.pt` es ese `best.pt` y `best_model.onnx` su exportación (opset 12, 640 px, `simplify=True`).
 > Verificado: en las imágenes de `data/samples/` las cajas y confianzas del ONNX coinciden con las de Ultralytics
 > (diferencia ≤ 1 px y ≤ 0,002).
@@ -32,6 +32,6 @@ y la interfaz muestra el aviso **«Detector de respaldo activo»**.
 
 ## Versiones anteriores
 
-El proyecto pasó por YOLOv8 + EasyOCR/PaddleOCR (v1), RF-DETR + OC-SORT + GLM-OCR y YOLOv8n + GLM-OCR antes de la
-versión final YOLO11-s + fast-plate-ocr. Si se conservan pesos de esas versiones, guárdelos como `model_v1.pt`,
+El proyecto probó YOLOv8 + EasyOCR/PaddleOCR (v1), RF-DETR + OC-SORT y YOLOv8n antes de la versión final
+YOLO11-s + fast-plate-ocr. Si se conservan pesos de esas versiones, guárdelos como `model_v1.pt`,
 `model_v2.pt`, … con una línea en esta tabla indicando de qué versión son.

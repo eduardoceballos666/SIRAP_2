@@ -5,7 +5,7 @@ Flujo de una imagen::
     imagen ──► PlateDetector ──► cajas de placa ──► recorte ──► PlateReader (OCR)
                                                                └─► normalize_plate ──► Recognition
 
-* **Detector.** YOLO11-s entrenado en el notebook ``notebooks/SIRAP_backend.ipynb`` (sección 2.1).
+* **Detector.** YOLO11-s entrenado en el notebook ``notebooks/SIRAP_backend.ipynb`` (sección 3.2).
   Se carga en este orden: ``models/best_model.onnx`` con ONNX Runtime (sin PyTorch: es lo que usa
   Streamlit Cloud), ``models/best_model.pt`` con Ultralytics y, si no hay pesos, un localizador
   clásico con OpenCV que la interfaz marca como *respaldo*.

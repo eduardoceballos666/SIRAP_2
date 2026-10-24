@@ -72,15 +72,15 @@ un operador de garita, que lea placas ecuatorianas y registre cada operación.
 | Semana | Planificado | Real |
 |---|---|---|
 | 1 (12–18/09) | Problema, objetivos, búsqueda de datasets | Problema definido; datasets CCPD y SAVH Guayaquil identificados |
-| 2 (19–25/09) | Ficha de decisión técnica y arquitectura | Ficha v1 (21/09): YOLOv8 + EasyOCR/PaddleOCR; el 25/09 se cambió a RF-DETR + OC-SORT + GLM-OCR |
+| 2 (19–25/09) | Ficha de decisión técnica y arquitectura | Ficha v1 (21/09): YOLOv8 + EasyOCR/PaddleOCR; el 25/09 se cambió el detector a RF-DETR + OC-SORT |
 | 3 (26/09–02/10) | Preparación de datos y primer entrenamiento | Dataset de Roboflow (10 125 imágenes) como base de detección; SAVH para el OCR |
-| 4 (03–09/10) | Pipeline completo y regla de decisión | 07/10: YOLOv8n + GLM-OCR local, normalización, validación de formato y regla de 3 estados |
+| 4 (03–09/10) | Pipeline completo y regla de decisión | 07/10: YOLOv8n, normalización, validación de formato y regla de 3 estados |
 | 5 (10–16/10) | Optimización y evaluación | Base de la planta en PostgreSQL, verificación SRI, pipeline de video y modo en vivo |
 | 6 (17–24/10) | Interfaz, documentación y videos | 23/10: detector final YOLO11-s y OCR fast-plate-ocr; app SIRAP en Streamlit; repositorio y documentación. 24/10: afinamiento del OCR, estudio de hiperparámetros (Optuna, 24 *trials*) y **SIRAP 2**: API FastAPI + frontend Vue 3 publicada en Hugging Face Spaces |
 
-**Desviaciones.** El detector cambió cuatro veces (YOLOv8 → RF-DETR → YOLOv8n → YOLO11-s) y el OCR tres
-(EasyOCR/PaddleOCR → GLM-OCR → fast-plate-ocr). Los cambios se debieron a costo de cómputo en Colab (RF-DETR y
-GLM-OCR son pesados) y a la necesidad de correr en CPU dentro de la app. Esto desplazó la optimización de
+**Desviaciones.** El detector cambió cuatro veces (YOLOv8 → RF-DETR → YOLOv8n → YOLO11-s) y el OCR también
+cambió hasta llegar a fast-plate-ocr. Los cambios se debieron al costo de cómputo en Colab (RF-DETR es pesado) y a la
+necesidad de correr en CPU dentro de la app. Esto desplazó la optimización de
 hiperparámetros al último día (ver `optimizacion.md`). La versión web FastAPI + Vue no estaba en el plan original:
 se agregó al final para tener una arquitectura cliente-servidor con autenticación por usuario, sin modificar la app de
 Streamlit.

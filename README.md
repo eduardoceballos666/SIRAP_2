@@ -72,7 +72,7 @@ Detalles, EDA y decisiones de preprocesamiento: [`docs/analisis_datos.md`](docs/
 |---|---|---|
 | Detección | **YOLO11-s** (Ultralytics 8.4.177), 9,41 M parámetros | Una sola clase; rápido; se exporta a ONNX y corre en CPU en la app |
 | Seguimiento (video) | OC-SORT | Leer cada vehículo una sola vez, con su mejor recorte |
-| OCR | **fast-plate-ocr** `cct-s-v2-global-model` (5 MB) | Hecho para placas, 16 ms por recorte en CPU, mismo acierto que GLM-OCR en SAVH |
+| OCR | **fast-plate-ocr** `cct-s-v2-global-model` (5 MB) | Hecho para placas, 16 ms por recorte en CPU, 93,7 % de EMR en placas reales de Guayaquil |
 | Normalización | Formato `XXX-0000`, correcciones letra/dígito por posición (máx. 2) | Validada con placas reales de Guayaquil |
 | Decisión | Listas blanca/restringida + umbrales + «¿quiso decir…?» | Nunca decide a ciegas: lo dudoso va a verificación manual |
 | Datos | PostgreSQL (producción) / SQLite (demo) | Vehículos, propietarios, listas, garitas, usuarios e historial |
@@ -109,9 +109,10 @@ Preset «completo», split *test* nunca visto en el entrenamiento (salidas del n
 | Sistema | EMR punta a punta | pendiente (requiere referencia anotada del video) | ≥ 80 % |
 
 **Comparación con un *baseline*.** El primer entrenamiento (época 1, equivalente a usar el modelo apenas
-adaptado) logra mAP@0.5 = 0,848 en *val*; el modelo final llega a 0,971 (+0,12). En el OCR, el *baseline* de
-versiones anteriores (GLM-OCR, ≈0,9 B parámetros) obtenía 93,0 % de EMR en las mismas placas frente a 93,7 % de
-fast-plate-ocr, con una diferencia no significativa (McNemar *p* = 0,71) pero ≈30 veces más rápido y sin GPU.
+adaptado) logra mAP@0.5 = 0,848 en *val*; el modelo final llega a 0,971 (+0,12). En el OCR, el *baseline* es el
+mismo fast-plate-ocr sin la normalización ecuatoriana: solo con limpieza de texto logra 93,5 % de EMR en SAVH y con
+`normalize_plate` 93,7 %, con todas las lecturas en formato válido; afinarlo con placas ecuatorianas no lo mejoró
+(94,2 % frente a 94,2 % en un *test* separado por placa, McNemar *p* = 1,0).
 
 <img src="results/figures/resumen_yolo11_completo.png" alt="Resultados de YOLO11-s" width="900">
 

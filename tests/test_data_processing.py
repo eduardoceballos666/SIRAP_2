@@ -81,7 +81,8 @@ def test_letterbox_shape_and_scale():
     assert scale == pytest.approx(1.0) and pad_x == 0 and pad_y == 140
 
 
-# Casos reales del notebook (lecturas de la cámara de SAVH y de GLM-OCR en versiones anteriores)
+# Casos de prueba del notebook (sección 2.1): lecturas reales de la cámara de SAVH y textos con la leyenda ECUADOR,
+# separadores y símbolos
 @pytest.mark.parametrize("raw, expected", [
     ("GS11034", "GSI-1034"), ("6TK6566", "GTK-6566"), ("GTE5D45", "GTE-5045"), ("GP1986", "GPI-0986"),
     ("ECUADOR\nGMS-429", "GMS-0429"), ("EQUIDOR\nGTE-7040", "GTE-7040"), ("ECUNDERG\nGB0-6445", "GBO-6445"),

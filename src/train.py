@@ -1,4 +1,4 @@
-"""Entrenamiento del detector de placas YOLO11-s (mismo protocolo que el notebook, sección 2.1).
+"""Entrenamiento del detector de placas YOLO11-s (mismo protocolo que el notebook, sección 3.2).
 
 El modelo **ya está entrenado**: sus pesos viven en ``MyDrive/proyecto_integrador_placas`` y se
 copian a ``models/``. Este script existe para reproducir el entrenamiento; por defecto **no

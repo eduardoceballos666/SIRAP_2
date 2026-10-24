@@ -15,7 +15,7 @@ app:
   formatos_imagen: ["jpg", "jpeg", "png", "webp"]
 
 detector:
-  # Pesos del YOLO11-s entrenado en el notebook (sección 2.1). Se busca en orden:
+  # Pesos del YOLO11-s entrenado en el notebook (sección 3.2). Se busca en orden:
   # 1) ONNX (liviano, sin PyTorch, ideal para Streamlit Cloud)  2) best.pt (requiere ultralytics)
   pesos_onnx: "models/best_model.onnx"
   pesos_pt: "models/best_model.pt"
@@ -43,7 +43,7 @@ placas:
 
 decision:
   # Confianza OCR = menor probabilidad entre los caracteres de la placa (como en el notebook).
-  # 0.99 es el umbral que sugiere el estudio de confianza en SAVH Guayaquil (sección 5 del notebook):
+  # 0.99 es el umbral que sugiere el estudio de confianza en SAVH Guayaquil (sección 4.3 del notebook):
   # 13 % de las placas a verificación manual y las lecturas equivocadas aceptadas bajan de 25 a 12.
   umbral_confianza_ocr: 0.99
   # Distancia de Levenshtein máxima para considerar que una lectura "casi coincide" con una placa registrada

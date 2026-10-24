@@ -84,8 +84,8 @@ previas; se adoptó YOLO11-s por su balance entre precisión, velocidad y facili
 - Lee cada placa en decenas de milisegundos en CPU; no necesita GPU.
 - Entrega una **probabilidad por carácter**: la *confianza OCR* es la **menor** de ellas (el carácter menos
   seguro), igual que `plate_confidence` en el notebook.
-- Reemplazó a GLM-OCR (un modelo de lenguaje-visión mucho más pesado); en las placas reales de SAVH Guayaquil
-  ambos aciertan lo mismo dentro del margen de error (sección 5 del notebook).
+- En 399 placas reales de SAVH Guayaquil acierta el 93,7 % (EMR) con CER 0,010, y lee cada recorte en unos 16 ms
+  en CPU (secciones 4.3 y 5.4 del notebook).
 
 ### 2.3 Arquitectura de YOLO11-s (resumen)
 

@@ -158,9 +158,9 @@ Además de los hiperparámetros de entrenamiento, el sistema tiene dos umbrales 
 
 | Umbral | Cómo se fija | Valor |
 |---|---|---|
-| Confianza del detector | Calibrado **en *val*** (sección 3 del notebook): máx. F1 para seguir (`conf_track`) y menor umbral con precisión ≥ 95 % para decidir (`conf_decision`), con piso 0,10 | **0,30** y **0,30** (F1 máx. en val = 0,967) |
-| Confianza OCR para decidir sin verificación manual | Estudio de confianza del OCR en SAVH (sección 5): umbrales 0,5–0,99, máximo 15 % a verificación manual | **0,99**: 13 % a verificación manual, lecturas equivocadas aceptadas 25 → 12 (AUROC 0,76) |
-| Tamaño de inferencia en video | Comparación 640 vs 1280 px en el video de la garita (sección 6) | 1280 px en video, 640 px en imágenes |
+| Confianza del detector | Calibrado **en *val*** (sección 4.1 del notebook): máx. F1 para seguir (`conf_track`) y menor umbral con precisión ≥ 95 % para decidir (`conf_decision`), con piso 0,10 | **0,30** y **0,30** (F1 máx. en val = 0,967) |
+| Confianza OCR para decidir sin verificación manual | Estudio de confianza del OCR en SAVH (sección 4.3 del notebook): umbrales 0,5–0,99, máximo 15 % a verificación manual | **0,99**: 13 % a verificación manual, lecturas equivocadas aceptadas 25 → 12 (AUROC 0,76) |
+| Tamaño de inferencia en video | Comparación 640 vs 1280 px en el video de la garita (sección 6.8 del notebook) | 1280 px en video, 640 px en imágenes |
 
 ### 6.1 Efecto de la regla de decisión optimizada (SAVH, lista simulada, 399 imágenes)
 
@@ -170,7 +170,7 @@ Además de los hiperparámetros de entrenamiento, el sistema tiene dos umbrales 
 | Umbral OCR 0,99 (adoptado) | 0 de 202 | 1 de 197 | 15,5 % |
 
 El umbral cambia poco en esta muestra (los falsos autorizados ya eran 0), pero baja el **peor caso** estimado de
-vehículos no autorizados que entrarían como autorizados de 6,3 % a 3,0 % (sección 5 del notebook): se prioriza la
+vehículos no autorizados que entrarían como autorizados de 6,3 % a 3,0 % (sección 5.5 del notebook): se prioriza la
 seguridad a costa de más verificaciones manuales.
 
 ### 6.2 Curvas del entrenamiento base
@@ -184,9 +184,9 @@ candidato para un estudio futuro.
 
 ## 7. Lecciones
 
-- Los cambios de arquitectura (YOLOv8 → RF-DETR → YOLOv8n → YOLO11-s) y de OCR (GLM-OCR → fast-plate-ocr) tuvieron
-  más impacto en el sistema que cualquier hiperparámetro: por ejemplo, el OCR pasó de un modelo de lenguaje-visión a
-  uno de 5 MB que corre en CPU sin perder exactitud en SAVH.
+- Los cambios de arquitectura (YOLOv8 → RF-DETR → YOLOv8n → YOLO11-s) y la elección de fast-plate-ocr, un OCR de
+  5 MB hecho para placas que corre en CPU con 93,7 % de EMR en SAVH, tuvieron más impacto en el sistema que cualquier
+  hiperparámetro.
 - La resolución de inferencia (`imgsz`) fue decisiva para las placas pequeñas del video real.
 - Entre los hiperparámetros de entrenamiento, **solo `lr0` importó de verdad**: el valor automático (0,002) era
   ≈10 veces alto para afinar un modelo preentrenado. Con el protocolo completo, corregirlo sube el mAP@0.5:0.95 en
@@ -240,6 +240,6 @@ lecturas sin verificación manual (89,5 % frente a 90,7 %) sin reducir los error
 - Con 194 imágenes de entrenamiento no hay señal suficiente para mover un modelo entrenado con más de 85 000 placas.
 - Vale la pena repetir el experimento cuando haya **más y mejores datos**: la hoja de revisión confirmada
   (`INCLUDE_UNCONFIRMED = True`, +69 imágenes difíciles) y recortes reales de la garita hechos por YOLO11-s
-  (sección 7 del notebook), que además permitirían medir el EMR punta a punta.
+  (sección 7 del notebook de backend), que además permitirían medir el EMR punta a punta.
 
 Resultados completos en `results/metrics/ocr_afinamiento.json`.

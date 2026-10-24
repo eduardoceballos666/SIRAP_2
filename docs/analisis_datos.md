@@ -2,9 +2,9 @@
 
 SIRAP usa dos tipos de datos con propósitos distintos: un dataset **de detección** (¿dónde está la placa?) y uno
 **de lectura** (¿qué dice la placa?). El análisis completo está en `notebooks/01_exploracion.ipynb` (sección 1 del
-notebook de backend) y sus gráficos en `results/figures/`.
+notebook de backend, «Datos y análisis exploratorio») y sus gráficos en `results/figures/`.
 
-> Todas las cifras salen de las salidas del notebook (`dataset_resumen.json`, sección 1, y sección 5 para SAVH);
+> Todas las cifras salen de las salidas del notebook (`dataset_resumen.json`, sección 1, y secciones 1.3, 2.2 y 5.4 para SAVH);
 > las figuras están en `results/figures/`.
 
 ---
@@ -49,13 +49,13 @@ enseña qué **no** es una placa, por lo que conviene vigilar falsos positivos e
 **Hallazgo.** Casi una de cada cinco placas de *test* es pequeña. Son las más difíciles para cualquier detector
 y, en la garita, corresponden a vehículos lejos de la cámara. Por eso:
 
-- el mAP se desglosa por tamaño (sección 3 del notebook);
+- el mAP se desglosa por tamaño (sección 5.1 del notebook);
 - en el video de la garita el detector analiza cada cuadro a **1280 px** (la resolución de la cámara): a 640 px,
   el tamaño de entrenamiento, no detectaba las placas más chicas;
 - el OCR solo lee placas que ocupan al menos 0,2 % del cuadro (`OCR_PLATE_AREA_RATIO`); las de camiones
   detenidos en el video real miden 0,3–0,5 %.
 
-**Efecto medido en el modelo** (sección 3 del notebook): el mAP@0.5:0.95 de YOLO11-s en *test* es 0,481 en
+**Efecto medido en el modelo** (sección 5.1 del notebook): el mAP@0.5:0.95 de YOLO11-s en *test* es 0,481 en
 placas pequeñas, 0,729 en medianas y 0,744 en grandes. La dificultad de las placas pequeñas predicha por el EDA se
 confirma.
 
@@ -93,8 +93,8 @@ ecuatorianas de una fila.
 ### 2.1 Calidad de la referencia
 
 La lectura de la cámara de SAVH **no es una verdad absoluta**: confunde caracteres parecidos (por ejemplo
-`GB01825` cuando la placa es `GBO-1825`). Versiones anteriores del notebook aceptaban patrones de 2 letras + 4 o 5
-dígitos que en realidad eran estos errores, y la normalización «aceptaba» lecturas incorrectas. Con la revisión
+`GB01825` cuando la placa es `GBO-1825`). Aceptar patrones de 2 letras + 4 o 5 dígitos, que en realidad son
+estos errores, haría que la normalización diera por buenas lecturas incorrectas. Con la revisión
 manual se confirmó que las 472 placas legibles siguen solo dos formatos:
 
 | Formato | Ejemplo | Normalización |
@@ -102,17 +102,11 @@ manual se confirmó que las 472 placas legibles siguen solo dos formatos:
 | 3 letras + 4 dígitos (actual) | `GBA1234` | `GBA-1234` |
 | 3 letras + 3 dígitos (antigua) | `GMS429` | `GMS-0429` (se antepone un 0) |
 
-### 2.2 Desacuerdos entre la cámara y el OCR, y confianza del OCR
-
-En 18 de las 330 legibles que conservan la lectura de la cámara, fast-plate-ocr lee otra cosa. Al mirar las
-imágenes, en varias la razón la tiene el OCR (la cámara escribió `V` donde hay `Y`), así que el EMR medido es
-probablemente conservador.
-
-![Desacuerdos cámara–OCR en SAVH](../results/figures/ocr_desacuerdos_savh.png)
+### 2.2 Confianza del OCR
 
 La confianza del OCR (menor probabilidad entre los caracteres) separa lecturas correctas de equivocadas con un
 **AUROC de 0,76**; con un umbral de 0,99, el 13 % de las placas va a verificación manual y las lecturas equivocadas
-aceptadas bajan de 25 a 12. Ese es el umbral que usa la app.
+aceptadas bajan de 25 a 12 (sección 4.3 del notebook). Ese es el umbral que usa la app.
 
 ![Confianza del OCR en SAVH](../results/figures/ocr_confianza_savh.png)
 
