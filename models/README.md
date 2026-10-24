@@ -28,7 +28,7 @@ y la interfaz muestra el aviso **«Detector de respaldo activo»**.
 | Umbral | calibrado en *val*: 0,30 (`results/metrics/umbrales.json`) |
 | Entrenamiento | 40 épocas (mejor: 40), 0,70 h y 6,9 GB de GPU pico en una NVIDIA L4 |
 | Métricas en *test* | mAP@0.5 0,972 · mAP@0.5:0.95 0,693 · P 0,986 · R 0,956 · F1 0,971 (`results/metrics/detector_test.json`) |
-| Velocidad | 22,2 ms por imagen (lote 1, FP16, L4) · 9,41 M parámetros · 21,4 GFLOPs |
+| Velocidad | 23,3 ms por imagen (lote 1, FP16, L4) · 9,41 M parámetros · 21,4 GFLOPs |
 
 ## Versiones anteriores
 

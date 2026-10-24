@@ -1,7 +1,7 @@
 {
   "emr": null,
   "cer": null,
-  "tiempo_ms_promedio": 90.19,
+  "tiempo_ms_promedio": 99.21,
   "detector": "YOLO11-s",
   "nota": "Tiempo por decisión (detección + OCR) en el video de la garita. EMR punta a punta pendiente de video_ground_truth.csv (sección 7).",
   "meta_emr": 0.8,
