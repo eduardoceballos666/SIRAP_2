@@ -225,3 +225,12 @@
   .camera-stage { min-height:240px; }
   .recent-readings { max-height:220px; }
 }
+
+.access-action-bar { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; margin-top:12px; padding:10px; border:1px solid #e2e8f0; border-radius:12px; background:var(--color-surface); }
+.access-action-bar > button { min-height:46px; justify-content:center; border-radius:9px; font-size:14px; }
+.record-without-opening { width:100%; margin-top:auto; }
+.access-actions { display:none; }
+@media (max-width:650px) {
+  .access-action-bar { grid-template-columns:1fr; gap:7px; }
+  .access-action-bar > button { min-height:40px; }
+}
