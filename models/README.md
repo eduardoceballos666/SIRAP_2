@@ -10,8 +10,10 @@ La app carga primero el **ONNX** con ONNX Runtime: no necesita PyTorch y cabe en
 no hay ONNX usa `best_model.pt` (requiere `ultralytics`). Si no hay ninguno, usa un localizador clásico de OpenCV
 y la interfaz muestra el aviso **«Detector de respaldo activo»**.
 
-> **No reentrenar.** El entrenamiento ya se hizo en Colab (sección 2.1 del notebook, preset `completo`). Basta
-> con copiar `best.pt` aquí y exportarlo a ONNX.
+> **No reentrenar.** El entrenamiento ya se hizo en Colab (sección 2.1 del notebook, preset `completo`).
+> `best_model.pt` es ese `best.pt` y `best_model.onnx` su exportación (opset 12, 640 px, `simplify=True`).
+> Verificado: en las imágenes de `data/samples/` las cajas y confianzas del ONNX coinciden con las de Ultralytics
+> (diferencia ≤ 1 px y ≤ 0,002).
 
 ## Ficha del detector
 
