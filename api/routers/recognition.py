@@ -3,10 +3,11 @@
 from __future__ import annotations
 
 import base64
+import uuid
 from dataclasses import asdict
 
 import cv2
-from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
+from fastapi import APIRouter, BackgroundTasks, Depends, File, HTTPException, UploadFile, status
 from fastapi.responses import FileResponse
 
 from api import schemas
@@ -15,6 +16,7 @@ from api.deps import current_user, get_barrier, get_config, get_db, get_pipeline
 from src.access_control import AccessDecision, decide_access
 from src.data_processing import ImageLimits, ImageValidationError, load_image, normalize_plate
 from src.database import DatabaseError
+from src.detection_export import record_detection_and_enrich
 from src.utils import ROOT_DIR, get_logger
 
 logger = get_logger("sirap.api.recognition")
@@ -123,7 +125,7 @@ def register_vehicle(body: schemas.VehicleIn, user: dict = Depends(current_user)
 
 @router.post("/operations", response_model=schemas.OperationOut, status_code=201,
              summary="Registrar una operación (y abrir la barrera si corresponde)")
-def register_operation(body: schemas.OperationIn, user: dict = Depends(current_user)) -> schemas.OperationOut:
+def register_operation(body: schemas.OperationIn, background_tasks: BackgroundTasks,\n                       user: dict = Depends(current_user)) -> schemas.OperationOut:
     """El resultado **no** se toma del cliente: se vuelve a calcular en el servidor con la placa final.
 
     - ``APERTURA_AUTOMATICA`` solo se acepta si la placa está AUTORIZADA.
@@ -156,6 +158,36 @@ def register_operation(body: schemas.OperationIn, user: dict = Depends(current_u
             origen=body.origen, tiempo_ms=body.tiempo_ms)
     except (DatabaseError, ValueError) as exc:
         raise HTTPException(422, f"No se pudo registrar: {exc}")
+    if body.origen == "DETECCION" and final:
+        vehicle = decision.vehiculo or {}
+        auth = vehicle.get("autorizacion") or {}
+        row = {
+            "event_id": str(uuid.uuid4()),
+            "fecha_hora": __import__("src.utils", fromlist=["now_local"]).now_local().isoformat(sep=" ", timespec="seconds"),
+            "modelo_detector": "YOLO11-s" if body.det_confidence is not None else "",
+            "camara": "",
+            "garita": body.garita,
+            "operador": user["nombre"],
+            "tipo_movimiento": body.tipo_movimiento,
+            "accion": body.accion,
+            "origen": body.origen,
+            "placa": final,
+            "texto_ocr": body.placa_leida or final,
+            "formato_valido": True,
+            "confianza_ocr": body.confianza_ocr,
+            "confianza_yolo": body.det_confidence,
+            "disparador": "operacion_confirmada",
+            "resultado_acceso": decision.resultado,
+            "lista": decision.lista,
+            "estado_vehiculo_planta": auth.get("lista", ""),
+            "transportista": vehicle.get("transportista", ""),
+            "marca_planta": vehicle.get("marca", ""),
+            "modelo_planta": vehicle.get("modelo", ""),
+            "color_planta": vehicle.get("color", ""),
+            "tipo_vehiculo_planta": vehicle.get("tipo", ""),
+            "propietario_registrado": vehicle.get("propietario", ""),
+        }
+        background_tasks.add_task(record_detection_and_enrich, row)
     messages = {"APERTURA_AUTOMATICA": "Operación registrada y barrera abierta.",
                 "APERTURA_MANUAL": "Apertura manual registrada en el historial.",
                 "RECHAZO": "Rechazo registrado; la barrera permanece cerrada.",
