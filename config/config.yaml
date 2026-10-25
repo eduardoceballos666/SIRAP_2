@@ -48,12 +48,6 @@ decision:
   # (posible error del OCR) → verificación manual en lugar de NO REGISTRADO.
   distancia_max_similar: 1
 
-base_datos:
-  motor: "sqlite"
-  ruta_sqlite: "data/processed/sirap_demo.db"
-  esquema_sqlite: "sql/schema_sqlite.sql"
-  datos_demo: "sql/seed_demo.sql"
-
 barrera:
   # "simulada": registra la orden de apertura pero no mueve ningún dispositivo.
   # "http": envía la orden a un controlador (relé/PLC) en la URL de BARRERA_URL con BARRERA_TOKEN.
