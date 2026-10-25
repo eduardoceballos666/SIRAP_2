@@ -129,6 +129,11 @@ class GateIn(BaseModel):
     ubicacion: str = Field(min_length=1, max_length=120)
 
 
+class BulkGateStateIn(BaseModel):
+    nombres: list[str] = Field(min_length=1, max_length=100)
+    activa: bool
+
+
 class UserIn(BaseModel):
     usuario: str = Field(min_length=3, max_length=40, pattern=r"^[a-zA-Z0-9_.-]+$")
     nombre: str = Field(min_length=1, max_length=120)
