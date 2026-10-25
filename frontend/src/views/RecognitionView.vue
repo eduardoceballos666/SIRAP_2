@@ -645,14 +645,15 @@ onMounted(async () => {
           </dl>
           <p v-if="done" class="registered-note" role="status">✓ Lectura registrada en el historial.</p>
         </section>
+        <div class="access-action-bar" aria-label="Acciones de acceso">
+          <button class="btn-yellow action-button" :disabled="!canOpen || busy" @click="register('APERTURA_AUTOMATICA')"><AppIcon name="barrier" :size="20" /><span>Registrar y abrir barrera</span></button>
+          <button class="btn-red action-button" :disabled="loading || (!file && !mediaReady)" @click="processCurrentMedia"><AppIcon name="settings" :size="20" /><span>Procesar detección automática</span></button>
+          <button class="btn-navy action-button" :disabled="!decision || busy || done" @click="manualOpen = true"><AppIcon name="lock" :size="19" /><span>Apertura manual (Contingencia)</span></button>
+        </div>
       </div>
     </div>
 
-    <div class="access-action-bar" aria-label="Acciones de acceso">
-      <button class="btn-yellow action-button" :disabled="!canOpen || busy" @click="register('APERTURA_AUTOMATICA')"><AppIcon name="barrier" :size="20" /><span>Registrar y abrir barrera</span></button>
-      <button class="btn-red action-button" :disabled="loading || (!file && !mediaReady)" @click="processCurrentMedia"><AppIcon name="settings" :size="20" /><span>Procesar detección automática</span></button>
-      <button class="btn-navy action-button" :disabled="!decision || busy || done" @click="manualOpen = true"><AppIcon name="lock" :size="19" /><span>Apertura manual (Contingencia)</span></button>
-    </div>
+
   </div>
   <ModalDialog :open="helpOpen" title="Cómo registrar un acceso" @close="helpOpen = false"><ol class="list-decimal space-y-3 pl-5"><li>Elija un ejemplo, suba una imagen o video, o conecte una cámara local o una URL compatible.</li><li>Las imágenes se analizan al seleccionarlas. Los videos y cámaras se analizan automáticamente cada 1 segundo hasta leer una placa válida con al menos 94 % de confianza OCR; las lecturas inferiores no se muestran.</li><li>Revise la placa, el vehículo y el resultado. Corrija la placa y pulse Verificar si es necesario.</li><li>Autorice y abra solo cuando el resultado lo permita, o registre sin abrir. La apertura manual requiere un motivo.</li><li>Las lecturas solo se guardan en el historial al registrar una acción.</li></ol><button class="btn-primary mt-4" @click="helpOpen = false">Entendido</button></ModalDialog>
   <ModalDialog :open="registrationOpen" title="Registrar camión nuevo" @close="registrationOpen = false">
