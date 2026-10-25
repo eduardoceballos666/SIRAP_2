@@ -15,7 +15,7 @@ short_description: Reconocimiento de placas y control de acceso (YOLO11 + OCR)
 Versión web (API FastAPI + interfaz Vue 3). Código fuente y documentación:
 https://github.com/eduardoceballos666/SIRAP_2
 
-Usuarios de demostración: `operador`, `supervisor` y `admin`. La base de datos contiene **datos ficticios** y la
+Usuarios de demostración: `operador`, `supervisor` y `admin`. Los registros de demostración contienen **datos ficticios** y la
 barrera es **simulada**. Este Space se actualiza automáticamente desde GitHub en cada cambio de la rama `main`.
 
 ## Guardado de detecciones en GitHub
