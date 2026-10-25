@@ -105,8 +105,8 @@ class VehicleIn(BaseModel):
 class AuthorizationIn(BaseModel):
     placa: str = Field(min_length=3, max_length=12)
     lista: Literal["BLANCA", "RESTRINGIDA"]
-    motivo: str = ""
-    vigente_hasta: Optional[date] = None
+    motivo: str = Field(min_length=1, max_length=250)
+    vigente_hasta: date
 
 
 class BulkTruckAuthorizationIn(BaseModel):
