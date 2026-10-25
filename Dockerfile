@@ -15,14 +15,19 @@ ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 PIP_NO_CACHE_DIR=1
 RUN apt-get update && apt-get install -y --no-install-recommends libgl1 libglib2.0-0 \
     && rm -rf /var/lib/apt/lists/* \
     && useradd -m -u 1000 user
-USER user
 ENV HOME=/home/user PATH=/home/user/.local/bin:$PATH \
-    SIRAP_API_DB=/home/user/app/data/processed/sirap_api.db
+    SIRAP_API_DB=/home/user/app/data/processed/sirap_api.db \
+    PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
 WORKDIR /home/user/app
 
 COPY --chown=user requirements.txt ./
 COPY --chown=user api/requirements.txt api/requirements.txt
-RUN pip install --user -r api/requirements.txt
+RUN pip install -r api/requirements.txt
+# Chromium solo consulta el nombre público visible en EcuadorLegalOnline. No automatiza CAPTCHA ni reportes de pago.
+RUN PLAYWRIGHT_BROWSERS_PATH=/ms-playwright python -m playwright install --with-deps chromium \
+    && chmod -R a+rX /ms-playwright \
+    && rm -rf /var/lib/apt/lists/*
+USER user
 # Descarga el OCR (≈5 MB) durante la construcción para que el primer reconocimiento sea inmediato.
 RUN python -c "from fast_plate_ocr import LicensePlateRecognizer as R; R('cct-s-v2-global-model')"
 
