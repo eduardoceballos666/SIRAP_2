@@ -19,6 +19,7 @@ ENV HOME=/home/user PATH=/home/user/.local/bin:$PATH \
     SIRAP_API_DB=/home/user/app/data/processed/sirap_api.db \
     PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
 WORKDIR /home/user/app
+RUN chown user:user /home/user/app
 
 COPY --chown=user requirements.txt ./
 COPY --chown=user api/requirements.txt api/requirements.txt
