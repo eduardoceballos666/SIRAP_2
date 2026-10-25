@@ -1,7 +1,6 @@
 """Autenticación de la API: contraseñas con PBKDF2 y tokens JWT con rol.
 
-Las contraseñas viven en una tabla propia de la API (``api_credenciales``), separada de
-``usuarios``, para no modificar el esquema que usa la app de Streamlit.
+Las contraseñas se guardan como hashes en `credenciales.csv`, separados de `usuarios.csv`.
 """
 
 from __future__ import annotations
