@@ -116,10 +116,38 @@ def add_gate(body: schemas.GateIn, _: dict = Depends(admin_only)) -> dict[str, s
 
 @router.post("/usuarios", status_code=201, summary="Agregar un usuario con contraseña")
 def add_user(body: schemas.UserIn, _: dict = Depends(admin_only)) -> dict[str, str]:
+    usuario = body.usuario.strip()
+    nombre = body.nombre.strip()
+    if not usuario or not nombre or not body.password.strip():
+        raise HTTPException(422, "Complete todos los campos obligatorios del usuario.")
     db = get_db()
-    _run(db.add_user, body.usuario, body.nombre, body.rol)
-    _run(set_password, db, body.usuario, body.password)
-    return {"mensaje": f"Usuario {body.usuario} creado."}
+    _run(db.add_user, usuario, nombre, body.rol)
+    _run(set_password, db, usuario, body.password)
+    return {"mensaje": "Usuario " + usuario + " creado."}
+
+
+@router.delete("/usuarios/{usuario}", summary="Inactivar un usuario")
+def inactivate_user(usuario: str, actor: dict = Depends(admin_only)) -> dict[str, str]:
+    target = usuario.strip()
+    if not target:
+        raise HTTPException(422, "Seleccione un usuario válido.")
+    if target == actor["usuario"]:
+        raise HTTPException(409, "No puede inactivar su propio usuario.")
+
+    db = get_db()
+    target_rows = _run(db.query, "SELECT usuario, rol, activo FROM usuarios WHERE usuario = ?", (target,))
+    if target_rows.empty:
+        raise HTTPException(404, "El usuario seleccionado no existe.")
+    target_row = target_rows.iloc[0]
+    if not bool(target_row["activo"]):
+        raise HTTPException(409, "El usuario ya está inactivo.")
+    if target_row["rol"] == "ADMINISTRADOR":
+        active_admins = _run(db.query, "SELECT COUNT(*) AS total FROM usuarios WHERE rol = ? AND activo = ?", ("ADMINISTRADOR", True))
+        if int(active_admins.iloc[0]["total"]) <= 1:
+            raise HTTPException(409, "No se puede inactivar al último usuario Administrador activo.")
+
+    _run(db.deactivate_user, target)
+    return {"usuario": target, "mensaje": "Usuario " + target + " inactivado."}
 
 
 @router.post("/demo", summary="Generar operaciones de demostración (origen DEMO)")
