@@ -10,7 +10,7 @@ flowchart LR
     CROP --> OCR[fast-plate-ocr<br/>cct-s-v2-global-model]
     OCR -->|texto + prob. por carácter| NORM[Normalización<br/>XXX-0000]
     NORM --> DEC{Regla de decisión}
-    DB[(PostgreSQL / SQLite<br/>vehículos · listas · historial)] <--> DEC
+    DB[(SQLite local<br/>vehículos · listas · historial)] <--> DEC
     DEC --> API[API REST FastAPI<br/>JWT · roles]
     API <-->|JSON / HTTPS| UI[Frontend Vue 3<br/>navegador del operador]
     UI -->|confirma| API
@@ -39,7 +39,7 @@ flowchart TB
     end
     C -- "HTTPS /api/* (JSON, multipart)" --> M
     D --> SRC[src/<br/>model · data_processing · access_control · database]
-    SRC --> DB[(SQLite demo / PostgreSQL)]
+    SRC --> DB[(SQLite local)]
 ```
 
 **Flujo de una lectura:** (1) el navegador envía la imagen a `POST /api/recognize`; (2) el servidor la valida, corre
@@ -192,7 +192,7 @@ erDiagram
     }
 ```
 
-Esquemas: `sql/schema_postgres.sql` (producción) y `sql/schema_sqlite.sql` (demo). Todas las consultas son
+Esquemas: `sql/schema_sqlite.sql` (demostración). Todas las consultas son
 parametrizadas.
 
 ## 6. Despliegue
@@ -201,7 +201,7 @@ parametrizadas.
 |---|---|---|---|
 | **Hugging Face Spaces (demo pública, Docker)** | ONNX Runtime (CPU, 2 vCPU · 16 GB) | SQLite con datos ficticios | Simulada |
 | Streamlit Community Cloud (interfaz alternativa, repo SIRAP) | ONNX Runtime (CPU) | SQLite con datos ficticios | Simulada |
-| Garita (producción) | ONNX Runtime o Ultralytics con GPU | PostgreSQL (`PG_DSN`) | HTTP con token (`BARRERA_URL`) |
+| Garita (producción) | ONNX Runtime o Ultralytics con GPU | SQLite local temporal | HTTP con token (`BARRERA_URL`) |
 | Colab (investigación) | Ultralytics con GPU T4 | Archivos CSV en Drive | — |
 
 **Publicación:** cada push a `main` ejecuta `.github/workflows/deploy-hf-space.yml`, que copia al Space solo lo que la
@@ -221,7 +221,7 @@ frontend (`npm ci && npm run build`); (2) `python:3.11-slim` instala `requiremen
 | supervision | 0.30.9 | Anotación de video y mAP por tamaño (notebook) |
 | trackers | 2.6.1 | OC-SORT (notebook) |
 | Levenshtein | ≥ 0.25 | Distancia entre placas, CER |
-| psycopg[binary] | 3.3.6 | PostgreSQL |
+| SQLite local | 3.3.6 | SQLite local |
 | fastapi | 0.162.0 | API REST |
 | uvicorn[standard] | 0.54.0 | Servidor ASGI |
 | PyJWT | 2.15.0 | Tokens de sesión |
