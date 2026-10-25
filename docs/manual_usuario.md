@@ -3,7 +3,7 @@
 **Aplicación:** https://eduardoceballos-sirap.hf.space · **Usuarios:** operadores de garita, supervisores y
 administradores.
 
-SIRAP lee la placa del vehículo que llega a la garita, la busca en la base de datos y propone una decisión. **El
+SIRAP lee la placa del vehículo que llega a la garita, la busca en la registro CSV y propone una decisión. **El
 operador siempre confirma**: la barrera nunca se abre sola.
 
 > **Demostración pública.** Usuarios `operador`, `supervisor` y `admin`; contraseña `sirap2026` (salvo que el
