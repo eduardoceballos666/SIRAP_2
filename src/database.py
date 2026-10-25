@@ -386,14 +386,22 @@ class Database:
 
     def deactivate_user(self, usuario: str) -> None:
         """Inactiva un usuario sin borrar su registro ni su historial."""
-        usuario = usuario.strip()
-        if not usuario:
-            raise ValueError("Seleccione un usuario válido.")
-        updated = self.execute("UPDATE usuarios SET activo = ? WHERE usuario = ? AND activo = ?",
-                               (False, usuario, True))
-        if updated:
-            return
-        existing = self.query("SELECT 1 FROM usuarios WHERE usuario = ?", (usuario,))
-        if existing.empty:
-            raise ValueError("El usuario no existe.")
-        raise ValueError("El usuario ya está inactivo.")
+        self.set_users_active([usuario], False)
+
+    def set_users_active(self, usuarios: Sequence[str], activo: bool) -> int:
+        """Cambia el estado de varios usuarios sin borrar sus registros ni credenciales."""
+        clean_users = list(dict.fromkeys(usuario.strip() for usuario in usuarios))
+        if not clean_users or any(not usuario for usuario in clean_users):
+            raise ValueError("Seleccione uno o más usuarios válidos.")
+        placeholders = ", ".join("?" for _ in clean_users)
+        existing = self.query(
+            f"SELECT usuario FROM usuarios WHERE usuario IN ({placeholders})", tuple(clean_users)
+        )
+        found = set(existing["usuario"].astype(str).tolist())
+        missing = [usuario for usuario in clean_users if usuario not in found]
+        if missing:
+            raise ValueError("No se encontraron estos usuarios: " + ", ".join(missing) + ".")
+        return self.execute(
+            f"UPDATE usuarios SET activo = ? WHERE usuario IN ({placeholders})",
+            (activo, *clean_users),
+        )
