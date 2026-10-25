@@ -12,10 +12,10 @@ from fastapi.responses import FileResponse
 
 from api import schemas
 from api.jsonsafe import plain
-from api.deps import current_user, get_barrier, get_config, get_db, get_pipeline, thresholds
+from api.deps import current_user, get_barrier, get_config, get_store, get_pipeline, thresholds
 from src.access_control import AccessDecision, decide_access
 from src.data_processing import ImageLimits, ImageValidationError, load_image, normalize_plate
-from src.database import DatabaseError
+from src.storage import StorageError
 from src.detection_export import append_detection, enrich_detection
 from src.utils import ROOT_DIR, get_logger, now_local
 
@@ -40,7 +40,7 @@ def _decision_out(decision: AccessDecision) -> schemas.Decision:
 
 def _decide(plate: str | None, ocr_conf: float, det_conf: float | None) -> AccessDecision:
     ocr_threshold, det_threshold, distance = thresholds()
-    return decide_access(plate, ocr_conf, get_db(), ocr_threshold, distance,
+    return decide_access(plate, ocr_conf, get_store(), ocr_threshold, distance,
                          det_confidence=det_conf, det_threshold=det_threshold)
 
 
@@ -74,7 +74,7 @@ def recognize(file: UploadFile = File(..., description="JPG, PNG o WEBP; máx. 1
         rec = pipeline.recognize(image)
         decision = _decide(rec.plate, rec.ocr_confidence,
                            rec.det_confidence if pipeline.detector.is_model else None)
-    except DatabaseError as exc:
+    except StorageError as exc:
         logger.exception("Base de datos: %s", exc)
         raise HTTPException(status.HTTP_503_SERVICE_UNAVAILABLE, "No se pudo consultar la base de datos.")
     crop_b64 = None
@@ -97,7 +97,7 @@ def verify_plate(body: schemas.VerifyIn, _: dict = Depends(current_user)) -> sch
         raise HTTPException(422,
                             "Formato inválido: use 3 letras y 3 o 4 dígitos (ej.: PBA-8901).")
     ocr_threshold, det_threshold, _ = thresholds()
-    decision = decide_access(plate, 1.0, get_db(), ocr_threshold, 0)
+    decision = decide_access(plate, 1.0, get_store(), ocr_threshold, 0)
     return schemas.VerifyOut(placa=plate, decision=_decision_out(decision))
 
 
@@ -114,11 +114,11 @@ def register_vehicle(body: schemas.VehicleIn, user: dict = Depends(current_user)
     if missing:
         raise HTTPException(422, f"Complete los campos obligatorios: {', '.join(missing)}.")
     try:
-        db = get_db()
+        db = get_store()
         db.upsert_vehicle(plate, body.marca.strip(), body.modelo.strip(), body.color.strip(), "CAMION",
                           body.propietario.strip(), (body.transportista or "").strip() or None)
         db.set_authorization(plate, "BLANCA", "Autorizado al registrar el camión", None, user["usuario"])
-    except (DatabaseError, ValueError) as exc:
+    except (StorageError, ValueError) as exc:
         raise HTTPException(422, f"No se pudo registrar y autorizar el camión: {exc}")
     return {"placa": plate, "mensaje": f"El camión {plate} se registró y quedó autorizado."}
 
@@ -151,12 +151,12 @@ def register_operation(body: schemas.OperationIn, background_tasks: BackgroundTa
                                 "La barrera no confirmó la apertura. Use la apertura manual y avise a soporte.")
     final = plate if decision.resultado != "VERIFICACION_MANUAL" or body.origen == "MANUAL" else None
     try:
-        get_db().log_operation(
+        get_store().log_operation(
             garita=body.garita, operador=user["nombre"], tipo_movimiento=body.tipo_movimiento,
             resultado=decision.resultado, accion=body.accion, placa_leida=body.placa_leida, placa_final=final,
             confianza_ocr=body.confianza_ocr, lista=decision.lista, motivo=(body.motivo or None),
             origen=body.origen, tiempo_ms=body.tiempo_ms)
-    except (DatabaseError, ValueError) as exc:
+    except (StorageError, ValueError) as exc:
         raise HTTPException(422, f"No se pudo registrar: {exc}")
     export_saved = False
     if body.origen == "DETECCION" and final:
