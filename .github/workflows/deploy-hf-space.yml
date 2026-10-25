@@ -5,7 +5,7 @@ name: Deploy a Hugging Face Spaces
 on:
   push:
     branches: [main]
-    paths: ["api/**", "src/**", "frontend/**", "config/**", "sql/**", "models/**", "results/metrics/**",
+    paths: ["api/**", "src/**", "frontend/**", "config/**", "data/**", "models/**", "results/metrics/**",
             "data/samples/**", "requirements.txt", "Dockerfile", "deploy/huggingface/**",
             ".github/workflows/deploy-hf-space.yml"]
   workflow_dispatch:
