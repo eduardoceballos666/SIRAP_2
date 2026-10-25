@@ -13,6 +13,7 @@ const tab = ref('vehiculos')
 const rows = ref([])
 const busy = ref(false)
 const selectedTruckPlates = ref([])
+const selectedUser = ref('')
 
 const vehicle = reactive({ placa: '', marca: '', modelo: '', color: '', tipo: '', propietario: '', transportista: '' })
 const editingVehiclePlate = ref('')
@@ -24,6 +25,8 @@ const demoN = ref(120)
 const columns = computed(() => (rows.value[0] ? Object.keys(rows.value[0]) : []))
 const selectableTrucks = computed(() => rows.value.filter((row) => row.tipo === 'CAMION' && row.placa).map((row) => row.placa))
 const allTrucksSelected = computed(() => selectableTrucks.value.length > 0 && selectableTrucks.value.every((plate) => selectedTruckPlates.value.includes(plate)))
+const selectedUserRow = computed(() => rows.value.find((row) => row.usuario === selectedUser.value) || null)
+const selectedUserActive = computed(() => isActiveUser(selectedUserRow.value))
 
 async function load() {
   if (tab.value === 'demo') { rows.value = []; return }
@@ -33,7 +36,7 @@ async function load() {
     session.notify(e.message, 'bad')
   }
 }
-watch(tab, () => { selectedTruckPlates.value = []; load() })
+watch(tab, () => { selectedTruckPlates.value = []; selectedUser.value = ''; load() })
 async function run(fn) {
   busy.value = true
   try {
@@ -112,6 +115,9 @@ function loadAuthForEdit() {
   })
   session.notify(`Datos de ${existing.placa} cargados.`, 'ok')
 }
+function isActiveUser(row) {
+  return row?.activo === true || row?.activo === 1
+}
 function plateKey(value) {
   return String(value || '').toUpperCase().replace(/[^A-Z0-9]/g, '')
 }
@@ -170,7 +176,36 @@ async function updateSelectedTruckAuthorization(lista) {
   }
 }
 const saveGate = () => run(() => api('/api/admin/garitas', { method: 'POST', body: gate }))
-const saveUser = async () => { if (await run(() => api('/api/admin/usuarios', { method: 'POST', body: user }))) user.password = '' }
+async function saveUser() {
+  const payload = {
+    usuario: user.usuario.trim(),
+    nombre: user.nombre.trim(),
+    rol: user.rol,
+    password: user.password,
+  }
+  if (!payload.usuario || payload.usuario.length < 3 || !/^[a-zA-Z0-9_.-]+$/.test(payload.usuario) ||
+      !payload.nombre || !payload.rol || !payload.password.trim() || payload.password.length < 8) {
+    session.notify('Complete todos los campos obligatorios. El usuario requiere 3 caracteres y la contraseña al menos 8.', 'warn')
+    return
+  }
+  if (await run(() => api('/api/admin/usuarios', { method: 'POST', body: payload }))) {
+    Object.assign(user, { usuario: '', nombre: '', rol: '', password: '' })
+  }
+}
+async function inactivateSelectedUser() {
+  const target = selectedUserRow.value
+  if (!target || !isActiveUser(target)) {
+    session.notify('Seleccione un usuario activo del listado.', 'warn')
+    return
+  }
+  if (target.usuario === auth.user?.usuario) {
+    session.notify('No puede inactivar su propio usuario.', 'warn')
+    return
+  }
+  if (!window.confirm('¿Inactivar al usuario ' + target.usuario + '? Ya no podrá iniciar sesión.')) return
+  const saved = await run(() => api('/api/admin/usuarios/' + encodeURIComponent(target.usuario), { method: 'DELETE' }))
+  if (saved) selectedUser.value = ''
+}
 const demo = () => run(() => api('/api/admin/demo', { method: 'POST', params: { n: demoN.value } }))
 const clearDemo = () => run(() => api('/api/admin/demo', { method: 'DELETE' }))
 
@@ -231,10 +266,15 @@ onMounted(load)
       <template v-else-if="tab === 'usuarios'">
         <h2 class="card-title"><span class="icon-chip"><AppIcon name="user" /></span> Nuevo usuario</h2>
         <form class="space-y-3" @submit.prevent="saveUser">
-          <input v-model.trim="user.usuario" class="field" placeholder="Usuario" required minlength="3" />
-          <input v-model.trim="user.nombre" class="field" placeholder="Nombre completo" required />
-          <select v-model="user.rol" class="field"><option>OPERADOR</option><option>SUPERVISOR</option><option>ADMINISTRADOR</option></select>
-          <input v-model="user.password" type="password" class="field" placeholder="Contraseña (mín. 8)" required minlength="8" autocomplete="new-password" />
+          <input v-model.trim="user.usuario" class="field" placeholder="Usuario *" required minlength="3" maxlength="40" pattern="[a-zA-Z0-9_.-]+" autocomplete="username" />
+          <input v-model.trim="user.nombre" class="field" placeholder="Nombre completo *" required maxlength="120" autocomplete="name" />
+          <select v-model="user.rol" class="field" required>
+            <option disabled value="">Seleccione un rol *</option>
+            <option value="OPERADOR">OPERADOR</option>
+            <option value="SUPERVISOR">SUPERVISOR</option>
+            <option value="ADMINISTRADOR">ADMINISTRADOR</option>
+          </select>
+          <input v-model="user.password" type="password" class="field" placeholder="Contraseña * (mín. 8)" required minlength="8" maxlength="128" autocomplete="new-password" />
           <button class="btn-primary w-full" :disabled="busy">Crear usuario</button>
         </form>
       </template>
@@ -257,14 +297,20 @@ onMounted(load)
           <button class="btn-primary" :disabled="busy || !selectedTruckPlates.length" @click="updateSelectedTruckAuthorization('BLANCA')">Autorizar seleccionados</button>
           <button class="btn-ghost" :disabled="busy || !selectedTruckPlates.length" @click="updateSelectedTruckAuthorization(null)">Dejar sin autorización</button>
         </div>
+        <div v-if="isAdmin && tab === 'usuarios'" class="flex flex-wrap items-center gap-2">
+          <span class="text-xs text-muted">Seleccionado: {{ selectedUser || 'ninguno' }}</span>
+          <button class="btn-red" :disabled="busy || !selectedUserActive" @click="inactivateSelectedUser">Inactivar usuario</button>
+        </div>
       </div>
       <div class="table-wrap max-h-[65vh]">
         <table class="tbl">
           <thead><tr>
+            <th v-if="isAdmin && tab === 'usuarios'">Seleccionar</th>
             <th v-if="isAdmin && tab === 'vehiculos'"><input type="checkbox" aria-label="Seleccionar todos los camiones" :checked="allTrucksSelected" :disabled="!selectableTrucks.length" @change="selectAllTrucks($event.target.checked)" /></th>
             <th v-for="c in columns" :key="c">{{ c }}</th>
           </tr></thead>
           <tbody><tr v-for="(r, i) in rows" :key="i">
+            <td v-if="isAdmin && tab === 'usuarios'"><input type="radio" name="selected-user" :aria-label="'Seleccionar usuario ' + r.usuario" :checked="selectedUser === r.usuario" :disabled="!isActiveUser(r) || r.usuario === auth.user?.usuario" @change="selectedUser = r.usuario" /></td>
             <td v-if="isAdmin && tab === 'vehiculos'"><input v-if="r.tipo === 'CAMION'" type="checkbox" :aria-label="`Seleccionar camión ${r.placa}`" :checked="selectedTruckPlates.includes(r.placa)" @change="toggleTruckSelection(r.placa, $event.target.checked)" /></td>
             <td v-for="c in columns" :key="c">{{ fmt(r[c]) }}</td>
           </tr></tbody>
