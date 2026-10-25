@@ -56,37 +56,32 @@ def decode_token(token: str) -> dict[str, Any]:
     return jwt.decode(token, settings.jwt_secret, algorithms=["HS256"])
 
 
-def ensure_credentials_table(db: Any) -> None:
-    """Crea la tabla de credenciales y, si hay contraseña de demo, la asigna a los usuarios que no tienen."""
-    db.execute("""CREATE TABLE IF NOT EXISTS api_credenciales (
-                    usuario TEXT PRIMARY KEY,
-                    password_hash TEXT NOT NULL)""")
+def ensure_credentials_table(store: Any) -> None:
+    """Crea credenciales CSV para los usuarios activos de demostración."""
     if not settings.demo_password:
         return
-    users = db.query("SELECT usuario FROM usuarios WHERE activo = ?", (True,))["usuario"].tolist()
-    existing = set(db.query("SELECT usuario FROM api_credenciales")["usuario"].tolist())
-    for usuario in users:
-        if usuario not in existing:
-            db.execute("INSERT INTO api_credenciales (usuario, password_hash) VALUES (?, ?)",
-                       (usuario, hash_password(settings.demo_password)))
+    for usuario in store.active_users():
+        if not store.credential_hash(usuario):
+            store.set_credential(usuario, hash_password(settings.demo_password))
             logger.info("Usuario de demostración habilitado en la API: %s", usuario)
 
 
-def authenticate(db: Any, usuario: str, password: str) -> dict[str, Any] | None:
-    """Devuelve el usuario si la contraseña es correcta y está activo."""
-    df = db.query("""SELECT u.usuario, u.nombre, u.rol, c.password_hash FROM usuarios u
-                     JOIN api_credenciales c ON c.usuario = u.usuario
-                     WHERE u.usuario = ? AND u.activo = ?""", (usuario.strip(), True))
-    if df.empty or not verify_password(password, df.iloc[0]["password_hash"]):
+def authenticate(store: Any, usuario: str, password: str) -> dict[str, Any] | None:
+    """Devuelve el usuario si la contraseña es correcta y sigue activo."""
+    usuario = usuario.strip()
+    if not store.is_user_active(usuario):
         return None
-    row = df.iloc[0]
+    password_hash = store.credential_hash(usuario)
+    if not password_hash or not verify_password(password, password_hash):
+        return None
+    rows = store.table("usuarios")
+    rows = rows[rows["usuario"] == usuario]
+    if rows.empty:
+        return None
+    row = rows.iloc[-1]
     return {"usuario": row["usuario"], "nombre": row["nombre"], "rol": row["rol"]}
 
 
-def set_password(db: Any, usuario: str, password: str) -> None:
+def set_password(store: Any, usuario: str, password: str) -> None:
     """Crea o cambia la contraseña de un usuario."""
-    hashed = hash_password(password)
-    if db.query("SELECT 1 FROM api_credenciales WHERE usuario = ?", (usuario,)).empty:
-        db.execute("INSERT INTO api_credenciales (usuario, password_hash) VALUES (?, ?)", (usuario, hashed))
-    else:
-        db.execute("UPDATE api_credenciales SET password_hash = ? WHERE usuario = ?", (hashed, usuario))
+    store.set_credential(usuario, hash_password(password))
