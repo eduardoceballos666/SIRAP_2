@@ -1,4 +1,4 @@
-"""Pruebas de la interfaz: componentes HTML, base de datos e integración con Streamlit AppTest."""
+"""Pruebas de la interfaz: componentes HTML, archivos CSV e integración con Streamlit AppTest."""
 
 from datetime import datetime
 from pathlib import Path
@@ -39,7 +39,7 @@ def test_annotate_frame_returns_same_size():
     assert frame.size == (500, 300)
 
 
-# ---- base de datos ---------------------------------------------------------------------------
+# ---- archivos CSV ---------------------------------------------------------------------------
 def test_log_and_filter_operations(db):
     db.log_operation(garita="Garita 3", operador="Op", tipo_movimiento="Entrada", resultado="AUTORIZADO",
                      accion="APERTURA_AUTOMATICA", placa_final="PBA-8901", confianza_ocr=0.98)
