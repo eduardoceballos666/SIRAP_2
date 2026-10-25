@@ -164,6 +164,45 @@ def inactivate_user(usuario: str, actor: dict = Depends(admin_only)) -> dict[str
     return {"usuario": target, "mensaje": "Usuario " + target + " inactivado."}
 
 
+@router.post("/usuarios/estado", summary="Activar o inactivar usuarios seleccionados")
+def set_users_state(body: schemas.BulkUserStateIn,
+                    actor: dict = Depends(admin_only)) -> dict[str, str | int]:
+    usuarios = list(dict.fromkeys(usuario.strip() for usuario in body.usuarios))
+    if not usuarios or any(not usuario for usuario in usuarios):
+        raise HTTPException(422, "Seleccione uno o más usuarios válidos.")
+
+    db = get_db()
+    placeholders = ", ".join("?" for _ in usuarios)
+    selected = _run(
+        db.query,
+        "SELECT usuario, rol, activo FROM usuarios WHERE usuario IN (" + placeholders + ")",
+        tuple(usuarios),
+    )
+    found = set(selected["usuario"].astype(str).tolist())
+    missing = [usuario for usuario in usuarios if usuario not in found]
+    if missing:
+        raise HTTPException(404, "No se encontraron estos usuarios: " + ", ".join(missing) + ".")
+
+    if not body.activo:
+        if actor["usuario"] in usuarios:
+            raise HTTPException(409, "No puede inactivar su propio usuario.")
+        active_admins = _run(
+            db.query,
+            "SELECT COUNT(*) AS total FROM usuarios WHERE rol = ? AND activo = ?",
+            ("ADMINISTRADOR", True),
+        )
+        selected_admins = sum(
+            1 for _, row in selected.iterrows()
+            if row["rol"] == "ADMINISTRADOR" and bool(row["activo"])
+        )
+        if int(active_admins.iloc[0]["total"]) - selected_admins <= 0:
+            raise HTTPException(409, "No se puede inactivar al último usuario Administrador activo.")
+
+    updated = _run(db.set_users_active, usuarios, body.activo)
+    action = "activado(s)" if body.activo else "inactivado(s)"
+    return {"actualizados": updated, "mensaje": str(updated) + " usuario(s) " + action + "."}
+
+
 @router.post("/demo", summary="Generar operaciones de demostración (origen DEMO)")
 def demo_generate(n: int = 120, _: dict = Depends(admin_only)) -> dict[str, Any]:
     n = max(1, min(int(n), 1000))
