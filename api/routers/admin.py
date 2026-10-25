@@ -110,8 +110,11 @@ def update_selected_truck_authorizations(body: schemas.BulkTruckAuthorizationIn,
 
 @router.post("/garitas", status_code=201, summary="Agregar una garita")
 def add_gate(body: schemas.GateIn, _: dict = Depends(admin_only)) -> dict[str, str]:
-    _run(get_db().add_garita, body.nombre, body.ubicacion)
-    return {"mensaje": f"Garita {body.nombre} agregada."}
+    nombre, ubicacion = body.nombre.strip(), body.ubicacion.strip()
+    if not nombre or not ubicacion:
+        raise HTTPException(422, "Complete el nombre y la ubicación antes de agregar la garita.")
+    _run(get_db().add_garita, nombre, ubicacion)
+    return {"mensaje": "Garita " + nombre + " agregada."}
 
 
 @router.post("/usuarios", status_code=201, summary="Agregar un usuario con contraseña")
