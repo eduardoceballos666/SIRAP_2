@@ -1,7 +1,7 @@
 -- =============================================================================
 -- SIRAP – Datos de DEMOSTRACIÓN (ficticios).
 -- Nombres, placas y vehículos son inventados para probar la interfaz; no
--- corresponden a personas reales ni a la base de la planta. Compatible con
+-- corresponden a personas reales ni a autorizaciones de producción. Compatible con
 -- SQLite y PostgreSQL.
 -- =============================================================================
 
