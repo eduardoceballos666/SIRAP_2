@@ -15,8 +15,6 @@ venv/
 # --- Datos generados / pesados ---
 data/raw/*
 !data/raw/.gitkeep
-data/processed/*.db
-data/processed/*.db-journal
 results/reports/*.log
 results/runs/
 runs/
