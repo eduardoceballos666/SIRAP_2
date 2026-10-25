@@ -586,7 +586,7 @@ onMounted(async () => {
           </div>
         </section>
         <div class="camera-meta">
-          <span>{{ detection ? detection.detector + (recognition ? ' · ' + recognition.timings_ms.total?.toFixed(0) + ' ms' : ' · confirmando OCR ≥94 % en dos cuadros') : sourceLabel || 'Seleccione una imagen o fuente de video' }}</span>
+          <span :style="!detection && !sourceLabel ? { fontSize: '16px', whiteSpace: 'normal', overflowWrap: 'anywhere' } : undefined">{{ detection ? detection.detector + (recognition ? ' · ' + recognition.timings_ms.total?.toFixed(0) + ' ms' : ' · confirmando OCR ≥94 % en dos cuadros') : sourceLabel || 'Seleccione una imagen o fuente de video' }}</span>
           <div class="camera-meta-actions">
             <button class="btn-ghost clear-reading-button" :disabled="loading || busy || (!file && !preview && !mediaUrl && !onlineConnected && !decision && !manualPlate)" @click="clearCurrentReading"><AppIcon name="trash" :size="14" /> Limpiar lectura</button>
             <button class="btn-ghost" :disabled="loading || (!file && !mediaReady)" @click="processCurrentMedia"><AppIcon name="refresh" :size="15" /> Reprocesar</button>
