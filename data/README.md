@@ -30,11 +30,15 @@ Imágenes y video del punto de control tomados en una planta **con autorización
 placas reales, por eso **no se publican**: se guardan en el Drive del proyecto y se usan solo para la evaluación
 punta a punta (sección 7 del notebook).
 
-## 4. Base de la planta
+## 4. Autorizaciones y registros del pipeline
 
-`camiones_postgres.sql` (en Drive, no se publica): vehículos, estado y transportista de la planta, cargada en
-PostgreSQL. La app usa el mismo modelo de datos (`sql/schema_postgres.sql`); para la demostración pública se usa
-`sql/seed_demo.sql`, con **datos ficticios**.
+El notebook usa `authorized_plates.csv` en la carpeta de Drive como lista de placas autorizadas. Guarda lecturas,
+consultas SRI y resultados del propietario en archivos CSV bajo `registros_csv/`. Si se configura un repositorio
+privado de GitHub en los Secrets de Colab, las detecciones enriquecidas se sincronizan en `data/detecciones.csv`.
+El notebook no necesita un servicio PostgreSQL para este flujo.
+
+La aplicación mantiene su almacenamiento de demostración separado en SQLite y usa `sql/seed_demo.sql` con datos
+ficticios; ese esquema no contiene la lista de vehículos de la planta.
 
 ## 5. Imágenes de ejemplo (`samples/`)
 
