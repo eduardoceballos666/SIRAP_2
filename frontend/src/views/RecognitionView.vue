@@ -280,8 +280,18 @@ function clearCurrentReading() {
   stopContinuousAnalysis()
   session.clearUnregisteredLecturas(currentReadingIds.value)
   if (preview.value) URL.revokeObjectURL(preview.value)
-  file.value = null
+  if (mediaUrl.value) URL.revokeObjectURL(mediaUrl.value)
   preview.value = ''
+  mediaUrl.value = ''
+  uploadedVideoName.value = ''
+  if (source.value === 'subir') mediaKind.value = 'image'
+  if (source.value === 'online') {
+    onlineConnected.value = false
+    onlineUrl.value = ''
+    onlineUrlDraft.value = ''
+  }
+  if (source.value === 'subir' || source.value === 'online') mediaReady.value = false
+  file.value = null
   stamp.value = ''
   sourceLabel.value = ''
   selectedSample.value = ''
@@ -576,18 +586,10 @@ onMounted(async () => {
           </div>
           <p class="mt-1 text-[10px] text-muted">{{ ocrAttempt ? 'Confianza OCR: ' + pct(ocrAttempt.confidence) + ' · la placa y el resultado se muestran solo desde 94 %' : 'El sistema seguirá analizando hasta alcanzar 94 % de confianza.' }}</p>
         </section>
-        <section class="detector-metrics rounded-xl bg-subtle-2 px-3 py-2" aria-label="Métricas de evaluación de YOLO11-s">
-          <div class="grid grid-cols-3 gap-2 text-center">
-            <div><strong class="block text-sm text-ink">98,57 %</strong><span class="text-[10px] text-muted">Precisión</span></div>
-            <div><strong class="block text-sm text-ink">95,63 %</strong><span class="text-[10px] text-muted">Recall</span></div>
-            <div><strong class="block text-sm text-ink">97,22 %</strong><span class="text-[10px] text-muted">mAP@0.5</span></div>
-          </div>
-          <p class="mt-1 text-center text-[9px] text-muted">YOLO11-s · prueba: 1.020 imágenes / 1.085 placas · precisión y recall con umbral 0,30</p>
-        </section>
         <div class="camera-meta">
           <span>{{ detection ? detection.detector + (recognition ? ' · ' + recognition.timings_ms.total?.toFixed(0) + ' ms' : ' · confirmando OCR ≥94 % en dos cuadros') : sourceLabel || 'Seleccione una imagen o fuente de video' }}</span>
           <div class="camera-meta-actions">
-            <button class="btn-ghost clear-reading-button" :disabled="loading || busy || (!file && !decision && !manualPlate)" @click="clearCurrentReading"><AppIcon name="trash" :size="14" /> Limpiar lectura</button>
+            <button class="btn-ghost clear-reading-button" :disabled="loading || busy || (!file && !preview && !mediaUrl && !onlineConnected && !decision && !manualPlate)" @click="clearCurrentReading"><AppIcon name="trash" :size="14" /> Limpiar lectura</button>
             <button class="btn-ghost" :disabled="loading || (!file && !mediaReady)" @click="processCurrentMedia"><AppIcon name="refresh" :size="15" /> Reprocesar</button>
           </div>
         </div>
