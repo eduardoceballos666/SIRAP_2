@@ -175,7 +175,16 @@ async function updateSelectedTruckAuthorization(lista) {
     busy.value = false
   }
 }
-const saveGate = () => run(() => api('/api/admin/garitas', { method: 'POST', body: gate }))
+async function saveGate() {
+  const payload = { nombre: gate.nombre.trim(), ubicacion: gate.ubicacion.trim() }
+  if (!payload.nombre || !payload.ubicacion) {
+    session.notify('Complete el nombre y la ubicación antes de agregar la garita.', 'warn')
+    return
+  }
+  if (await run(() => api('/api/admin/garitas', { method: 'POST', body: payload }))) {
+    Object.assign(gate, { nombre: '', ubicacion: '' })
+  }
+}
 async function saveUser() {
   const payload = {
     usuario: user.usuario.trim(),
@@ -258,8 +267,8 @@ onMounted(load)
       <template v-else-if="tab === 'garitas'">
         <h2 class="card-title"><span class="icon-chip"><AppIcon name="pin" /></span> Nueva garita</h2>
         <form class="space-y-3" @submit.prevent="saveGate">
-          <input v-model.trim="gate.nombre" class="field" placeholder="Nombre (Garita 4)" required />
-          <input v-model.trim="gate.ubicacion" class="field" placeholder="Ubicación" />
+          <input v-model.trim="gate.nombre" class="field" placeholder="Nombre (Garita 4) *" required maxlength="60" />
+          <input v-model.trim="gate.ubicacion" class="field" placeholder="Ubicación *" required maxlength="120" />
           <button class="btn-primary w-full" :disabled="busy">Agregar garita</button>
         </form>
       </template>
