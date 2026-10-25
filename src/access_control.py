@@ -44,7 +44,7 @@ class AccessDecision:
         return self.resultado == "AUTORIZADO"
 
 
-def decide_access(plate: str | None, ocr_confidence: float, db: Any,
+def decide_access(plate: str | None, ocr_confidence: float, store: Any,
                   confidence_threshold: float = 0.99, max_similar_distance: int = 1,
                   det_confidence: float | None = None, det_threshold: float = 0.0) -> AccessDecision:
     """Aplica la regla de decisión de SIRAP.
@@ -52,7 +52,7 @@ def decide_access(plate: str | None, ocr_confidence: float, db: Any,
     Args:
         plate: placa normalizada ``XXX-0000`` (o ``None`` si no se pudo leer).
         ocr_confidence: confianza del OCR (0–1). Use 1.0 cuando el operador escribe la placa.
-        db: objeto con ``get_vehicle(placa)`` y ``registered_plates()`` (``src.database.Database``).
+        db: objeto con ``get_vehicle(placa)`` y ``registered_plates()`` (``src.storage.CsvStore``).
         confidence_threshold: umbral bajo el cual se pide verificación manual.
         max_similar_distance: distancia de Levenshtein para sugerir una placa registrada parecida.
         det_confidence: confianza del detector entrenado (``None`` si la placa se escribió a mano o se
@@ -66,7 +66,7 @@ def decide_access(plate: str | None, ocr_confidence: float, db: Any,
         return AccessDecision("VERIFICACION_MANUAL", "VERIFICACIÓN MANUAL", "PLACA NO LEGIBLE",
                               motivos=["No se obtuvo una placa con formato válido (XXX-0000)."])
 
-    vehicle = db.get_vehicle(plate)
+    vehicle = store.get_vehicle(plate)
     if det_confidence is not None and det_confidence < det_threshold:
         return AccessDecision("VERIFICACION_MANUAL", "VERIFICACIÓN MANUAL", "DETECCIÓN DUDOSA", vehiculo=vehicle,
                               motivos=[f"Confianza del detector {det_confidence:.0%} < umbral {det_threshold:.0%}."])
@@ -76,7 +76,7 @@ def decide_access(plate: str | None, ocr_confidence: float, db: Any,
                                   vehiculo=vehicle,
                                   motivos=[f"Confianza OCR {ocr_confidence:.0%} < umbral {confidence_threshold:.0%}."])
         if vehicle is None:
-            decision.sugerencia = _suggest(plate, db, max_similar_distance)
+            decision.sugerencia = _suggest(plate, store, max_similar_distance)
         return decision
 
     if vehicle is not None:
@@ -90,17 +90,17 @@ def decide_access(plate: str | None, ocr_confidence: float, db: Any,
         return AccessDecision("NO_REGISTRADO", "SIN AUTORIZACIÓN", "REGISTRADO SIN PERMISO VIGENTE", None, vehicle,
                               motivos=["El vehículo existe pero no tiene una autorización vigente."])
 
-    suggestion = _suggest(plate, db, max_similar_distance)
+    suggestion = _suggest(plate, store, max_similar_distance)
     if suggestion:
         return AccessDecision("VERIFICACION_MANUAL", "VERIFICACIÓN MANUAL", f"¿QUISO DECIR {suggestion}?",
                               sugerencia=suggestion,
                               motivos=[f"La lectura difiere en un carácter de la placa registrada {suggestion}."])
     return AccessDecision("NO_REGISTRADO", "ACCESO NO REGISTRADO", "PLACA NO REGISTRADA",
-                          motivos=["La placa no está en la base de vehículos."])
+                          motivos=["La placa no está en la registro CSV de vehículos."])
 
 
-def _suggest(plate: str, db: Any, max_distance: int) -> str | None:
-    candidate, distance = closest_plate(plate, db.registered_plates())
+def _suggest(plate: str, store: Any, max_distance: int) -> str | None:
+    candidate, distance = closest_plate(plate, store.registered_plates())
     return candidate if candidate and 0 < distance <= max_distance else None
 
 
