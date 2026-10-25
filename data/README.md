@@ -3,7 +3,7 @@
 | Carpeta | Contenido | ¿En el repositorio? |
 |---|---|---|
 | `raw/` | Datasets originales descargados (Roboflow, SAVH) | No (pesados; se descargan con el notebook o `src/train.py --roboflow`) |
-| `processed/` | Base SQLite de demostración (`sirap_demo.db`, se crea sola) y CSV procesados | Solo CSV livianos |
+| `processed/` | Archivos CSV locales y CSV procesados | Solo CSV livianos |
 | `samples/` | Imágenes de ejemplo que usa la app («Prueba con un ejemplo») | Sí |
 
 ## 1. Detección de placas – *License Plate Recognition* (Roboflow Universe)
@@ -37,7 +37,7 @@ consultas SRI y resultados del propietario en archivos CSV bajo `registros_csv/`
 privado de GitHub en los Secrets de Colab, las detecciones enriquecidas se sincronizan en `data/detecciones.csv`.
 El notebook guarda este flujo en archivos CSV.
 
-La aplicación mantiene su almacenamiento de demostración separado en SQLite y usa `sql/seed_demo.sql` con datos
+La aplicación mantiene su almacenamiento de demostración separado en CSV y usa `data/processed/*.csv` con datos
 ficticios; ese esquema no contiene la lista de vehículos de la planta.
 
 ## 5. Imágenes de ejemplo (`samples/`)
