@@ -47,7 +47,7 @@ un operador de garita, que lea placas ecuatorianas y registre cada operación.
 
 - Detector de placas YOLO11-s entrenado y evaluado; OCR `fast-plate-ocr`; normalización al formato ecuatoriano.
 - Regla de decisión con listas blanca/restringida, umbral de confianza y detección de lecturas «casi iguales».
-- Base de datos (PostgreSQL en producción, SQLite en la demo) con vehículos, propietarios, listas, garitas,
+- Base de datos (SQLite en la demo de la aplicación; archivos CSV para autorizaciones y registros del notebook) con vehículos, propietarios, listas, garitas,
   usuarios e historial.
 - **Aplicación web SIRAP 2:** API REST en FastAPI con autenticación por usuario y roles (operador, supervisor,
   administrador) y frontend en Vue 3 (Vite, Pinia, Vue Router, Tailwind CSS) con Dashboard, Reconocimiento y Acceso,
@@ -75,7 +75,7 @@ un operador de garita, que lea placas ecuatorianas y registre cada operación.
 | 2 (19–25/09) | Ficha de decisión técnica y arquitectura | Ficha v1 (21/09): YOLOv8 + EasyOCR/PaddleOCR; el 25/09 se cambió el detector a RF-DETR + OC-SORT |
 | 3 (26/09–02/10) | Preparación de datos y primer entrenamiento | Dataset de Roboflow (10 125 imágenes) como base de detección; SAVH para el OCR |
 | 4 (03–09/10) | Pipeline completo y regla de decisión | 07/10: YOLOv8n, normalización, validación de formato y regla de 3 estados |
-| 5 (10–16/10) | Optimización y evaluación | Base de la planta en PostgreSQL, verificación SRI, pipeline de video y modo en vivo |
+| 5 (10–16/10) | Optimización y evaluación | Lista de autorizaciones CSV, verificación SRI, registros CSV, pipeline de video y modo en vivo |
 | 6 (17–24/10) | Interfaz, documentación y videos | 23/10: detector final YOLO11-s y OCR fast-plate-ocr; app SIRAP en Streamlit; repositorio y documentación. 24/10: afinamiento del OCR, estudio de hiperparámetros (Optuna, 24 *trials*) y **SIRAP 2**: API FastAPI + frontend Vue 3 publicada en Hugging Face Spaces |
 
 **Desviaciones.** El detector cambió cuatro veces (YOLOv8 → RF-DETR → YOLOv8n → YOLO11-s) y el OCR también
@@ -89,7 +89,7 @@ Streamlit.
 
 | Tipo | Recurso |
 |---|---|
-| Datos | License Plate Recognition v11 (Roboflow, CC BY 4.0); SAVH Guayaquil (Zenodo); imágenes y video de la garita (con autorización); base de la planta |
+| Datos | License Plate Recognition v11 (Roboflow, CC BY 4.0); SAVH Guayaquil (Zenodo); imágenes y video de la garita (con autorización); lista de placas autorizadas en CSV |
 | Hardware | Google Colab con GPU (T4 para pruebas; el entrenamiento final y las mediciones se hicieron en una NVIDIA L4); CPU para el OCR y la app; Hugging Face Spaces (Docker, CPU basic) para SIRAP 2 |
 | Software | Python 3.11+, Ultralytics 8.4.177, fast-plate-ocr 1.1.0, ONNX Runtime, supervision, trackers (OC-SORT), PostgreSQL / psycopg 3, FastAPI, Vue 3, Vite, Pinia, Vue Router, Tailwind CSS, ECharts, Docker, Streamlit |
 | Personas | 2 integrantes, ≈8 h/semana cada uno |
