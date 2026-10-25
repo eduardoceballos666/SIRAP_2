@@ -5,7 +5,7 @@ from __future__ import annotations
 from fastapi import APIRouter, Depends, HTTPException, status
 
 from api import schemas
-from api.deps import current_user, get_db
+from api.deps import current_user, get_store
 from api.security import authenticate, create_token
 
 router = APIRouter(prefix="/api/auth", tags=["Autenticación"])
@@ -13,7 +13,7 @@ router = APIRouter(prefix="/api/auth", tags=["Autenticación"])
 
 @router.post("/login", response_model=schemas.TokenOut, summary="Iniciar sesión")
 def login(body: schemas.LoginIn) -> schemas.TokenOut:
-    user = authenticate(get_db(), body.usuario.strip(), body.password)
+    user = authenticate(get_store(), body.usuario.strip(), body.password)
     if user is None:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Usuario o contraseña incorrectos.")
     return schemas.TokenOut(access_token=create_token(user), user=schemas.User(**user))
