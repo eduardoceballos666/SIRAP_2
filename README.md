@@ -75,7 +75,7 @@ Detalles, EDA y decisiones de preprocesamiento: [`docs/analisis_datos.md`](docs/
 | OCR | **fast-plate-ocr** `cct-s-v2-global-model` (5 MB) | Hecho para placas, 16 ms por recorte en CPU, 93,7 % de EMR en placas reales de Guayaquil |
 | Normalización | Formato `XXX-0000`, correcciones letra/dígito por posición (máx. 2) | Validada con placas reales de Guayaquil |
 | Decisión | Listas blanca/restringida + umbrales + «¿quiso decir…?» | Nunca decide a ciegas: lo dudoso va a verificación manual |
-| Datos | SQLite local de demostración | Vehículos, propietarios, listas, garitas, usuarios e historial |
+| Datos | Archivos CSV locales | Vehículos, propietarios, listas, garitas, usuarios e historial |
 
 **Preprocesamiento:** copia local del dataset, `data.yaml` con rutas absolutas, *letterbox* a 640 px, aumentos por
 defecto de Ultralytics; recorte con margen antes del OCR.
@@ -168,11 +168,11 @@ curl -s -X POST localhost:8000/api/recognize -H "Authorization: Bearer $TOKEN" \
 
 ```python
 from src.model import ALPRPipeline
-from src.database import Database
+from src.storage import CsvStore
 from src.access_control import decide_access
 from src.data_processing import load_image
 
-pipeline, db = ALPRPipeline.from_config(), Database.from_environment()
+pipeline, store = ALPRPipeline.from_config(), CsvStore.from_environment()
 rec = pipeline.recognize(load_image(open("data/samples/garita3_PBA-8901.jpg", "rb").read()))
 print(rec.plate, f"{rec.ocr_confidence:.2%}")                       # PBA-8901 99.99%
 print(decide_access(rec.plate, rec.ocr_confidence, db).titulo)      # ACCESO AUTORIZADO
@@ -258,7 +258,7 @@ SIRAP_2/
 ├── config/config.yaml      # parámetros (sin secretos)
 ├── docs/                   # planificación, EDA, arquitectura, optimización, ética, manual e imágenes
 ├── results/                # figures/, metrics/ (JSON/CSV del notebook), reports/
-├── tests/                  # pytest: procesamiento, modelo, decisión, base de datos, app y API
+├── tests/                  # pytest: procesamiento, modelo, decisión, almacenamiento CSV, app y API
 ├── deploy/huggingface/     # README del Space y script de publicación
 ├── .github/workflows/      # despliegue automático en Hugging Face Spaces
 ├── Dockerfile              # imagen única: frontend compilado + API
