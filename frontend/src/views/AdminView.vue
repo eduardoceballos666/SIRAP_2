@@ -155,9 +155,9 @@ onMounted(load)
       <template v-else-if="tab === 'autorizaciones'">
         <h2 class="card-title"><span class="icon-chip"><AppIcon name="lock" /></span> Lista blanca o restringida</h2>
         <form class="space-y-3" @submit.prevent="saveAuth">
-          <input v-model.trim="auth_.placa" class="field font-mono uppercase" placeholder="Placa registrada" required />
-          <select v-model="auth_.lista" class="field" required><option disabled value="">Seleccione una lista…</option><option value="BLANCA">Lista blanca (autorizado)</option><option value="RESTRINGIDA">Lista restringida (denegado)</option></select>
-          <input v-model.trim="auth_.motivo" class="field" placeholder="Motivo" required />
+          <input v-model.trim="auth_.placa" class="field font-mono uppercase" placeholder="Placa registrada *" required />
+          <select v-model="auth_.lista" class="field" required><option disabled value="">Seleccione una lista *…</option><option value="BLANCA">Lista blanca (autorizado)</option><option value="RESTRINGIDA">Lista restringida (denegado)</option></select>
+          <input v-model.trim="auth_.motivo" class="field" placeholder="Motivo *" required />
           <div><label class="field-label" for="authorization-expiry">Vigente hasta *</label><input id="authorization-expiry" v-model="auth_.vigente_hasta" type="date" class="field" required /></div>
           <div class="flex gap-2">
             <button class="btn-primary flex-1" :disabled="busy">Asignar</button>
