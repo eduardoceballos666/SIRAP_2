@@ -12,7 +12,7 @@ pytest.importorskip("fastapi")
 pytest.importorskip("jwt")
 
 _TMP = tempfile.mkdtemp(prefix="sirap_api_test_")
-os.environ["SIRAP_API_DB"] = str(Path(_TMP) / "api.db")
+os.environ["SIRAP_DATA_DIR"] = str(Path(_TMP) / "api_csv")
 os.environ["SIRAP_JWT_SECRET"] = "secreto-de-pruebas-0123456789abcdef"
 os.environ.pop("", None)
 
