@@ -62,6 +62,11 @@ def current_user(credentials: HTTPAuthorizationCredentials | None = Depends(_bea
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "La sesión expiró; vuelva a iniciar sesión.")
     except jwt.PyJWTError:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Token inválido.")
+    active_user = get_db().query(
+        "SELECT activo FROM usuarios WHERE usuario = ?", (payload["sub"],)
+    )
+    if active_user.empty or not bool(active_user.iloc[0]["activo"]):
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "El usuario está inactivo; vuelva a iniciar sesión con otra cuenta.")
     return {"usuario": payload["sub"], "nombre": payload["nombre"], "rol": payload["rol"]}
 
 
