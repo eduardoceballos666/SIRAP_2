@@ -148,7 +148,7 @@ izquierda. La opción **Cámara** usa la cámara del teléfono (el navegador pid
 | «No se puede abrir automáticamente…» | El servidor recalculó y el resultado no es AUTORIZADO | Use **Registrar rechazo** o la apertura manual con motivo |
 | «Su rol no tiene permiso para esta acción» | Acción de supervisor o administrador | Pida la acción a un usuario con ese rol |
 | La cámara no funciona | Permiso denegado o sin cámara | Permita la cámara en el navegador o use **Subir imagen** |
-| Los datos desaparecieron | La demo reinicia su base SQLite al reiniciar el servidor | En producción configure PostgreSQL (`PG_DSN`) |
+| Los datos desaparecieron | El almacenamiento local de demostración se reinicia con el servidor | Use un disco persistente para conservar archivos |
 
 ## 10. Preguntas frecuentes
 
@@ -167,7 +167,7 @@ clásico menos confiable. Avise al administrador.
 https://eduardoceballos-sirap.hf.space/docs (requiere iniciar sesión con `POST /api/auth/login`).
 
 **¿Puedo usar la app en la garita real?** La versión publicada es una demostración (datos ficticios, barrera
-simulada). Para producción hay que conectar PostgreSQL, la cámara IP y el controlador de la barrera (ver
+simulada). Para producción hay que configurar almacenamiento persistente, la cámara IP y el controlador de la barrera (ver
 `docs/arquitectura.md`).
 
 ## 11. Soporte
