@@ -42,8 +42,6 @@ CSV_FIELDS = (
 
 _API = "https://api.github.com"
 _CSV_LOCK = threading.RLock()
-_VERIFY_LOCK = threading.Lock()
-_PRIVATE_VERIFIED_UNTIL = 0.0
 
 
 def _config() -> tuple[str, str, str, str]:
@@ -67,16 +65,10 @@ def _headers(token: str) -> dict[str, str]:
 
 
 def _ensure_private(token: str, repository: str) -> None:
-    global _PRIVATE_VERIFIED_UNTIL
-    now = time.monotonic()
-    with _VERIFY_LOCK:
-        if now < _PRIVATE_VERIFIED_UNTIL:
-            return
-        response = requests.get(f"{_API}/repos/{repository}", headers=_headers(token), timeout=15)
-        response.raise_for_status()
-        if response.json().get("private") is not True:
-            raise RuntimeError("El repositorio de datos debe ser privado; no se guardó información.")
-        _PRIVATE_VERIFIED_UNTIL = now + 600
+    response = requests.get(f"{_API}/repos/{repository}", headers=_headers(token), timeout=15)
+    response.raise_for_status()
+    if response.json().get("private") is not True:
+        raise RuntimeError("El repositorio de datos debe ser privado; no se guardó información.")
 
 
 def _contents_url(repository: str, path: str) -> str:
