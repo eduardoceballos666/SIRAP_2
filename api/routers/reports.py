@@ -10,7 +10,7 @@ from fastapi import APIRouter, Depends, Query
 from fastapi.responses import Response
 
 from api.jsonsafe import plain
-from api.deps import current_user, get_barrier, get_db, get_pipeline, require_roles, thresholds
+from api.deps import current_user, get_barrier, get_store, get_pipeline, require_roles, thresholds
 from src.utils import load_json, now_local
 
 router = APIRouter(prefix="/api", tags=["Dashboard, Historial y Modelo"])
@@ -30,7 +30,7 @@ def _records(df: pd.DataFrame) -> list[dict[str, Any]]:
 
 @router.get("/system", summary="Estado del sistema")
 def system(_: dict = Depends(current_user)) -> dict[str, Any]:
-    pipeline, db, barrier = get_pipeline(), get_db(), get_barrier()
+    pipeline, db, barrier = get_pipeline(), get_store(), get_barrier()
     ocr_threshold, det_threshold, _ = thresholds()
     return {"detector": pipeline.detector.name, "detector_es_modelo": pipeline.detector.is_model,
             "ocr": pipeline.reader.model_name, "base_datos": db.engine,
@@ -43,7 +43,7 @@ def operations(desde: Optional[date] = None, hasta: Optional[date] = None, placa
                garita: Optional[str] = None, resultado: Optional[str] = None,
                tipo_movimiento: Optional[str] = None, limit: int = Query(1000, ge=1, le=5000),
                _: dict = Depends(current_user)) -> list[dict[str, Any]]:
-    return _records(get_db().operations(desde, hasta, placa, garita, resultado, tipo_movimiento, limit))
+    return _records(get_store().operations(desde, hasta, placa, garita, resultado, tipo_movimiento, limit))
 
 
 @router.get("/operations/export.csv", summary="Exportar el historial filtrado a CSV")
@@ -51,7 +51,7 @@ def export_csv(desde: Optional[date] = None, hasta: Optional[date] = None, placa
                garita: Optional[str] = None, resultado: Optional[str] = None,
                tipo_movimiento: Optional[str] = None,
                _: dict = Depends(require_roles("SUPERVISOR", "ADMINISTRADOR"))) -> Response:
-    df = get_db().operations(desde, hasta, placa, garita, resultado, tipo_movimiento)
+    df = get_store().operations(desde, hasta, placa, garita, resultado, tipo_movimiento)
     name = f"sirap_historial_{now_local():%Y%m%d}.csv"
     return Response(df.to_csv(index=False).encode("utf-8-sig"), media_type="text/csv",
                     headers={"Content-Disposition": f'attachment; filename="{name}"'})
@@ -61,7 +61,7 @@ def export_csv(desde: Optional[date] = None, hasta: Optional[date] = None, placa
 def dashboard(days: int = Query(7, ge=1, le=365), include_demo: bool = True,
               _: dict = Depends(current_user)) -> dict[str, Any]:
     today = now_local().date()
-    df = get_db().operations(desde=today - timedelta(days=days - 1), hasta=today)
+    df = get_store().operations(desde=today - timedelta(days=days - 1), hasta=today)
     if not include_demo and not df.empty:
         df = df[df["origen"] != "DEMO"]
     if df.empty:
