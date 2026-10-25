@@ -302,11 +302,12 @@ class Database:
         """Quita la placa de cualquier lista (queda NO REGISTRADO para el control de acceso)."""
         self.execute("UPDATE autorizaciones SET activa = ? WHERE placa = ?", (False, placa))
 
-    def add_garita(self, nombre: str, ubicacion: str = "") -> None:
-        """Agrega una garita."""
-        if not nombre.strip():
-            raise ValueError("El nombre de la garita es obligatorio.")
-        self.execute("INSERT INTO garitas (nombre, ubicacion) VALUES (?, ?)", (nombre.strip(), ubicacion))
+    def add_garita(self, nombre: str, ubicacion: str) -> None:
+        """Agrega una garita con nombre y ubicación obligatorios."""
+        nombre, ubicacion = nombre.strip(), ubicacion.strip()
+        if not nombre or not ubicacion:
+            raise ValueError("El nombre y la ubicación de la garita son obligatorios.")
+        self.execute("INSERT INTO garitas (nombre, ubicacion) VALUES (?, ?)", (nombre, ubicacion))
 
     def load_demo_history(self, n: int = 120, days: int = 7, seed: int = 7) -> int:
         """Genera ``n`` operaciones FICTICIAS con ``origen='DEMO'`` para mostrar el Dashboard.
