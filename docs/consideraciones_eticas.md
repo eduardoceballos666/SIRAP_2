@@ -64,12 +64,12 @@ reparte igual** entre grupos de vehículos/placas. Por eso:
 ### 3.2 Medidas
 
 - **Minimización:** el esquema solo pide lo necesario para el control de acceso.
-- **Datos ficticios** en la demo pública (`sql/seed_demo.sql`); las imágenes reales de la garita y la base de la
+- **Datos ficticios** en la demo pública (archivos CSV de demostración); las imágenes reales de la garita y los registros de la
   planta **no** se publican (`data/README.md`).
 - **Secretos fuera del código:** DSN, PIN y llaves se leen de variables de entorno o `st.secrets`. Una versión
   antigua del notebook tenía llaves de Roboflow en celdas; se revocaron y se pasó a *Secrets*.
 - **Consultas parametrizadas** (sin inyección SQL) y escape de HTML en la interfaz.
-- **Conexión cifrada** recomendada a PostgreSQL (`sslmode=require`) y HTTPS obligatorio para la barrera.
+- El almacenamiento local de la demo es temporal; proteja los archivos CSV con permisos de acceso y use HTTPS para la barrera.
 - **Versión web (SIRAP 2):** la imagen viaja por HTTPS hasta la API, se procesa en memoria y se descarta; la respuesta
   solo devuelve el recorte de la placa. Las «lecturas de esta sesión» se guardan únicamente en la memoria del
   navegador del operador (no en el servidor) hasta que se registran. La demo pública reinicia su base en cada
