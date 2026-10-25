@@ -366,6 +366,8 @@ def _enrich(event_id: str, plate: str, plant_brand: str | None) -> None:
             logger.exception("No se pudo registrar el error SRI para %s", plate)
     try:
         owner = _query_owner(plate)
+        owner.setdefault("propietario_fuente", "ecuadorlegalonline_publico")
+        owner.setdefault("propietario_consultado_en", now_local().isoformat(sep=" ", timespec="seconds"))
         update_detection(event_id, owner)
     except Exception as exc:
         logger.exception("No se pudo completar propietario para %s: %s", plate, exc)
