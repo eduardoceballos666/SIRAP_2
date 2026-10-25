@@ -103,7 +103,7 @@ def sidebar() -> str:
                 f'<div class="side-status"><b>Estado del sistema</b><br>'
                 f'<span class="dot {det_dot}"></span>Detector: {pipeline.detector.name}<br>'
                 f'<span class="dot ok"></span>OCR: {"afinado (Ecuador)" if "afinado" in pipeline.reader.model_name else "fast-plate-ocr"}<br>'
-                f'<span class="dot {db_dot}"></span>Base: "SQLite (demo)"<br>'
+                f'<span class="dot {db_dot}"></span>Registros: CSV locales<br>'
                 f'<span class="dot {"warn" if getattr(barrier, "simulated", True) else "ok"}"></span>'
                 f'Barrera: {"simulada" if getattr(barrier, "simulated", True) else "conectada"}</div>',
                 unsafe_allow_html=True)
@@ -157,7 +157,7 @@ def _process(data: bytes) -> None:
                                      det_confidence=rec.det_confidence if pipeline.detector.is_model else None,
                                      det_threshold=DET_THRESHOLD)
     except StorageError as exc:
-        friendly_error("No se pudo consultar la base de datos. Intente de nuevo o use la apertura manual.", exc)
+        friendly_error("No se pudieron leer los archivos CSV. Intente de nuevo o use la apertura manual.", exc)
         return
     except Exception as exc:  # noqa: BLE001
         friendly_error("Ocurrió un problema al procesar la imagen. Pruebe con otra captura.", exc)
@@ -569,7 +569,7 @@ def page_about() -> None:
    y entrega una probabilidad por carácter; la **confianza OCR** es la menor de ellas (el carácter menos seguro).
 3. **Normalización** – la lectura se lleva al formato ecuatoriano `XXX-0000` y se corrigen confusiones
    letra/dígito según la posición (ej. `GB01825 → GBO-1825`).
-4. **Decisión** – se consulta la base (SQLite local): lista **restringida** → denegado; lista **blanca**
+4. **Decisión** – se consultan los archivos CSV: lista **restringida** → denegado; lista **blanca**
    vigente → autorizado; detección < {DET_THRESHOLD:.2f}, confianza OCR < {THRESHOLD:.0%} o lectura a un carácter
    de una placa registrada →
    **verificación manual**; en otro caso → no registrado.
