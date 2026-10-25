@@ -43,7 +43,7 @@ class Settings:
     jwt_secret: str = field(default_factory=lambda: _env("SIRAP_JWT_SECRET") or secrets.token_urlsafe(48))
     jwt_hours: float = float(_env("SIRAP_JWT_HOURS", "12"))
     #: Archivo local de demostración de la API; es temporal en servicios con disco efímero.
-    sqlite_path: str = _env("SIRAP_API_DB", "data/processed/sirap_api.db")
+    data_dir: str = _env("SIRAP_DATA_DIR", "data/processed")
     #: Contraseña inicial de los usuarios de demostración (operador, supervisor, admin). Vacía = no crear.
     demo_password: str = _env("SIRAP_DEMO_PASSWORD", "sirap2026") or ""
     #: Orígenes permitidos para el frontend en desarrollo (Vite usa el puerto 5173).
