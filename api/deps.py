@@ -12,7 +12,7 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from api.security import decode_token, ensure_credentials_table
 from api.settings import settings
 from src.access_control import barrier_from_config
-from src.database import Database
+from src.storage import CsvStore
 from src.model import ALPRPipeline
 from src.utils import load_config, load_json
 
@@ -25,9 +25,9 @@ def get_config() -> dict[str, Any]:
 
 
 @lru_cache(maxsize=1)
-def get_db() -> Database:
+def get_store() -> CsvStore:
     """Usa el archivo local de demostración configurado para la API."""
-    db = Database(sqlite_path=settings.sqlite_path)
+    db = CsvStore(sqlite_path=settings.sqlite_path)
     ensure_credentials_table(db)
     return db
 
@@ -61,10 +61,7 @@ def current_user(credentials: HTTPAuthorizationCredentials | None = Depends(_bea
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "La sesión expiró; vuelva a iniciar sesión.")
     except jwt.PyJWTError:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Token inválido.")
-    active_user = get_db().query(
-        "SELECT activo FROM usuarios WHERE usuario = ?", (payload["sub"],)
-    )
-    if active_user.empty or not bool(active_user.iloc[0]["activo"]):
+    if not get_store().is_user_active(payload["sub"]):
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "El usuario está inactivo; vuelva a iniciar sesión con otra cuenta.")
     return {"usuario": payload["sub"], "nombre": payload["nombre"], "rol": payload["rol"]}
 
