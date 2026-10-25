@@ -10,7 +10,7 @@ flowchart LR
     CROP --> OCR[fast-plate-ocr<br/>cct-s-v2-global-model]
     OCR -->|texto + prob. por carácter| NORM[Normalización<br/>XXX-0000]
     NORM --> DEC{Regla de decisión}
-    DB[(SQLite local<br/>vehículos · listas · historial)] <--> DEC
+    DB[(CSV local<br/>vehículos · listas · historial)] <--> DEC
     DEC --> API[API REST FastAPI<br/>JWT · roles]
     API <-->|JSON / HTTPS| UI[Frontend Vue 3<br/>navegador del operador]
     UI -->|confirma| API
@@ -33,13 +33,13 @@ flowchart TB
         M[api/main.py<br/>FastAPI · CORS · sirve frontend/dist]
         RT[routers/<br/>auth · recognition · reports · admin]
         S[security.py<br/>PBKDF2 · JWT HS256]
-        D[deps.py<br/>Database · ALPRPipeline · barrera · umbrales]
+        D[deps.py<br/>CsvStore · ALPRPipeline · barrera · umbrales]
         M --> RT --> D
         RT --> S
     end
     C -- "HTTPS /api/* (JSON, multipart)" --> M
     D --> SRC[src/<br/>model · data_processing · access_control · database]
-    SRC --> DB[(SQLite local)]
+    SRC --> DB[(CSV local)]
 ```
 
 **Flujo de una lectura:** (1) el navegador envía la imagen a `POST /api/recognize`; (2) el servidor la valida, corre
@@ -59,7 +59,7 @@ supervisor, administrador); validación de entradas con Pydantic; mensajes de er
 | Presentación alternativa | `app/app.py`, `app/ui.py`, `app/assets/style.css` | La misma funcionalidad en Streamlit |
 | Dominio | `src/access_control.py` | Regla de decisión, barrera |
 | Modelo | `src/model.py` | Detector, OCR, pipeline ALPR |
-| Datos | `src/data_processing.py`, `src/database.py`, `sql/` | Validación, normalización, persistencia |
+| Datos | `src/data_processing.py`, `src/storage.py`, `data/processed/` | Validación, normalización, persistencia |
 | Entrenamiento / evaluación | `src/train.py`, `src/evaluate.py`, `notebooks/` | Reproducir y medir el modelo |
 | Configuración | `config/config.yaml`, secretos | Parámetros sin valores fijos en el código |
 
@@ -146,7 +146,7 @@ interfaz habilita «Registrar y Abrir Barrera» solo con *acceso autorizado* y u
 | 5 | `normalize_plate` | texto → `XXX-0000` o `None` |
 | 6 | `ALPRPipeline.recognize` | elige la mejor lectura válida → `Recognition` (placa, confianzas, caja, tiempos) |
 | 7 | `decide_access` | placa + confianza + base → `AccessDecision` |
-| 8 | `Database.log_operation` | operación confirmada → fila en `operaciones` (solo inserción) |
+| 8 | `CsvStore.log_operation` | operación confirmada → fila en `operaciones` (solo inserción) |
 
 En el **notebook** el pipeline de video añade seguimiento **OC-SORT** (cada camión se lee una sola vez, con los
 recortes más grandes que tuvo la placa y voto de lecturas) y un **modo en vivo** sobre una cámara publicada con un
@@ -192,16 +192,16 @@ erDiagram
     }
 ```
 
-Esquemas: `sql/schema_sqlite.sql` (demostración). Todas las consultas son
+Los registros se guardan en archivos CSV locales.
 parametrizadas.
 
 ## 6. Despliegue
 
 | Entorno | Detector | Base | Barrera |
 |---|---|---|---|
-| **Hugging Face Spaces (demo pública, Docker)** | ONNX Runtime (CPU, 2 vCPU · 16 GB) | SQLite con datos ficticios | Simulada |
-| Streamlit Community Cloud (interfaz alternativa, repo SIRAP) | ONNX Runtime (CPU) | SQLite con datos ficticios | Simulada |
-| Garita (producción) | ONNX Runtime o Ultralytics con GPU | SQLite local temporal | HTTP con token (`BARRERA_URL`) |
+| **Hugging Face Spaces (demo pública, Docker)** | ONNX Runtime (CPU, 2 vCPU · 16 GB) | CSV local con registros de demostración | Simulada |
+| Streamlit Community Cloud (interfaz alternativa, repo SIRAP) | ONNX Runtime (CPU) | CSV local con registros de demostración | Simulada |
+| Garita (producción) | ONNX Runtime o Ultralytics con GPU | CSV local temporal | HTTP con token (`BARRERA_URL`) |
 | Colab (investigación) | Ultralytics con GPU T4 | Archivos CSV en Drive | — |
 
 **Publicación:** cada push a `main` ejecuta `.github/workflows/deploy-hf-space.yml`, que copia al Space solo lo que la
@@ -221,7 +221,7 @@ frontend (`npm ci && npm run build`); (2) `python:3.11-slim` instala `requiremen
 | supervision | 0.30.9 | Anotación de video y mAP por tamaño (notebook) |
 | trackers | 2.6.1 | OC-SORT (notebook) |
 | Levenshtein | ≥ 0.25 | Distancia entre placas, CER |
-| SQLite local | 3.3.6 | SQLite local |
+| CSV local | 3.3.6 | CSV local |
 | fastapi | 0.162.0 | API REST |
 | uvicorn[standard] | 0.54.0 | Servidor ASGI |
 | PyJWT | 2.15.0 | Tokens de sesión |
