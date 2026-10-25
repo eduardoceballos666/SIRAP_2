@@ -1,7 +1,6 @@
 # =============================================================================
 # SIRAP – Configuración central
 # Todas las rutas son relativas a la raíz del repositorio.
-# Los valores sensibles (DSN de PostgreSQL, PIN de administración, llaves de API)
 # NO van aquí: se leen de variables de entorno o de st.secrets (ver .env.example).
 # =============================================================================
 
@@ -50,12 +49,9 @@ decision:
   distancia_max_similar: 1
 
 base_datos:
-  # motor: "sqlite" (demostración, se crea solo) o "postgresql" (producción; requiere PG_DSN).
-  # Si PG_DSN existe en el entorno o en st.secrets, se usa PostgreSQL automáticamente.
   motor: "sqlite"
   ruta_sqlite: "data/processed/sirap_demo.db"
   esquema_sqlite: "sql/schema_sqlite.sql"
-  esquema_postgres: "sql/schema_postgres.sql"
   datos_demo: "sql/seed_demo.sql"
 
 barrera:
