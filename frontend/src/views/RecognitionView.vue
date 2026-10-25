@@ -66,6 +66,12 @@ let analysisTimer = null
 let framePending = false
 const continuousAnalysis = ref(false)
 const cameraError = ref('')
+const confirmedFrames = ref(0)
+const analysisMessage = ref('')
+let pendingPlate = ''
+let pendingPlateFrames = 0
+let pendingPlateAt = 0
+let videoPlaybackEnded = false
 
 async function toggleFullscreen() {
   try {
@@ -97,6 +103,23 @@ function stopContinuousAnalysis() {
   analysisTimer = null
   continuousAnalysis.value = false
 }
+function clearPlateConfirmation() {
+  pendingPlate = ''
+  pendingPlateFrames = 0
+  pendingPlateAt = 0
+  confirmedFrames.value = 0
+}
+function finishVideoAnalysis() {
+  stopContinuousAnalysis()
+  if (!recognition.value) {
+    analysisMessage.value = 'El video terminó sin confirmar la misma placa en dos cuadros con confianza ≥94 %. Verifique la placa manualmente.'
+    session.notify(analysisMessage.value, 'warn')
+  }
+}
+function videoEnded() {
+  videoPlaybackEnded = true
+  if (!loading.value) finishVideoAnalysis()
+}
 function activeMediaElement() {
   if (source.value === 'camara') return video.value
   if (source.value === 'online' && onlineMode.value === 'mjpeg') return networkImage.value
@@ -115,6 +138,9 @@ function mediaPlaying() {
 }
 function startAutomaticAnalysis() {
   if (continuousAnalysis.value || !mediaReady.value) return
+  clearPlateConfirmation()
+  videoPlaybackEnded = false
+  analysisMessage.value = ''
   showCapture.value = false
   continuousAnalysis.value = true
   captureFrame({ freeze: false })
@@ -208,6 +234,9 @@ function connectOnlineCamera() {
 }
 function setSource(name) {
   stopContinuousAnalysis()
+  clearPlateConfirmation()
+  videoPlaybackEnded = false
+  analysisMessage.value = ''
   source.value = name
   detection.value = null
   showCapture.value = false
@@ -275,6 +304,9 @@ async function onUpload(event) {
   if (!f) return
   const isVideo = f.type.startsWith('video/') || /\.(mp4|webm|mov|m4v|ogv|ogg)$/i.test(f.name)
   stopContinuousAnalysis()
+  clearPlateConfirmation()
+  videoPlaybackEnded = false
+  analysisMessage.value = ''
   mediaReady.value = false
   showCapture.value = false
   if (mediaUrl.value) URL.revokeObjectURL(mediaUrl.value)
@@ -312,9 +344,27 @@ async function recognize() {
     detection.value = data.recognition
     ocrAttempt.value = { confidence: Number(data.recognition.ocr_confidence) || 0, hasPlate: Boolean(data.recognition.plate) }
     const accepted = Boolean(data.recognition.plate) && Number(data.recognition.ocr_confidence) >= 0.94
+    if (continuousAnalysis.value) {
+      const candidate = String(data.recognition.plate || '').replace(/[^A-Z0-9]/gi, '').toUpperCase()
+      const nowMs = Date.now()
+      if (accepted && candidate) {
+        if (candidate !== pendingPlate || nowMs - pendingPlateAt > 7500) {
+          pendingPlate = candidate
+          pendingPlateFrames = 1
+        } else {
+          pendingPlateFrames += 1
+        }
+        pendingPlateAt = nowMs
+        confirmedFrames.value = pendingPlateFrames
+        if (pendingPlateFrames < 2) return
+      } else {
+        confirmedFrames.value = pendingPlateFrames
+        return
+      }
+    }
     if (!accepted) return
 
-    // Solo publicamos lecturas con placa válida y confianza OCR mínima de 94 %.
+    // En video/cámara, la misma placa debe superar 94 % en dos cuadros muestreados.
     recognition.value = data.recognition
     if (continuousAnalysis.value) stopContinuousAnalysis()
     decision.value = data.decision
@@ -329,6 +379,7 @@ async function recognize() {
     session.notify(e.message, 'bad')
   } finally {
     loading.value = false
+    if (videoPlaybackEnded && !recognition.value) finishVideoAnalysis()
   }
 }
 
@@ -508,7 +559,7 @@ onMounted(async () => {
         <p v-if="cameraError" role="alert" class="camera-error">{{ cameraError }}</p>
         <div class="camera-stage">
           <video v-if="source === 'camara'" v-show="!showCapture" ref="video" autoplay playsinline muted @loadedmetadata="mediaLoaded" @playing="mediaPlaying" @error="mediaFailed"></video>
-          <video v-else-if="source === 'subir' && mediaKind === 'video'" v-show="!showCapture" ref="mediaVideo" :src="mediaUrl" controls autoplay playsinline muted @loadedmetadata="mediaLoaded" @playing="mediaPlaying" @error="mediaFailed"></video>
+          <video v-else-if="source === 'subir' && mediaKind === 'video'" v-show="!showCapture" ref="mediaVideo" :src="mediaUrl" controls autoplay playsinline muted @loadedmetadata="mediaLoaded" @playing="mediaPlaying" @ended="videoEnded" @error="mediaFailed"></video>
           <template v-else-if="source === 'online' && onlineConnected">
             <video v-if="onlineMode === 'video'" v-show="!showCapture" ref="mediaVideo" :src="onlineUrl" controls autoplay playsinline muted @loadedmetadata="mediaLoaded" @playing="mediaPlaying" @error="mediaFailed"></video>
             <img v-else v-show="!showCapture" ref="networkImage" :src="onlineUrl" alt="Video en vivo de cámara en línea" @load="mediaLoaded" @error="mediaFailed" />
@@ -521,7 +572,7 @@ onMounted(async () => {
         <section class="rounded-xl border border-line bg-surface px-3 py-2" aria-label="Análisis OCR" aria-live="polite">
           <div class="flex items-center justify-between gap-2">
             <strong class="text-xs uppercase text-ink">Análisis OCR</strong>
-            <span class="text-xs font-semibold text-brand-700">{{ loading ? 'Analizando fotograma…' : recognition ? 'Lectura aceptada' : ocrAttempt ? (ocrAttempt.hasPlate ? 'Buscando confianza ≥94 %' : 'No se leyó placa; continúa el análisis') : 'Esperando imagen o video' }}</span>
+            <span class="text-xs font-semibold text-brand-700">{{ analysisMessage || (loading ? 'Analizando fotograma…' : recognition ? 'Lectura confirmada en dos cuadros' : ocrAttempt ? (ocrAttempt.hasPlate && ocrAttempt.confidence >= 0.94 && continuousAnalysis ? 'Confirmando la misma placa: ' + confirmedFrames + '/2 cuadros' : ocrAttempt.hasPlate ? 'Buscando confianza ≥94 %' : 'No se leyó placa; continúa el análisis') : 'Esperando imagen o video') }}</span>
           </div>
           <div class="mt-1 h-2 overflow-hidden rounded-full bg-subtle-2" role="progressbar" :aria-valuenow="Math.round((ocrAttempt?.confidence || 0) * 100)" aria-valuemin="0" aria-valuemax="100" aria-label="Confianza OCR actual">
             <i class="block h-full rounded-full bg-brand-600 transition-all" :style="{ width: Math.max(0, Math.min(100, (ocrAttempt?.confidence || 0) * 100)) + '%' }"></i>
@@ -537,7 +588,7 @@ onMounted(async () => {
           <p class="mt-1 text-center text-[9px] text-muted">YOLO11-s · prueba: 1.020 imágenes / 1.085 placas · precisión y recall con umbral 0,30</p>
         </section>
         <div class="camera-meta">
-          <span>{{ detection ? detection.detector + (recognition ? ' · ' + recognition.timings_ms.total?.toFixed(0) + ' ms' : ' · esperando OCR ≥ 96 %') : sourceLabel || 'Seleccione una imagen o fuente de video' }}</span>
+          <span>{{ detection ? detection.detector + (recognition ? ' · ' + recognition.timings_ms.total?.toFixed(0) + ' ms' : ' · confirmando OCR ≥94 % en dos cuadros') : sourceLabel || 'Seleccione una imagen o fuente de video' }}</span>
           <div class="camera-meta-actions">
             <button class="btn-ghost clear-reading-button" :disabled="loading || busy || (!file && !decision && !manualPlate)" @click="clearCurrentReading"><AppIcon name="trash" :size="14" /> Limpiar lectura</button>
             <button class="btn-ghost" :disabled="loading || (!file && !mediaReady)" @click="processCurrentMedia"><AppIcon name="refresh" :size="15" /> Reprocesar</button>
