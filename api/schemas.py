@@ -102,6 +102,16 @@ class VehicleIn(BaseModel):
     transportista: Optional[str] = None
 
 
+class AdminVehicleIn(BaseModel):
+    placa: str = Field(min_length=3, max_length=12)
+    marca: str = Field(min_length=1, max_length=80)
+    modelo: str = Field(min_length=1, max_length=80)
+    color: str = Field(min_length=1, max_length=40)
+    tipo: Literal["LIVIANO", "CAMION", "MOTO", "OTRO"]
+    propietario: str = Field(min_length=1, max_length=120)
+    transportista: str = Field(min_length=1, max_length=120)
+
+
 class AuthorizationIn(BaseModel):
     placa: str = Field(min_length=3, max_length=12)
     lista: Literal["BLANCA", "RESTRINGIDA"]
