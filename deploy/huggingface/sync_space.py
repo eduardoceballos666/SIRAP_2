@@ -22,7 +22,7 @@ INCLUDE = [
     "api", "src", "config", "sql", "frontend", "data/samples", "results/metrics",
     "models/best_model.onnx", "models/README.md",
 ]
-IGNORE = shutil.ignore_patterns("node_modules", "dist", "__pycache__", "*.pyc", "*.db")
+IGNORE = shutil.ignore_patterns("node_modules", "dist", "__pycache__", "*.pyc")
 
 
 def main() -> None:
