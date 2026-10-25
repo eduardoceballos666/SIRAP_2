@@ -13,7 +13,7 @@
 ![Deploy](https://img.shields.io/badge/Hugging%20Face-Space-ffcc4d?logo=huggingface&logoColor=black)
 ![License](https://img.shields.io/badge/License-MIT-yellow)
 
-**SIRAP** reconoce la placa del vehículo que llega a una garita, la busca en la base de datos y propone una
+**SIRAP** reconoce la placa del vehículo que llega a una garita, la busca en el registro CSV y propone una
 decisión de acceso (autorizado, denegado, no registrado o verificación manual). El operador confirma, la operación
 queda registrada y la barrera se abre solo cuando corresponde. **SIRAP 2** ofrece el mismo sistema como una
 aplicación web profesional: **API REST en FastAPI** con autenticación por usuario y **frontend en Vue 3**.
@@ -49,7 +49,7 @@ guardia lee la placa, la busca en una lista y la anota. Eso produce **colas**, *
 **listas desactualizadas** y un historial difícil de auditar.
 
 **SIRAP** automatiza el flujo: **captura → detección de la placa (IA) → lectura (OCR) → consulta en la base
-(PostgreSQL) → evaluación de listas blancas y restringidas → registro y apertura controlada**.
+(CSV locales) → evaluación de listas blancas y restringidas → registro y apertura controlada**.
 
 - **Por qué importa:** menos espera, menos errores, seguridad basada en listas vigentes y trazabilidad completa.
 - **Usuarios:** operadores de garita (deciden y registran), supervisores (auditan) y administradores (gestionan
@@ -75,7 +75,7 @@ Detalles, EDA y decisiones de preprocesamiento: [`docs/analisis_datos.md`](docs/
 | OCR | **fast-plate-ocr** `cct-s-v2-global-model` (5 MB) | Hecho para placas, 16 ms por recorte en CPU, 93,7 % de EMR en placas reales de Guayaquil |
 | Normalización | Formato `XXX-0000`, correcciones letra/dígito por posición (máx. 2) | Validada con placas reales de Guayaquil |
 | Decisión | Listas blanca/restringida + umbrales + «¿quiso decir…?» | Nunca decide a ciegas: lo dudoso va a verificación manual |
-| Datos | PostgreSQL (producción) / SQLite (demo) | Vehículos, propietarios, listas, garitas, usuarios e historial |
+| Datos | SQLite local de demostración | Vehículos, propietarios, listas, garitas, usuarios e historial |
 
 **Preprocesamiento:** copia local del dataset, `data.yaml` con rutas absolutas, *letterbox* a 640 px, aumentos por
 defecto de Ultralytics; recorte con margen antes del OCR.
@@ -152,8 +152,7 @@ Usuarios de demostración: `operador`, `supervisor` y `admin`; contraseña `sira
 
 **Configuración:** parámetros en [`config/config.yaml`](config/config.yaml); secretos en variables de entorno
 (plantillas [`.env.example`](.env.example) y [`api/.env.example`](api/.env.example)): `SIRAP_JWT_SECRET`,
-`SIRAP_DEMO_PASSWORD`, `PG_DSN`, `BARRERA_URL`, `BARRERA_TOKEN`, `ROBOFLOW_API_KEY`. Sin `PG_DSN`, la API crea una base
-SQLite de demostración; para PostgreSQL: `psql "$PG_DSN" -f sql/schema_postgres.sql`.
+`SIRAP_DEMO_PASSWORD`, `BARRERA_URL`, `BARRERA_TOKEN`, `ROBOFLOW_API_KEY`. La API conserva datos de demostración en un archivo local temporal; las lecturas del notebook se guardan como CSV.
 
 **Ejemplo de uso de la API:**
 
@@ -240,7 +239,7 @@ con los modelos cargados, por eso no se recomiendan planes gratuitos de 512 MB (
 > [SIRAP](https://github.com/eduardoceballos666/SIRAP) (https://sirapapp.streamlit.app/).
 
 > **Estado:** prototipo funcional. La barrera es **simulada** y la base pública contiene **datos ficticios** que se
-> reinician con el servidor. Para operar en una garita real faltan: la cámara IP, PostgreSQL y el controlador de la
+> reinician con el servidor. Para operar en una garita real faltan: la cámara IP, la cámara IP y el controlador de la
 > barrera.
 
 ## 7. Estructura del proyecto
@@ -249,13 +248,13 @@ con los modelos cargados, por eso no se recomiendan planes gratuitos de 512 MB (
 SIRAP_2/
 ├── api/                    # API REST FastAPI: main.py, routers/ (auth, recognition, reports, admin), security.py (JWT + PBKDF2), schemas.py
 ├── frontend/               # interfaz Vue 3: src/views, src/components, src/stores (Pinia), src/router, src/lib
-├── src/                    # backend: data_processing, model, access_control, database, train, evaluate, utils
+├── src/                    # backend: data_processing, model, access_control, storage, train, evaluate, utils
 ├── app/                    # interfaz alternativa en Streamlit: app.py, ui.py, assets/style.css, requirements.txt
 ├── app.py                  # punto de entrada de Streamlit (ejecuta app/app.py)
 ├── notebooks/              # SIRAP_backend.ipynb (completo) y 01–06 (EDA, preprocesamiento, modelado, optimización, evaluación, OCR)
 ├── models/                 # pesos de YOLO11-s (best_model.pt / .onnx) y ficha del modelo
 ├── data/                   # samples/ (ejemplos de la app), raw/, processed/ y descripción de los datos
-├── sql/                    # esquemas PostgreSQL/SQLite y datos de demostración
+├── data/processed/         # CSV de vehículos, listas, usuarios e historial
 ├── config/config.yaml      # parámetros (sin secretos)
 ├── docs/                   # planificación, EDA, arquitectura, optimización, ética, manual e imágenes
 ├── results/                # figures/, metrics/ (JSON/CSV del notebook), reports/
@@ -286,7 +285,7 @@ Resumen de [`docs/consideraciones_eticas.md`](docs/consideraciones_eticas.md):
 
 | Integrante | Rol |
 |---|---|
-| **Eduardo Alejandro Ceballos Jijón** | Modelado y entrenamiento de YOLO11-s, OCR (fast-plate-ocr) y base de datos PostgreSQL |
+| **Eduardo Alejandro Ceballos Jijón** | Modelado y entrenamiento de YOLO11-s y OCR (fast-plate-ocr) |
 | **Christian Xavier Valle Maridueña** | Datos (SAVH Guayaquil e imágenes de la garita) y desarrollo de la interfaz web Vue 3 |
 
 *Maestría en Inteligencia Artificial — Proyecto Integrador en IA (MIAR0545), 2026.*
