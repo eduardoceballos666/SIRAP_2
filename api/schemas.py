@@ -134,6 +134,11 @@ class BulkGateStateIn(BaseModel):
     activa: bool
 
 
+class BulkUserStateIn(BaseModel):
+    usuarios: list[str] = Field(min_length=1, max_length=100)
+    activo: bool
+
+
 class UserIn(BaseModel):
     usuario: str = Field(min_length=3, max_length=40, pattern=r"^[a-zA-Z0-9_.-]+$")
     nombre: str = Field(min_length=1, max_length=120)
