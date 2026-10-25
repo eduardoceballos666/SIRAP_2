@@ -584,7 +584,6 @@ onMounted(async () => {
           <div class="mt-1 h-2 overflow-hidden rounded-full bg-subtle-2" role="progressbar" :aria-valuenow="Math.round((ocrAttempt?.confidence || 0) * 100)" aria-valuemin="0" aria-valuemax="100" aria-label="Confianza OCR actual">
             <i class="block h-full rounded-full bg-brand-600 transition-all" :style="{ width: Math.max(0, Math.min(100, (ocrAttempt?.confidence || 0) * 100)) + '%' }"></i>
           </div>
-          <p class="mt-1 text-[10px] text-muted">{{ ocrAttempt ? 'Confianza OCR: ' + pct(ocrAttempt.confidence) + ' · la placa y el resultado se muestran solo desde 94 %' : 'El sistema seguirá analizando hasta alcanzar 94 % de confianza.' }}</p>
         </section>
         <div class="camera-meta">
           <span>{{ detection ? detection.detector + (recognition ? ' · ' + recognition.timings_ms.total?.toFixed(0) + ' ms' : ' · confirmando OCR ≥94 % en dos cuadros') : sourceLabel || 'Seleccione una imagen o fuente de video' }}</span>
