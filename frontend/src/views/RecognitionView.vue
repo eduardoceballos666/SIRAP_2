@@ -146,7 +146,7 @@ function startAutomaticAnalysis() {
   captureFrame({ freeze: false })
   analysisTimer = setInterval(() => {
     if (continuousAnalysis.value && mediaReady.value && !loading.value && !framePending) captureFrame({ freeze: false })
-  }, 2500)
+  }, 1500)
 }
 function mediaFailed() {
   mediaReady.value = false
