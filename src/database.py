@@ -357,7 +357,24 @@ class Database:
 
     def add_user(self, usuario: str, nombre: str, rol: str) -> None:
         """Agrega un usuario del sistema."""
+        usuario, nombre = usuario.strip(), nombre.strip()
+        if not usuario or not nombre:
+            raise ValueError("Usuario y nombre son obligatorios.")
         if rol not in ("OPERADOR", "SUPERVISOR", "ADMINISTRADOR"):
             raise ValueError("Rol inválido.")
         self.execute("INSERT INTO usuarios (usuario, nombre, rol) VALUES (?, ?, ?)",
-                     (usuario.strip(), nombre.strip(), rol))
+                     (usuario, nombre, rol))
+
+    def deactivate_user(self, usuario: str) -> None:
+        """Inactiva un usuario sin borrar su registro ni su historial."""
+        usuario = usuario.strip()
+        if not usuario:
+            raise ValueError("Seleccione un usuario válido.")
+        updated = self.execute("UPDATE usuarios SET activo = ? WHERE usuario = ? AND activo = ?",
+                               (False, usuario, True))
+        if updated:
+            return
+        existing = self.query("SELECT 1 FROM usuarios WHERE usuario = ?", (usuario,))
+        if existing.empty:
+            raise ValueError("El usuario no existe.")
+        raise ValueError("El usuario ya está inactivo.")
