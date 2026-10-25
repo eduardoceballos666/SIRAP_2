@@ -15,7 +15,7 @@ const busy = ref(false)
 const selectedTruckPlates = ref([])
 
 const vehicle = reactive({ placa: '', marca: '', modelo: '', color: '', tipo: 'LIVIANO', propietario: '', transportista: '' })
-const auth_ = reactive({ placa: '', lista: 'BLANCA', motivo: '', vigente_hasta: '' })
+const auth_ = reactive({ placa: '', lista: '', motivo: '', vigente_hasta: '' })
 const gate = reactive({ nombre: '', ubicacion: '' })
 const user = reactive({ usuario: '', nombre: '', rol: 'OPERADOR', password: '' })
 const demoN = ref(120)
@@ -54,8 +54,42 @@ function resetVehicle() {
 const saveVehicle = async () => {
   if (await run(() => api('/api/admin/vehiculos', { method: 'POST', body: vehicle }))) resetVehicle()
 }
-const saveAuth = () => run(() => api('/api/admin/autorizaciones', { method: 'POST', body: { ...auth_, vigente_hasta: auth_.vigente_hasta || null } }))
-const revoke = () => run(() => api(`/api/admin/autorizaciones/${encodeURIComponent(auth_.placa)}`, { method: 'DELETE' }))
+function resetAuth() {
+  Object.assign(auth_, { placa: '', lista: '', motivo: '', vigente_hasta: '' })
+}
+function plateKey(value) {
+  return String(value || '').toUpperCase().replace(/[^A-Z0-9]/g, '')
+}
+async function saveAuth() {
+  const complete = auth_.placa.trim() && auth_.lista && auth_.motivo.trim() && auth_.vigente_hasta
+  if (!complete) {
+    session.notify('Complete todos los campos obligatorios antes de asignar.', 'warn')
+    return
+  }
+  const key = plateKey(auth_.placa)
+  const existing = rows.value.find((row) => plateKey(row.placa) === key)
+  let method = 'POST'
+  let url = '/api/admin/autorizaciones'
+  if (existing) {
+    if (!window.confirm('La placa existe, ¿desea actualizar?')) {
+      session.notify('No se actualizó la placa.', 'warn')
+      resetAuth()
+      return
+    }
+    method = 'PUT'
+    url = `/api/admin/autorizaciones/${encodeURIComponent(existing.placa)}`
+  }
+  const saved = await run(() => api(url, { method, body: { ...auth_ } }))
+  if (saved) resetAuth()
+}
+async function revoke() {
+  if (!auth_.placa.trim()) {
+    session.notify('Ingrese la placa que desea quitar de la lista.', 'warn')
+    return
+  }
+  const saved = await run(() => api(`/api/admin/autorizaciones/${encodeURIComponent(auth_.placa)}`, { method: 'DELETE' }))
+  if (saved) resetAuth()
+}
 function toggleTruckSelection(plate, checked) {
   selectedTruckPlates.value = checked
     ? [...new Set([...selectedTruckPlates.value, plate])]
@@ -122,9 +156,9 @@ onMounted(load)
         <h2 class="card-title"><span class="icon-chip"><AppIcon name="lock" /></span> Lista blanca o restringida</h2>
         <form class="space-y-3" @submit.prevent="saveAuth">
           <input v-model.trim="auth_.placa" class="field font-mono uppercase" placeholder="Placa registrada" required />
-          <select v-model="auth_.lista" class="field"><option value="BLANCA">Lista blanca (autorizado)</option><option value="RESTRINGIDA">Lista restringida (denegado)</option></select>
-          <input v-model.trim="auth_.motivo" class="field" placeholder="Motivo" />
-          <div><label class="field-label">Vigente hasta (opcional)</label><input v-model="auth_.vigente_hasta" type="date" class="field" /></div>
+          <select v-model="auth_.lista" class="field" required><option disabled value="">Seleccione una lista…</option><option value="BLANCA">Lista blanca (autorizado)</option><option value="RESTRINGIDA">Lista restringida (denegado)</option></select>
+          <input v-model.trim="auth_.motivo" class="field" placeholder="Motivo" required />
+          <div><label class="field-label" for="authorization-expiry">Vigente hasta *</label><input id="authorization-expiry" v-model="auth_.vigente_hasta" type="date" class="field" required /></div>
           <div class="flex gap-2">
             <button class="btn-primary flex-1" :disabled="busy">Asignar</button>
             <button type="button" class="btn-ghost" :disabled="busy || !auth_.placa" @click="revoke">Quitar de listas</button>
