@@ -69,7 +69,7 @@ def get_secret(name: str, default: str | None = None) -> str | None:
     Nunca se escriben llaves en el código ni en ``config.yaml``.
 
     Args:
-        name: nombre del secreto (p. ej. ``"PG_DSN"``).
+        name: nombre del secreto (p. ej. ``"ROBOFLOW_API_KEY"``).
         default: valor si no se encuentra.
 
     Returns:
