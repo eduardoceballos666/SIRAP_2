@@ -586,7 +586,7 @@ onMounted(async () => {
           </div>
         </section>
         <div class="camera-meta">
-          <span :style="!detection && !sourceLabel ? { fontSize: '16px', whiteSpace: 'normal', overflowWrap: 'anywhere' } : undefined">{{ detection ? detection.detector + (recognition ? ' · ' + recognition.timings_ms.total?.toFixed(0) + ' ms' : ' · confirmando OCR ≥94 % en dos cuadros') : sourceLabel || 'Seleccione una imagen o fuente de video' }}</span>
+          <span :style="!detection && !sourceLabel ? { fontSize: '18px', whiteSpace: 'normal', overflowWrap: 'anywhere' } : undefined">{{ detection ? detection.detector + (recognition ? ' · ' + recognition.timings_ms.total?.toFixed(0) + ' ms' : ' · confirmando OCR ≥94 % en dos cuadros') : sourceLabel || 'Seleccione una imagen o fuente de video' }}</span>
           <div class="camera-meta-actions">
             <button class="btn-ghost clear-reading-button" :disabled="loading || busy || (!file && !preview && !mediaUrl && !onlineConnected && !decision && !manualPlate)" @click="clearCurrentReading"><AppIcon name="trash" :size="14" /> Limpiar lectura</button>
             <button class="btn-ghost" :disabled="loading || (!file && !mediaReady)" @click="processCurrentMedia"><AppIcon name="refresh" :size="15" /> Reprocesar</button>
@@ -594,14 +594,14 @@ onMounted(async () => {
         </div>
 
         <section class="reading-gallery" aria-label="Lecturas recientes">
-          <div class="reading-gallery-head"><strong>Lecturas recientes</strong><div><button class="text-link" @click="readingsOpen = true">Ver todas ({{ session.lecturas.length }})</button><RouterLink class="text-link" to="/historial">Historial</RouterLink></div></div>
+          <div class="reading-gallery-head"><strong style="font-size:18px">Lecturas recientes</strong><div><button class="text-link" @click="readingsOpen = true">Ver todas ({{ session.lecturas.length }})</button><RouterLink class="text-link" to="/historial">Historial</RouterLink></div></div>
           <div v-if="session.lecturas.length" class="reading-cards">
             <article v-for="l in session.lecturas.slice(0, 4)" :key="l.id" class="reading-card">
               <span class="reading-icon"><AppIcon name="car" :size="20" /></span>
               <span class="reading-copy"><strong>{{ l.placa || 'Sin placa' }}</strong><small>{{ l.hora }} · {{ RESULT[l.resultado]?.label || l.resultado }}</small></span>
             </article>
           </div>
-          <p v-else class="reading-empty">Las lecturas de esta sesión aparecerán aquí.</p>
+          <p v-else class="reading-empty" style="font-size:18px">Las lecturas de esta sesión aparecerán aquí.</p>
         </section>
       </section>
 
