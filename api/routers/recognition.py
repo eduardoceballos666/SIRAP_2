@@ -75,8 +75,8 @@ def recognize(file: UploadFile = File(..., description="JPG, PNG o WEBP; máx. 1
         decision = _decide(rec.plate, rec.ocr_confidence,
                            rec.det_confidence if pipeline.detector.is_model else None)
     except StorageError as exc:
-        logger.exception("Base de datos: %s", exc)
-        raise HTTPException(status.HTTP_503_SERVICE_UNAVAILABLE, "No se pudo consultar la base de datos.")
+        logger.exception("Almacenamiento CSV: %s", exc)
+        raise HTTPException(status.HTTP_503_SERVICE_UNAVAILABLE, "No se pudieron consultar los archivos CSV.")
     crop_b64 = None
     if rec.crop is not None and rec.crop.size:
         ok, buffer = cv2.imencode(".jpg", cv2.cvtColor(rec.crop, cv2.COLOR_RGB2BGR), [cv2.IMWRITE_JPEG_QUALITY, 90])
