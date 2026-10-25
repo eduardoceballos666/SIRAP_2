@@ -146,7 +146,7 @@
 .reading-copy small { overflow:hidden; color:var(--color-muted); font-size:9px; text-overflow:ellipsis; white-space:nowrap; }
 .reading-empty { margin:0; padding:9px; border-radius:7px; background:var(--color-subtle); color:var(--color-muted); font-size:11px; }
 
-.decision-column { display:grid; grid-template-rows:max-content minmax(118px,.8fr) minmax(158px,1.15fr); gap:9px; min-height:0; }
+.decision-column { display:grid; grid-template-rows:max-content minmax(118px,1fr) max-content; gap:9px; min-height:0; }
 .access-result-card {
   --result-surface-start:#dcfce7;
   --result-surface-end:#bbf7d0;
@@ -208,9 +208,14 @@
 .plate-form { display:flex; gap:6px; min-width:0; }
 .plate-form input { min-width:0; min-height:40px; flex:1; padding:7px 11px !important; font-size:15px !important; }
 .plate-form .btn-ghost { min-height:40px; padding:7px 11px; font-size:14px; }
+.access-workspace .vehicle-panel { align-self:start; min-height:0; gap:5px; padding:8px 10px; font-size:14px; line-height:1.25; }
+.vehicle-panel .section-heading h2 { font-size:16px; }
+.vehicle-panel .section-heading .text-link { font-size:14px; }
+.vehicle-panel .registered-note, .vehicle-panel .registration-prompt strong, .vehicle-panel .registration-prompt span, .vehicle-panel .registration-prompt-actions button { font-size:14px; }
 .vehicle-rows { display:grid; grid-template-columns:1fr 1fr; gap:4px 7px; margin:0; min-height:0; }
-.vehicle-rows > div { display:grid; grid-template-columns:74px minmax(0,1fr); align-items:center; gap:5px; min-width:0; padding:5px 7px; border-radius:6px; background:var(--color-subtle); font-size:11px; }
-.vehicle-rows dt { color:var(--color-muted); }
+.vehicle-rows > div { display:grid; grid-template-columns:90px minmax(0,1fr); align-items:baseline; gap:5px; min-width:0; padding:3px 7px; border-radius:6px; background:var(--color-subtle); font-size:14px; }
+.vehicle-rows > div:last-child { grid-column:1 / -1; grid-template-columns:minmax(90px,max-content) minmax(0,1fr); }
+.vehicle-rows dt { color:var(--color-ink); font-weight:800; }
 .vehicle-rows dd { min-width:0; margin:0; overflow-wrap:anywhere; color:var(--color-ink); font-weight:700; }
 .registered-note { margin:0; color:var(--color-ok-dark); font-size:10px; font-weight:700; }
 .registration-prompt { display:grid; gap:6px; padding:8px; border:1px solid color-mix(in srgb,var(--color-warn) 48%,var(--color-line)); border-radius:8px; background:linear-gradient(110deg,var(--color-warn-soft),color-mix(in srgb,var(--color-sirap-yellow) 18%,var(--color-surface))); }
@@ -266,7 +271,7 @@
   .control-strip { grid-template-columns:repeat(2,minmax(0,1fr)); }
   .decision-column { grid-template-columns:1fr; grid-template-rows:auto; }
   .decision-column > .card { min-height:145px; }
-  .decision-column > .plate-panel { min-height:0; }
+  .decision-column > .plate-panel, .decision-column > .vehicle-panel { min-height:0; }
   .decision-column > .access-result-card { min-height:118px; }
   .access-grid { grid-template-columns:minmax(0,1fr); }
   .camera-panel { min-height:460px; }
@@ -292,7 +297,7 @@
   .ocr-meter { padding-left:6px; }
   .ocr-meter > span { font-size:9px; }
   .vehicle-rows { grid-template-columns:1fr; }
-  .vehicle-rows > div { grid-template-columns:90px minmax(0,1fr); }
+  .vehicle-rows > div, .vehicle-rows > div:last-child { grid-template-columns:110px minmax(0,1fr); }
   .action-button { min-height:40px; }
 }
 .camera-panel:fullscreen { width:100vw; height:100dvh; max-width:none; max-height:none; }
