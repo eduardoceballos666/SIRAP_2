@@ -309,6 +309,24 @@ class Database:
             raise ValueError("El nombre y la ubicación de la garita son obligatorios.")
         self.execute("INSERT INTO garitas (nombre, ubicacion) VALUES (?, ?)", (nombre, ubicacion))
 
+    def set_garitas_active(self, nombres: Sequence[str], activa: bool) -> int:
+        """Cambia el estado de una o más garitas sin borrar sus registros."""
+        clean_names = list(dict.fromkeys(nombre.strip() for nombre in nombres))
+        if not clean_names or any(not nombre for nombre in clean_names):
+            raise ValueError("Seleccione una o más garitas válidas.")
+        placeholders = ", ".join("?" for _ in clean_names)
+        existing = self.query(
+            f"SELECT nombre FROM garitas WHERE nombre IN ({placeholders})", tuple(clean_names)
+        )
+        found = set(existing["nombre"].astype(str).tolist())
+        missing = [nombre for nombre in clean_names if nombre not in found]
+        if missing:
+            raise ValueError("No se encontraron estas garitas: " + ", ".join(missing) + ".")
+        return self.execute(
+            f"UPDATE garitas SET activa = ? WHERE nombre IN ({placeholders})",
+            (activa, *clean_names),
+        )
+
     def load_demo_history(self, n: int = 120, days: int = 7, seed: int = 7) -> int:
         """Genera ``n`` operaciones FICTICIAS con ``origen='DEMO'`` para mostrar el Dashboard.
 
