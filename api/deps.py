@@ -14,7 +14,7 @@ from api.settings import settings
 from src.access_control import barrier_from_config
 from src.database import Database
 from src.model import ALPRPipeline
-from src.utils import get_secret, load_config, load_json
+from src.utils import load_config, load_json
 
 _bearer = HTTPBearer(auto_error=False)
 
@@ -26,9 +26,8 @@ def get_config() -> dict[str, Any]:
 
 @lru_cache(maxsize=1)
 def get_db() -> Database:
-    """PostgreSQL si hay ``PG_DSN`` (compartida con Streamlit); si no, SQLite propia de la API."""
-    dsn = get_secret("PG_DSN")
-    db = Database(dsn=dsn) if dsn else Database(sqlite_path=settings.sqlite_path)
+    """Usa el archivo local de demostración configurado para la API."""
+    db = Database(sqlite_path=settings.sqlite_path)
     ensure_credentials_table(db)
     return db
 
