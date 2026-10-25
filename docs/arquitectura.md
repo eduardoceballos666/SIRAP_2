@@ -202,7 +202,7 @@ parametrizadas.
 | **Hugging Face Spaces (demo pública, Docker)** | ONNX Runtime (CPU, 2 vCPU · 16 GB) | SQLite con datos ficticios | Simulada |
 | Streamlit Community Cloud (interfaz alternativa, repo SIRAP) | ONNX Runtime (CPU) | SQLite con datos ficticios | Simulada |
 | Garita (producción) | ONNX Runtime o Ultralytics con GPU | PostgreSQL (`PG_DSN`) | HTTP con token (`BARRERA_URL`) |
-| Colab (investigación) | Ultralytics con GPU T4 | PostgreSQL instalado en la sesión | — |
+| Colab (investigación) | Ultralytics con GPU T4 | Archivos CSV en Drive | — |
 
 **Publicación:** cada push a `main` ejecuta `.github/workflows/deploy-hf-space.yml`, que copia al Space solo lo que la
 imagen necesita (≈37 MB) y Hugging Face construye el `Dockerfile` en dos etapas: (1) `node:22-slim` compila el
