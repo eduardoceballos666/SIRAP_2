@@ -8,10 +8,10 @@ from fastapi import APIRouter, Depends, HTTPException, status
 
 from api import schemas
 from api.jsonsafe import plain
-from api.deps import current_user, get_db, require_roles
+from api.deps import current_user, get_store, require_roles
 from api.security import set_password
 from src.data_processing import normalize_plate
-from src.database import DatabaseError
+from src.storage import StorageError
 
 router = APIRouter(prefix="/api/admin", tags=["Administración"])
 admin_only = require_roles("ADMINISTRADOR")
@@ -29,13 +29,13 @@ def _plate(raw: str) -> str:
 def _run(fn, *args, **kwargs):
     try:
         return fn(*args, **kwargs)
-    except (DatabaseError, ValueError) as exc:
+    except (StorageError, ValueError) as exc:
         raise HTTPException(422, str(exc))
 
 
 @router.get("/{table}", summary="Contenido de una tabla")
 def get_table(table: Table, _: dict = Depends(current_user)) -> list[dict[str, Any]]:
-    df = get_db().table(table)
+    df = get_store().table(table)
     return plain(df.to_dict(orient="records"))
 
 
@@ -45,7 +45,7 @@ def upsert_vehicle(body: schemas.AdminVehicleIn, _: dict = Depends(admin_only)) 
     fields = [body.marca, body.modelo, body.color, body.propietario, body.transportista]
     if any(not value.strip() for value in fields):
         raise HTTPException(422, "Complete todos los campos obligatorios del vehículo.")
-    db = get_db()
+    db = get_store()
     updating = _run(db.get_vehicle, plate) is not None
     _run(db.upsert_vehicle, plate, body.marca.strip(), body.modelo.strip(), body.color.strip(), body.tipo,
          body.propietario.strip(), body.transportista.strip())
@@ -58,7 +58,7 @@ def set_authorization(body: schemas.AuthorizationIn, user: dict = Depends(admin_
     plate = _plate(body.placa)
     if not body.motivo.strip():
         raise HTTPException(422, "El motivo es obligatorio.")
-    _run(get_db().set_authorization, plate, body.lista, body.motivo.strip(), body.vigente_hasta, user["usuario"])
+    _run(get_store().set_authorization, plate, body.lista, body.motivo.strip(), body.vigente_hasta, user["usuario"])
     return {"placa": plate, "mensaje": f"{plate} ahora está en la lista {body.lista}."}
 
 
@@ -70,7 +70,7 @@ def update_authorization(placa: str, body: schemas.AuthorizationIn,
         raise HTTPException(422, "La placa del formulario no coincide con la placa que se actualiza.")
     if not body.motivo.strip():
         raise HTTPException(422, "El motivo es obligatorio.")
-    _run(get_db().update_authorization, plate, body.lista, body.motivo.strip(),
+    _run(get_store().update_authorization, plate, body.lista, body.motivo.strip(),
          body.vigente_hasta, user["usuario"])
     return {"placa": plate, "mensaje": f"Autorización de {plate} actualizada en la lista {body.lista}."}
 
@@ -78,7 +78,7 @@ def update_authorization(placa: str, body: schemas.AuthorizationIn,
 @router.delete("/autorizaciones/{placa}", summary="Quitar una placa de todas las listas")
 def revoke_authorization(placa: str, _: dict = Depends(admin_only)) -> dict[str, str]:
     plate = _plate(placa)
-    _run(get_db().revoke_authorization, plate)
+    _run(get_store().revoke_authorization, plate)
     return {"placa": plate, "mensaje": f"{plate} quedó sin autorización."}
 
 
@@ -86,7 +86,7 @@ def revoke_authorization(placa: str, _: dict = Depends(admin_only)) -> dict[str,
 def update_selected_truck_authorizations(body: schemas.BulkTruckAuthorizationIn,
                                          user: dict = Depends(admin_only)) -> dict[str, str | int]:
     plates = list(dict.fromkeys(_plate(raw) for raw in body.placas))
-    db = get_db()
+    db = get_store()
     vehicles = {plate: db.get_vehicle(plate) for plate in plates}
     missing = [plate for plate, vehicle in vehicles.items() if vehicle is None]
     non_trucks = [plate for plate, vehicle in vehicles.items()
@@ -101,7 +101,7 @@ def update_selected_truck_authorizations(body: schemas.BulkTruckAuthorizationIn,
                                      "Autorización aplicada desde Administración", None, user["usuario"])
             else:
                 db.revoke_authorization(plate)
-    except (DatabaseError, ValueError) as exc:
+    except (StorageError, ValueError) as exc:
         raise HTTPException(422, f"No se pudo actualizar la autorización: {exc}")
     action = f"lista {body.lista}" if body.lista else "sin autorización"
     return {"actualizadas": len(plates),
@@ -113,7 +113,7 @@ def add_gate(body: schemas.GateIn, _: dict = Depends(admin_only)) -> dict[str, s
     nombre, ubicacion = body.nombre.strip(), body.ubicacion.strip()
     if not nombre or not ubicacion:
         raise HTTPException(422, "Complete el nombre y la ubicación antes de agregar la garita.")
-    _run(get_db().add_garita, nombre, ubicacion)
+    _run(get_store().add_garita, nombre, ubicacion)
     return {"mensaje": "Garita " + nombre + " agregada."}
 
 
@@ -123,7 +123,7 @@ def set_gates_state(body: schemas.BulkGateStateIn,
     nombres = list(dict.fromkeys(nombre.strip() for nombre in body.nombres))
     if not nombres or any(not nombre for nombre in nombres):
         raise HTTPException(422, "Seleccione una o más garitas válidas.")
-    updated = _run(get_db().set_garitas_active, nombres, body.activa)
+    updated = _run(get_store().set_garitas_active, nombres, body.activa)
     action = "activada(s)" if body.activa else "inactivada(s)"
     return {"actualizadas": updated, "mensaje": str(updated) + " garita(s) " + action + "."}
 
@@ -134,7 +134,7 @@ def add_user(body: schemas.UserIn, _: dict = Depends(admin_only)) -> dict[str, s
     nombre = body.nombre.strip()
     if not usuario or not nombre or not body.password.strip():
         raise HTTPException(422, "Complete todos los campos obligatorios del usuario.")
-    db = get_db()
+    db = get_store()
     _run(db.add_user, usuario, nombre, body.rol)
     _run(set_password, db, usuario, body.password)
     return {"mensaje": "Usuario " + usuario + " creado."}
@@ -148,7 +148,7 @@ def inactivate_user(usuario: str, actor: dict = Depends(admin_only)) -> dict[str
     if target == actor["usuario"]:
         raise HTTPException(409, "No puede inactivar su propio usuario.")
 
-    db = get_db()
+    db = get_store()
     target_rows = _run(db.query, "SELECT usuario, rol, activo FROM usuarios WHERE usuario = ?", (target,))
     if target_rows.empty:
         raise HTTPException(404, "El usuario seleccionado no existe.")
@@ -171,7 +171,7 @@ def set_users_state(body: schemas.BulkUserStateIn,
     if not usuarios or any(not usuario for usuario in usuarios):
         raise HTTPException(422, "Seleccione uno o más usuarios válidos.")
 
-    db = get_db()
+    db = get_store()
     placeholders = ", ".join("?" for _ in usuarios)
     selected = _run(
         db.query,
@@ -206,9 +206,9 @@ def set_users_state(body: schemas.BulkUserStateIn,
 @router.post("/demo", summary="Generar operaciones de demostración (origen DEMO)")
 def demo_generate(n: int = 120, _: dict = Depends(admin_only)) -> dict[str, Any]:
     n = max(1, min(int(n), 1000))
-    return {"creadas": get_db().load_demo_history(n)}
+    return {"creadas": get_store().load_demo_history(n)}
 
 
 @router.delete("/demo", summary="Borrar las operaciones de demostración")
 def demo_clear(_: dict = Depends(admin_only)) -> dict[str, Any]:
-    return {"borradas": get_db().clear_demo_history()}
+    return {"borradas": get_store().clear_demo_history()}
