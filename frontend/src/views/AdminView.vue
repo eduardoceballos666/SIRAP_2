@@ -93,6 +93,25 @@ async function saveVehicle() {
 function resetAuth() {
   Object.assign(auth_, { placa: '', lista: '', motivo: '', vigente_hasta: '' })
 }
+function loadAuthForEdit() {
+  const key = plateKey(auth_.placa)
+  if (!key) {
+    session.notify('Ingrese una placa para buscarla en la lista.', 'warn')
+    return
+  }
+  const existing = rows.value.find((row) => plateKey(row.placa) === key)
+  if (!existing) {
+    session.notify('La placa no está registrada en las listas.', 'warn')
+    return
+  }
+  Object.assign(auth_, {
+    placa: existing.placa || '',
+    lista: existing.lista || '',
+    motivo: existing.motivo || '',
+    vigente_hasta: String(existing.vigente_hasta || '').slice(0, 10),
+  })
+  session.notify(`Datos de ${existing.placa} cargados.`, 'ok')
+}
 function plateKey(value) {
   return String(value || '').toUpperCase().replace(/[^A-Z0-9]/g, '')
 }
@@ -191,7 +210,7 @@ onMounted(load)
       <template v-else-if="tab === 'autorizaciones'">
         <h2 class="card-title"><span class="icon-chip"><AppIcon name="lock" /></span> Lista blanca o restringida</h2>
         <form class="space-y-3" @submit.prevent="saveAuth">
-          <input v-model.trim="auth_.placa" class="field font-mono uppercase" placeholder="Placa registrada *" required />
+          <input v-model.trim="auth_.placa" class="field font-mono uppercase" placeholder="Placa registrada *" required @keydown.enter.prevent="loadAuthForEdit" />
           <select v-model="auth_.lista" class="field" required><option disabled value="">Seleccione una lista *…</option><option value="BLANCA">Lista blanca (autorizado)</option><option value="RESTRINGIDA">Lista restringida (denegado)</option></select>
           <input v-model.trim="auth_.motivo" class="field" placeholder="Motivo *" required />
           <div><label class="field-label" for="authorization-expiry">Vigente hasta *</label><input id="authorization-expiry" v-model="auth_.vigente_hasta" type="date" class="field" required /></div>
