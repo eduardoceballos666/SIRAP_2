@@ -172,7 +172,7 @@ onMounted(load)
     <section v-if="isAdmin && tab !== 'propietarios'" class="card">
       <template v-if="tab === 'vehiculos'">
         <h2 class="card-title"><span class="icon-chip"><AppIcon name="car" /></span> Crear o actualizar vehículo</h2>
-        <form class="space-y-3" @submit.prevent="saveVehicle">
+        <form class="space-y-3" novalidate @submit.prevent="saveVehicle">
           <input v-model.trim="vehicle.placa" class="field font-mono uppercase" placeholder="Placa (PBA-8901) *" required @change="loadVehicleForEdit" />
           <div class="grid grid-cols-2 gap-3">
             <input v-model.trim="vehicle.marca" class="field bg-subtle font-semibold" placeholder="Marca *" required />
