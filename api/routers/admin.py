@@ -117,6 +117,17 @@ def add_gate(body: schemas.GateIn, _: dict = Depends(admin_only)) -> dict[str, s
     return {"mensaje": "Garita " + nombre + " agregada."}
 
 
+@router.post("/garitas/estado", summary="Activar o inactivar garitas seleccionadas")
+def set_gates_state(body: schemas.BulkGateStateIn,
+                    _: dict = Depends(admin_only)) -> dict[str, str | int]:
+    nombres = list(dict.fromkeys(nombre.strip() for nombre in body.nombres))
+    if not nombres or any(not nombre for nombre in nombres):
+        raise HTTPException(422, "Seleccione una o más garitas válidas.")
+    updated = _run(get_db().set_garitas_active, nombres, body.activa)
+    action = "activada(s)" if body.activa else "inactivada(s)"
+    return {"actualizadas": updated, "mensaje": str(updated) + " garita(s) " + action + "."}
+
+
 @router.post("/usuarios", status_code=201, summary="Agregar un usuario con contraseña")
 def add_user(body: schemas.UserIn, _: dict = Depends(admin_only)) -> dict[str, str]:
     usuario = body.usuario.strip()
