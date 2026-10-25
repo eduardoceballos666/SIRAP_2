@@ -14,7 +14,8 @@ const rows = ref([])
 const busy = ref(false)
 const selectedTruckPlates = ref([])
 
-const vehicle = reactive({ placa: '', marca: '', modelo: '', color: '', tipo: 'LIVIANO', propietario: '', transportista: '' })
+const vehicle = reactive({ placa: '', marca: '', modelo: '', color: '', tipo: '', propietario: '', transportista: '' })
+const editingVehiclePlate = ref('')
 const auth_ = reactive({ placa: '', lista: '', motivo: '', vigente_hasta: '' })
 const gate = reactive({ nombre: '', ubicacion: '' })
 const user = reactive({ usuario: '', nombre: '', rol: 'OPERADOR', password: '' })
@@ -49,9 +50,44 @@ async function run(fn) {
   }
 }
 function resetVehicle() {
-  Object.assign(vehicle, { placa: '', marca: '', modelo: '', color: '', tipo: 'LIVIANO', propietario: '', transportista: '' })
+  Object.assign(vehicle, { placa: '', marca: '', modelo: '', color: '', tipo: '', propietario: '', transportista: '' })
+  editingVehiclePlate.value = ''
 }
-const saveVehicle = async () => {
+function loadVehicleForEdit() {
+  const key = plateKey(vehicle.placa)
+  if (!key || (editingVehiclePlate.value && plateKey(editingVehiclePlate.value) === key)) return
+  const existing = rows.value.find((row) => plateKey(row.placa) === key)
+  if (!existing) {
+    if (editingVehiclePlate.value) {
+      Object.assign(vehicle, { marca: '', modelo: '', color: '', tipo: '', propietario: '', transportista: '' })
+      editingVehiclePlate.value = ''
+    }
+    return
+  }
+  Object.assign(vehicle, {
+    placa: existing.placa,
+    marca: existing.marca || '',
+    modelo: existing.modelo || '',
+    color: existing.color || '',
+    tipo: existing.tipo || '',
+    propietario: existing.propietario || '',
+    transportista: existing.transportista || '',
+  })
+  editingVehiclePlate.value = existing.placa
+  session.notify(`Datos de ${existing.placa} cargados para actualizar.`, 'ok')
+}
+async function saveVehicle() {
+  const complete = vehicle.placa.trim() && vehicle.marca.trim() && vehicle.modelo.trim() &&
+    vehicle.color.trim() && vehicle.tipo && vehicle.propietario.trim() && vehicle.transportista.trim()
+  if (!complete) {
+    session.notify('Complete todos los campos obligatorios antes de guardar el vehículo.', 'warn')
+    return
+  }
+  const existing = rows.value.find((row) => plateKey(row.placa) === plateKey(vehicle.placa))
+  if (existing && !window.confirm(`La placa ${existing.placa} ya existe en el listado. ¿Desea actualizarla?`)) {
+    session.notify('No se actualizó el registro.', 'warn')
+    return
+  }
   if (await run(() => api('/api/admin/vehiculos', { method: 'POST', body: vehicle }))) resetVehicle()
 }
 function resetAuth() {
@@ -137,15 +173,15 @@ onMounted(load)
       <template v-if="tab === 'vehiculos'">
         <h2 class="card-title"><span class="icon-chip"><AppIcon name="car" /></span> Crear o actualizar vehículo</h2>
         <form class="space-y-3" @submit.prevent="saveVehicle">
-          <input v-model.trim="vehicle.placa" class="field font-mono uppercase" placeholder="Placa (PBA-8901)" required />
+          <input v-model.trim="vehicle.placa" class="field font-mono uppercase" placeholder="Placa (PBA-8901) *" required @change="loadVehicleForEdit" />
           <div class="grid grid-cols-2 gap-3">
-            <input v-model.trim="vehicle.marca" class="field bg-subtle font-semibold" placeholder="Marca" />
-            <input v-model.trim="vehicle.modelo" class="field bg-subtle font-semibold" placeholder="Modelo" />
-            <input v-model.trim="vehicle.color" class="field bg-subtle font-semibold" placeholder="Color" />
-            <select v-model="vehicle.tipo" class="field"><option>LIVIANO</option><option>CAMION</option><option>MOTO</option><option>OTRO</option></select>
+            <input v-model.trim="vehicle.marca" class="field bg-subtle font-semibold" placeholder="Marca *" required />
+            <input v-model.trim="vehicle.modelo" class="field bg-subtle font-semibold" placeholder="Modelo *" required />
+            <input v-model.trim="vehicle.color" class="field bg-subtle font-semibold" placeholder="Color *" required />
+            <select v-model="vehicle.tipo" class="field" required><option disabled value="">Seleccione tipo *</option><option value="LIVIANO">LIVIANO</option><option value="CAMION">CAMION</option><option value="MOTO">MOTO</option><option value="OTRO">OTRO</option></select>
           </div>
-          <input v-model.trim="vehicle.propietario" class="field bg-subtle font-semibold" placeholder="Propietario" />
-          <input v-model.trim="vehicle.transportista" class="field bg-subtle font-semibold" placeholder="Transportista (opcional)" />
+          <input v-model.trim="vehicle.propietario" class="field bg-subtle font-semibold" placeholder="Propietario *" required />
+          <input v-model.trim="vehicle.transportista" class="field bg-subtle font-semibold" placeholder="Transportista *" required />
           <div class="flex gap-2">
             <button class="btn-primary flex-1" :disabled="busy">Guardar vehículo</button>
             <button type="button" class="btn-ghost flex-1" :disabled="busy" @click="resetVehicle">Limpiar campos</button>
