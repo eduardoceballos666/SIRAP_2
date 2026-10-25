@@ -16,7 +16,7 @@ from api.deps import current_user, get_barrier, get_config, get_db, get_pipeline
 from src.access_control import AccessDecision, decide_access
 from src.data_processing import ImageLimits, ImageValidationError, load_image, normalize_plate
 from src.database import DatabaseError
-from src.detection_export import record_detection_and_enrich
+from src.detection_export import append_detection, enrich_detection
 from src.utils import ROOT_DIR, get_logger, now_local
 
 logger = get_logger("sirap.api.recognition")
@@ -125,7 +125,7 @@ def register_vehicle(body: schemas.VehicleIn, user: dict = Depends(current_user)
 
 @router.post("/operations", response_model=schemas.OperationOut, status_code=201,
              summary="Registrar una operación (y abrir la barrera si corresponde)")
-def register_operation(body: schemas.OperationIn, background_tasks: BackgroundTasks,\n                       user: dict = Depends(current_user)) -> schemas.OperationOut:
+def register_operation(body: schemas.OperationIn, background_tasks: BackgroundTasks, user: dict = Depends(current_user)) -> schemas.OperationOut:
     """El resultado **no** se toma del cliente: se vuelve a calcular en el servidor con la placa final.
 
     - ``APERTURA_AUTOMATICA`` solo se acepta si la placa está AUTORIZADA.
@@ -158,6 +158,7 @@ def register_operation(body: schemas.OperationIn, background_tasks: BackgroundTa
             origen=body.origen, tiempo_ms=body.tiempo_ms)
     except (DatabaseError, ValueError) as exc:
         raise HTTPException(422, f"No se pudo registrar: {exc}")
+    export_saved = False
     if body.origen == "DETECCION" and final:
         vehicle = decision.vehiculo or {}
         auth = vehicle.get("autorizacion") or {}
@@ -187,11 +188,20 @@ def register_operation(body: schemas.OperationIn, background_tasks: BackgroundTa
             "tipo_vehiculo_planta": vehicle.get("tipo", ""),
             "propietario_registrado": vehicle.get("propietario", ""),
         }
-        background_tasks.add_task(record_detection_and_enrich, row)
+        try:
+            append_detection(row)
+            export_saved = True
+            background_tasks.add_task(enrich_detection, row["event_id"], final, row["marca_planta"])
+        except Exception as exc:
+            logger.exception("No se pudo guardar la detección en GitHub: %s", exc)
     messages = {"APERTURA_AUTOMATICA": "Operación registrada y barrera abierta.",
                 "APERTURA_MANUAL": "Apertura manual registrada en el historial.",
                 "RECHAZO": "Rechazo registrado; la barrera permanece cerrada.",
                 "SOLO_REGISTRO": "Operación registrada sin abrir la barrera."}
+    if body.origen == "DETECCION" and final:
+        messages[body.accion] += (" Detección guardada en el CSV de GitHub; consultando SRI y propietario."
+                                  if export_saved else
+                                  " No se guardó en GitHub; revise la configuración del repositorio y el token.")
     return schemas.OperationOut(registrada=True, resultado=decision.resultado, accion=body.accion,
                                 barrera_abierta=opened, barrera_simulada=getattr(barrier, "simulated", True),
                                 mensaje=messages[body.accion])
