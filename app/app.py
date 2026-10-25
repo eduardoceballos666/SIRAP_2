@@ -7,7 +7,7 @@ Ejecutar desde la raíz del repositorio::
     streamlit run app/app.py
 
 La guía visual es ``docs/img/SIRAP_Dashboard.png``. La lógica (detector, OCR, regla de decisión,
-base de datos) vive en ``src/``; este archivo solo arma la interfaz.
+archivos CSV) vive en ``src/``; este archivo solo arma la interfaz.
 """
 
 from __future__ import annotations
@@ -28,7 +28,7 @@ import streamlit as st  # noqa: E402
 from app import ui  # noqa: E402
 from src.access_control import AccessDecision, barrier_from_config, decide_access  # noqa: E402
 from src.data_processing import ImageLimits, ImageValidationError, load_image, normalize_plate  # noqa: E402
-from src.database import Database, DatabaseError  # noqa: E402
+from src.storage import CsvStore, StorageError  # noqa: E402
 from src.model import ALPRPipeline, Recognition  # noqa: E402
 from src.utils import get_logger, get_secret, load_config, load_json, now_local  # noqa: E402
 
@@ -62,9 +62,9 @@ def get_pipeline() -> ALPRPipeline:
     return ALPRPipeline.from_config(CFG)
 
 
-@st.cache_resource(show_spinner="Conectando con la base de datos…")
-def get_db() -> Database:
-    return Database.from_environment()
+@st.cache_resource(show_spinner="Preparando archivos CSV…")
+def get_store() -> CsvStore:
+    return CsvStore.from_environment()
 
 
 @st.cache_resource
@@ -95,7 +95,7 @@ def sidebar() -> str:
             'Automático de Placas</div></div><div class="side-label">MÓDULOS</div>', unsafe_allow_html=True)
         module = st.radio("Módulo", MODULES, index=1, label_visibility="collapsed", key="module")
         try:
-            pipeline, db = get_pipeline(), get_db()
+            pipeline, db = get_pipeline(), get_store()
             det_dot = "ok" if pipeline.detector.is_model else "warn"
             db_dot = "warn"
             barrier = get_barrier()
@@ -152,11 +152,11 @@ def _process(data: bytes) -> None:
         with st.spinner("Detectando la placa y leyendo los caracteres…"):
             rec = get_pipeline().recognize(image)
             pipeline = get_pipeline()
-            decision = decide_access(rec.plate, rec.ocr_confidence, get_db(), THRESHOLD,
+            decision = decide_access(rec.plate, rec.ocr_confidence, get_store(), THRESHOLD,
                                      CFG["decision"]["distancia_max_similar"],
                                      det_confidence=rec.det_confidence if pipeline.detector.is_model else None,
                                      det_threshold=DET_THRESHOLD)
-    except DatabaseError as exc:
+    except StorageError as exc:
         friendly_error("No se pudo consultar la base de datos. Intente de nuevo o use la apertura manual.", exc)
         return
     except Exception as exc:  # noqa: BLE001
@@ -181,7 +181,7 @@ def _register(accion: str, decision: AccessDecision | None, motivo: str | None =
         if open_barrier and not get_barrier().open(garita, accion):
             st.error("La barrera no confirmó la apertura. Use la apertura manual de contingencia.")
             return
-        get_db().log_operation(
+        get_store().log_operation(
             garita=garita, operador=operador.strip(), tipo_movimiento=movimiento,
             resultado=decision.resultado if decision else "VERIFICACION_MANUAL", accion=accion,
             placa_leida=rec.plate_raw if rec else None, placa_final=placa_final,
@@ -189,7 +189,7 @@ def _register(accion: str, decision: AccessDecision | None, motivo: str | None =
             lista=decision.lista if decision else None, motivo=motivo,
             origen="MANUAL" if st.session_state.get("manual_plate") or not rec else "DETECCION",
             tiempo_ms=rec.timings_ms.get("total") if rec else None)
-    except (DatabaseError, ValueError) as exc:
+    except (StorageError, ValueError) as exc:
         friendly_error(f"No se pudo registrar la operación: {exc}", exc)
         return
     st.session_state["registered"] = True
@@ -280,13 +280,13 @@ def page_recognition() -> None:
                             st.error("Formato inválido: use 3 letras y 3 o 4 dígitos (ej.: PBA-8901).")
                         else:
                             st.session_state["manual_plate"] = plate
-                            st.session_state["decision"] = decide_access(plate, 1.0, get_db(), THRESHOLD, 0)
+                            st.session_state["decision"] = decide_access(plate, 1.0, get_store(), THRESHOLD, 0)
                             st.rerun()
 
     c1, c2, c3 = st.columns([1, 1.05, 1.1], gap="medium")
     with c1, st.container(key="card_point"):
         st.markdown(ui.card_head("pin", "Datos del punto de control"), unsafe_allow_html=True)
-        garitas = get_db().garitas() or CFG["app"]["garitas_por_defecto"]
+        garitas = get_store().garitas() or CFG["app"]["garitas_por_defecto"]
         st.selectbox("Garita", garitas, index=garitas.index(garita) if garita in garitas else 0, key="garita")
         st.text_input("Operador", value="Operador de garita", key="operador", max_chars=80)
         st.selectbox("Operación", ["Entrada", "Salida"], key="operacion")
@@ -325,7 +325,7 @@ def page_recognition() -> None:
 # ============================================================================================
 def _history(days: int, include_demo: bool) -> pd.DataFrame:
     today = now_local().date()
-    df = get_db().operations(desde=today - timedelta(days=days - 1), hasta=today)
+    df = get_store().operations(desde=today - timedelta(days=days - 1), hasta=today)
     if not include_demo and not df.empty:
         df = df[df["origen"] != "DEMO"]
     if not df.empty:
@@ -342,7 +342,7 @@ def page_dashboard() -> None:
     days = {"Hoy": 1, "Últimos 7 días": 7, "Últimos 30 días": 30}[period]
     try:
         df = _history(days, include_demo)
-    except DatabaseError as exc:
+    except StorageError as exc:
         friendly_error("No se pudo leer el historial.", exc)
         return
     entradas = int((df["tipo_movimiento"] == "ENTRADA").sum()) if not df.empty else 0
@@ -410,17 +410,17 @@ def page_history() -> None:
         f = st.columns([1.3, 1, 1, 1.1, 1])
         rango = f[0].date_input("Fechas", (today - timedelta(days=7), today), format="DD/MM/YYYY")
         placa = f[1].text_input("Placa contiene", max_chars=10)
-        garitas = ["Todas"] + get_db().garitas()
+        garitas = ["Todas"] + get_store().garitas()
         garita = f[2].selectbox("Garita", garitas)
         resultado = f[3].selectbox("Resultado", ["Todos"] + list(RESULT_LABELS),
                                    format_func=lambda r: RESULT_LABELS.get(r, r))
         movimiento = f[4].selectbox("Movimiento", ["Todos", "ENTRADA", "SALIDA"])
     desde, hasta = (rango if isinstance(rango, tuple) and len(rango) == 2 else (rango, rango))
     try:
-        df = get_db().operations(desde, hasta, placa or None, None if garita == "Todas" else garita,
+        df = get_store().operations(desde, hasta, placa or None, None if garita == "Todas" else garita,
                                  None if resultado == "Todos" else resultado,
                                  None if movimiento == "Todos" else movimiento)
-    except DatabaseError as exc:
+    except StorageError as exc:
         friendly_error("No se pudo consultar el historial.", exc)
         return
     st.caption(f"{len(df)} operaciones encontradas · el historial es de solo inserción (no se edita ni se borra).")
@@ -460,7 +460,7 @@ def page_admin() -> None:
     page_header("Administración")
     if not _admin_unlocked():
         return
-    db = get_db()
+    db = get_store()
     tabs = st.tabs(["Vehículos", "Listas de autorización", "Propietarios", "Garitas", "Usuarios", "Demostración"])
     with tabs[0]:
         st.dataframe(db.table("vehiculos"), hide_index=True, width="stretch")
@@ -480,7 +480,7 @@ def page_admin() -> None:
                     try:
                         db.upsert_vehicle(plate, marca, modelo, color, tipo, propietario or None, transportista or None)
                         st.success(f"Vehículo {plate} guardado.")
-                    except (DatabaseError, ValueError) as exc:
+                    except (StorageError, ValueError) as exc:
                         friendly_error(f"No se pudo guardar: {exc}", exc)
     with tabs[1]:
         st.dataframe(db.table("autorizaciones"), hide_index=True, width="stretch")
@@ -504,7 +504,7 @@ def page_admin() -> None:
                     else:
                         db.revoke_authorization(plate)
                     st.success("Listas actualizadas.")
-                except (DatabaseError, ValueError) as exc:
+                except (StorageError, ValueError) as exc:
                     friendly_error(f"No se pudo actualizar: {exc}", exc)
     with tabs[2]:
         st.dataframe(db.table("propietarios"), hide_index=True, width="stretch")
@@ -518,7 +518,7 @@ def page_admin() -> None:
                 try:
                     db.add_garita(nombre, ubicacion)
                     st.success("Garita agregada.")
-                except (DatabaseError, ValueError) as exc:
+                except (StorageError, ValueError) as exc:
                     friendly_error(f"No se pudo agregar: {exc}", exc)
     with tabs[4]:
         st.dataframe(db.table("usuarios"), hide_index=True, width="stretch")
@@ -530,7 +530,7 @@ def page_admin() -> None:
                 try:
                     db.add_user(usuario, nombre, rol)
                     st.success("Usuario agregado.")
-                except (DatabaseError, ValueError) as exc:
+                except (StorageError, ValueError) as exc:
                     friendly_error(f"No se pudo agregar: {exc}", exc)
     with tabs[5]:
         st.markdown("Genera operaciones **ficticias** marcadas con origen `DEMO` para mostrar el Dashboard. "
