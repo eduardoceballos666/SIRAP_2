@@ -1,4 +1,4 @@
-"""Configuración común de pytest: raíz del repo en sys.path y base SQLite temporal."""
+"""Configuración común de pytest: raíz del repositorio y almacenamiento CSV temporal."""
 
 import sys
 from pathlib import Path
@@ -12,7 +12,7 @@ if str(ROOT) not in sys.path:
 
 @pytest.fixture()
 def db(tmp_path):
-    """Base SQLite nueva con los datos de demostración, en una carpeta temporal."""
-    from src.database import Database
+    """Archivos CSV aislados para cada prueba."""
+    from src.storage import CsvStore
 
-    return Database(sqlite_path=tmp_path / "test.db")
+    return CsvStore(data_dir=tmp_path)
