@@ -379,11 +379,6 @@ def _enrich(event_id: str, plate: str, plant_brand: str | None) -> None:
             logger.exception("No se pudo registrar el error del propietario para %s", plate)
 
 
-def record_detection_and_enrich(row: dict) -> None:
-    """Guarda primero la operación y luego completa los datos en segundo plano."""
-    try:
-        append_detection(row)
-    except Exception as exc:
-        logger.exception("No se guardó la detección en GitHub: %s", exc)
-        return
-    _ENRICHMENT_POOL.submit(_enrich, row["event_id"], row["placa"], row.get("marca_planta"))
+def enrich_detection(event_id: str, plate: str, plant_brand: str | None = None) -> None:
+    """Encola las consultas externas para que no retrasen la respuesta del operador."""
+    _ENRICHMENT_POOL.submit(_enrich, event_id, plate, plant_brand)
