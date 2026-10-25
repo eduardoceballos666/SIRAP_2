@@ -564,10 +564,7 @@ onMounted(async () => {
             <video v-if="onlineMode === 'video'" v-show="!showCapture" ref="mediaVideo" :src="onlineUrl" controls autoplay playsinline muted @loadedmetadata="mediaLoaded" @playing="mediaPlaying" @error="mediaFailed"></video>
             <img v-else v-show="!showCapture" ref="networkImage" :src="onlineUrl" alt="Video en vivo de cámara en línea" @load="mediaLoaded" @error="mediaFailed" />
           </template>
-          <svg v-if="hasActiveVideo && !showCapture && detection?.box && detection?.image_width && detection?.image_height" :viewBox="`0 0 ${detection.image_width} ${detection.image_height}`" preserveAspectRatio="xMidYMid meet" class="pointer-events-none absolute inset-0 z-10 h-full w-full" aria-label="Recuadro de detección YOLO">
-            <rect :x="detection.box[0]" :y="detection.box[1]" :width="detection.box[2] - detection.box[0]" :height="detection.box[3] - detection.box[1]" fill="none" stroke="#31e981" :stroke-width="Math.max(3, Math.round(detection.image_width / 220))" rx="4" />
-          </svg>
-          <ImageViewer v-show="imagePreviewVisible" class="compact-viewer" :src="preview" :box="detection?.box" :width="detection?.image_width" :height="detection?.image_height" :tone="tone" :label="recognition?.plate" :garita="session.garita" :stamp="stamp" :loading="loading" />
+          <ImageViewer v-show="imagePreviewVisible" class="compact-viewer" :src="preview" :width="detection?.image_width" :height="detection?.image_height" :tone="tone" :label="recognition?.plate" :garita="session.garita" :stamp="stamp" :loading="loading" />
         </div>
         <section class="rounded-xl border border-line bg-surface px-3 py-2" aria-label="Análisis OCR" aria-live="polite">
           <div class="flex items-center justify-between gap-2">
