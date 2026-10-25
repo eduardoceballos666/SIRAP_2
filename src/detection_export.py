@@ -350,12 +350,17 @@ def _query_owner(plate: str) -> dict:
 _ENRICHMENT_POOL = ThreadPoolExecutor(max_workers=2, thread_name_prefix="sirap-enrichment")
 
 
-def _enrich(event_id: str, plate: str) -> None:
+def _normalized_brand(value: str | None) -> str:
+    text = unicodedata.normalize("NFKD", str(value or "")).encode("ascii", "ignore").decode()
+    return re.sub(r"[^A-Z0-9]", "", text.upper())
+
+
+def _enrich(event_id: str, plate: str, plant_brand: str | None) -> None:
     try:
         sri = _query_sri(plate)
-        if sri.get("sri_marca") and sri.get("sri_encontrado"):
-            # Deja una comparación sencilla con la marca registrada en la planta.
-            pass
+        sri_brand = sri.get("sri_marca")
+        if plant_brand and sri_brand and sri.get("sri_encontrado"):
+            sri["marca_coincide_sri"] = _normalized_brand(plant_brand) == _normalized_brand(sri_brand)
         update_detection(event_id, sri)
     except Exception as exc:
         logger.exception("No se pudo consultar/guardar SRI para %s: %s", plate, exc)
@@ -389,4 +394,4 @@ def record_detection_and_enrich(row: dict) -> None:
     except Exception as exc:
         logger.exception("No se guardó la detección en GitHub: %s", exc)
         return
-    _ENRICHMENT_POOL.submit(_enrich, row["event_id"], row["placa"])
+    _ENRICHMENT_POOL.submit(_enrich, row["event_id"], row["placa"], row.get("marca_planta"))
