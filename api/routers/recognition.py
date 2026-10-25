@@ -17,7 +17,7 @@ from src.access_control import AccessDecision, decide_access
 from src.data_processing import ImageLimits, ImageValidationError, load_image, normalize_plate
 from src.database import DatabaseError
 from src.detection_export import record_detection_and_enrich
-from src.utils import ROOT_DIR, get_logger
+from src.utils import ROOT_DIR, get_logger, now_local
 
 logger = get_logger("sirap.api.recognition")
 router = APIRouter(prefix="/api", tags=["Reconocimiento y Acceso"])
@@ -163,7 +163,7 @@ def register_operation(body: schemas.OperationIn, background_tasks: BackgroundTa
         auth = vehicle.get("autorizacion") or {}
         row = {
             "event_id": str(uuid.uuid4()),
-            "fecha_hora": __import__("src.utils", fromlist=["now_local"]).now_local().isoformat(sep=" ", timespec="seconds"),
+            "fecha_hora": now_local().isoformat(sep=" ", timespec="seconds"),
             "modelo_detector": "YOLO11-s" if body.det_confidence is not None else "",
             "camara": "",
             "garita": body.garita,
