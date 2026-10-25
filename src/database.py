@@ -224,13 +224,13 @@ class Database:
                             LEFT JOIN propietarios p ON p.id = v.propietario_id ORDER BY v.placa""",
             "propietarios": "SELECT id, nombre, tipo, contacto FROM propietarios ORDER BY nombre",
             "autorizaciones": """SELECT id, placa, lista, motivo, vigente_desde, vigente_hasta, activa, creado_por
-                                 FROM autorizaciones ORDER BY placa, lista""",
+                                 FROM autorizaciones WHERE activa = ? ORDER BY placa, lista""",
             "garitas": "SELECT id, nombre, ubicacion, activa FROM garitas ORDER BY nombre",
             "usuarios": "SELECT id, usuario, nombre, rol, activo FROM usuarios ORDER BY usuario",
         }
         if name not in queries:
             raise ValueError(f"Tabla desconocida: {name}")
-        return self.query(queries[name])
+        return self.query(queries[name], (True,)) if name == "autorizaciones" else self.query(queries[name])
 
     def garitas(self) -> list[str]:
         """Nombres de las garitas activas."""
@@ -275,6 +275,28 @@ class Database:
         self.execute("""INSERT INTO autorizaciones (placa, lista, motivo, vigente_hasta, creado_por)
                         VALUES (?, ?, ?, ?, ?)""",
                      (placa, lista, motivo, hasta.isoformat() if hasta else None, usuario))
+
+    def update_authorization(self, placa: str, lista: str, motivo: str, hasta: date,
+                            usuario: str = "admin") -> None:
+        """Actualiza en el mismo registro la autorización existente, sin insertar otra fila."""
+        if lista not in ("BLANCA", "RESTRINGIDA"):
+            raise ValueError("lista debe ser BLANCA o RESTRINGIDA")
+        if not motivo.strip():
+            raise ValueError("El motivo es obligatorio.")
+        rows = self.query("SELECT id FROM autorizaciones WHERE placa = ? AND activa = ? ORDER BY id DESC",
+                          (placa, True))
+        if rows.empty:
+            rows = self.query("SELECT id FROM autorizaciones WHERE placa = ? ORDER BY id DESC LIMIT 1",
+                              (placa,))
+        if rows.empty:
+            raise ValueError(f"La placa {placa} no tiene un registro de autorización para actualizar.")
+        auth_id = int(rows.iloc[0]["id"])
+        self.execute("UPDATE autorizaciones SET activa = ? WHERE placa = ? AND activa = ?", (False, placa, True))
+        self.execute("""UPDATE autorizaciones
+                        SET lista = ?, motivo = ?, vigente_desde = ?, vigente_hasta = ?, activa = ?, creado_por = ?
+                        WHERE id = ?""",
+                     (lista, motivo.strip(), now_local().date().isoformat(),
+                      hasta.isoformat() if hasta else None, True, usuario, auth_id))
 
     def revoke_authorization(self, placa: str) -> None:
         """Quita la placa de cualquier lista (queda NO REGISTRADO para el control de acceso)."""
