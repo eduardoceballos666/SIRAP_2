@@ -1,4 +1,4 @@
-"""Dependencias compartidas: base de datos, pipeline ALPR, barrera y usuario autenticado."""
+"""Dependencias compartidas: archivos CSV, pipeline ALPR, barrera y usuario autenticado."""
 
 from __future__ import annotations
 
@@ -27,7 +27,7 @@ def get_config() -> dict[str, Any]:
 @lru_cache(maxsize=1)
 def get_store() -> CsvStore:
     """Usa el archivo local de demostración configurado para la API."""
-    db = CsvStore(sqlite_path=settings.sqlite_path)
+    db = CsvStore(data_dir=settings.data_dir)
     ensure_credentials_table(db)
     return db
 
