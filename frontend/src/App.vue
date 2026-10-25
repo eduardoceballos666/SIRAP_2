@@ -19,8 +19,8 @@ onBeforeUnmount(() => clearInterval(timer))
 const items = computed(() => [
   { to: '/reconocimiento', label: 'Reconocimiento y Acceso', icon: 'scan' },
   { to: '/historial', label: 'Historial', icon: 'history' },
-  { to: '/dashboard', label: 'Dashboard', icon: 'dashboard' },
   { to: '/administracion', label: 'Administración', icon: 'settings', roles: ['ADMINISTRADOR', 'SUPERVISOR'] },
+  { to: '/dashboard', label: 'Dashboard', icon: 'dashboard' },
 ].filter((i) => !i.roles || auth.hasRole(...i.roles)))
 
 const clock = computed(() => now.value.toLocaleString('es-EC', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }))
