@@ -40,11 +40,17 @@ def get_table(table: Table, _: dict = Depends(current_user)) -> list[dict[str, A
 
 
 @router.post("/vehiculos", status_code=201, summary="Crear o actualizar un vehículo")
-def upsert_vehicle(body: schemas.VehicleIn, _: dict = Depends(admin_only)) -> dict[str, str]:
+def upsert_vehicle(body: schemas.AdminVehicleIn, _: dict = Depends(admin_only)) -> dict[str, str]:
     plate = _plate(body.placa)
-    _run(get_db().upsert_vehicle, plate, body.marca, body.modelo, body.color, body.tipo,
-         body.propietario or None, body.transportista or None)
-    return {"placa": plate, "mensaje": f"Vehículo {plate} guardado."}
+    fields = [body.marca, body.modelo, body.color, body.propietario, body.transportista]
+    if any(not value.strip() for value in fields):
+        raise HTTPException(422, "Complete todos los campos obligatorios del vehículo.")
+    db = get_db()
+    updating = _run(db.get_vehicle, plate) is not None
+    _run(db.upsert_vehicle, plate, body.marca.strip(), body.modelo.strip(), body.color.strip(), body.tipo,
+         body.propietario.strip(), body.transportista.strip())
+    message = "Registro actualizado correctamente." if updating else f"Vehículo {plate} guardado correctamente."
+    return {"placa": plate, "mensaje": message}
 
 
 @router.post("/autorizaciones", status_code=201, summary="Asignar lista blanca o restringida")
