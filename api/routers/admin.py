@@ -50,8 +50,23 @@ def upsert_vehicle(body: schemas.VehicleIn, _: dict = Depends(admin_only)) -> di
 @router.post("/autorizaciones", status_code=201, summary="Asignar lista blanca o restringida")
 def set_authorization(body: schemas.AuthorizationIn, user: dict = Depends(admin_only)) -> dict[str, str]:
     plate = _plate(body.placa)
-    _run(get_db().set_authorization, plate, body.lista, body.motivo, body.vigente_hasta, user["usuario"])
+    if not body.motivo.strip():
+        raise HTTPException(422, "El motivo es obligatorio.")
+    _run(get_db().set_authorization, plate, body.lista, body.motivo.strip(), body.vigente_hasta, user["usuario"])
     return {"placa": plate, "mensaje": f"{plate} ahora está en la lista {body.lista}."}
+
+
+@router.put("/autorizaciones/{placa}", summary="Actualizar un registro existente de autorización")
+def update_authorization(placa: str, body: schemas.AuthorizationIn,
+                         user: dict = Depends(admin_only)) -> dict[str, str]:
+    plate = _plate(placa)
+    if _plate(body.placa) != plate:
+        raise HTTPException(422, "La placa del formulario no coincide con la placa que se actualiza.")
+    if not body.motivo.strip():
+        raise HTTPException(422, "El motivo es obligatorio.")
+    _run(get_db().update_authorization, plate, body.lista, body.motivo.strip(),
+         body.vigente_hasta, user["usuario"])
+    return {"placa": plate, "mensaje": f"Autorización de {plate} actualizada en la lista {body.lista}."}
 
 
 @router.delete("/autorizaciones/{placa}", summary="Quitar una placa de todas las listas")
