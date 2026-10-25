@@ -14,6 +14,7 @@ const rows = ref([])
 const busy = ref(false)
 const selectedTruckPlates = ref([])
 const selectedUser = ref('')
+const selectedGateNames = ref([])
 
 const vehicle = reactive({ placa: '', marca: '', modelo: '', color: '', tipo: '', propietario: '', transportista: '' })
 const editingVehiclePlate = ref('')
@@ -25,6 +26,8 @@ const demoN = ref(120)
 const columns = computed(() => (rows.value[0] ? Object.keys(rows.value[0]) : []))
 const selectableTrucks = computed(() => rows.value.filter((row) => row.tipo === 'CAMION' && row.placa).map((row) => row.placa))
 const allTrucksSelected = computed(() => selectableTrucks.value.length > 0 && selectableTrucks.value.every((plate) => selectedTruckPlates.value.includes(plate)))
+const selectableGates = computed(() => rows.value.filter((row) => row.nombre).map((row) => row.nombre))
+const allGatesSelected = computed(() => selectableGates.value.length > 0 && selectableGates.value.every((name) => selectedGateNames.value.includes(name)))
 const selectedUserRow = computed(() => rows.value.find((row) => row.usuario === selectedUser.value) || null)
 const selectedUserActive = computed(() => isActiveUser(selectedUserRow.value))
 
@@ -36,7 +39,7 @@ async function load() {
     session.notify(e.message, 'bad')
   }
 }
-watch(tab, () => { selectedTruckPlates.value = []; selectedUser.value = ''; load() })
+watch(tab, () => { selectedTruckPlates.value = []; selectedUser.value = ''; selectedGateNames.value = []; load() })
 async function run(fn) {
   busy.value = true
   try {
@@ -158,6 +161,23 @@ function toggleTruckSelection(plate, checked) {
 }
 function selectAllTrucks(checked) {
   selectedTruckPlates.value = checked ? [...selectableTrucks.value] : []
+}
+function toggleGateSelection(name, checked) {
+  selectedGateNames.value = checked
+    ? [...new Set([...selectedGateNames.value, name])]
+    : selectedGateNames.value.filter((selected) => selected !== name)
+}
+function selectAllGates(checked) {
+  selectedGateNames.value = checked ? [...selectableGates.value] : []
+}
+async function updateSelectedGateState(activa) {
+  if (!selectedGateNames.value.length || busy.value) return
+  const nombres = [...selectedGateNames.value]
+  const saved = await run(() => api('/api/admin/garitas/estado', {
+    method: 'POST',
+    body: { nombres, activa },
+  }))
+  if (saved) selectedGateNames.value = []
 }
 async function updateSelectedTruckAuthorization(lista) {
   if (!selectedTruckPlates.value.length || busy.value) return
@@ -310,16 +330,23 @@ onMounted(load)
           <span class="text-xs text-muted">Seleccionado: {{ selectedUser || 'ninguno' }}</span>
           <button class="btn-red" :disabled="busy || !selectedUserActive" @click="inactivateSelectedUser">Inactivar usuario</button>
         </div>
+        <div v-if="isAdmin && tab === 'garitas'" class="flex flex-wrap items-center gap-2">
+          <span class="text-xs text-muted">{{ selectedGateNames.length }} garita(s) seleccionadas</span>
+          <button class="btn-red" :disabled="busy || !selectedGateNames.length" @click="updateSelectedGateState(false)">Inactivar garita</button>
+          <button class="btn-primary" :disabled="busy || !selectedGateNames.length" @click="updateSelectedGateState(true)">Activar garita</button>
+        </div>
       </div>
       <div class="table-wrap max-h-[65vh]">
         <table class="tbl">
           <thead><tr>
             <th v-if="isAdmin && tab === 'usuarios'">Seleccionar</th>
+            <th v-if="isAdmin && tab === 'garitas'"><input type="checkbox" aria-label="Seleccionar todas las garitas" :checked="allGatesSelected" :disabled="!selectableGates.length" @change="selectAllGates($event.target.checked)" /></th>
             <th v-if="isAdmin && tab === 'vehiculos'"><input type="checkbox" aria-label="Seleccionar todos los camiones" :checked="allTrucksSelected" :disabled="!selectableTrucks.length" @change="selectAllTrucks($event.target.checked)" /></th>
             <th v-for="c in columns" :key="c">{{ c }}</th>
           </tr></thead>
           <tbody><tr v-for="(r, i) in rows" :key="i">
             <td v-if="isAdmin && tab === 'usuarios'"><input type="radio" name="selected-user" :aria-label="'Seleccionar usuario ' + r.usuario" :checked="selectedUser === r.usuario" :disabled="!isActiveUser(r) || r.usuario === auth.user?.usuario" @change="selectedUser = r.usuario" /></td>
+            <td v-if="isAdmin && tab === 'garitas'"><input type="checkbox" :aria-label="'Seleccionar garita ' + r.nombre" :checked="selectedGateNames.includes(r.nombre)" @change="toggleGateSelection(r.nombre, $event.target.checked)" /></td>
             <td v-if="isAdmin && tab === 'vehiculos'"><input v-if="r.tipo === 'CAMION'" type="checkbox" :aria-label="`Seleccionar camión ${r.placa}`" :checked="selectedTruckPlates.includes(r.placa)" @change="toggleTruckSelection(r.placa, $event.target.checked)" /></td>
             <td v-for="c in columns" :key="c">{{ fmt(r[c]) }}</td>
           </tr></tbody>
