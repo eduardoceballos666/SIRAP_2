@@ -19,7 +19,7 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
 from api import __version__
-from api.deps import get_db, get_pipeline
+from api.deps import get_store, get_pipeline
 from api.routers import admin, auth, recognition, reports
 from api.settings import settings
 from src.utils import ROOT_DIR, get_logger
@@ -29,7 +29,7 @@ logger = get_logger("sirap.api")
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
-    get_db()
+    get_store()
     try:
         get_pipeline()  # carga YOLO11-s y el OCR una sola vez
     except Exception as exc:  # noqa: BLE001 - la API arranca aunque falte el modelo
