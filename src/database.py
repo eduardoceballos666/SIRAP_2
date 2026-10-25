@@ -2,7 +2,7 @@
 
 Dos motores con el mismo esquema (``sql/``):
 
-* **PostgreSQL** (producción): se usa si existe el secreto ``PG_DSN``. Requiere ``psycopg``.
+* **** (producción): se usa si existe el secreto ````. Requiere ````.
 * **SQLite** (demostración): se crea sola en ``data/processed/sirap_demo.db`` con los datos
   ficticios de ``sql/seed_demo.sql``. Es lo que corre en Streamlit Community Cloud.
 
@@ -20,7 +20,7 @@ from typing import Any, Iterator, Sequence
 
 import pandas as pd
 
-from src.utils import get_logger, get_secret, load_config, now_local, resolve_path
+from src.utils import get_logger, load_config, now_local, resolve_path
 
 logger = get_logger("sirap.database")
 
@@ -33,50 +33,31 @@ class DatabaseError(RuntimeError):
 
 
 class Database:
-    """Repositorio de datos con la misma API para SQLite y PostgreSQL.
+    """Almacenamiento local de demostración en SQLite."""
 
-    Args:
-        dsn: cadena de conexión de PostgreSQL. Si es ``None`` se usa SQLite.
-        sqlite_path: archivo SQLite (modo demostración).
-        seed: cargar los datos de demostración si la base está vacía.
-    """
-
-    def __init__(self, dsn: str | None = None, sqlite_path: str | Path | None = None, seed: bool = True):
+    def __init__(self, sqlite_path: str | Path | None = None, seed: bool = True):
         cfg = load_config()["base_datos"]
-        self.dsn = dsn
-        self.engine = "postgresql" if dsn else "sqlite"
+        self.engine = "sqlite"
         self._lock = threading.Lock()
-        if self.engine == "sqlite":
-            self.sqlite_path = resolve_path(sqlite_path or cfg["ruta_sqlite"])
-            self.sqlite_path.parent.mkdir(parents=True, exist_ok=True)
-        self._init_schema(resolve_path(cfg[f"esquema_{'postgres' if dsn else 'sqlite'}"]),
+        self.sqlite_path = resolve_path(sqlite_path or cfg["ruta_sqlite"])
+        self.sqlite_path.parent.mkdir(parents=True, exist_ok=True)
+        self._init_schema(resolve_path(cfg["esquema_sqlite"]),
                           resolve_path(cfg["datos_demo"]) if seed else None)
 
     @classmethod
     def from_environment(cls, **kwargs: Any) -> "Database":
-        """Usa PostgreSQL si hay ``PG_DSN``; si no, SQLite de demostración."""
-        dsn = get_secret("PG_DSN")
-        if dsn:
-            try:
-                return cls(dsn=dsn, **kwargs)
-            except DatabaseError as exc:
-                logger.error("PostgreSQL no disponible (%s); se usa SQLite de demostración.", exc)
+        """Usa únicamente el almacenamiento local de demostración."""
         return cls(**kwargs)
 
     # -- conexión ----------------------------------------------------------------------------
     @contextmanager
     def connect(self) -> Iterator[Any]:
-        """Conexión con commit automático y rollback ante errores."""
+        """Conexión local con commit automático y rollback ante errores."""
         try:
-            if self.engine == "postgresql":
-                import psycopg  # type: ignore
-
-                conn = psycopg.connect(self.dsn, connect_timeout=5)
-            else:
-                conn = sqlite3.connect(self.sqlite_path, check_same_thread=False)
-                conn.execute("PRAGMA foreign_keys = ON")
+            conn = sqlite3.connect(self.sqlite_path, check_same_thread=False)
+            conn.execute("PRAGMA foreign_keys = ON")
         except Exception as exc:  # noqa: BLE001
-            raise DatabaseError(f"No se pudo conectar a la base ({self.engine}): {exc}") from exc
+            raise DatabaseError(f"No se pudo abrir el archivo local de demostración: {exc}") from exc
         try:
             yield conn
             conn.commit()
@@ -86,15 +67,11 @@ class Database:
         finally:
             conn.close()
 
-    def _sql(self, query: str) -> str:
-        """Adapta los parámetros ``?`` de SQLite al ``%s`` de psycopg."""
-        return query.replace("?", "%s") if self.engine == "postgresql" else query
-
     def execute(self, query: str, params: Sequence[Any] = ()) -> int:
         """Ejecuta una sentencia de escritura y devuelve las filas afectadas."""
         with self._lock, self.connect() as conn:
             try:
-                cur = conn.execute(self._sql(query), tuple(params))
+                cur = conn.execute(query, tuple(params))
                 return cur.rowcount
             except Exception as exc:  # noqa: BLE001
                 raise DatabaseError(str(exc)) from exc
@@ -103,7 +80,7 @@ class Database:
         """Ejecuta una consulta y devuelve un ``DataFrame``."""
         with self.connect() as conn:
             try:
-                cur = conn.execute(self._sql(query), tuple(params))
+                cur = conn.execute(query, tuple(params))
                 columns = [c[0] for c in cur.description] if cur.description else []
                 return pd.DataFrame(cur.fetchall(), columns=columns)
             except Exception as exc:  # noqa: BLE001
@@ -113,18 +90,11 @@ class Database:
         """Crea las tablas si no existen y carga los datos de demostración en una base vacía."""
         with self._lock, self.connect() as conn:
             script = schema_file.read_text(encoding="utf-8")
-            if self.engine == "sqlite":
-                conn.executescript(script)
-            else:
-                conn.execute(script)
+            conn.executescript(script)
             count = conn.execute("SELECT COUNT(*) FROM vehiculos").fetchone()[0]
             if seed_file and count == 0:
-                seed = seed_file.read_text(encoding="utf-8")
-                if self.engine == "sqlite":
-                    conn.executescript(seed)
-                else:
-                    conn.execute(seed)
-                logger.info("Base %s inicializada con datos de demostración.", self.engine)
+                conn.executescript(seed_file.read_text(encoding="utf-8"))
+                logger.info("Almacenamiento local inicializado con registros ficticios.")
 
     # -- consultas de negocio ----------------------------------------------------------------
     def get_vehicle(self, placa: str) -> dict[str, Any] | None:
