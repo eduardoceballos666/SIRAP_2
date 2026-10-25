@@ -35,7 +35,7 @@ punta a punta (sección 7 del notebook).
 El notebook usa `authorized_plates.csv` en la carpeta de Drive como lista de placas autorizadas. Guarda lecturas,
 consultas SRI y resultados del propietario en archivos CSV bajo `registros_csv/`. Si se configura un repositorio
 privado de GitHub en los Secrets de Colab, las detecciones enriquecidas se sincronizan en `data/detecciones.csv`.
-El notebook no necesita un servicio PostgreSQL para este flujo.
+El notebook guarda este flujo en archivos CSV.
 
 La aplicación mantiene su almacenamiento de demostración separado en SQLite y usa `sql/seed_demo.sql` con datos
 ficticios; ese esquema no contiene la lista de vehículos de la planta.
