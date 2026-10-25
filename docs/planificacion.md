@@ -91,7 +91,7 @@ Streamlit.
 |---|---|
 | Datos | License Plate Recognition v11 (Roboflow, CC BY 4.0); SAVH Guayaquil (Zenodo); imágenes y video de la garita (con autorización); lista de placas autorizadas en CSV |
 | Hardware | Google Colab con GPU (T4 para pruebas; el entrenamiento final y las mediciones se hicieron en una NVIDIA L4); CPU para el OCR y la app; Hugging Face Spaces (Docker, CPU basic) para SIRAP 2 |
-| Software | Python 3.11+, Ultralytics 8.4.177, fast-plate-ocr 1.1.0, ONNX Runtime, supervision, trackers (OC-SORT), PostgreSQL / psycopg 3, FastAPI, Vue 3, Vite, Pinia, Vue Router, Tailwind CSS, ECharts, Docker, Streamlit |
+| Software | Python 3.11+, Ultralytics 8.4.177, fast-plate-ocr 1.1.0, ONNX Runtime, supervision, trackers (OC-SORT), SQLite local, FastAPI, Vue 3, Vite, Pinia, Vue Router, Tailwind CSS, ECharts, Docker, Streamlit |
 | Personas | 2 integrantes, ≈8 h/semana cada uno |
 
 ## 7. Riesgos y mitigación
