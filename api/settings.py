@@ -42,7 +42,7 @@ class Settings:
     #: Clave para firmar los JWT. Si no se define, se genera una al iniciar (los tokens dejan de valer al reiniciar).
     jwt_secret: str = field(default_factory=lambda: _env("SIRAP_JWT_SECRET") or secrets.token_urlsafe(48))
     jwt_hours: float = float(_env("SIRAP_JWT_HOURS", "12"))
-    #: Base SQLite propia de la API (demo). Con PG_DSN se usa PostgreSQL, compartida con la app de Streamlit.
+    #: Archivo local de demostración de la API; es temporal en servicios con disco efímero.
     sqlite_path: str = _env("SIRAP_API_DB", "data/processed/sirap_api.db")
     #: Contraseña inicial de los usuarios de demostración (operador, supervisor, admin). Vacía = no crear.
     demo_password: str = _env("SIRAP_DEMO_PASSWORD", "sirap2026") or ""
