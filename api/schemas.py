@@ -126,7 +126,7 @@ class BulkTruckAuthorizationIn(BaseModel):
 
 class GateIn(BaseModel):
     nombre: str = Field(min_length=1, max_length=60)
-    ubicacion: str = ""
+    ubicacion: str = Field(min_length=1, max_length=120)
 
 
 class UserIn(BaseModel):
