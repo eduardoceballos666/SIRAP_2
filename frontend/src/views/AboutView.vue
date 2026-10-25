@@ -28,6 +28,14 @@ const opt = computed(() => m.value.optimizacion_resumen || {})
 </script>
 
 <template>
+  <section class="card mb-5" aria-labelledby="developers-heading">
+    <h2 id="developers-heading" class="card-title">Desarrolladores</h2>
+    <div class="space-y-3 text-2xl font-bold leading-snug break-words sm:text-3xl">
+      <p>Eduardo Alejandro Ceballos Jijon</p>
+      <p>Christian Xavier Valle Maridueña</p>
+    </div>
+  </section>
+
   <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
     <div v-for="c in cards" :key="c.label" class="card">
       <p class="text-sm font-semibold text-muted">{{ c.label }}</p>
