@@ -97,13 +97,13 @@ def sidebar() -> str:
         try:
             pipeline, db = get_pipeline(), get_db()
             det_dot = "ok" if pipeline.detector.is_model else "warn"
-            db_dot = "ok" if db.engine == "postgresql" else "warn"
+            db_dot = "warn"
             barrier = get_barrier()
             st.markdown(
                 f'<div class="side-status"><b>Estado del sistema</b><br>'
                 f'<span class="dot {det_dot}"></span>Detector: {pipeline.detector.name}<br>'
                 f'<span class="dot ok"></span>OCR: {"afinado (Ecuador)" if "afinado" in pipeline.reader.model_name else "fast-plate-ocr"}<br>'
-                f'<span class="dot {db_dot}"></span>Base: {"PostgreSQL" if db.engine == "postgresql" else "SQLite (demo)"}<br>'
+                f'<span class="dot {db_dot}"></span>Base: "SQLite (demo)"<br>'
                 f'<span class="dot {"warn" if getattr(barrier, "simulated", True) else "ok"}"></span>'
                 f'Barrera: {"simulada" if getattr(barrier, "simulated", True) else "conectada"}</div>',
                 unsafe_allow_html=True)
@@ -569,7 +569,7 @@ def page_about() -> None:
    y entrega una probabilidad por carácter; la **confianza OCR** es la menor de ellas (el carácter menos seguro).
 3. **Normalización** – la lectura se lleva al formato ecuatoriano `XXX-0000` y se corrigen confusiones
    letra/dígito según la posición (ej. `GB01825 → GBO-1825`).
-4. **Decisión** – se consulta la base (PostgreSQL / SQLite): lista **restringida** → denegado; lista **blanca**
+4. **Decisión** – se consulta la base (SQLite local): lista **restringida** → denegado; lista **blanca**
    vigente → autorizado; detección < {DET_THRESHOLD:.2f}, confianza OCR < {THRESHOLD:.0%} o lectura a un carácter
    de una placa registrada →
    **verificación manual**; en otro caso → no registrado.
