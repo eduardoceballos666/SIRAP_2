@@ -14,6 +14,9 @@ import os
 import shutil
 import tempfile
 from pathlib import Path
+import json
+import urllib.error
+import urllib.request
 
 from huggingface_hub import HfApi
 
@@ -29,6 +32,23 @@ IGNORE = shutil.ignore_patterns("node_modules", "dist", "__pycache__", "*.pyc")
 def main() -> None:
     token = os.environ["HF_TOKEN"]
     space = os.environ.get("HF_SPACE") or "eduardoceballos/sirap"
+    data_token = os.environ.get("SIRAP_DATA_GITHUB_TOKEN")
+    data_repo = os.environ.get("SIRAP_DATA_GITHUB_REPO") or "eduardoceballos666/SIRAP_datos_privados"
+    if not data_token:
+        raise RuntimeError("Configure el secreto SIRAP_DATA_GITHUB_TOKEN en GitHub Actions antes de desplegar.")
+    owner, repo = data_repo.split("/", 1)
+    request = urllib.request.Request(
+        f"https://api.github.com/repos/{owner}/{repo}",
+        headers={"Authorization": f"Bearer {data_token}", "Accept": "application/vnd.github+json",
+                 "X-GitHub-Api-Version": "2022-11-28", "User-Agent": "SIRAP-deploy"},
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=20) as response:
+            metadata = json.loads(response.read().decode("utf-8"))
+    except (urllib.error.URLError, urllib.error.HTTPError, json.JSONDecodeError) as exc:
+        raise RuntimeError(f"No se pudo verificar el repositorio privado de datos {data_repo}.") from exc
+    if metadata.get("private") is not True:
+        raise RuntimeError(f"El repositorio de datos {data_repo} debe ser privado.")
     api = HfApi(token=token)
     api.create_repo(space, repo_type="space", space_sdk="docker", exist_ok=True)
     for name in ("SIRAP_JWT_SECRET", "SIRAP_DEMO_PASSWORD"):
