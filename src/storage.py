@@ -5,7 +5,7 @@ from datetime import date, datetime, timedelta
 from pathlib import Path
 from typing import Any, Sequence
 import pandas as pd
-from src.github_storage import GitHubStorageError, restore_csvs, save_csv
+from src.github_storage import GitHubStorageError, backup_missing_csvs, restore_csvs, save_csv
 from src.utils import now_local, resolve_path
 
 HEADERS = {
@@ -31,6 +31,8 @@ class CsvStore:
         restore_csvs(self.data_dir)
         for name, cols in HEADERS.items():
             if not self._path(name).exists(): self._write(name,pd.DataFrame(columns=cols))
+        # En el primer arranque conserva también los CSV locales que aún no estaban en GitHub.
+        backup_missing_csvs(self.data_dir)
     @classmethod
     def from_environment(cls,**kwargs): return cls(**kwargs)
     def _path(self,name):
