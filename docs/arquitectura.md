@@ -38,7 +38,7 @@ flowchart TB
         RT --> S
     end
     C -- "HTTPS /api/* (JSON, multipart)" --> M
-    D --> SRC[src/<br/>model · data_processing · access_control · database]
+    D --> SRC[src/<br/>model · data_processing · access_control · storage]
     SRC --> DB[(CSV local)]
 ```
 
