@@ -92,10 +92,18 @@ def restore_csvs(data_dir: str | Path) -> bool:
             item = _request("GET", _repo_path(file_name))
             if not item:
                 continue
-            if item.get("type") != "file" or item.get("encoding") != "base64" or not item.get("content"):
+            if item.get("type") != "file":
                 raise GitHubStorageError(f"El archivo {file_name} del respaldo no tiene un formato compatible.")
+            encoded = item.get("content")
+            if item.get("encoding") != "base64" or not encoded:
+                blob_sha = item.get("sha")
+                blob_path = "/repos/" + REPOSITORY + "/git/blobs/" + blob_sha if blob_sha else ""
+                blob = _request("GET", blob_path) if blob_path else None
+                encoded = blob.get("content") if blob and blob.get("encoding") == "base64" else None
+            if not encoded:
+                raise GitHubStorageError(f"No se pudo descargar el contenido de {file_name}.")
             try:
-                contents = base64.b64decode(item["content"])
+                contents = base64.b64decode(encoded)
                 contents.decode("utf-8")
             except (ValueError, UnicodeDecodeError) as exc:
                 raise GitHubStorageError(f"El archivo {file_name} del respaldo no es un CSV UTF-8 válido.") from exc
