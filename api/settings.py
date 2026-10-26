@@ -45,7 +45,7 @@ class Settings:
     #: Archivo local de demostración de la API; es temporal en servicios con disco efímero.
     data_dir: str = _env("SIRAP_DATA_DIR", "data/processed")
     #: Contraseña inicial de los usuarios de demostración (operador, supervisor, admin). Vacía = no crear.
-    demo_password: str = _env("SIRAP_DEMO_PASSWORD", "sirap2026") or ""
+    demo_password: str = _env("SIRAP_DEMO_PASSWORD", "") or ""
     #: Orígenes permitidos para el frontend en desarrollo (Vite usa el puerto 5173).
     cors_origins: tuple[str, ...] = tuple(
         o.strip() for o in (_env("SIRAP_CORS_ORIGINS", "http://localhost:5173,http://127.0.0.1:5173") or "").split(",")
