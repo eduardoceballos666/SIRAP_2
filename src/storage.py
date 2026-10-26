@@ -60,7 +60,18 @@ class CsvStore:
         d=self._read("usuarios"); d=d[d.usuario==user]
         return bool(len(d) and self._active(d.iloc[-1].activo))
     def active_users(self):
-        d=self._read("usuarios"); return d[d.activo.map(self._active)].usuario.tolist()
+        d = self._read("usuarios")
+        # Evita que una tabla antigua o incompleta detenga el arranque de la API.
+        if "activo" not in d.columns:
+            d["activo"] = ""
+        if "usuario" not in d.columns:
+            d["usuario"] = ""
+        active = d["activo"].map(self._active)
+        return [
+            user.strip()
+            for user in d.loc[active, "usuario"].fillna("").astype(str).tolist()
+            if user.strip()
+        ]
     def credential_hash(self,user):
         d=self._read("credenciales"); d=d[d.usuario==user]
         return None if d.empty else d.iloc[-1].password_hash
