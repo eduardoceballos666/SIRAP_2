@@ -95,7 +95,7 @@ def restore_csvs(data_dir: str | Path) -> bool:
             if item.get("type") != "file" or item.get("encoding") != "base64" or not item.get("content"):
                 raise GitHubStorageError(f"El archivo {file_name} del respaldo no tiene un formato compatible.")
             try:
-                contents = base64.b64decode(item["content"], validate=True)
+                contents = base64.b64decode(item["content"])
                 contents.decode("utf-8")
             except (ValueError, UnicodeDecodeError) as exc:
                 raise GitHubStorageError(f"El archivo {file_name} del respaldo no es un CSV UTF-8 válido.") from exc
