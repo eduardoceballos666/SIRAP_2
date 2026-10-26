@@ -9,6 +9,7 @@ Variables: ``HF_TOKEN`` (obligatoria, con permiso de escritura), ``HF_SPACE`` (`
 
 from __future__ import annotations
 
+import csv
 import os
 import shutil
 import tempfile
@@ -43,8 +44,19 @@ def main() -> None:
                 continue
             dst.parent.mkdir(parents=True, exist_ok=True)
             shutil.copytree(src, dst, ignore=IGNORE) if src.is_dir() else shutil.copy2(src, dst)
-        (out / "data" / "processed").mkdir(parents=True, exist_ok=True)
-        (out / "data" / "processed" / ".gitkeep").touch()
+        processed = out / "data" / "processed"
+        processed.mkdir(parents=True, exist_ok=True)
+        (processed / ".gitkeep").touch()
+
+        # Cuentas de demostración; las contraseñas se generan al iniciar desde el secreto privado.
+        with (processed / "usuarios.csv").open("w", encoding="utf-8", newline="") as handle:
+            writer = csv.writer(handle)
+            writer.writerow(["id", "usuario", "nombre", "rol", "activo"])
+            writer.writerows([
+                ["1", "operador", "Operador de demostración", "OPERADOR", "true"],
+                ["2", "supervisor", "Supervisor de demostración", "SUPERVISOR", "true"],
+                ["3", "admin", "Administrador de demostración", "ADMINISTRADOR", "true"],
+            ])
         shutil.copy2(Path(__file__).with_name("README.md"), out / "README.md")
         sha = os.environ.get("GITHUB_SHA", "local")[:7]
         api.upload_folder(folder_path=out, repo_id=space, repo_type="space", delete_patterns="*",
