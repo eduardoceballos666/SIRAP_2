@@ -1,10 +1,11 @@
-"""Persistencia de SIRAP en archivos CSV locales."""
+"""Persistencia de SIRAP en CSV locales con respaldo privado opcional."""
 from __future__ import annotations
 import csv, os, tempfile, threading, random
 from datetime import date, datetime, timedelta
 from pathlib import Path
 from typing import Any, Sequence
 import pandas as pd
+from src.github_storage import GitHubStorageError, restore_csvs, save_csv
 from src.utils import now_local, resolve_path
 
 HEADERS = {
@@ -26,6 +27,8 @@ class CsvStore:
         self.data_dir = resolve_path(data_dir or os.getenv("SIRAP_DATA_DIR","data/processed"))
         self.data_dir.mkdir(parents=True,exist_ok=True)
         self.engine = "csv"
+        # En Hugging Face, recupera primero el estado persistente antes de crear CSV vacíos.
+        restore_csvs(self.data_dir)
         for name, cols in HEADERS.items():
             if not self._path(name).exists(): self._write(name,pd.DataFrame(columns=cols))
     @classmethod
@@ -46,8 +49,10 @@ class CsvStore:
         try:
             with tempfile.NamedTemporaryFile("w",encoding="utf-8",newline="",dir=path.parent,delete=False,suffix=".tmp") as f:
                 temp=f.name; frame.reindex(columns=HEADERS[name],fill_value="").to_csv(f,index=False,quoting=csv.QUOTE_MINIMAL)
+            # Confirma el respaldo privado antes de sustituir el CSV local.
+            save_csv(path.name, Path(temp).read_text(encoding="utf-8"))
             os.replace(temp,path)
-        except OSError as exc:
+        except (OSError, GitHubStorageError) as exc:
             if temp and os.path.exists(temp): os.unlink(temp)
             raise StorageError(f"No se pudo guardar {name}.csv: {exc}") from exc
     @staticmethod
