@@ -48,6 +48,10 @@ def main() -> None:
         processed.mkdir(parents=True, exist_ok=True)
         (processed / ".gitkeep").touch()
 
+        # Tabla de garitas vacía, con el esquema que espera CsvStore.
+        with (processed / "garitas.csv").open("w", encoding="utf-8", newline="") as handle:
+            csv.writer(handle).writerow(["id", "nombre", "ubicacion", "activa"])
+
         # Cuentas de demostración; las contraseñas se generan al iniciar desde el secreto privado.
         with (processed / "usuarios.csv").open("w", encoding="utf-8", newline="") as handle:
             writer = csv.writer(handle)
