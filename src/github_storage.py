@@ -103,6 +103,21 @@ def restore_csvs(data_dir: str | Path) -> bool:
     return True
 
 
+def backup_missing_csvs(data_dir: str | Path) -> None:
+    """Sube las tablas locales que aún no existen en el respaldo (primera inicialización)."""
+    if not _token():
+        return
+    _verify_private_repository()
+    target = Path(data_dir)
+    with _LOCK:
+        for file_name in sorted(_ALLOWED):
+            if _request("GET", _repo_path(file_name)):
+                continue
+            path = target / file_name
+            if path.is_file():
+                save_csv(file_name, path.read_text(encoding="utf-8"))
+
+
 def save_csv(file_name: str, contents: str) -> None:
     """Guarda un CSV completo en una ruta permitida del repositorio privado."""
     if not _token():
