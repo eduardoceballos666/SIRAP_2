@@ -126,7 +126,18 @@ class CsvStore:
             d=self._read("vehiculos"); return d[d.propietario!=""][["propietario"]].drop_duplicates().rename(columns={"propietario":"nombre"}).sort_values("nombre").reset_index(drop=True)
         raise ValueError("CSV desconocido: "+name)
     def garitas(self):
-        d=self._read("garitas"); return d[d.activa.map(self._active)].nombre.tolist()
+        d = self._read("garitas")
+        # Tolera CSV antiguos o incompletos y evita que el endpoint /api/system falle.
+        if "activa" not in d.columns:
+            d["activa"] = ""
+        if "nombre" not in d.columns:
+            d["nombre"] = ""
+        active = d["activa"].map(self._active)
+        return [
+            name.strip()
+            for name in d.loc[active, "nombre"].fillna("").astype(str).tolist()
+            if name.strip()
+        ]
     def upsert_owner(self,nombre,tipo="PERSONA",contacto=None):
         if not nombre.strip():raise ValueError("El nombre del propietario es obligatorio.")
         return 1
