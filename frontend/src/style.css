@@ -107,8 +107,13 @@
 .camera-toolbar { display:flex; align-items:center; justify-content:space-between; gap:8px; min-width:0; }
 .camera-toolbar h2, .section-heading h2 { display:flex; align-items:center; gap:7px; min-width:0; margin:0; color:var(--color-ink); font-size:13px; font-weight:800; text-transform:uppercase; }
 .source-tabs { display:flex; flex:0 1 auto; gap:3px; min-width:0; padding:3px; border-radius:9px; background:var(--color-subtle-2); }
-.source-tabs button { min-width:0; max-width:115px; padding:7px 9px; border-radius:7px; color:var(--color-muted); font-size:12px; font-weight:650; line-height:1.1; white-space:normal; overflow-wrap:anywhere; }
-.source-tabs button:hover, .source-tabs button.active { background:var(--color-surface); color:var(--color-brand-600); box-shadow:0 1px 4px #0d1b3315; }
+.source-tabs button { --tab-bg:#eff6ff; --tab-ink:#1e40af; --tab-accent:#2563eb; min-width:0; min-height:44px; max-width:132px; padding:9px 12px; border:1px solid color-mix(in srgb,var(--tab-accent) 28%,white); border-radius:9px; background:var(--tab-bg); color:var(--tab-ink); font-size:13px; font-weight:800; line-height:1.1; white-space:normal; overflow-wrap:anywhere; transition:transform .15s ease,background .15s ease,box-shadow .15s ease; }
+.source-tabs button:nth-child(1) { --tab-bg:#ecfdf5; --tab-ink:#047857; --tab-accent:#059669; }
+.source-tabs button:nth-child(2) { --tab-bg:#eff6ff; --tab-ink:#1d4ed8; --tab-accent:#2563eb; }
+.source-tabs button:nth-child(3) { --tab-bg:#f5f3ff; --tab-ink:#6d28d9; --tab-accent:#7c3aed; }
+.source-tabs button:nth-child(4) { --tab-bg:#fff7ed; --tab-ink:#c2410c; --tab-accent:#ea580c; }
+.source-tabs button:hover { transform:translateY(-1px); box-shadow:0 3px 8px color-mix(in srgb,var(--tab-accent) 24%,transparent); }
+.source-tabs button.active { border-color:var(--tab-accent); background:var(--tab-accent); color:#fff; box-shadow:0 3px 9px color-mix(in srgb,var(--tab-accent) 32%,transparent); }
 .fullscreen-button { min-width:0; max-width:140px; gap:5px; padding:7px 9px !important; font-size:11px !important; }
 .sample-select, .access-workspace .field { min-width:0; min-height:34px; padding:6px 10px; border-radius:8px; font-size:12px; }
 .live-camera-tools { display:flex; flex-wrap:wrap; gap:6px; }
@@ -289,7 +294,7 @@
   .control-field strong { font-size:15px; }
   .camera-toolbar { flex-wrap:wrap; }
   .source-tabs { order:3; flex:1 1 100%; }
-  .source-tabs button { flex:1; max-width:none; padding:7px 5px; font-size:11px; }
+  .source-tabs button { flex:1; min-height:42px; max-width:none; padding:8px 4px; font-size:12px; }
   .fullscreen-button { margin-left:auto; }
   .camera-panel { min-height:445px; }
   .camera-stage { min-height:230px; }
