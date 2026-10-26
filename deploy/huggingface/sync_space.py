@@ -6,7 +6,7 @@ documentación ni pesos .pt) y sube la carpeta al Space; Hugging Face construye 
 Variables: ``HF_TOKEN`` (obligatoria, con permiso de escritura), ``HF_SPACE`` (``usuario/nombre``),
 ``SIRAP_DATA_GITHUB_TOKEN`` (obligatoria para validar el respaldo privado antes de desplegar),
 ``SIRAP_JWT_SECRET`` y ``SIRAP_DEMO_PASSWORD`` (opcionales; se guardan como *secrets* del Space).
-El token de respaldo se configura aparte como secreto del Space; este script no lo envía a Hugging Face.
+El flujo valida el token y lo guarda como secreto del Space para que la API acceda al repo privado.
 """
 
 from __future__ import annotations
