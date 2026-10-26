@@ -51,6 +51,10 @@ def main() -> None:
         # Tabla de garitas vacía, con el esquema que espera CsvStore.
         with (processed / "garitas.csv").open("w", encoding="utf-8", newline="") as handle:
             csv.writer(handle).writerow(["id", "nombre", "ubicacion", "activa"])
+        with (processed / "autorizaciones.csv").open("w", encoding="utf-8", newline="") as handle:
+            csv.writer(handle).writerow([
+                "id", "placa", "lista", "motivo", "vigente_desde", "vigente_hasta", "activa", "creado_por"
+            ])
 
         # Cuentas de demostración; las contraseñas se generan al iniciar desde el secreto privado.
         with (processed / "usuarios.csv").open("w", encoding="utf-8", newline="") as handle:
