@@ -56,6 +56,9 @@ def main() -> None:
     for name in ("SIRAP_JWT_SECRET", "SIRAP_DEMO_PASSWORD"):
         if os.environ.get(name):
             api.add_space_secret(space, name, os.environ[name])
+    # Autorizado por el propietario: el Space necesita este token para acceder al repo privado.
+    api.add_space_secret(space, "SIRAP_DATA_GITHUB_TOKEN", data_token)
+    api.add_space_secret(space, "SIRAP_DATA_GITHUB_REPO", data_repo)
 
     with tempfile.TemporaryDirectory() as tmp:
         out = Path(tmp)
