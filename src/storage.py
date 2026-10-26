@@ -119,8 +119,14 @@ class CsvStore:
         return d.reset_index(drop=True)
     def table(self,name):
         if name=="vehiculos":return self._read(name).sort_values("placa").reset_index(drop=True)
-        if name=="autorizaciones":
-            d=self._read(name); return d[d.activa.map(self._active)].sort_values(["placa","lista"]).reset_index(drop=True)
+        if name == "autorizaciones":
+            d = self._read(name)
+            # Asegura el esquema aunque el CSV existente esté incompleto.
+            for col in HEADERS["autorizaciones"]:
+                if col not in d.columns:
+                    d[col] = ""
+            active = d["activa"].map(self._active)
+            return d.loc[active].sort_values(["placa", "lista"]).reset_index(drop=True)
         if name in ("garitas","usuarios"):return self._read(name).sort_values("nombre" if name=="garitas" else "usuario").reset_index(drop=True)
         if name=="propietarios":
             d=self._read("vehiculos"); return d[d.propietario!=""][["propietario"]].drop_duplicates().rename(columns={"propietario":"nombre"}).sort_values("nombre").reset_index(drop=True)
