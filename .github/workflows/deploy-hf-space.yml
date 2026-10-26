@@ -26,4 +26,6 @@ jobs:
           HF_SPACE: ${{ vars.HF_SPACE }}
           SIRAP_JWT_SECRET: ${{ secrets.SIRAP_JWT_SECRET }}
           SIRAP_DEMO_PASSWORD: ${{ secrets.SIRAP_DEMO_PASSWORD }}
+          SIRAP_DATA_GITHUB_TOKEN: ${{ secrets.SIRAP_DATA_GITHUB_TOKEN }}
+          SIRAP_DATA_GITHUB_REPO: eduardoceballos666/SIRAP_datos_privados
         run: python deploy/huggingface/sync_space.py
