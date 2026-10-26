@@ -229,6 +229,7 @@ el [`Dockerfile`](Dockerfile) (frontend compilado + API, puerto 7860). Configura
 | `HF_TOKEN` | Secret (obligatorio) | Token de Hugging Face con permiso **Write** |
 | `SIRAP_JWT_SECRET` | Secret (recomendado) | Cadena larga y aleatoria para firmar las sesiones |
 | `SIRAP_DEMO_PASSWORD` | Secret (opcional) | Contraseña de los usuarios de demostración |
+| `SIRAP_DATA_GITHUB_TOKEN` | Secret (obligatorio para despliegues) | Token fine-grained con acceso Contents: Read and write solo a `SIRAP_datos_privados`; se usa en Actions para validar el repo privado antes de desplegar. Configure también ese mismo secreto manualmente en los Secrets del Space de Hugging Face para que la API respalde los CSV. |
 | `HF_SPACE` | Variable (opcional) | Otro Space, p. ej. `usuario/sirap` |
 
 El Space usa el hardware *CPU basic* (en cuentas nuevas de Hugging Face requiere PRO). La API ocupa ≈410 MB de RAM
