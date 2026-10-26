@@ -1,5 +1,5 @@
 # Publica la versión FastAPI + Vue en Hugging Face Spaces en cada push a main que toque la app web.
-# Requiere el secret HF_TOKEN (token de Hugging Face con permiso "Write").
+# Requiere HF_TOKEN y SIRAP_DATA_GITHUB_TOKEN (token con acceso de lectura/escritura al repo privado de datos).
 name: Deploy a Hugging Face Spaces
 
 on:
