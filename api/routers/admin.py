@@ -26,6 +26,10 @@ def _plate(raw: str) -> str:
     return plate
 
 
+def _active(value: Any) -> bool:
+    return str(value).strip().lower() in {"1", "true", "si", "sí", "yes"}
+
+
 def _run(fn, *args, **kwargs):
     try:
         return fn(*args, **kwargs)
@@ -149,15 +153,18 @@ def inactivate_user(usuario: str, actor: dict = Depends(admin_only)) -> dict[str
         raise HTTPException(409, "No puede inactivar su propio usuario.")
 
     db = get_store()
-    target_rows = _run(db.query, "SELECT usuario, rol, activo FROM usuarios WHERE usuario = ?", (target,))
+    users = _run(db.table, "usuarios")
+    target_rows = users[users["usuario"].astype(str) == target]
     if target_rows.empty:
         raise HTTPException(404, "El usuario seleccionado no existe.")
-    target_row = target_rows.iloc[0]
-    if not bool(target_row["activo"]):
+    target_row = target_rows.iloc[-1]
+    if not _active(target_row["activo"]):
         raise HTTPException(409, "El usuario ya está inactivo.")
     if target_row["rol"] == "ADMINISTRADOR":
-        active_admins = _run(db.query, "SELECT COUNT(*) AS total FROM usuarios WHERE rol = ? AND activo = ?", ("ADMINISTRADOR", True))
-        if int(active_admins.iloc[0]["total"]) <= 1:
+        active_admins = users[
+            (users["rol"] == "ADMINISTRADOR") & users["activo"].map(_active)
+        ]
+        if len(active_admins) <= 1:
             raise HTTPException(409, "No se puede inactivar al último usuario Administrador activo.")
 
     _run(db.deactivate_user, target)
@@ -172,12 +179,8 @@ def set_users_state(body: schemas.BulkUserStateIn,
         raise HTTPException(422, "Seleccione uno o más usuarios válidos.")
 
     db = get_store()
-    placeholders = ", ".join("?" for _ in usuarios)
-    selected = _run(
-        db.query,
-        "SELECT usuario, rol, activo FROM usuarios WHERE usuario IN (" + placeholders + ")",
-        tuple(usuarios),
-    )
+    users = _run(db.table, "usuarios")
+    selected = users[users["usuario"].astype(str).isin(usuarios)]
     found = set(selected["usuario"].astype(str).tolist())
     missing = [usuario for usuario in usuarios if usuario not in found]
     if missing:
@@ -186,16 +189,13 @@ def set_users_state(body: schemas.BulkUserStateIn,
     if not body.activo:
         if actor["usuario"] in usuarios:
             raise HTTPException(409, "No puede inactivar su propio usuario.")
-        active_admins = _run(
-            db.query,
-            "SELECT COUNT(*) AS total FROM usuarios WHERE rol = ? AND activo = ?",
-            ("ADMINISTRADOR", True),
+        active_admins = int(
+            ((users["rol"] == "ADMINISTRADOR") & users["activo"].map(_active)).sum()
         )
-        selected_admins = sum(
-            1 for _, row in selected.iterrows()
-            if row["rol"] == "ADMINISTRADOR" and bool(row["activo"])
+        selected_admins = int(
+            ((selected["rol"] == "ADMINISTRADOR") & selected["activo"].map(_active)).sum()
         )
-        if int(active_admins.iloc[0]["total"]) - selected_admins <= 0:
+        if active_admins - selected_admins <= 0:
             raise HTTPException(409, "No se puede inactivar al último usuario Administrador activo.")
 
     updated = _run(db.set_users_active, usuarios, body.activo)
