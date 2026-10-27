@@ -35,9 +35,9 @@ const fontSize = computed(() => Math.max(16, Math.round((props.width || 1000) / 
     </div>
     <div v-else class="grid aspect-video place-items-center rounded-xl border-2 border-dashed border-white/20 text-slate-300">
       <div class="text-center">
-        <AppIcon name="image" :size="48" class="mx-auto mb-2 opacity-70" />
-        <p class="font-semibold">Sin imagen</p>
-        <p class="text-sm opacity-80">Elija un ejemplo, suba una foto o use la cámara.</p>
+        <AppIcon name="image" :size="64" class="mx-auto mb-4 opacity-70" />
+        <p class="text-3xl font-bold leading-tight">Sin imagen</p>
+        <p class="mt-2 text-xl leading-relaxed opacity-90">Elija un ejemplo, suba una foto o use la cámara.</p>
       </div>
     </div>
   </div>
