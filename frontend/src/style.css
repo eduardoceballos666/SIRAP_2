@@ -101,7 +101,7 @@
 .control-strip .control-field > span { color:#1e40af; }
 .control-field strong { display:flex; align-items:center; gap:7px; min-height:32px; overflow:hidden; font-size:15px; text-overflow:ellipsis; white-space:nowrap; }
 .control-field .field { min-height:33px; padding:5px 9px; font-size:15px; }
-.workspace-clock { display:flex; align-items:center; justify-content:flex-end; gap:7px; min-width:0; color:var(--color-ink); font-size:14px; font-weight:700; white-space:nowrap; }
+.workspace-clock { display:flex; align-items:center; justify-content:flex-end; gap:7px; min-width:0; color:var(--color-ink); font-size:15px; font-weight:800; white-space:nowrap; }
 .control-strip .workspace-clock { color:#0d1b33; }
 .help-button { min-height:34px; padding:6px 9px !important; }
 .access-grid { display:grid; grid-template-columns:minmax(0,1.22fr) minmax(340px,.9fr); gap:10px; min-height:0; }
