@@ -116,12 +116,13 @@ referencia se interpreta con cautela: las 69 sugerencias aún no están confirma
 ### 2.2 Confianza del OCR
 
 La confianza del OCR (menor probabilidad entre los caracteres) separa lecturas correctas de equivocadas con un
-**AUROC de 0,76**. El umbral operativo de la aplicación es **0,94** (`config/config.yaml`). En la evaluación offline
+**AUROC de 0,76**. El umbral operativo actual de la aplicación es **0,99**. La evaluación offline
+SAVH descrita a continuación se calculó con el umbral anterior de **0,94**; sus resultados no estiman el rendimiento a 0,99.
 SAVH con predicciones guardadas, 363 de 399 recortes se aceptan (91,0 % de cobertura) y 36 pasan a revisión manual;
 entre las aceptadas, 349/363 son exactas (96,1 %) y 14 contienen una lectura equivocada. El EMR sin filtrar por
 confianza sigue siendo 374/399 (93,7 %). De las 399 referencias, 330 están confirmadas y 69 son sugerencias aún no
 confirmadas; por ello estos resultados se informan como una evaluación offline y no como rendimiento punta a punta
-en video. El escenario de estudio a 0,99 se reporta por separado y no describe el umbral activo.
+en video. El umbral actual de la aplicación es 0,99; esta comparación offline usa predicciones y resultados del estudio, y no constituye una nueva medición en producción.
 
 ![Confianza del OCR en SAVH](../results/figures/ocr_confianza_savh.png)
 
