@@ -532,6 +532,11 @@ async function register(accion) {
     motivo.value = ''
     const sim = out.barrera_abierta && out.barrera_simulada ? ' (barrera simulada)' : ''
     session.notify(out.mensaje + sim, out.accion === 'RECHAZO' ? 'warn' : 'ok')
+    if (['APERTURA_MANUAL', 'APERTURA_AUTOMATICA'].includes(out.accion)) {
+      await new Promise((resolve) => setTimeout(resolve, 3000))
+      busy.value = false
+      clearCurrentReading()
+    }
   } catch (e) {
     session.notify(e.message, 'bad')
   } finally {
