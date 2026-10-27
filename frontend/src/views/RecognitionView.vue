@@ -415,7 +415,8 @@ async function loadVehicleDetails(plate) {
       method: 'POST',
       body: { placa: plate },
     })
-    while (generation === vehicleLookupGeneration) {
+    const deadline = Date.now() + 45000
+    while (generation === vehicleLookupGeneration && Date.now() < deadline) {
       await new Promise((resolve) => setTimeout(resolve, 1000))
       const result = await api(`/api/plates/vehicle-data/${encodeURIComponent(started.request_id)}`)
       if (result.estado === 'completado') {
@@ -427,6 +428,9 @@ async function loadVehicleDetails(plate) {
           : 'Consulta finalizada; los sitios no devolvieron todos los datos. Se muestran los datos locales disponibles.'
         return
       }
+    }
+    if (generation === vehicleLookupGeneration) {
+      vehicleLookupStatus.value = 'La consulta está tardando más de lo esperado. Se muestran los datos locales disponibles.'
     }
   } catch (e) {
     if (generation === vehicleLookupGeneration) {
