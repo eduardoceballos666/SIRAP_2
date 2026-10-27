@@ -212,6 +212,14 @@ class CsvStore:
             d=self._read("usuarios")
             if (d.usuario.str.casefold()==usuario.casefold()).any():raise ValueError("El usuario ya existe.")
             d.loc[len(d)]=[self._next_id(d),usuario,nombre,rol,"true"]; self._write("usuarios",d)
+    def update_user(self,usuario,nombre,rol):
+        usuario,nombre=usuario.strip(),nombre.strip()
+        if not usuario or not nombre:raise ValueError("Usuario y nombre son obligatorios.")
+        with LOCK:
+            d=self._read("usuarios"); m=d.usuario==usuario
+            if not m.any():raise ValueError("El usuario seleccionado no existe.")
+            d.loc[m,"nombre"]=nombre; d.loc[m,"rol"]=rol; self._write("usuarios",d)
+            return int(m.sum())
     def deactivate_user(self,usuario):self.set_users_active([usuario],False)
     def set_users_active(self,usuarios,activo):
         wanted={str(x).strip() for x in usuarios if str(x).strip()}
