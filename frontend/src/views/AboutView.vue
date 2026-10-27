@@ -30,9 +30,15 @@ const opt = computed(() => m.value.optimizacion_resumen || {})
 <template>
   <section class="card mb-5" aria-labelledby="developers-heading">
     <h2 id="developers-heading" class="card-title">Desarrolladores</h2>
-    <div class="space-y-3 text-2xl font-bold leading-snug break-words sm:text-3xl">
-      <p>Eduardo Alejandro Ceballos Jijon</p>
-      <p>Christian Xavier Valle Maridueña</p>
+    <div class="space-y-4 leading-snug break-words">
+      <div>
+        <p class="text-2xl font-bold sm:text-3xl">Eduardo Alejandro Ceballos Jijon</p>
+        <p class="text-base text-muted sm:text-lg">eduardoceballos@yahoo.com</p>
+      </div>
+      <div>
+        <p class="text-2xl font-bold sm:text-3xl">Christian Xavier Valle Maridueña</p>
+        <p class="text-base text-muted sm:text-lg">cvalle130781@gmail.com</p>
+      </div>
     </div>
   </section>
 
