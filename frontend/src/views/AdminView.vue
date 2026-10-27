@@ -245,8 +245,30 @@ async function updateSelectedUserState(activo) {
   }))
   if (saved) selectedUsers.value = []
 }
-const demo = () => run(() => api('/api/admin/demo', { method: 'POST', params: { n: demoN.value } }))
-const clearDemo = () => run(() => api('/api/admin/demo', { method: 'DELETE' }))
+const demoMessage = ref('')
+const demoMessageKind = ref('ok')
+async function runDemo(action) {
+  if (busy.value) return
+  demoMessageKind.value = 'ok'
+  demoMessage.value = action === 'generate' ? 'Generando operaciones de demostración…' : 'Borrando operaciones de demostración…'
+  busy.value = true
+  try {
+    const out = action === 'generate'
+      ? await api('/api/admin/demo', { method: 'POST', params: { n: demoN.value } })
+      : await api('/api/admin/demo', { method: 'DELETE' })
+    const count = action === 'generate' ? (out?.creadas ?? 0) : (out?.borradas ?? 0)
+    demoMessage.value = action === 'generate'
+      ? `Proceso terminado: se generaron ${count} operación(es) de demostración.`
+      : `Proceso terminado: se borraron ${count} operación(es) DEMO.`
+    session.notify(demoMessage.value, 'ok')
+  } catch (e) {
+    demoMessageKind.value = 'bad'
+    demoMessage.value = `No se pudo completar la operación: ${e.message}`
+    session.notify(demoMessage.value, 'bad')
+  } finally {
+    busy.value = false
+  }
+}
 
 const fmt = (v) => (v === true ? 'Sí' : v === false ? 'No' : v ?? '—')
 onMounted(load)
@@ -329,9 +351,13 @@ onMounted(load)
         <p class="mb-3 text-sm text-muted">Operaciones ficticias (origen DEMO) para mostrar el Dashboard. No son resultados del modelo y se pueden ocultar o borrar.</p>
         <div class="flex gap-2">
           <input v-model.number="demoN" type="number" min="1" max="1000" class="field !w-28" />
-          <button class="btn-primary flex-1" :disabled="busy" @click="demo">Generar</button>
+          <button class="btn-primary flex-1" :disabled="busy" @click="runDemo('generate')">Generar</button>
         </div>
-        <button class="btn-red mt-3 w-full" :disabled="busy" @click="clearDemo">Borrar operaciones DEMO</button>
+        <button class="btn-red mt-3 w-full" :disabled="busy" @click="runDemo('clear')">Borrar operaciones DEMO</button>
+        <p v-if="demoMessage" class="mt-3 rounded-lg bg-subtle px-3 py-2 text-sm font-semibold text-muted"
+           :class="demoMessageKind === 'bad' ? 'text-warn' : ''" role="status" aria-live="polite">
+          {{ demoMessage }}
+        </p>
       </template>
     </section>
 
