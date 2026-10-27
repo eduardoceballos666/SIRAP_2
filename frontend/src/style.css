@@ -118,8 +118,8 @@
 .sample-select, .access-workspace .field { min-width:0; min-height:34px; padding:6px 10px; border-radius:8px; font-size:12px; }
 .live-camera-tools { display:flex; flex-wrap:wrap; gap:6px; }
 .live-camera-tools button { min-height:34px; padding:6px 10px; font-size:12px; }
-.upload-compact { display:flex; align-items:center; justify-content:center; gap:8px; min-width:0; max-width:100%; min-height:40px; margin-inline:auto; padding:8px 14px; border:1px dashed var(--color-line); border-radius:8px; color:var(--color-ink); font-size:14px; line-height:1.2; text-align:center; cursor:pointer; }
-.upload-compact span { overflow-wrap:anywhere; font-size:15px; font-weight:700; }
+.upload-compact { display:flex; align-items:center; justify-content:center; gap:10px; min-width:0; max-width:100%; min-height:58px; margin-inline:auto; padding:14px 18px; border:1px solid #1d4ed8; border-radius:10px; background:linear-gradient(110deg,#1d4ed8 0%,#dc2626 100%); color:#fff; font-size:18px; line-height:1.25; text-align:center; cursor:pointer; box-shadow:0 4px 12px #1d4ed833; }
+.upload-compact span { overflow-wrap:anywhere; color:#fff; font-size:18px; font-weight:800; }
 .media-source-tools { display:flex; flex-wrap:wrap; align-items:center; gap:6px; min-width:0; }
 .online-source-tools { display:grid; gap:5px; min-width:0; }
 .online-camera-form { display:grid; grid-template-columns:minmax(112px,.42fr) minmax(0,1fr) auto; gap:6px; min-width:0; }
