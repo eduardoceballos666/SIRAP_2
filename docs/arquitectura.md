@@ -197,11 +197,11 @@ y `SIRAP_DATA_GITHUB_REPO` permiten restaurarlas desde el repositorio privado al
 si esa integración no está configurada en otra instalación, los archivos permanecen solo en el almacenamiento local
 de ese entorno.
 
-La ficha del vehículo también puede solicitar datos públicos al SRI y el nombre visible asociado a la placa en
-EcuadorLegalOnline. La API usa la placa como criterio de búsqueda; estos resultados solo complementan la ficha, no
-forman parte de la regla de acceso y pueden no estar disponibles. La exportación enriquecida de detecciones es
-independiente: `GITHUB_TOKEN` y `GITHUB_DATA_REPOSITORY` guardan eventos en `data/detecciones.csv`, no las tablas
-operativas.
+La ficha del vehículo consulta datos públicos del SRI para marca/modelo/año. La API consulta además EcuadorLegalOnline
+y puede recibir el nombre visible asociado a la placa, aunque el panel actual no muestra ese campo. Estas respuestas
+no forman parte de la regla de acceso y pueden no estar disponibles. La exportación enriquecida de detecciones es
+independiente: `GITHUB_TOKEN` y `GITHUB_DATA_REPOSITORY` pueden guardar los resultados en `data/detecciones.csv`,
+pero no restauran ni respaldan las tablas operativas.
 
 ## 6. Despliegue
 
