@@ -415,7 +415,7 @@ async function loadVehicleDetails(plate) {
       method: 'POST',
       body: { placa: plate },
     })
-    const deadline = Date.now() + 45000
+    const deadline = Date.now() + 120000
     while (generation === vehicleLookupGeneration && Date.now() < deadline) {
       await new Promise((resolve) => setTimeout(resolve, 1000))
       const result = await api(`/api/plates/vehicle-data/${encodeURIComponent(started.request_id)}`)
