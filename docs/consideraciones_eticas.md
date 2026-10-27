@@ -59,7 +59,8 @@ reparte igual** entre grupos de vehículos/placas. Por eso:
 |---|---|---|
 | Imagen del vehículo | Sí (puede mostrar conductor, otras placas) | **No se guarda** en la base; solo se procesa en memoria |
 | Placa | Sí (identifica indirectamente al propietario) | Se guarda solo cuando se registra una operación |
-| Propietario | Sí | Nombre y **un** contacto (minimización); sin cédula, dirección ni teléfono obligatorios |
+| Propietario registrado localmente | Sí | Nombre y datos que registra el administrador para la operación; no se requieren cédula, domicilio ni teléfono |
+| Nombre devuelto por consulta pública | Sí | La API lo conserva temporalmente en memoria; la exportación enriquecida independiente puede guardarlo si se configura |
 | Historial (fecha, hora, garita) | Sí (patrón de movimientos) | Solo inserción; acceso restringido al personal de la instalación |
 
 ### 3.2 Medidas
@@ -93,14 +94,18 @@ Para un despliegue real la instalación (responsable del tratamiento) debe:
 4. Atender **derechos** de acceso, rectificación y eliminación de los titulares.
 5. No ceder los datos a terceros sin base legal.
 
-La aplicación consulta el servicio público del **SRI** para complementar marca, modelo y año, y consulta
-**EcuadorLegalOnline** para mostrar el nombre visible asociado públicamente a la placa. Son consultas programadas
-que usan la placa como dato de búsqueda; no consultan cédula, domicilio ni teléfono, no intentan eludir CAPTCHA o
-controles de acceso y no participan en la regla que autoriza o deniega el ingreso. El uso de información disponible
-públicamente para esta finalidad no constituye por sí solo una infracción ética. Aun así, una placa y un nombre
-pueden identificar a una persona: se documenta su uso, se limita la información mostrada y se debe informar a los
-usuarios. Las fuentes pueden cambiar, devolver datos incompletos o no responder; el sistema debe presentar esa
-limitación y no tratar los resultados como verificación oficial de identidad o titularidad.
+La aplicación consulta el servicio público del **SRI** para complementar la marca, el modelo y el año mostrados en
+la ficha. También consulta **EcuadorLegalOnline** con la placa y la respuesta de la API puede incluir el nombre visible
+asociado públicamente a ella; el panel web actual no presenta ese nombre. Las respuestas se mantienen de forma
+temporal en la memoria del proceso para completar la solicitud; la exportación enriquecida independiente puede
+guardar el resultado en `data/detecciones.csv` si se configura su integración de GitHub.
+
+Estas consultas programadas no intervienen en la regla de autorización, no consultan cédula, domicilio ni teléfono y
+no intentan eludir CAPTCHA o controles de acceso. El uso de información pública para esta finalidad no constituye
+por sí solo una infracción ética. Aun así, placas y nombres pueden identificar personas: se informa este tratamiento,
+se minimizan los campos y no se presentan resultados como verificación oficial de identidad o titularidad. Las fuentes
+pueden cambiar, devolver datos incompletos o no responder; la interfaz conserva los datos locales disponibles y
+muestra que la consulta externa no pudo completarse.
 
 ## 4. Transparencia y explicabilidad
 
