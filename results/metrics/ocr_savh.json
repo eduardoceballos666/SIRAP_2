@@ -14,7 +14,7 @@
     "emr": 0.899,
     "cer": 0.014
   },
-  "formato_valido": 1.0,
+  "formato_valido": 1,
   "lecturas_equivocadas": 25,
   "ms_por_recorte_media": 16,
   "ms_por_recorte_p95": 20,
@@ -24,5 +24,20 @@
   "equivocadas_aceptadas_con_umbral": 12,
   "no_legibles": 267,
   "nota": "69 referencias aún son sugerencias sin confirmar en la hoja de revisión.",
-  "fuente": "Notebook SIRAP_backend, secciones 4.3 y 5.4"
+  "fuente": "Notebook SIRAP_backend, secciones 4.3 y 5.4",
+  "umbral_operativo_0_94": {
+    "umbral": 0.94,
+    "n": 399,
+    "referencias_confirmadas": 330,
+    "referencias_sugeridas_sin_confirmar": 69,
+    "aceptadas": 363,
+    "cobertura": 0.9097744360902256,
+    "verificacion_manual": 36,
+    "tasa_verificacion_manual": 0.09022556390977443,
+    "exactas_entre_aceptadas": 349,
+    "emr_entre_aceptadas": 0.9614325068870524,
+    "lecturas_equivocadas_aceptadas": 14,
+    "emr_sin_umbral": 0.9373433583959899,
+    "nota": "Evaluación offline por recorte con predicciones OCR guardadas y referencias SAVH; no es rendimiento punta a punta en video. 69 referencias son sugerencias sin confirmar."
+  }
 }
