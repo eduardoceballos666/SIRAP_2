@@ -42,6 +42,9 @@ const recognition = ref(null)
 const detection = ref(null)
 const ocrAttempt = ref(null)
 const decision = ref(null)
+const vehicleLookup = ref(null)
+const vehicleLookupStatus = ref('')
+let vehicleLookupGeneration = 0
 const manualPlate = ref('') // placa corregida o escrita por el operador
 const origin = ref('DETECCION')
 const busy = ref(false)
@@ -256,6 +259,9 @@ onBeforeUnmount(() => {
 
 // --- imagen -----------------------------------------------------------------------------
 function reset() {
+  vehicleLookupGeneration += 1
+  vehicleLookup.value = null
+  vehicleLookupStatus.value = ''
   recognition.value = null
   detection.value = null
   ocrAttempt.value = null
@@ -379,6 +385,7 @@ async function recognize() {
     if (continuousAnalysis.value) stopContinuousAnalysis()
     decision.value = data.decision
     manualPlate.value = data.recognition.plate
+    void loadVehicleDetails(data.recognition.plate)
     session.addLectura({
       fuente: sourceLabel.value || 'Imagen', placa: data.recognition.plate, resultado: data.decision.resultado,
       confianza: data.recognition.ocr_confidence, ms: data.recognition.timings_ms?.total, origen: 'DETECCION',
@@ -398,6 +405,36 @@ function processCurrentMedia() {
   else recognize()
 }
 
+async function loadVehicleDetails(plate) {
+  if (!plate) return
+  const generation = ++vehicleLookupGeneration
+  vehicleLookup.value = null
+  vehicleLookupStatus.value = 'Consultando SRI y EcuadorLegalOnline…'
+  try {
+    const started = await api('/api/plates/vehicle-data', {
+      method: 'POST',
+      body: { placa: plate },
+    })
+    while (generation === vehicleLookupGeneration) {
+      await new Promise((resolve) => setTimeout(resolve, 1000))
+      const result = await api(`/api/plates/vehicle-data/${encodeURIComponent(started.request_id)}`)
+      if (result.estado === 'completado') {
+        vehicleLookup.value = result.vehiculo || null
+        const sriOk = result.fuentes?.sri === 'encontrado'
+        const ownerOk = result.fuentes?.ecuadorlegalonline === 'encontrado'
+        vehicleLookupStatus.value = sriOk || ownerOk
+          ? 'Consulta finalizada. Datos del registro local completan transportista y campos disponibles.'
+          : 'Consulta finalizada; los sitios no devolvieron todos los datos. Se muestran los datos locales disponibles.'
+        return
+      }
+    }
+  } catch (e) {
+    if (generation === vehicleLookupGeneration) {
+      vehicleLookupStatus.value = 'No se pudo completar la consulta externa. Se muestran los datos locales disponibles.'
+    }
+  }
+}
+
 async function verifyManual() {
   if (!manualPlate.value) return
   busy.value = true
@@ -406,6 +443,7 @@ async function verifyManual() {
     manualPlate.value = data.placa
     decision.value = data.decision
     origin.value = 'MANUAL'
+    void loadVehicleDetails(data.placa)
     done.value = false
     registrationPromptDismissed.value = false
     session.addLectura({ fuente: 'Escrita a mano', placa: data.placa, resultado: data.decision.resultado,
@@ -424,6 +462,13 @@ const tone = computed(() => RESULT[decision.value?.resultado]?.tone)
 const plateShown = computed(() => (origin.value === 'MANUAL' ? manualPlate.value : recognition.value?.plate) || '')
 const canOpen = computed(() => decision.value?.permite_apertura && !done.value)
 const vehicle = computed(() => decision.value?.vehiculo)
+const vehicleDisplay = computed(() => ({
+  marca: vehicleLookup.value?.marca || vehicle.value?.marca || '',
+  modelo: vehicleLookup.value?.modelo || vehicle.value?.modelo || '',
+  anio: vehicleLookup.value?.anio || vehicle.value?.anio || vehicle.value?.year || '',
+  propietario: vehicleLookup.value?.propietario || vehicle.value?.propietario || '',
+  transportista: vehicleLookup.value?.transportista || vehicle.value?.transportista || '',
+}))
 const decisionLabel = computed(() => decision.value?.resultado === 'NO_REGISTRADO' && vehicle.value
   ? 'SIN AUTORIZACIÓN'
   : RESULT[decision.value?.resultado]?.label || 'EN ESPERA')
@@ -446,6 +491,7 @@ async function saveVehicle() {
     manualPlate.value = checked.placa
     decision.value = checked.decision
     origin.value = 'MANUAL'
+    void loadVehicleDetails(checked.placa)
     registrationOpen.value = false
     registrationPromptDismissed.value = true
     session.notify(`${saved.mensaje} Puede continuar con la autorización automática.`, 'ok')
@@ -636,12 +682,13 @@ onMounted(async () => {
             <div class="registration-prompt-actions"><button class="btn-primary" :disabled="busy" @click="startVehicleRegistration">Sí, registrar</button><button class="btn-ghost" @click="registrationPromptDismissed = true">No, continuar</button></div>
           </div>
           <dl class="vehicle-rows">
-            <div><dt>Marca</dt><dd :title="vehicle?.marca || ''">{{ vehicle?.marca || '—' }}</dd></div>
-            <div><dt>Modelo</dt><dd :title="vehicle?.modelo || ''">{{ vehicle?.modelo || '—' }}</dd></div>
-            <div><dt>Año</dt><dd :title="vehicle?.anio || vehicle?.year || ''">{{ vehicle?.anio || vehicle?.year || '—' }}</dd></div>
-            <div><dt>Nombre del Propietario</dt><dd :title="vehicle?.propietario || ''">{{ vehicle?.propietario || '—' }}</dd></div>
-            <div><dt>Compañía de transportes</dt><dd :title="vehicle?.transportista || ''">{{ vehicle?.transportista || '—' }}</dd></div>
+            <div><dt>Marca</dt><dd :title="vehicleDisplay.marca">{{ vehicleDisplay.marca || '—' }}</dd></div>
+            <div><dt>Modelo</dt><dd :title="vehicleDisplay.modelo">{{ vehicleDisplay.modelo || '—' }}</dd></div>
+            <div><dt>Año</dt><dd :title="vehicleDisplay.anio">{{ vehicleDisplay.anio || '—' }}</dd></div>
+            <div><dt>Nombre del Propietario</dt><dd :title="vehicleDisplay.propietario">{{ vehicleDisplay.propietario || '—' }}</dd></div>
+            <div><dt>Compañía de transportes</dt><dd :title="vehicleDisplay.transportista">{{ vehicleDisplay.transportista || '—' }}</dd></div>
           </dl>
+          <p v-if="vehicleLookupStatus" class="registered-note" role="status" aria-live="polite">{{ vehicleLookupStatus }}</p>
           <p v-if="done" class="registered-note" role="status">✓ Lectura registrada en el historial.</p>
         </section>
         <div class="access-action-bar" aria-label="Acciones de acceso">
@@ -667,7 +714,7 @@ onMounted(async () => {
       <div class="mt-4 flex justify-end gap-2"><button type="button" class="btn-ghost" @click="registrationOpen = false">Cancelar</button><button type="submit" class="btn-primary" :disabled="busy">{{ busy ? 'Guardando…' : 'Guardar camión' }}</button></div>
     </form>
   </ModalDialog>
-  <ModalDialog :open="detailsOpen" title="Detalle de la verificación" @close="detailsOpen = false"><ResultCard :decision="decision" :loading="loading" /><dl v-if="vehicle" class="mt-3 space-y-2 text-sm"><div v-for="[k,v] in [['Marca', vehicle.marca], ['Modelo', vehicle.modelo], ['Año', vehicle.anio || vehicle.year], ['Nombre del Propietario', vehicle.propietario], ['Compañía de transportes', vehicle.transportista]]" :key="k"><dt class="font-bold">{{ k }}</dt><dd class="break-words">{{ v || '—' }}</dd></div></dl><button class="btn-ghost mt-4" @click="detailsOpen = false">Cerrar</button></ModalDialog>
+  <ModalDialog :open="detailsOpen" title="Detalle de la verificación" @close="detailsOpen = false"><ResultCard :decision="decision" :loading="loading" /><dl v-if="vehicle" class="mt-3 space-y-2 text-sm"><div v-for="[k,v] in [['Marca', vehicle.marca], ['Modelo', vehicle.modelo], ['Año', vehicleDisplay.anio], ['Nombre del Propietario', vehicleDisplay.propietario], ['Compañía de transportes', vehicleDisplay.transportista]]" :key="k"><dt class="font-bold">{{ k }}</dt><dd class="break-words">{{ v || '—' }}</dd></div></dl><button class="btn-ghost mt-4" @click="detailsOpen = false">Cerrar</button></ModalDialog>
   <ModalDialog :open="readingsOpen" title="Lecturas de esta sesión" @close="readingsOpen = false"><div class="max-h-[60vh] overflow-auto">
     <div class="table-wrap">
       <table class="tbl">
