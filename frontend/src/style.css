@@ -106,6 +106,7 @@
 .camera-panel { position:relative; display:grid; grid-template-rows:auto auto minmax(0,1fr) auto auto; gap:7px; min-height:0; }
 .camera-toolbar { display:flex; align-items:center; justify-content:space-between; gap:8px; min-width:0; }
 .camera-toolbar h2, .section-heading h2 { display:flex; align-items:center; gap:7px; min-width:0; margin:0; color:var(--color-ink); font-size:13px; font-weight:800; text-transform:uppercase; }
+.camera-toolbar h2 { font-size:15px; }
 .source-tabs { display:flex; flex:0 1 auto; gap:3px; min-width:0; padding:3px; border-radius:9px; background:var(--color-subtle-2); }
 .source-tabs button { --tab-bg:#eff6ff; --tab-ink:#1e40af; --tab-accent:#2563eb; min-width:0; min-height:44px; max-width:132px; padding:9px 12px; border:1px solid color-mix(in srgb,var(--tab-accent) 28%,white); border-radius:9px; background:var(--tab-bg); color:var(--tab-ink); font-size:13px; font-weight:800; line-height:1.1; white-space:normal; overflow-wrap:anywhere; transition:transform .15s ease,background .15s ease,box-shadow .15s ease; }
 .source-tabs button:nth-child(1) { --tab-bg:#ecfdf5; --tab-ink:#047857; --tab-accent:#059669; }
