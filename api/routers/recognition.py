@@ -3,7 +3,10 @@
 from __future__ import annotations
 
 import base64
+import threading
+import time
 import uuid
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import asdict
 
 import cv2
@@ -16,13 +19,75 @@ from api.deps import current_user, get_barrier, get_config, get_store, get_pipel
 from src.access_control import AccessDecision, decide_access
 from src.data_processing import ImageLimits, ImageValidationError, load_image, normalize_plate
 from src.storage import StorageError
-from src.detection_export import append_detection, enrich_detection
+from src.detection_export import append_detection, enrich_detection, _query_owner, _query_sri
 from src.utils import ROOT_DIR, get_logger, now_local
 
 logger = get_logger("sirap.api.recognition")
 router = APIRouter(prefix="/api", tags=["Reconocimiento y Acceso"])
 
 SAMPLES_DIR = ROOT_DIR / "data" / "samples"
+
+# Estado temporal de las consultas externas, asociado a una placa y a una solicitud.
+_VEHICLE_LOOKUP_LOCK = threading.RLock()
+_VEHICLE_LOOKUPS: dict[str, dict] = {}
+
+
+def _load_vehicle_details(request_id: str, plate: str) -> None:
+    """Consulta SRI y EcuadorLegalOnline en paralelo y combina los datos del registro local."""
+    sri: dict = {}
+    owner: dict = {}
+    sri_error = ""
+    try:
+        with ThreadPoolExecutor(max_workers=2, thread_name_prefix="sirap-vehicle-lookup") as pool:
+            sri_future = pool.submit(_query_sri, plate)
+            owner_future = pool.submit(_query_owner, plate)
+            try:
+                sri = sri_future.result()
+            except Exception as exc:
+                sri_error = f"{type(exc).__name__}: {exc}"
+                logger.exception("No se pudo consultar el SRI para %s", plate)
+            try:
+                owner = owner_future.result()
+            except Exception as exc:
+                owner = {"propietario_estado": "error", "propietario_detalle": f"{type(exc).__name__}: {exc}"}
+                logger.exception("No se pudo consultar EcuadorLegalOnline para %s", plate)
+
+        try:
+            local = get_store().get_vehicle(plate) or {}
+        except Exception:
+            logger.exception("No se pudo leer el registro local de %s", plate)
+            local = {}
+
+        result = {
+            "estado": "completado",
+            "placa": plate,
+            "vehiculo": {
+                "marca": sri.get("sri_marca") or local.get("marca") or "",
+                "modelo": sri.get("sri_modelo") or local.get("modelo") or "",
+                "anio": sri.get("sri_anio_modelo") or local.get("anio") or local.get("year") or "",
+                "propietario": owner.get("propietario_nombre") or local.get("propietario") or "",
+                "transportista": local.get("transportista") or "",
+            },
+            "fuentes": {
+                "sri": "encontrado" if sri.get("sri_encontrado") else ("error" if sri_error else "sin_datos"),
+                "ecuadorlegalonline": owner.get("propietario_estado", "sin_datos"),
+                "registro": "encontrado" if local else "sin_registro",
+            },
+        }
+    except Exception as exc:
+        logger.exception("No se pudieron reunir los datos de %s", plate)
+        result = {
+            "estado": "completado",
+            "placa": plate,
+            "vehiculo": {"marca": "", "modelo": "", "anio": "", "propietario": "", "transportista": ""},
+            "fuentes": {"sri": "error", "ecuadorlegalonline": "error", "registro": "sin_registro"},
+            "error": f"{type(exc).__name__}: {exc}",
+        }
+    with _VEHICLE_LOOKUP_LOCK:
+        result["_created_at"] = time.monotonic()
+        _VEHICLE_LOOKUPS[request_id] = result
+
+
 SAMPLE_LABELS = {
     "garita3_PBA-8901.jpg": "Garita 3 · PBA-8901 (lista blanca)",
     "garita2_GBO-0429.jpg": "Garita 2 · GBO-0429 (lista restringida)",
@@ -88,6 +153,33 @@ def recognize(file: UploadFile = File(..., description="JPG, PNG o WEBP; máx. 1
         detector=data["detector"], detector_is_model=pipeline.detector.is_model, timings_ms=data["timings_ms"],
         crop_jpeg_base64=crop_b64, image_width=int(image.shape[1]), image_height=int(image.shape[0]))
     return schemas.RecognizeOut(recognition=recognition, decision=_decision_out(decision))
+
+
+@router.post("/plates/vehicle-data", status_code=202, summary="Iniciar consulta de datos del vehículo")
+def start_vehicle_data_lookup(body: schemas.VerifyIn, background_tasks: BackgroundTasks,
+                              _: dict = Depends(current_user)) -> dict[str, str]:
+    """Consulta datos públicos del SRI y EcuadorLegalOnline y los combina con el registro local."""
+    plate = normalize_plate(body.placa)
+    if not plate:
+        raise HTTPException(422, "Formato inválido: use 3 letras y 3 o 4 dígitos (ej.: PBA-8901).")
+    request_id = str(uuid.uuid4())
+    with _VEHICLE_LOOKUP_LOCK:
+        cutoff = time.monotonic() - 900
+        for old_id, value in list(_VEHICLE_LOOKUPS.items()):
+            if value.get("_created_at", 0) < cutoff:
+                _VEHICLE_LOOKUPS.pop(old_id, None)
+        _VEHICLE_LOOKUPS[request_id] = {"estado": "consultando", "placa": plate}
+    background_tasks.add_task(_load_vehicle_details, request_id, plate)
+    return {"request_id": request_id, "estado": "consultando", "placa": plate}
+
+
+@router.get("/plates/vehicle-data/{request_id}", summary="Consultar el estado de la búsqueda del vehículo")
+def get_vehicle_data_lookup(request_id: str, _: dict = Depends(current_user)) -> dict:
+    with _VEHICLE_LOOKUP_LOCK:
+        result = _VEHICLE_LOOKUPS.get(request_id)
+        if result is None:
+            raise HTTPException(404, "La búsqueda ya no está disponible. Vuelva a consultar la placa.")
+        return {key: value for key, value in result.items() if not key.startswith("_")}
 
 
 @router.post("/plates/verify", response_model=schemas.VerifyOut, summary="Verificar una placa escrita a mano")
