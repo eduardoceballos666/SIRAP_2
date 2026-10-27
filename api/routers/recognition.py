@@ -73,6 +73,7 @@ def _load_vehicle_details(request_id: str, plate: str) -> None:
                 "ecuadorlegalonline": owner.get("propietario_estado", "sin_datos"),
                 "registro": "encontrado" if local else "sin_registro",
             },
+            "detalle_propietario": owner.get("propietario_detalle", ""),
         }
     except Exception as exc:
         logger.exception("No se pudieron reunir los datos de %s", plate)
@@ -81,6 +82,7 @@ def _load_vehicle_details(request_id: str, plate: str) -> None:
             "placa": plate,
             "vehiculo": {"marca": "", "modelo": "", "anio": "", "propietario": "", "transportista": ""},
             "fuentes": {"sri": "error", "ecuadorlegalonline": "error", "registro": "sin_registro"},
+            "detalle_propietario": f"{type(exc).__name__}: {exc}",
             "error": f"{type(exc).__name__}: {exc}",
         }
     with _VEHICLE_LOOKUP_LOCK:
