@@ -108,9 +108,10 @@ Preset «completo», split *test* nunca visto en el entrenamiento (salidas del n
 | Sistema (video de la garita) | Tiempo por decisión (detección + OCR) | 99 ms | ≤ 1 s ✅ |
 | Sistema | EMR punta a punta | pendiente (requiere referencia anotada del video) | ≥ 80 % |
 
-**Comparación con un *baseline*.** El primer entrenamiento (época 1, equivalente a usar el modelo apenas
-adaptado) logra mAP@0.5 = 0,848 en *val*; el modelo final llega a 0,971 (+0,12). En el OCR, el *baseline* es el
-mismo fast-plate-ocr sin la normalización ecuatoriana: solo con limpieza de texto logra 93,5 % de EMR en SAVH y con
+**Comparación con un *baseline*.** En el mismo split de validación, YOLO11-s pasó de mAP@0.5 = 0,848 después de
+la época 1 a 0,971 en la época 40 (+0,123). En el *test* separado, el modelo final obtuvo 0,972; no se compara
+ese valor con la primera época porque corresponden a splits distintos. En el OCR, el *baseline* es el mismo
+fast-plate-ocr sin la normalización ecuatoriana: solo con limpieza de texto logra 93,5 % de EMR en SAVH y con
 `normalize_plate` 93,7 %, con todas las lecturas en formato válido; afinarlo con placas ecuatorianas no lo mejoró
 (94,2 % frente a 94,2 % en un *test* separado por placa, McNemar *p* = 1,0).
 
@@ -219,6 +220,7 @@ Documentación interactiva (Swagger) en [`/docs`](https://eduardoceballos-sirap.
 | `POST /api/auth/login` · `GET /api/auth/me` | — | Inicio de sesión (JWT con rol, 12 h) |
 | `POST /api/recognize` | todos | Imagen → placa, confianza, caja, recorte y decisión (no registra) |
 | `POST /api/plates/verify` | todos | Verificar una placa escrita o corregida a mano |
+| `POST /api/plates/vehicle-data` · `GET /api/plates/vehicle-data/{request_id}` | todos | Consulta asíncrona al SRI y EcuadorLegalOnline; entrega datos complementarios de la placa, sin cambiar la decisión de acceso |
 | `POST /api/operations` | todos | Registrar la operación; el servidor recalcula la decisión, solo abre automáticamente si está AUTORIZADO y exige motivo en la apertura manual |
 | `GET /api/operations` · `/api/operations/export.csv` | todos · supervisor/admin | Historial filtrado y exportación CSV |
 | `GET /api/dashboard` | todos | Indicadores y datos de los gráficos |
