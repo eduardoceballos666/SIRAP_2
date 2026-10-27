@@ -21,6 +21,7 @@ const editingVehiclePlate = ref('')
 const auth_ = reactive({ placa: '', lista: '', motivo: '', vigente_hasta: '' })
 const gate = reactive({ nombre: '', ubicacion: '' })
 const user = reactive({ usuario: '', nombre: '', rol: 'OPERADOR', password: '' })
+const editingUser = ref('')
 const demoN = ref(20)
 
 const columns = computed(() => (rows.value[0] ? Object.keys(rows.value[0]) : []))
@@ -213,8 +214,24 @@ async function saveGate() {
 }
 function resetUser() {
   Object.assign(user, { usuario: '', nombre: '', rol: '', password: '' })
+  editingUser.value = ''
+}
+function editUser(row) {
+  editingUser.value = row.usuario
+  Object.assign(user, { usuario: row.usuario, nombre: row.nombre || '', rol: row.rol || '', password: '' })
+  session.notify(`Editando el usuario ${row.usuario}. Puede actualizar el nombre y el rol o restablecer su contraseña.`, 'ok')
 }
 async function saveUser() {
+  if (editingUser.value) {
+    const payload = { nombre: user.nombre.trim(), rol: user.rol }
+    if (!payload.nombre || !payload.rol) {
+      session.notify('Complete el nombre completo y el rol antes de guardar.', 'warn')
+      return
+    }
+    const saved = await run(() => api(`/api/admin/usuarios/${encodeURIComponent(editingUser.value)}`, { method: 'PUT', body: payload }))
+    if (saved) resetUser()
+    return
+  }
   const payload = {
     usuario: user.usuario.trim(),
     nombre: user.nombre.trim(),
@@ -227,6 +244,24 @@ async function saveUser() {
     return
   }
   if (await run(() => api('/api/admin/usuarios', { method: 'POST', body: payload }))) resetUser()
+}
+async function resetUserPassword() {
+  const username = editingUser.value
+  const password = user.password
+  if (!username) {
+    session.notify('Seleccione un usuario de la tabla para restablecer su contraseña.', 'warn')
+    return
+  }
+  if (password.length < 8) {
+    session.notify('La nueva contraseña debe tener al menos 8 caracteres.', 'warn')
+    return
+  }
+  if (!window.confirm(`¿Restablecer la contraseña de ${username}?`)) return
+  const saved = await run(() => api(`/api/admin/usuarios/${encodeURIComponent(username)}/password`, {
+    method: 'PUT',
+    body: { password },
+  }))
+  if (saved) user.password = ''
 }
 function toggleUserSelection(username, checked) {
   selectedUsers.value = checked
@@ -335,9 +370,9 @@ onMounted(load)
         </form>
       </template>
       <template v-else-if="tab === 'usuarios'">
-        <h2 class="card-title"><span class="icon-chip"><AppIcon name="user" /></span> Nuevo usuario</h2>
+        <h2 class="card-title"><span class="icon-chip"><AppIcon name="user" /></span> {{ editingUser ? 'Editar usuario' : 'Nuevo usuario' }}</h2>
         <form class="space-y-3" @submit.prevent="saveUser">
-          <input v-model.trim="user.usuario" class="field" placeholder="Usuario *" required minlength="3" maxlength="40" pattern="[a-zA-Z0-9_.-]+" autocomplete="username" />
+          <input v-model.trim="user.usuario" class="field" placeholder="Usuario *" required minlength="3" maxlength="40" pattern="[a-zA-Z0-9_.-]+" autocomplete="username" :disabled="busy || Boolean(editingUser)" />
           <input v-model.trim="user.nombre" class="field" placeholder="Nombre completo *" required maxlength="120" autocomplete="name" />
           <select v-model="user.rol" class="field" required>
             <option disabled value="">Seleccione un rol *</option>
@@ -345,11 +380,19 @@ onMounted(load)
             <option value="SUPERVISOR">SUPERVISOR</option>
             <option value="ADMINISTRADOR">ADMINISTRADOR</option>
           </select>
-          <input v-model="user.password" type="password" class="field" placeholder="Contraseña * (mín. 8)" required minlength="8" maxlength="128" autocomplete="new-password" />
-          <div class="flex gap-2">
-            <button class="btn-primary flex-1" :disabled="busy">Crear usuario</button>
-            <button type="button" class="btn-ghost flex-1" :disabled="busy" @click="resetUser">Limpiar Campos</button>
-          </div>
+          <template v-if="!editingUser">
+            <input v-model="user.password" type="password" class="field" placeholder="Contraseña * (mín. 8)" required minlength="8" maxlength="128" autocomplete="new-password" />
+            <button class="btn-primary w-full" :disabled="busy">Crear usuario</button>
+          </template>
+          <template v-else>
+            <div class="rounded-xl border border-line bg-subtle p-3">
+              <label class="field-label" :for="'reset-user-password'">Nueva contraseña de {{ editingUser }}</label>
+              <input id="reset-user-password" v-model="user.password" type="password" class="field" placeholder="Nueva contraseña (mín. 8)" minlength="8" maxlength="128" autocomplete="new-password" />
+              <button type="button" class="btn-yellow mt-2 w-full" :disabled="busy || user.password.length < 8" @click="resetUserPassword">Restablecer contraseña</button>
+            </div>
+            <button class="btn-primary w-full" :disabled="busy">Guardar cambios</button>
+          </template>
+          <button type="button" class="btn-ghost w-full" :disabled="busy" @click="resetUser">Limpiar Campos</button>
         </form>
       </template>
       <template v-else-if="tab === 'demo'">
@@ -393,12 +436,16 @@ onMounted(load)
             <th v-if="isAdmin && tab === 'garitas'"><input type="checkbox" aria-label="Seleccionar todas las garitas" :checked="allGatesSelected" :disabled="!selectableGates.length" @change="selectAllGates($event.target.checked)" /></th>
             <th v-if="isAdmin && tab === 'vehiculos'"><input type="checkbox" aria-label="Seleccionar todos los camiones" :checked="allTrucksSelected" :disabled="!selectableTrucks.length" @change="selectAllTrucks($event.target.checked)" /></th>
             <th v-for="c in columns" :key="c">{{ c }}</th>
+            <th v-if="isAdmin && tab === 'usuarios'">Acciones</th>
           </tr></thead>
           <tbody><tr v-for="(r, i) in rows" :key="i">
             <td v-if="isAdmin && tab === 'usuarios'"><input type="checkbox" :aria-label="'Seleccionar usuario ' + r.usuario" :checked="selectedUsers.includes(r.usuario)" :disabled="r.usuario === auth.user?.usuario" @change="toggleUserSelection(r.usuario, $event.target.checked)" /></td>
             <td v-if="isAdmin && tab === 'garitas'"><input type="checkbox" :aria-label="'Seleccionar garita ' + r.nombre" :checked="selectedGateNames.includes(r.nombre)" @change="toggleGateSelection(r.nombre, $event.target.checked)" /></td>
             <td v-if="isAdmin && tab === 'vehiculos'"><input v-if="r.tipo === 'CAMION'" type="checkbox" :aria-label="`Seleccionar camión ${r.placa}`" :checked="selectedTruckPlates.includes(r.placa)" @change="toggleTruckSelection(r.placa, $event.target.checked)" /></td>
             <td v-for="c in columns" :key="c">{{ fmt(r[c]) }}</td>
+            <td v-if="isAdmin && tab === 'usuarios'">
+              <button class="btn-ghost whitespace-nowrap" :disabled="busy" @click="editUser(r)">Editar</button>
+            </td>
           </tr></tbody>
         </table>
       </div>
