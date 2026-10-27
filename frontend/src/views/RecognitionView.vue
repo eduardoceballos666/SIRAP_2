@@ -563,7 +563,7 @@ onMounted(async () => {
         <div v-else class="live-camera-tools">
           <button class="btn-primary" :disabled="!mediaReady || loading" @click="capture"><AppIcon name="camera" :size="16" /> Capturar y reconocer</button>
           <button class="btn-ghost" :disabled="!mediaReady || loading" @click="toggleContinuousAnalysis">{{ continuousAnalysis ? 'Detener análisis' : 'Analizar cada 2,5 s' }}</button>
-          <button v-if="showCapture" class="btn-ghost" @click="showCapture = false">Volver a cámara en vivo</button>
+          <button v-if="showCapture" class="btn-ghost" @click="showCapture = false">Volver a cámara local</button>
         </div>
 
         <p v-if="cameraError" role="alert" class="camera-error">{{ cameraError }}</p>
