@@ -145,14 +145,17 @@ mediante el secreto `SIRAP_DEMO_PASSWORD`.
 | Docker (API + interfaz) | `docker build -t sirap2 . && docker run -p 7860:7860 -e SIRAP_JWT_SECRET=... sirap2` → http://localhost:7860 |
 | Documentación interactiva de la API | http://localhost:8000/docs (Swagger) |
 | Pruebas (unitarias, integración y API) | `pip install -r requirements-dev.txt && pytest` |
-| Interfaz alternativa en Streamlit | `streamlit run app.py` → http://localhost:8501 |
 | Exportar los pesos entrenados a ONNX | `python -m src.train --export-only models/best_model.pt` |
 | Reentrenar (no hace falta) | `ROBOFLOW_API_KEY=... python -m src.train --roboflow --force` |
 | Evaluar el detector en *test* | `python -m src.evaluate detector --data <data.yaml>` |
 
 **Configuración:** parámetros en [`config/config.yaml`](config/config.yaml); secretos en variables de entorno
 (plantillas [`.env.example`](.env.example) y [`api/.env.example`](api/.env.example)): `SIRAP_JWT_SECRET`,
-`SIRAP_DEMO_PASSWORD`, `BARRERA_URL`, `BARRERA_TOKEN`, `ROBOFLOW_API_KEY`. La API conserva datos de demostración en un archivo local temporal; las lecturas del notebook se guardan como CSV.
+`SIRAP_DEMO_PASSWORD`, `SIRAP_DATA_GITHUB_TOKEN` y, si se conecta una barrera física, `BARRERA_URL` y `BARRERA_TOKEN`.
+En el Space, `SIRAP_DATA_GITHUB_TOKEN` y `SIRAP_DATA_GITHUB_REPO` respaldan las tablas CSV principales en el
+repositorio privado `SIRAP_datos_privados`, restaurándolas al iniciar y sincronizando cambios. Es un proceso distinto
+de la exportación enriquecida opcional, que usa `GITHUB_TOKEN` y `GITHUB_DATA_REPOSITORY` para guardar eventos en
+`data/detecciones.csv`; esas variables no son intercambiables.
 
 **Ejemplo de uso de la API:**
 
@@ -175,7 +178,7 @@ from src.data_processing import load_image
 pipeline, store = ALPRPipeline.from_config(), CsvStore.from_environment()
 rec = pipeline.recognize(load_image(open("data/samples/garita3_PBA-8901.jpg", "rb").read()))
 print(rec.plate, f"{rec.ocr_confidence:.2%}")                       # PBA-8901 99.99%
-print(decide_access(rec.plate, rec.ocr_confidence, db).titulo)      # ACCESO AUTORIZADO
+print(decide_access(rec.plate, rec.ocr_confidence, store).titulo)   # ACCESO AUTORIZADO
 ```
 
 ## 6. Interfaz de usuario
@@ -192,6 +195,9 @@ de la guía [`docs/img/SIRAP_Dashboard.png`](docs/img/SIRAP_Dashboard.png). Publ
 | **Historial** | Filtros por fecha, placa, garita, resultado y movimiento; exportación CSV (supervisor y administrador) |
 | **Administración** | Vehículos, listas blanca/restringida con vigencia, propietarios, garitas, usuarios con contraseña; datos de demostración |
 | **Acerca del modelo** | Funcionamiento, métricas, entrenamiento, optimización y **limitaciones y advertencias** |
+
+La ficha también puede complementarse con consultas a datos vehiculares públicos del SRI y el nombre visible que
+EcuadorLegalOnline asocia a la placa; se presentan como información auxiliar y no alteran la decisión de acceso.
 
 **Requisitos de la interfaz cubiertos:** validación de entradas (tipo, tamaño y resolución de imagen en el servidor;
 formato de placa), indicador de carga, mensajes de error comprensibles (sin trazas técnicas), confianza OCR y de
@@ -219,29 +225,28 @@ Documentación interactiva (Swagger) en [`/docs`](https://eduardoceballos-sirap.
 
 ### 6.2 Despliegue
 
-El workflow [`.github/workflows/deploy-hf-space.yml`](.github/workflows/deploy-hf-space.yml) publica la app en el
-Space `eduardoceballos/sirap` en cada push a `main` (o a mano desde *Actions → Run workflow*); Hugging Face construye
-el [`Dockerfile`](Dockerfile) (frontend compilado + API, puerto 7860). Configuración, una sola vez, en GitHub →
-*Settings → Secrets and variables → Actions*:
+El workflow [`.github/workflows/deploy-hf-space.yml`](.github/workflows/deploy-hf-space.yml) publica en el Space
+`eduardoceballos/sirap` cuando un push a `main` modifica alguna ruta incluida en sus filtros, o cuando se inicia
+manualmente desde *Actions → Run workflow*. No cualquier cambio en `main` inicia un despliegue: cambios solo en
+documentación, notebooks o pruebas no coinciden con esos filtros. Los cambios relevantes incluyen `api/**`,
+`src/**`, `frontend/**`, `config/**`, `data/**`, `models/**`, `results/metrics/**`, `requirements.txt`,
+`Dockerfile`, `deploy/huggingface/**` y el propio workflow. Hugging Face construye el [`Dockerfile`](Dockerfile)
+(frontend compilado + API, puerto 7860). Configuración en GitHub → *Settings → Secrets and variables → Actions*:
 
 | Nombre | Tipo | Valor |
 |---|---|---|
 | `HF_TOKEN` | Secret (obligatorio) | Token de Hugging Face con permiso **Write** |
 | `SIRAP_JWT_SECRET` | Secret (recomendado) | Cadena larga y aleatoria para firmar las sesiones |
-| `SIRAP_DEMO_PASSWORD` | Secret (opcional) | Contraseña de los usuarios de demostración |
+| `SIRAP_DEMO_PASSWORD` | Secret (opcional) | Reemplaza la contraseña inicial `sirap2026` de las cuentas de demostración |
 | `SIRAP_DATA_GITHUB_TOKEN` | Secret (obligatorio para despliegues) | Token fine-grained con acceso Contents: Read and write solo a `SIRAP_datos_privados`; Actions lo valida y lo guarda automáticamente como secreto del Space para que la API respalde los CSV. |
 | `HF_SPACE` | Variable (opcional) | Otro Space, p. ej. `usuario/sirap` |
 
-El Space usa el hardware *CPU basic* (en cuentas nuevas de Hugging Face requiere PRO). La API ocupa ≈410 MB de RAM
-con los modelos cargados, por eso no se recomiendan planes gratuitos de 512 MB (Render, Railway).
+Fue necesario pagar a Hugging Face para que la aplicación pudiera ejecutarse en el Space; sin ese pago, no corría.
+La API ocupa ≈410 MB de RAM con los modelos cargados.
 
-> **Interfaz alternativa.** El repositorio conserva la app de **Streamlit** (`app/`, `streamlit run app.py`), que usa
-> el mismo backend. Su versión publicada vive en el repositorio original
-> [SIRAP](https://github.com/eduardoceballos666/SIRAP) (https://sirapapp.streamlit.app/).
-
-> **Estado:** prototipo funcional. La barrera es **simulada** y la base pública contiene **datos ficticios** que se
-> reinician con el servidor. Para operar en una garita real faltan: la cámara IP, la cámara IP y el controlador de la
-> barrera.
+> **Estado:** prototipo funcional. La barrera es **simulada** y la base de demostración contiene **datos ficticios**.
+> El Space tiene configurado el respaldo de sus tablas CSV en el repositorio privado `SIRAP_datos_privados`.
+> Para operar en una garita real faltan una cámara IP integrada y el controlador físico de la barrera.
 
 ## 7. Estructura del proyecto
 
@@ -250,8 +255,6 @@ SIRAP_2/
 ├── api/                    # API REST FastAPI: main.py, routers/ (auth, recognition, reports, admin), security.py (JWT + PBKDF2), schemas.py
 ├── frontend/               # interfaz Vue 3: src/views, src/components, src/stores (Pinia), src/router, src/lib
 ├── src/                    # backend: data_processing, model, access_control, storage, train, evaluate, utils
-├── app/                    # interfaz alternativa en Streamlit: app.py, ui.py, assets/style.css, requirements.txt
-├── app.py                  # punto de entrada de Streamlit (ejecuta app/app.py)
 ├── notebooks/              # SIRAP_backend.ipynb (completo) y 01–06 (EDA, preprocesamiento, modelado, optimización, evaluación, OCR)
 ├── models/                 # pesos de YOLO11-s (best_model.pt / .onnx) y ficha del modelo
 ├── data/                   # samples/ (ejemplos de la app), raw/, processed/ y descripción de los datos
@@ -263,7 +266,7 @@ SIRAP_2/
 ├── deploy/huggingface/     # README del Space y script de publicación
 ├── .github/workflows/      # despliegue automático en Hugging Face Spaces
 ├── Dockerfile              # imagen única: frontend compilado + API
-├── requirements.txt        # dependencias con versiones (backend, API y Streamlit)
+├── requirements.txt        # dependencias con versiones (backend y API)
 └── requirements-dev.txt    # entrenamiento, notebooks y pruebas
 ```
 
@@ -306,7 +309,7 @@ el dataset de Roboflow es CC BY 4.0.
 - FastAPI — https://fastapi.tiangolo.com/ · Vue 3 — https://vuejs.org/ · Vite — https://vite.dev/ · Pinia —
   https://pinia.vuejs.org/ · Vue Router — https://router.vuejs.org/ · Tailwind CSS — https://tailwindcss.com/ ·
   Apache ECharts — https://echarts.apache.org/
-- Streamlit — https://streamlit.io/ · Plotly — https://plotly.com/python/ · Hugging Face Spaces — https://huggingface.co/spaces
+- Hugging Face Spaces — https://huggingface.co/spaces
 - A la empresa que autorizó la toma de imágenes en su garita, y a los docentes del programa.
 
 ## 12. Videos

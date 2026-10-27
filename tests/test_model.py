@@ -61,14 +61,9 @@ def test_nms_removes_overlaps():
     assert _nms(boxes, scores, 0.5) == [0, 2]
 
 
-def test_detector_without_weights_uses_fallback(tmp_path):
-    detector = PlateDetector(tmp_path / "no.onnx", tmp_path / "no.pt", allow_fallback=True)
-    assert detector.backend == "opencv" and not detector.is_model
-
-
-def test_detector_without_weights_and_without_fallback_fails(tmp_path):
-    detector = PlateDetector(tmp_path / "no.onnx", None, allow_fallback=False)
-    with pytest.raises(RuntimeError):
+def test_detector_without_weights_raises_clear_error(tmp_path):
+    detector = PlateDetector(tmp_path / "no.onnx", None)
+    with pytest.raises(RuntimeError, match="No se pudo cargar el detector YOLO11-s"):
         detector.detect(np.zeros((200, 200, 3), np.uint8))
 
 

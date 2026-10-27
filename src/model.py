@@ -6,9 +6,9 @@ Flujo de una imagen::
                                                                └─► normalize_plate ──► Recognition
 
 * **Detector.** YOLO11-s entrenado en el notebook ``notebooks/SIRAP_backend.ipynb`` (sección 3.2).
-  Se carga en este orden: ``models/best_model.onnx`` con ONNX Runtime (sin PyTorch: es lo que usa
-  Streamlit Cloud), ``models/best_model.pt`` con Ultralytics y, si no hay pesos, un localizador
-  clásico con OpenCV que la interfaz marca como *respaldo*.
+  La aplicación carga ``models/best_model.onnx`` con ONNX Runtime. En desarrollo puede cargar
+  ``models/best_model.pt`` con Ultralytics. Si no puede cargar ninguno, informa un error y detiene
+  el reconocimiento.
 * **OCR.** ``fast-plate-ocr`` con ``cct-s-v2-global-model`` (≈5 MB, corre en CPU).
 """
 
@@ -55,7 +55,7 @@ class Recognition:
     det_confidence: float = 0.0             # confianza del detector (0–1)
     box: tuple[float, float, float, float] | None = None
     crop: np.ndarray | None = field(default=None, repr=False)
-    detector: str = ""                      # "YOLO11-s (ONNX)", "YOLO11-s (PyTorch)" o "OpenCV (respaldo)"
+    detector: str = ""                      # "YOLO11-s (ONNX)" o "YOLO11-s (PyTorch)"
     timings_ms: dict[str, float] = field(default_factory=dict)
     candidates: int = 0                     # cajas evaluadas
 
@@ -111,11 +111,10 @@ class PlateDetector:
         imgsz: tamaño de inferencia (lado del cuadrado).
         conf: confianza mínima de una caja.
         iou: umbral de solapamiento del NMS.
-        allow_fallback: si no hay pesos, usar el localizador clásico de OpenCV.
     """
 
     def __init__(self, onnx_path: str | Path | None = None, pt_path: str | Path | None = None,
-                 imgsz: int = 640, conf: float = 0.25, iou: float = 0.7, allow_fallback: bool = False):
+                 imgsz: int = 640, conf: float = 0.25, iou: float = 0.7):
         self.imgsz, self.conf, self.iou = int(imgsz), float(conf), float(iou)
         self.backend = "none"
         self.name = "sin detector"
@@ -144,13 +143,9 @@ class PlateDetector:
                 self.backend, self.name = "ultralytics", "YOLO11-s (PyTorch)"
             except Exception as exc:  # noqa: BLE001
                 logger.error("No se pudo cargar %s con Ultralytics: %s", pt_file, exc)
-        if self.backend == "none" and allow_fallback:
-            self.backend, self.name = "opencv", "OpenCV (respaldo)"
-            logger.warning("No hay pesos de YOLO11 en models/: se usa el localizador clásico de OpenCV.")
-
     @property
     def is_model(self) -> bool:
-        """``True`` si se está usando el detector entrenado (no el respaldo)."""
+        """Indica si el detector entrenado se cargó correctamente."""
         return self.backend in ("onnx", "ultralytics")
 
     def detect(self, image: np.ndarray, max_detections: int = 5) -> list[Detection]:
@@ -159,10 +154,8 @@ class PlateDetector:
             detections = self._detect_onnx(image)
         elif self.backend == "ultralytics":
             detections = self._detect_ultralytics(image)
-        elif self.backend == "opencv":
-            detections = self._detect_opencv(image)
         else:
-            raise RuntimeError("No hay detector disponible: copia los pesos en models/best_model.onnx.")
+            raise RuntimeError("No se pudo cargar el detector YOLO11-s. Verifique models/best_model.onnx.")
         detections.sort(key=lambda d: d.confidence, reverse=True)
         return detections[:max_detections]
 
@@ -201,43 +194,6 @@ class PlateDetector:
         return [Detection(tuple(float(v) for v in xyxy), float(c))
                 for xyxy, c in zip(boxes.xyxy.cpu().numpy(), boxes.conf.cpu().numpy())]
 
-    # -- Respaldo clásico (OpenCV) ----------------------------------------------------------
-    @staticmethod
-    def _detect_opencv(image: np.ndarray) -> list[Detection]:
-        """Busca regiones rectangulares claras con proporción de placa (≈2:1 a 6:1).
-
-        No es un modelo entrenado: sirve solo para que la interfaz funcione sin pesos. La
-        "confianza" es un puntaje heurístico de forma y contraste, no una probabilidad.
-        """
-        import cv2
-
-        gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
-        height, width = gray.shape
-        blur = cv2.bilateralFilter(gray, 9, 50, 50)
-        candidates: list[Detection] = []
-        for block in (31, 51):
-            thresh = cv2.adaptiveThreshold(blur, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
-                                           cv2.THRESH_BINARY, block, -5)
-            thresh = cv2.morphologyEx(thresh, cv2.MORPH_CLOSE, cv2.getStructuringElement(cv2.MORPH_RECT, (5, 3)))
-            contours, _ = cv2.findContours(thresh, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
-            for contour in contours:
-                x, y, w, h = cv2.boundingRect(contour)
-                if w < 40 or h < 12 or w * h < 0.0008 * width * height or w * h > 0.2 * width * height:
-                    continue
-                ratio = w / float(h)
-                if not 1.8 <= ratio <= 6.5:
-                    continue
-                roi = gray[y:y + h, x:x + w]
-                fill = cv2.contourArea(contour) / float(w * h)
-                contrast = float(roi.std()) / 64.0
-                edges = cv2.Canny(roi, 80, 200).mean() / 255.0
-                score = 0.4 * min(fill, 1.0) + 0.3 * min(contrast, 1.0) + 0.3 * min(edges * 4, 1.0)
-                candidates.append(Detection((float(x), float(y), float(x + w), float(y + h)), float(score)))
-        if not candidates:
-            return []
-        boxes = np.array([c.box for c in candidates], dtype=np.float32)
-        scores = np.array([c.confidence for c in candidates], dtype=np.float32)
-        return [candidates[i] for i in _nms(boxes, scores, 0.3)]
 
 
 # --------------------------------------------------------------------------------------------
@@ -311,8 +267,7 @@ class ALPRPipeline:
         conf = float(calibrated.get("YOLO11", {}).get("conf_track", det_cfg.get("conf_minima", 0.25)))
         detector = PlateDetector(det_cfg.get("pesos_onnx"), det_cfg.get("pesos_pt"),
                                  imgsz=det_cfg.get("imgsz_inferencia", 640), conf=conf,
-                                 iou=det_cfg.get("iou_nms", 0.7),
-                                 allow_fallback=det_cfg.get("permitir_respaldo_opencv", True))
+                                 iou=det_cfg.get("iou_nms", 0.7))
         reader = PlateReader(ocr_cfg.get("modelo", "cct-s-v2-global-model"), ocr_cfg.get("dispositivo", "cpu"),
                              ocr_cfg.get("onnx_afinado"), ocr_cfg.get("plate_config_afinado"))
         patterns = [tuple(p) for p in cfg.get("placas", {}).get("patrones", DEFAULT_PATTERNS)]

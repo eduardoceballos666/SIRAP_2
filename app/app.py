@@ -232,10 +232,6 @@ def page_recognition() -> None:
             st.session_state.update(digest=None, rec=None, decision=None, image=None, error=None)
         pill_kind = {"EN VIVO": "live", "EJEMPLO": "img", "IMAGEN": "img"}[mode]
         head.markdown(ui.card_head("camera", f"Cámara en vivo ({garita})", mode, pill_kind), unsafe_allow_html=True)
-        if not pipeline.detector.is_model:
-            st.markdown('<div class="warn-box">⚠️ <b>Detector de respaldo activo.</b> No se encontraron los pesos de '
-                        'YOLO11-s en <code>models/</code>; la placa se localiza con un método clásico de OpenCV, '
-                        'menos confiable. Ver <code>models/README.md</code>.</div>', unsafe_allow_html=True)
         if st.session_state.get("error"):
             st.warning(st.session_state["error"], icon="🖼️")
         image = st.session_state.get("image")

@@ -7,9 +7,9 @@
 | *OCR* | `fast-plate-ocr` · `cct-s-v2-global-model` (≈5 MB) | Se descarga solo la primera vez que corre la app |
 | `ocr_afinado.onnx` + `ocr_afinado_plate_config.yaml` *(opcional)* | OCR afinado con placas ecuatorianas | `notebooks/06_afinamiento_ocr.ipynb`; súbalo **solo** si la sección 5 de ese notebook decide «adoptar». Si existen, la app los usa en lugar del modelo del hub |
 
-La app carga primero el **ONNX** con ONNX Runtime: no necesita PyTorch y cabe en Streamlit Community Cloud. Si
-no hay ONNX usa `best_model.pt` (requiere `ultralytics`). Si no hay ninguno, usa un localizador clásico de OpenCV
-y la interfaz muestra el aviso **«Detector de respaldo activo»**.
+La aplicación carga el modelo **ONNX** con ONNX Runtime. En desarrollo puede cargar `best_model.pt` si está
+instalado `ultralytics`. El reconocimiento requiere uno de estos pesos YOLO11-s: si ninguno se carga, la aplicación
+muestra un error y no procesa la imagen.
 
 > **No reentrenar.** El entrenamiento ya se hizo en Colab (sección 3.2 del notebook, preset `completo`).
 > `best_model.pt` es ese `best.pt` y `best_model.onnx` su exportación (opset 12, 640 px, `simplify=True`).

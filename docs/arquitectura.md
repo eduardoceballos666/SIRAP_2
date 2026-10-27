@@ -56,7 +56,6 @@ supervisor, administrador); validación de entradas con Pydantic; mensajes de er
 |---|---|---|
 | Presentación | `frontend/src/` (Vue 3) | Interfaz web de operador, supervisor y administrador (5 módulos + inicio de sesión) |
 | API | `api/main.py`, `api/routers/`, `api/security.py`, `api/schemas.py` | Endpoints REST, autenticación, permisos y validación |
-| Presentación alternativa | `app/app.py`, `app/ui.py`, `app/assets/style.css` | La misma funcionalidad en Streamlit |
 | Dominio | `src/access_control.py` | Regla de decisión, barrera |
 | Modelo | `src/model.py` | Detector, OCR, pipeline ALPR |
 | Datos | `src/data_processing.py`, `src/storage.py`, `data/processed/` | Validación, normalización, persistencia |
@@ -69,7 +68,7 @@ supervisor, administrador); validación de entradas con Pydantic; mensajes de er
 
 | Criterio | YOLO11-s | Por qué importa |
 |---|---|---|
-| Tamaño | ≈9,4 M parámetros, ≈22 GFLOPs a 640 px | Corre en CPU dentro de Streamlit Cloud tras exportarlo a ONNX |
+| Tamaño | ≈9,4 M parámetros, ≈22 GFLOPs a 640 px | Corre en CPU dentro del Space Docker tras exportarlo a ONNX |
 | Tipo | Detector convolucional de una etapa con NMS | Inferencia rápida y madura; una sola clase |
 | Ecosistema | Ultralytics 8.4.177 | Entrenamiento reanudable, exportación a ONNX, métricas estándar |
 | Precisión en COCO | mAP@0.5:0.95 = 47,0 (reportado por Ultralytics) | Suficiente para una sola clase mucho más simple que las 80 de COCO |
@@ -120,7 +119,7 @@ flowchart TD
     B -- no --> M[VERIFICACIÓN MANUAL<br/>placa no legible]
     B -- sí --> B2{¿Confianza del detector ≥ 0,30?}
     B2 -- no --> M4[VERIFICACIÓN MANUAL<br/>detección dudosa]
-    B2 -- sí --> C{¿Confianza OCR ≥ 0,99?}
+    B2 -- sí --> C{¿Confianza OCR ≥ 0,94?}
     C -- no --> M2[VERIFICACIÓN MANUAL<br/>confianza baja]
     C -- sí --> D{¿En lista RESTRINGIDA vigente?}
     D -- sí --> X[ACCESO DENEGADO]
@@ -131,8 +130,9 @@ flowchart TD
     F -- no --> N[NO REGISTRADO]
 ```
 
-Los umbrales (detector 0,30 calibrado en *val*; OCR 0,99 del estudio de confianza en SAVH) y la distancia (1)
-están en `config/config.yaml` y `results/metrics/umbrales.json`. La decisión **nunca abre la barrera sola**: la
+Los umbrales activos son detector 0,30 (calibrado en *val*) y OCR 0,94; la distancia para «¿quiso decir…?» es 1.
+Están configurados en `config/config.yaml`. El estudio de SAVH evaluó también 0,99, pero ese no es el umbral usado
+por la aplicación desplegada. La decisión **nunca abre la barrera sola**: la
 interfaz habilita «Registrar y Abrir Barrera» solo con *acceso autorizado* y una vez por captura.
 
 ## 4. Pipeline de datos (de la entrada a la salida)
@@ -199,13 +199,15 @@ parametrizadas.
 
 | Entorno | Detector | Base | Barrera |
 |---|---|---|---|
-| **Hugging Face Spaces (demo pública, Docker)** | ONNX Runtime (CPU, 2 vCPU · 16 GB) | CSV local con registros de demostración | Simulada |
-| Streamlit Community Cloud (interfaz alternativa, repo SIRAP) | ONNX Runtime (CPU) | CSV local con registros de demostración | Simulada |
+| **Hugging Face Spaces (demo pública, Docker)** | ONNX Runtime (CPU) | CSV local respaldado en `SIRAP_datos_privados` | Simulada |
 | Garita (producción) | ONNX Runtime o Ultralytics con GPU | CSV local temporal | HTTP con token (`BARRERA_URL`) |
 | Colab (investigación) | Ultralytics con GPU T4 | Archivos CSV en Drive | — |
 
-**Publicación:** cada push a `main` ejecuta `.github/workflows/deploy-hf-space.yml`, que copia al Space solo lo que la
-imagen necesita (≈37 MB) y Hugging Face construye el `Dockerfile` en dos etapas: (1) `node:22-slim` compila el
+**Publicación:** `.github/workflows/deploy-hf-space.yml` se ejecuta en pushes a `main` solo si cambia una ruta
+configurada en el filtro (`api/`, `src/`, `frontend/`, `config/`, `data/`, `models/`, `results/metrics/`, archivos
+de dependencias y despliegue); también admite ejecución manual. Por ello, cambios únicamente en documentación,
+notebooks o pruebas no despliegan la app. Cuando se ejecuta, copia al Space solo lo que la imagen necesita (≈37 MB)
+y Hugging Face construye el `Dockerfile` en dos etapas: (1) `node:22-slim` compila el
 frontend (`npm ci && npm run build`); (2) `python:3.11-slim` instala `requirements.txt`, descarga el OCR, copia
 `frontend/dist` y arranca `uvicorn api.main:app` en el puerto 7860 con usuario no root.
 
@@ -233,7 +235,5 @@ frontend (`npm ci && npm run build`); (2) `python:3.11-slim` instala `requiremen
 | vue-router | 5.4.0 | Rutas y permisos por rol |
 | tailwindcss | 4.3.3 | Estilos y tema claro/oscuro |
 | echarts / vue-echarts | 6.1.0 / 8.3.2 | Gráficos interactivos del Dashboard |
-| streamlit | 1.66.1 | Interfaz alternativa |
-| plotly | ≥ 6.0 | Gráficos de la interfaz alternativa |
 | pandas / numpy / pillow / pyyaml | ver `requirements.txt` | Datos e imágenes |
 | roboflow | 1.7.1 | Descarga del dataset |

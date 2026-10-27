@@ -159,7 +159,7 @@ Además de los hiperparámetros de entrenamiento, el sistema tiene dos umbrales 
 | Umbral | Cómo se fija | Valor |
 |---|---|---|
 | Confianza del detector | Calibrado **en *val*** (sección 4.1 del notebook): máx. F1 para seguir (`conf_track`) y menor umbral con precisión ≥ 95 % para decidir (`conf_decision`), con piso 0,10 | **0,30** y **0,30** (F1 máx. en val = 0,967) |
-| Confianza OCR para decidir sin verificación manual | Estudio de confianza del OCR en SAVH (sección 4.3 del notebook): umbrales 0,5–0,99, máximo 15 % a verificación manual | **0,99**: 13 % a verificación manual, lecturas equivocadas aceptadas 25 → 12 (AUROC 0,76) |
+| Confianza OCR para decidir sin verificación manual | Estudio de confianza en SAVH (sección 4.3): se compararon umbrales 0,5–0,99 | En el estudio, **0,99** produjo 13 % a verificación manual y redujo las lecturas equivocadas aceptadas de 25 a 12; la aplicación publicada usa **0,94** |
 | Tamaño de inferencia en video | Comparación 640 vs 1280 px en el video de la garita (sección 6.8 del notebook) | 1280 px en video, 640 px en imágenes |
 
 ### 6.1 Efecto de la regla de decisión optimizada (SAVH, lista simulada, 399 imágenes)
@@ -167,11 +167,12 @@ Además de los hiperparámetros de entrenamiento, el sistema tiene dos umbrales 
 | Configuración | Falsos autorizados | Rechazos indebidos | A verificación manual |
 |---|---|---|---|
 | Sin umbral OCR | 0 de 202 | 1 de 197 | 4,0 % |
-| Umbral OCR 0,99 (adoptado) | 0 de 202 | 1 de 197 | 15,5 % |
+| Umbral OCR 0,99 (escenario medido en SAVH; no es el activo en la app) | 0 de 202 | 1 de 197 | 15,5 % |
 
-El umbral cambia poco en esta muestra (los falsos autorizados ya eran 0), pero baja el **peor caso** estimado de
-vehículos no autorizados que entrarían como autorizados de 6,3 % a 3,0 % (sección 5.5 del notebook): se prioriza la
-seguridad a costa de más verificaciones manuales.
+En la evaluación SAVH, 0,99 baja el **peor caso** estimado de vehículos no autorizados que entrarían como
+autorizados de 6,3 % a 3,0 % (sección 5.5 del notebook), a costa de más verificaciones manuales. El Space usa
+0,94 por decisión del proyecto; por tanto, los resultados de este escenario no deben interpretarse como métricas
+directas del umbral activo. Para comparar ambas configuraciones se requiere recalcular las métricas con 0,94.
 
 ### 6.2 Curvas del entrenamiento base
 
@@ -206,7 +207,7 @@ El notebook 06 prueba si afinarlo mejora ese resultado sin sesgar la evaluación
 | Partir de `cct_s_v2_global.keras` (pesos publicados por el autor) | Afinar, no entrenar desde cero: pocos cientos de ejemplos |
 | *lr* 3e-4, *weight decay* 5e-4, sin *label smoothing*, 40 épocas con *early stopping* (10) | Cambios pequeños sobre un modelo que ya funciona |
 | Aumentos suaves (±8°, brillo, desenfoque, ruido, compresión) | La garita varía más en luz y foco que en geometría |
-| Misma métrica que la app (EMR tras normalizar, CER, aceptadas con confianza ≥ 0,99) | Comparar exactamente lo que importa en producción |
+| Misma métrica de OCR (EMR tras normalizar y CER); análisis de confianza con umbral 0,99 | Comparar el OCR y documentar el escenario evaluado |
 | Se adopta solo si mejora el EMR con **McNemar p < 0,05** y no aumenta las lecturas equivocadas aceptadas | Con ≈100 imágenes de *test*, cada acierto vale ≈1 punto de EMR |
 
 ### 8.1 Resultados (corrida del 24/10/2026, Colab)

@@ -36,7 +36,8 @@ reparte igual** entre grupos de vehículos/placas. Por eso:
 - Resultado: mAP@0.5:0.95 de 0,481 (pequeñas), 0,729 (medianas) y 0,744 (grandes). La brecha es real; en el video
   se compensa analizando a 1280 px y en la app con verificación manual.
 - En la regla de decisión evaluada con SAVH (lista simulada, 399 imágenes): **0 falsos autorizados** de 202 y
-  **1 rechazo indebido** de 197, con 15,5 % a verificación manual (umbral OCR 0,99).
+  **1 rechazo indebido** de 197 en el escenario estudiado con umbral OCR 0,99. La aplicación publicada usa 0,94;
+  las tasas de ese estudio no representan directamente el comportamiento con el umbral activo.
 - Se recomienda medir el EMR por **formato** (3 vs 4 dígitos: placas antiguas vs nuevas) y por **provincia**
   (primera letra) cuando haya datos suficientes; esa métrica de paridad queda como trabajo futuro.
 
@@ -66,14 +67,16 @@ reparte igual** entre grupos de vehículos/placas. Por eso:
 - **Minimización:** el esquema solo pide lo necesario para el control de acceso.
 - **Datos ficticios** en la demo pública (archivos CSV de demostración); las imágenes reales de la garita y los registros de la
   planta **no** se publican (`data/README.md`).
-- **Secretos fuera del código:** DSN, PIN y llaves se leen de variables de entorno o `st.secrets`. Una versión
-  antigua del notebook tenía llaves de Roboflow en celdas; se revocaron y se pasó a *Secrets*.
+- **Secretos fuera del código:** contraseñas y llaves se leen de variables de entorno; en el despliegue se guardan
+  como Secrets de GitHub Actions y del Space. No se publican en el repositorio.
 - **Consultas parametrizadas** (sin inyección SQL) y escape de HTML en la interfaz.
-- El almacenamiento local de la demo es temporal; proteja los archivos CSV con permisos de acceso y use HTTPS para la barrera.
+- En el Space, los secretos configurados permiten restaurar y sincronizar las tablas CSV con el repositorio privado
+  `SIRAP_datos_privados`. El contenedor conserva una copia de trabajo temporal; el respaldo privado es la fuente de
+  persistencia entre reinicios. En instalaciones propias, restrinja el repositorio y los permisos de acceso.
 - **Versión web (SIRAP 2):** la imagen viaja por HTTPS hasta la API, se procesa en memoria y se descarta; la respuesta
-  solo devuelve el recorte de la placa. Las «lecturas de esta sesión» se guardan únicamente en la memoria del
-  navegador del operador (no en el servidor) hasta que se registran. La demo pública reinicia su base en cada
-  reinicio del servidor y solo contiene datos ficticios.
+  devuelve temporalmente el recorte para mostrarlo al operador. Las «lecturas de esta sesión» se guardan en la
+  memoria del navegador hasta que se registran. Los CSV de datos de la demo son ficticios y se respaldan en el
+  repositorio privado configurado; las imágenes reales de la garita no se publican.
 - **Contraseñas y sesiones:** nunca se guardan en texto plano (PBKDF2-SHA256, 240 000 iteraciones); el token de
   sesión se guarda en el navegador y vence a las 12 h; la clave de firma (`SIRAP_JWT_SECRET`) es un *secret* del
   despliegue, no del código.
@@ -90,10 +93,14 @@ Para un despliegue real la instalación (responsable del tratamiento) debe:
 4. Atender **derechos** de acceso, rectificación y eliminación de los titulares.
 5. No ceder los datos a terceros sin base legal.
 
-La integración con **SRI / ANT** (consulta de datos del vehículo) solo debe hacerse con acceso autorizado y para la
-finalidad declarada. El notebook de investigación consulta además el **nombre público del propietario** en un sitio
-de terceros; esa consulta no está en la app, extrae solo el campo gratuito «Nombre» (sin cédula, dirección ni
-teléfono) y, para un despliegue real, debe reemplazarse por un acceso formal o eliminarse.
+La aplicación consulta el servicio público del **SRI** para complementar marca, modelo y año, y consulta
+**EcuadorLegalOnline** para mostrar el nombre visible asociado públicamente a la placa. Son consultas programadas
+que usan la placa como dato de búsqueda; no consultan cédula, domicilio ni teléfono, no intentan eludir CAPTCHA o
+controles de acceso y no participan en la regla que autoriza o deniega el ingreso. El uso de información disponible
+públicamente para esta finalidad no constituye por sí solo una infracción ética. Aun así, una placa y un nombre
+pueden identificar a una persona: se documenta su uso, se limita la información mostrada y se debe informar a los
+usuarios. Las fuentes pueden cambiar, devolver datos incompletos o no responder; el sistema debe presentar esa
+limitación y no tratar los resultados como verificación oficial de identidad o titularidad.
 
 ## 4. Transparencia y explicabilidad
 
@@ -101,9 +108,9 @@ teléfono) y, para un despliegue real, debe reemplazarse por un acceso formal o 
   (`docs/arquitectura.md`). La parte de «caja negra» (detector y OCR) se acota con salidas verificables por un humano.
 - La interfaz muestra **por qué** decidió: la caja de la placa sobre la imagen, el **recorte que leyó el OCR**, el
   texto crudo leído, la **confianza OCR** con color, la lista aplicada y el motivo (p. ej. «Confianza OCR 48 % <
-  umbral 85 %»).
+  umbral 94 %»).
 - El módulo **Acerca del modelo** explica el funcionamiento, las métricas y las limitaciones, y advierte cuando el
-  detector entrenado no está cargado («Detector de respaldo activo»).
+  estado del detector cargado y los errores que impiden el reconocimiento.
 - No se usan SHAP/LIME porque la decisión final no depende de atributos tabulares; la evidencia visual (caja +
   recorte + probabilidad por carácter) es la explicación pertinente para un operador.
 

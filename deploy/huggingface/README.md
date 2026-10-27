@@ -15,18 +15,37 @@ short_description: Reconocimiento de placas y control de acceso (YOLO11 + OCR)
 Versión web (API FastAPI + interfaz Vue 3). Código fuente y documentación:
 https://github.com/eduardoceballos666/SIRAP_2
 
-Usuarios de demostración: `operador`, `supervisor` y `admin`. Los registros de demostración contienen **datos ficticios** y la
-barrera es **simulada**. Este Space se actualiza automáticamente desde GitHub en cada cambio de la rama `main`.
+Usuarios de demostración: `operador`, `supervisor` y `admin`; contraseña inicial `sirap2026`. Los registros contienen
+**datos ficticios** y la barrera es **simulada**. Los secretos están configurados para respaldar tablas CSV en
+`SIRAP_datos_privados`. El workflow publica automáticamente al cambiar rutas de aplicación incluidas en sus filtros
+de `main`; cambios solo en documentación, notebooks o pruebas no activan el despliegue. También se puede iniciar
+manualmente desde GitHub Actions.
 
-## Guardado de detecciones en GitHub
+## Persistencia y consultas de datos
 
-La API agrega al CSV las operaciones confirmadas desde una detección. Después consulta el SRI y EcuadorLegalOnline en segundo plano y actualiza esa misma fila.
+### A. Respaldo de las tablas CSV de la aplicación
 
-Configure estos valores en **Settings → Secrets and variables** del Space:
+`SIRAP_DATA_GITHUB_TOKEN` es el secreto que la API usa para **restaurar y guardar** vehículos, listas, usuarios,
+garitas e historial en `eduardoceballos666/SIRAP_datos_privados`. `SIRAP_DATA_GITHUB_REPO` indica ese repositorio;
+si no se define, el código usa ese repositorio por defecto. En el despliegue actual, el flujo de GitHub Actions
+valida el token y configura ambos valores como secretos del Space. Esta es la integración que mantiene los datos
+principales después de reiniciar el contenedor.
 
-- `GITHUB_TOKEN`: token fine-grained limitado al repositorio de datos, con **Contents: Read and write**.
-- `GITHUB_DATA_REPOSITORY`: `propietario/repositorio` de datos. Debe ser privado; la API rechaza repositorios públicos.
-- `GITHUB_DATA_BRANCH`: rama destino (por defecto `main`).
-- `GITHUB_DATA_PATH`: ruta CSV (por defecto `data/detecciones.csv`).
+La app consulta datos vehiculares públicos en el SRI y el nombre visible del propietario en EcuadorLegalOnline.
+Estas consultas complementan la ficha del vehículo; no intervienen en la decisión de acceso. La búsqueda externa usa
+la placa y la respuesta de la consulta de ficha es temporal. La exportación enriquecida separada puede guardar datos
+limitados en su CSV cuando está configurada; no se consultan cédula, domicilio ni teléfono. Si una fuente no responde
+o requiere CAPTCHA, se muestra que los datos no están disponibles y no se intenta eludir sus controles.
 
-El archivo se crea con el encabezado si todavía no existe. El repositorio público del código puede seguir separado del repositorio privado de datos. La consulta a EcuadorLegalOnline guarda únicamente el nombre visible y su estado; si el sitio exige CAPTCHA o bloquea la consulta, se registra el estado y no se intenta eludir la restricción.
+### B. Exportación enriquecida de detecciones
+
+`GITHUB_TOKEN` y `GITHUB_DATA_REPOSITORY` pertenecen a otro módulo: escriben eventos de detección enriquecidos
+en `data/detecciones.csv` (con variables opcionales `GITHUB_DATA_BRANCH` y `GITHUB_DATA_PATH`). No restauran ni
+respaldan las tablas principales de la aplicación y no sustituyen `SIRAP_DATA_GITHUB_TOKEN`. No configures un token
+de una integración como si fuera el de la otra: cada una requiere permiso de escritura en su propio repositorio
+privado de destino.
+
+| Integración | Variables | Qué guarda |
+|---|---|---|
+| Persistencia de la aplicación | `SIRAP_DATA_GITHUB_TOKEN`, `SIRAP_DATA_GITHUB_REPO` | CSV operativos en `SIRAP_datos_privados`; restaura al iniciar y sincroniza cambios |
+| Exportación enriquecida | `GITHUB_TOKEN`, `GITHUB_DATA_REPOSITORY` (opcionales: `GITHUB_DATA_BRANCH`, `GITHUB_DATA_PATH`) | Eventos de detección enriquecidos en `data/detecciones.csv` |

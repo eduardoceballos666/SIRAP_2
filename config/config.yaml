@@ -1,7 +1,7 @@
 # =============================================================================
 # SIRAP – Configuración central
 # Todas las rutas son relativas a la raíz del repositorio.
-# NO van aquí: se leen de variables de entorno o de st.secrets (ver .env.example).
+# NO van aquí: se leen de variables de entorno (ver .env.example).
 # =============================================================================
 
 app:
@@ -15,7 +15,7 @@ app:
 
 detector:
   # Pesos del YOLO11-s entrenado en el notebook (sección 3.2). Se busca en orden:
-  # 1) ONNX (liviano, sin PyTorch, ideal para Streamlit Cloud)  2) best.pt (requiere ultralytics)
+  # Se intenta cargar ONNX (recomendado para el Space) y luego best.pt (requiere ultralytics).
   pesos_onnx: "models/best_model.onnx"
   pesos_pt: "models/best_model.pt"
   imgsz_entrenamiento: 640
@@ -25,8 +25,6 @@ detector:
   conf_decision: 0.30
   iou_nms: 0.7                 # NMS por defecto de Ultralytics (igual que en el notebook)
   margen_recorte: 0.06         # margen alrededor de la caja antes del OCR (fracción del ancho/alto)
-  # Sin pesos YOLO, el reconocimiento falla explícitamente; no se usa un detector alternativo.
-  permitir_respaldo_opencv: false
 
 ocr:
   modelo: "cct-s-v2-global-model"   # fast-plate-ocr 1.1.0 (≈5 MB, CPU)
@@ -42,7 +40,7 @@ placas:
 
 decision:
   # Confianza OCR = menor probabilidad entre los caracteres de la placa (como en el notebook).
-  # Las lecturas por debajo de 0.93 pasan a validación manual.
+  # Las lecturas por debajo de 0.94 pasan a validación manual.
   umbral_confianza_ocr: 0.94
   # Distancia de Levenshtein máxima para considerar que una lectura "casi coincide" con una placa registrada
   # (posible error del OCR) → verificación manual en lugar de NO REGISTRADO.

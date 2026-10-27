@@ -45,18 +45,17 @@ class AccessDecision:
 
 
 def decide_access(plate: str | None, ocr_confidence: float, store: Any,
-                  confidence_threshold: float = 0.99, max_similar_distance: int = 1,
+                  confidence_threshold: float = 0.94, max_similar_distance: int = 1,
                   det_confidence: float | None = None, det_threshold: float = 0.0) -> AccessDecision:
     """Aplica la regla de decisión de SIRAP.
 
     Args:
         plate: placa normalizada ``XXX-0000`` (o ``None`` si no se pudo leer).
         ocr_confidence: confianza del OCR (0–1). Use 1.0 cuando el operador escribe la placa.
-        db: objeto con ``get_vehicle(placa)`` y ``registered_plates()`` (``src.storage.CsvStore``).
+        store: almacén con ``get_vehicle(placa)`` y ``registered_plates()`` (``src.storage.CsvStore``).
         confidence_threshold: umbral bajo el cual se pide verificación manual.
         max_similar_distance: distancia de Levenshtein para sugerir una placa registrada parecida.
-        det_confidence: confianza del detector entrenado (``None`` si la placa se escribió a mano o se
-            usó el localizador de respaldo, cuyo puntaje no es una probabilidad).
+        det_confidence: confianza del detector YOLO11-s (``None`` si la placa se escribió a mano).
         det_threshold: umbral de decisión del detector (``conf_decision`` calibrado en *val*).
 
     Returns:

@@ -106,7 +106,9 @@ manual se confirmó que las 472 placas legibles siguen solo dos formatos:
 
 La confianza del OCR (menor probabilidad entre los caracteres) separa lecturas correctas de equivocadas con un
 **AUROC de 0,76**; con un umbral de 0,99, el 13 % de las placas va a verificación manual y las lecturas equivocadas
-aceptadas bajan de 25 a 12 (sección 4.3 del notebook). Ese es el umbral que usa la app.
+aceptadas bajan de 25 a 12 (sección 4.3 del notebook). El estudio sugiere 0,99 para reducir lecturas equivocadas aceptadas; la aplicación desplegada usa un umbral
+operativo de 0,94, configurado en `config/config.yaml`. Las tasas del estudio con 0,99 no describen directamente
+el comportamiento de producción con 0,94.
 
 ![Confianza del OCR en SAVH](../results/figures/ocr_confianza_savh.png)
 

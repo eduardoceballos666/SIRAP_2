@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-/* Paleta de la guía visual (docs/img/SIRAP_Dashboard.png), igual que la app de Streamlit. */
+/* Paleta de la guía visual (docs/img/SIRAP_Dashboard.png). */
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, "Segoe UI", Roboto, Arial, sans-serif;
   --color-navy-950: #0a1529;

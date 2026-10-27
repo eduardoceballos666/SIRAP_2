@@ -52,7 +52,6 @@ un operador de garita, que lea placas ecuatorianas y registre cada operación.
 - **Aplicación web SIRAP 2:** API REST en FastAPI con autenticación por usuario y roles (operador, supervisor,
   administrador) y frontend en Vue 3 (Vite, Pinia, Vue Router, Tailwind CSS) con Dashboard, Reconocimiento y Acceso,
   Historial (con exportación CSV), Administración y Acerca del modelo; publicada en Hugging Face Spaces con Docker.
-- Interfaz alternativa en Streamlit con la misma funcionalidad (heredada del repositorio SIRAP).
 - Pipeline de video y modo en vivo en el notebook (seguimiento OC-SORT, voto de lecturas).
 - Documentación técnica, ética y manual de usuario; pruebas unitarias.
 
@@ -62,7 +61,7 @@ un operador de garita, que lea placas ecuatorianas y registre cada operación.
   HTTP con token, pero no se conectó a un relé/PLC).
 - Conexión directa de la app web a las cámaras IP de la garita (la app recibe imágenes o la cámara del navegador;
   el video en vivo corre en el notebook).
-- Integración con SRI / ANT en la app (se probó en el notebook; depende de acceso a esos servicios).
+- Consulta pública del SRI para complementar datos del vehículo y búsqueda del nombre visible asociado a la placa en EcuadorLegalOnline; no se integra con servicios privados de ANT.
 - Gestión avanzada de cuentas (recuperar contraseña, bloqueo por intentos fallidos, inicio de sesión único de la
   empresa).
 - Reconocimiento de placas de motos o de otros países.
@@ -76,22 +75,21 @@ un operador de garita, que lea placas ecuatorianas y registre cada operación.
 | 3 (26/09–02/10) | Preparación de datos y primer entrenamiento | Dataset de Roboflow (10 125 imágenes) como base de detección; SAVH para el OCR |
 | 4 (03–09/10) | Pipeline completo y regla de decisión | 07/10: YOLOv8n, normalización, validación de formato y regla de 3 estados |
 | 5 (10–16/10) | Optimización y evaluación | Lista de autorizaciones CSV, verificación SRI, registros CSV, pipeline de video y modo en vivo |
-| 6 (17–24/10) | Interfaz, documentación y videos | 23/10: detector final YOLO11-s y OCR fast-plate-ocr; app SIRAP en Streamlit; repositorio y documentación. 24/10: afinamiento del OCR, estudio de hiperparámetros (Optuna, 24 *trials*) y **SIRAP 2**: API FastAPI + frontend Vue 3 publicada en Hugging Face Spaces |
+| 6 (17–24/10) | Interfaz, documentación y videos | 23/10: detector final YOLO11-s y OCR fast-plate-ocr; versión inicial de SIRAP; repositorio y documentación. 24/10: afinamiento del OCR, estudio de hiperparámetros (Optuna, 24 *trials*) y **SIRAP 2**: API FastAPI + frontend Vue 3 publicada en Hugging Face Spaces |
 
 **Desviaciones.** El detector cambió cuatro veces (YOLOv8 → RF-DETR → YOLOv8n → YOLO11-s) y el OCR también
 cambió hasta llegar a fast-plate-ocr. Los cambios se debieron al costo de cómputo en Colab (RF-DETR es pesado) y a la
 necesidad de correr en CPU dentro de la app. Esto desplazó la optimización de
 hiperparámetros al último día (ver `optimizacion.md`). La versión web FastAPI + Vue no estaba en el plan original:
-se agregó al final para tener una arquitectura cliente-servidor con autenticación por usuario, sin modificar la app de
-Streamlit.
+se agregó al final para tener una arquitectura cliente-servidor con autenticación por usuario.
 
 ## 6. Recursos
 
 | Tipo | Recurso |
 |---|---|
 | Datos | License Plate Recognition v11 (Roboflow, CC BY 4.0); SAVH Guayaquil (Zenodo); imágenes y video de la garita (con autorización); lista de placas autorizadas en CSV |
-| Hardware | Google Colab con GPU (T4 para pruebas; el entrenamiento final y las mediciones se hicieron en una NVIDIA L4); CPU para el OCR y la app; Hugging Face Spaces (Docker, CPU basic) para SIRAP 2 |
-| Software | Python 3.11+, Ultralytics 8.4.177, fast-plate-ocr 1.1.0, ONNX Runtime, supervision, trackers (OC-SORT), CSV, FastAPI, Vue 3, Vite, Pinia, Vue Router, Tailwind CSS, ECharts, Docker, Streamlit |
+| Hardware | Google Colab con GPU (T4 para pruebas; el entrenamiento final y las mediciones se hicieron en una NVIDIA L4); CPU para el OCR y la app; Hugging Face Spaces (Docker) para SIRAP 2 |
+| Software | Python 3.11+, Ultralytics 8.4.177, fast-plate-ocr 1.1.0, ONNX Runtime, supervision, trackers (OC-SORT), CSV, FastAPI, Vue 3, Vite, Pinia, Vue Router, Tailwind CSS, ECharts, Docker |
 | Personas | 2 integrantes, ≈8 h/semana cada uno |
 
 ## 7. Riesgos y mitigación
@@ -102,8 +100,8 @@ Streamlit.
 | Sesión de Colab se cae durante el entrenamiento | Alta | Medio | Todo en Drive; el entrenamiento se reanuda desde la última época |
 | Lectura incorrecta que abre la barrera | Media | Alto | Umbral de confianza, verificación manual, confirmación del operador, lista restringida con prioridad |
 | Modelos pesados para la nube | Media | Medio | YOLO11-s exportado a ONNX + OCR de 5 MB en CPU |
-| Llaves de API expuestas | Media | Alto | Secretos de Colab/Streamlit; se revocaron las llaves que quedaron en una versión antigua del notebook |
+| Llaves de API expuestas | Media | Alto | Secretos de entrenamiento y despliegue; se revocaron las llaves que quedaron en una versión antigua del notebook |
 | Datos personales (placas, propietarios) | Alta | Alto | Datos ficticios en la demo; minimización; ver `consideraciones_eticas.md` |
 | Cambios de tecnología a mitad del proyecto | Alta | Medio | Pipeline modular: detector, OCR y decisión se cambian por separado |
-| La plataforma de despliegue no da recursos gratuitos | Media | Medio | Ocurrió: Hugging Face exigió PRO para *CPU basic* en una cuenta nueva. Imagen Docker portátil (sirve en cualquier servidor) y análisis de alternativas (Render y Railway: 512 MB, insuficientes para ≈410 MB de la API) |
+| La plataforma de despliegue no da recursos gratuitos | Media | Medio | Ocurrió: fue necesario pagar a Hugging Face para que el Space Docker pudiera ejecutar la aplicación; sin el pago no corría. La imagen Docker sigue siendo portátil y se analizaron alternativas (Render y Railway: 512 MB, insuficientes para ≈410 MB de la API) |
 | Acceso no autorizado a la app publicada | Media | Alto | Inicio de sesión con contraseña (PBKDF2), JWT con vencimiento, permisos por rol y decisión recalculada en el servidor |
