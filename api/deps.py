@@ -61,9 +61,16 @@ def current_user(credentials: HTTPAuthorizationCredentials | None = Depends(_bea
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "La sesión expiró; vuelva a iniciar sesión.")
     except jwt.PyJWTError:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Token inválido.")
-    if not get_store().is_user_active(payload["sub"]):
+    store = get_store()
+    if not store.is_user_active(payload["sub"]):
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "El usuario está inactivo; vuelva a iniciar sesión con otra cuenta.")
-    return {"usuario": payload["sub"], "nombre": payload["nombre"], "rol": payload["rol"]}
+    rows = store.table("usuarios")
+    rows = rows[rows["usuario"].astype(str) == payload["sub"]]
+    if rows.empty:
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "El usuario ya no existe; vuelva a iniciar sesión.")
+    row = rows.iloc[-1]
+    # Lee nombre y rol vigentes desde el CSV para aplicar de inmediato cambios administrativos.
+    return {"usuario": payload["sub"], "nombre": row["nombre"], "rol": row["rol"]}
 
 
 def require_roles(*roles: str) -> Callable[..., dict[str, Any]]:
