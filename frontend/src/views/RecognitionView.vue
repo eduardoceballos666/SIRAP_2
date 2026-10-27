@@ -635,14 +635,14 @@ onMounted(async () => {
         <section class="rounded-xl border border-line bg-surface px-3 py-2" aria-label="Análisis OCR" aria-live="polite">
           <div class="flex items-center justify-between gap-2">
             <strong class="text-xs uppercase text-ink">Análisis OCR</strong>
-            <span class="text-xs font-semibold text-brand-700">{{ analysisMessage || (loading ? 'Analizando fotograma…' : recognition ? 'Lectura confirmada en dos cuadros' : ocrAttempt ? (ocrAttempt.hasPlate && ocrAttempt.confidence >= 0.94 && continuousAnalysis ? 'Confirmando la misma placa: ' + confirmedFrames + '/2 cuadros' : ocrAttempt.hasPlate ? 'Buscando confianza ≥94 %' : 'No se leyó placa; continúa el análisis') : 'Esperando imagen o video') }}</span>
+            <span class="text-xs font-semibold text-brand-700">{{ analysisMessage || (loading ? 'Analizando fotograma…' : recognition ? 'Lectura confirmada en dos cuadros' : ocrAttempt ? (ocrAttempt.hasPlate && ocrAttempt.confidence >= 0.99 && continuousAnalysis ? 'Confirmando la misma placa: ' + confirmedFrames + '/2 cuadros' : ocrAttempt.hasPlate ? 'Buscando confianza ≥99 %' : 'No se leyó placa; continúa el análisis') : 'Esperando imagen o video') }}</span>
           </div>
           <div class="mt-1 h-2 overflow-hidden rounded-full bg-subtle-2" role="progressbar" :aria-valuenow="Math.round((ocrAttempt?.confidence || 0) * 100)" aria-valuemin="0" aria-valuemax="100" aria-label="Confianza OCR actual">
             <i class="block h-full rounded-full bg-brand-600 transition-all" :style="{ width: Math.max(0, Math.min(100, (ocrAttempt?.confidence || 0) * 100)) + '%' }"></i>
           </div>
         </section>
         <div class="camera-meta">
-          <span :style="!detection && !sourceLabel ? { fontSize: '18px', whiteSpace: 'normal', overflowWrap: 'anywhere' } : undefined">{{ detection ? detection.detector + (recognition ? ' · ' + recognition.timings_ms.total?.toFixed(0) + ' ms' : ' · confirmando OCR ≥94 % en dos cuadros') : sourceLabel || 'Seleccione una imagen o fuente de video' }}</span>
+          <span :style="!detection && !sourceLabel ? { fontSize: '18px', whiteSpace: 'normal', overflowWrap: 'anywhere' } : undefined">{{ detection ? detection.detector + (recognition ? ' · ' + recognition.timings_ms.total?.toFixed(0) + ' ms' : ' · confirmando OCR ≥99 % en dos cuadros') : sourceLabel || 'Seleccione una imagen o fuente de video' }}</span>
           <div class="camera-meta-actions">
             <button ref="clearReadingButton" class="btn-ghost clear-reading-button" :disabled="loading || busy || (!file && !preview && !mediaUrl && !onlineConnected && !decision && !manualPlate)" @click="clearCurrentReading"><AppIcon name="trash" :size="14" /> Limpiar lectura</button>
             <button class="btn-ghost" :disabled="loading || (!file && !mediaReady)" @click="processCurrentMedia"><AppIcon name="refresh" :size="15" /> Reprocesar</button>
