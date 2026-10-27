@@ -144,3 +144,12 @@ class UserIn(BaseModel):
     nombre: str = Field(min_length=1, max_length=120)
     rol: Rol
     password: str = Field(min_length=8, max_length=128)
+
+
+class AdminUserUpdateIn(BaseModel):
+    nombre: str = Field(min_length=1, max_length=120)
+    rol: Rol
+
+
+class AdminPasswordResetIn(BaseModel):
+    password: str = Field(min_length=8, max_length=128)
