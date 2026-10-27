@@ -47,8 +47,7 @@ un operador de garita, que lea placas ecuatorianas y registre cada operación.
 
 - Detector de placas YOLO11-s entrenado y evaluado; OCR `fast-plate-ocr`; normalización al formato ecuatoriano.
 - Regla de decisión con listas blanca/restringida, umbral de confianza y detección de lecturas «casi iguales».
-- Archivos CSV para vehículos, autorizaciones, usuarios e historial con vehículos, propietarios, listas, garitas,
-  usuarios e historial.
+- Tablas operativas CSV de vehículos y propietarios, listas/autorizaciones, garitas, usuarios e historial.
 - **Aplicación web SIRAP 2:** API REST en FastAPI con autenticación por usuario y roles (operador, supervisor,
   administrador) y frontend en Vue 3 (Vite, Pinia, Vue Router, Tailwind CSS) con Dashboard, Reconocimiento y Acceso,
   Historial (con exportación CSV), Administración y Acerca del modelo; publicada en Hugging Face Spaces con Docker.
