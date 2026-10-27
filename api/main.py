@@ -5,7 +5,7 @@ Ejecutar desde la raíz del repositorio::
     uvicorn api.main:app --reload
 
 Documentación interactiva en http://localhost:8000/docs. Si existe ``frontend/dist`` (``npm run build``),
-la misma API sirve el frontend Vue en ``/``. La app de Streamlit (``app/``) no se modifica ni depende de esto.
+la misma API sirve el frontend Vue en ``/``.
 """
 
 from __future__ import annotations
