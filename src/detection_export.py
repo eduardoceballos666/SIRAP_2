@@ -281,6 +281,12 @@ def _query_owner(plate: str) -> dict:
                 try:
                     page = browser.new_page(locale="es-EC", viewport={"width": 1360, "height": 900})
                     page.goto(_OWNER_URL, wait_until="domcontentloaded", timeout=30000)
+                    initial_text = page.locator("body").inner_text(timeout=8000)
+                    if re.search(r"VER ANUNCIO Y CONTINUAR|PARA ACCEDER AL CONTENIDO", initial_text, re.I):
+                        return {
+                            "propietario_estado": "anuncio_requerido",
+                            "propietario_detalle": "EcuadorLegalOnline exige ver un anuncio para habilitar el formulario.",
+                        }
                     entry = page.locator('input[name*="placa" i], input[placeholder*="placa" i]')
                     if entry.count() == 0:
                         entry = page.get_by_label("Placa", exact=True)
