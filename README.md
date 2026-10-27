@@ -136,8 +136,8 @@ cd frontend && npm ci && npm run build && cd ..        # compila la interfaz Vue
 uvicorn api.main:app --port 8000                       # abre http://localhost:8000 (API + interfaz)
 ```
 
-Usuarios de demostración: `operador`, `supervisor` y `admin`; contraseña `sirap2026` (se cambia con
-`SIRAP_DEMO_PASSWORD`).
+Usuarios de demostración: `operador`, `supervisor` y `admin`; contraseña inicial `sirap2026`. Se puede cambiar
+mediante el secreto `SIRAP_DEMO_PASSWORD`.
 
 | Tarea | Comando |
 |---|---|

@@ -6,8 +6,8 @@ administradores.
 SIRAP lee la placa del vehículo que llega a la garita, la busca en la registro CSV y propone una decisión. **El
 operador siempre confirma**: la barrera nunca se abre sola.
 
-> **Demostración pública.** Usuarios `operador`, `supervisor` y `admin`; contraseña `sirap2026` (salvo que el
-> administrador del despliegue la haya cambiado). La base contiene **datos ficticios**, la barrera es **simulada** y
+> **Demostración pública.** Usuarios `operador`, `supervisor` y `admin`; contraseña inicial `sirap2026` (salvo que
+> el administrador del despliegue la haya cambiado mediante `SIRAP_DEMO_PASSWORD`). La base contiene **datos ficticios**, la barrera es **simulada** y
 > todo se reinicia cuando el servidor se reinicia.
 
 ---
