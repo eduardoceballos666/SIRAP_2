@@ -156,6 +156,8 @@ def update_user(usuario: str, body: schemas.AdminUserUpdateIn,
     if target_rows.empty:
         raise HTTPException(404, "El usuario seleccionado no existe.")
     target_row = target_rows.iloc[-1]
+    if target == actor["usuario"] and target_row["rol"] == "ADMINISTRADOR" and body.rol != "ADMINISTRADOR":
+        raise HTTPException(409, "No puede cambiar su propio rol de Administrador.")
     if target_row["rol"] == "ADMINISTRADOR" and body.rol != "ADMINISTRADOR" and _active(target_row["activo"]):
         active_admins = int(((users["rol"] == "ADMINISTRADOR") & users["activo"].map(_active)).sum())
         if active_admins <= 1:
