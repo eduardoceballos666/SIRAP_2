@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
 import AppIcon from '@/components/AppIcon.vue'
 import ImageViewer from '@/components/ImageViewer.vue'
 import ModalDialog from '@/components/ModalDialog.vue'
@@ -534,6 +534,7 @@ async function register(accion) {
     const sim = out.barrera_abierta && out.barrera_simulada ? ' (barrera simulada)' : ''
     session.notify(out.mensaje + sim, out.accion === 'RECHAZO' ? 'warn' : 'ok')
     if (['APERTURA_MANUAL', 'APERTURA_AUTOMATICA'].includes(out.accion)) {
+      await nextTick() // Espera a que Vue muestre el mensaje antes de iniciar los 3 segundos.
       await new Promise((resolve) => setTimeout(resolve, 3000))
       busy.value = false
       clearReadingButton.value?.click()
