@@ -125,9 +125,11 @@ const opt = computed(() => m.value.optimizacion_resumen || {})
     <div class="space-y-4 leading-snug break-words">
       <div>
         <p class="text-2xl font-bold sm:text-3xl">Eduardo Alejandro Ceballos Jijon</p>
+        <a href="mailto:eduardoceballos@yahoo.com" class="mt-1 inline-block text-base font-medium text-brand-600 hover:underline sm:text-lg">eduardoceballos@yahoo.com</a>
       </div>
       <div>
         <p class="text-2xl font-bold sm:text-3xl">Christian Xavier Valle Maridueña</p>
+        <a href="mailto:cvalle130781@gmail.com" class="mt-1 inline-block text-base font-medium text-brand-600 hover:underline sm:text-lg">cvalle130781@gmail.com</a>
       </div>
     </div>
   </section>
