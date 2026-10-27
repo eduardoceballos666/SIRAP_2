@@ -80,13 +80,13 @@ es válido (3 letras y 3 o 4 dígitos), aparece un aviso.
 
 ### 3.2.1 Datos complementarios del vehículo
 
-Al identificar o verificar una placa, la aplicación puede consultar el servicio público del **SRI** para completar
-marca, modelo y año, y **EcuadorLegalOnline** para mostrar el nombre visible asociado públicamente a esa placa.
-La consulta usa la placa y sirve para complementar la ficha; **no determina si se autoriza el acceso**. Si las
-fuentes no responden, los controles del sitio impiden la consulta o no hay datos verificables, la aplicación informa
-que no están disponibles y conserva los datos locales que existan. No consulta cédula, domicilio ni teléfono ni
-intenta eludir CAPTCHA. Los datos públicos pueden ser incompletos o estar desactualizados; confirme la información
-por los canales correspondientes antes de tomar decisiones administrativas.
+Al identificar o verificar una placa, la aplicación consulta el servicio público del **SRI** para completar marca,
+modelo y año en la ficha. La API también consulta **EcuadorLegalOnline** con esa placa y puede recibir el nombre
+visible asociado públicamente; el panel actual no muestra ese nombre. La respuesta de ambas fuentes complementa los
+datos locales y **no determina si se autoriza el acceso**. Si una fuente no responde, muestra datos incompletos o
+exige CAPTCHA, se informa que la consulta no pudo completarse y se conservan los valores locales. No se consultan
+cédula, domicilio ni teléfono ni se eluden controles. La exportación enriquecida de detecciones es una integración
+separada y puede conservar estos datos en su CSV de GitHub solo si está configurada.
 
 ### 3.3 Apertura manual (Contingencia)
 
