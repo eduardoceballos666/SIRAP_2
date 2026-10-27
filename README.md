@@ -102,11 +102,14 @@ Preset «completo», split *test* nunca visto en el entrenamiento (salidas del n
 | | mAP@0.5:0.95 placas pequeñas / medianas / grandes | 0,481 / 0,729 / 0,744 | — |
 | | Latencia (lote 1, FP16, GPU L4) | 23,3 ms (43 FPS) | — |
 | Detector con hiperparámetros optimizados (Optuna, 24 *trials*) | mAP@0.5 / mAP@0.5:0.95 *test* | 0,973 / 0,704 (+0,011, una semilla): se mantiene el entregado | — |
-| OCR (SAVH Guayaquil, 399 legibles) | EMR / CER | **93,7 %** / 0,010 | EMR ≥ 80 % ✅ |
+| OCR (SAVH Guayaquil, 399 legibles) | EMR / CER sin filtrar por confianza | **93,7 %** / 0,010 | EMR ≥ 80 % ✅ |
+| OCR (SAVH, umbral operativo 0,94; evaluación offline) | Cobertura / EMR entre aceptadas | 363/399 (91,0 %) / 349/363 (96,1 %); 14 lecturas erróneas aceptadas | — |
 | OCR afinado con placas ecuatorianas (*test* separado por placa, n=86) | EMR original / afinado | 94,2 % / 94,2 % (McNemar *p* = 1,0): se mantiene el original | — |
 | Regla de decisión (SAVH, lista simulada) | Falsos autorizados / rechazos indebidos | 0 de 202 / 1 de 197 | — |
 | Sistema (video de la garita) | Tiempo por decisión (detección + OCR) | 99 ms | ≤ 1 s ✅ |
-| Sistema | EMR punta a punta | pendiente (requiere referencia anotada del video) | ≥ 80 % |
+| Sistema | EMR punta a punta en video | pendiente: faltan etiquetas de placa para los videos de prueba | ≥ 80 % |
+
+La evaluación offline con 0,94 usa predicciones OCR guardadas y referencias SAVH: 330 lecturas confirmadas y 69 sugerencias aún no confirmadas. No equivale a una medición punta a punta en video. El 93,7 % es el EMR sin aplicar umbral; 96,1 % es el EMR solo entre lecturas aceptadas a 0,94.
 
 **Comparación con un *baseline*.** En el mismo split de validación, YOLO11-s pasó de mAP@0.5 = 0,848 después de
 la época 1 a 0,971 en la época 40 (+0,123). En el *test* separado, el modelo final obtuvo 0,972; no se compara
