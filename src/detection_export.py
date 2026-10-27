@@ -293,7 +293,7 @@ def _query_owner(plate: str) -> dict:
                         return {"propietario_estado": "interfaz_no_reconocida",
                                 "propietario_detalle": "No se localizó el botón Consultar."}
                     submit.first.click(timeout=25000)
-                    deadline = time.monotonic() + 25
+                    deadline = time.monotonic() + 45
                     while time.monotonic() < deadline:
                         text = page.locator("body").inner_text(timeout=8000)
                         if re.search(r"captcha|acceso denegado|verifica que (eres|no eres)", text, re.I):
