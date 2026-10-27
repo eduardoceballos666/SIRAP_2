@@ -82,10 +82,10 @@
 .top-navigation a:hover, .top-navigation a.selected, .about-link:hover, .about-link.selected { background:#1769f6; color:#fff; }
 .top-navigation a:hover { transform:translateX(2px); }
 .sidebar-bottom { display:grid; gap:10px; margin-top:auto; }
-.top-user { display:flex; align-items:center; gap:4px; padding:8px 6px; border-top:1px solid #ffffff26; font-size:11px; }
-.top-user button { padding:7px; border-radius:7px; color:#fff; }
+.top-user { display:grid; grid-template-columns:minmax(0,1fr) auto auto; align-items:center; gap:4px; width:100%; box-sizing:border-box; padding:8px 6px; border-top:1px solid #ffffff26; font-size:11px; }
+.top-user button { display:grid; place-items:center; flex:none; width:34px; height:34px; padding:7px; border-radius:7px; color:#fff; }
 .top-user button:hover { background:#ffffff20; }
-.user-name { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.user-name { min-width:0; overflow-wrap:anywhere; white-space:normal; line-height:1.25; }
 .about-link { border-top:1px solid #ffffff26; border-radius:0; padding:14px 10px 4px; font-size:13px; }
 
 .app-content { min-width:0; min-height:0; height:100dvh; overflow:auto; padding:14px 16px; }
