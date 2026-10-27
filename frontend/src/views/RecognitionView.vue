@@ -425,6 +425,7 @@ async function loadVehicleDetails(plate) {
         const ownerState = result.fuentes?.ecuadorlegalonline
         const ownerMessages = {
           acceso_restringido: 'el sitio pidió verificación humana o bloqueó la consulta',
+          anuncio_requerido: 'se requiere ver un anuncio para habilitar el formulario; la consulta automática no puede avanzar',
           interfaz_no_reconocida: 'no se encontró el formulario esperado',
           placa_no_coincide: 'la respuesta no correspondió a la placa consultada',
           sin_respuesta_verificable: 'no se pudo confirmar el campo Nombre para esta placa',
