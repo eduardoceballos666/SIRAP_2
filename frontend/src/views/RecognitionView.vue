@@ -687,7 +687,7 @@ onMounted(async () => {
             <div><dt>Marca</dt><dd :title="vehicleDisplay.marca">{{ vehicleDisplay.marca || '—' }}</dd></div>
             <div><dt>Modelo</dt><dd :title="vehicleDisplay.modelo">{{ vehicleDisplay.modelo || '—' }}</dd></div>
             <div><dt>Año</dt><dd :title="vehicleDisplay.anio">{{ vehicleDisplay.anio || '—' }}</dd></div>
-            <div><dt>Compañía de transportes</dt><dd :title="vehicleDisplay.transportista">{{ vehicleDisplay.transportista || '—' }}</dd></div>
+            <div class="vehicle-carrier-row"><dt>Compañía de transportes</dt><dd :title="vehicleDisplay.transportista">{{ vehicleDisplay.transportista || '—' }}</dd></div>
           </dl>
           <p v-if="vehicleLookupStatus" class="registered-note" role="status" aria-live="polite">{{ vehicleLookupStatus }}</p>
           <p v-if="done" class="registered-note" role="status">✓ Lectura registrada en el historial.</p>
