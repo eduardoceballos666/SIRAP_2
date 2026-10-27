@@ -101,7 +101,7 @@
 .control-strip .control-field > span { color:#dbeafe; }
 .control-field strong { display:flex; align-items:center; gap:7px; min-height:32px; overflow:hidden; font-size:15px; text-overflow:ellipsis; white-space:nowrap; }
 .control-field .field { min-height:33px; padding:5px 9px; font-size:15px; }
-.workspace-clock { display:flex; align-items:center; justify-content:flex-end; gap:7px; min-width:0; color:var(--color-ink); font-size:15px; font-weight:800; white-space:nowrap; }
+.workspace-clock { display:flex; align-items:center; justify-content:flex-end; gap:7px; min-width:0; color:var(--color-ink); font-size:17px; font-weight:800; white-space:nowrap; }
 .control-strip .workspace-clock { color:#fff; }
 .help-button { min-height:34px; padding:6px 9px !important; }
 .access-grid { display:grid; grid-template-columns:minmax(0,1.22fr) minmax(340px,.9fr); gap:10px; min-height:0; }
@@ -294,7 +294,7 @@
 @media (max-width:560px) {
   .access-content { padding:8px; }
   .control-strip { grid-template-columns:1fr 1fr; gap:7px; padding:9px; }
-  .workspace-clock { justify-content:flex-start; grid-column:span 2; font-size:12px; }
+  .workspace-clock { justify-content:flex-start; grid-column:span 2; font-size:14px; }
   .control-field strong { font-size:15px; }
   .camera-toolbar { flex-wrap:wrap; }
   .source-tabs { order:3; flex:1 1 100%; }
