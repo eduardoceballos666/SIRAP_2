@@ -35,9 +35,9 @@ const fontSize = computed(() => Math.max(16, Math.round((props.width || 1000) / 
     </div>
     <div v-else class="grid aspect-video place-items-center rounded-xl border-2 border-dashed border-white/20 text-slate-300">
       <div class="text-center">
-        <AppIcon name="image" :size="64" class="mx-auto mb-4 opacity-70" />
-        <p class="text-3xl font-bold leading-tight">Sin imagen</p>
-        <p class="mt-2 text-xl leading-relaxed opacity-90">Elija un ejemplo, suba una foto o use la cámara.</p>
+        <AppIcon name="image" :size="72" class="mx-auto mb-5 opacity-70" />
+        <p class="text-4xl font-bold leading-tight">Sin imagen</p>
+        <p class="mt-3 text-2xl leading-relaxed opacity-90">Seleccione Subir archivo, Cámara Local o Cámara URL para comenzar.</p>
       </div>
     </div>
   </div>
