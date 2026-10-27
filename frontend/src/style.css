@@ -94,11 +94,11 @@
 .page-heading > span { color:var(--color-muted); font-size:12px; }
 .access-content { display:flex; height:100dvh; min-height:0; overflow:hidden; flex-direction:column; padding:12px 14px; }
 .access-workspace { display:grid; flex:1; grid-template-rows:auto minmax(0,1fr); gap:10px; min-height:0; }
-.control-strip { display:grid; grid-template-columns:minmax(125px,.9fr) minmax(112px,.8fr) minmax(145px,1.1fr) minmax(118px,.8fr) auto minmax(152px,auto); align-items:center; gap:10px; min-height:72px; padding:9px 14px; border:1px solid #166534; border-radius:12px; background:#14532d; box-shadow:0 2px 10px #0d1b330d; }
+.control-strip { display:grid; grid-template-columns:minmax(125px,.9fr) minmax(112px,.8fr) minmax(145px,1.1fr) minmax(118px,.8fr) auto minmax(152px,auto); align-items:center; gap:10px; min-height:72px; padding:9px 14px; border:1px solid #13264a; border-radius:12px; background:#0d1b33; box-shadow:0 2px 10px #0d1b330d; }
 .control-field { display:grid; align-content:center; gap:4px; min-width:0; color:var(--color-ink); font-size:15px; font-weight:700; }
 .control-strip .control-field { color:#fff; }
 .control-field > span { color:var(--color-muted); }
-.control-strip .control-field > span { color:#dbeafe; }
+.control-strip .control-field > span { color:#e9eef8; }
 .control-field strong { display:flex; align-items:center; gap:7px; min-height:32px; overflow:hidden; font-size:15px; text-overflow:ellipsis; white-space:nowrap; }
 .control-field .field { min-height:33px; padding:5px 9px; font-size:15px; }
 .workspace-clock { display:flex; align-items:center; justify-content:flex-end; gap:7px; min-width:0; color:var(--color-ink); font-size:18px; font-weight:800; white-space:nowrap; }
