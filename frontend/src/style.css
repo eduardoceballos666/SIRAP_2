@@ -115,7 +115,7 @@
 .source-tabs button:nth-child(4) { --tab-bg:#fff7ed; --tab-ink:#c2410c; --tab-accent:#ea580c; }
 .source-tabs button:hover { transform:translateY(-1px); box-shadow:0 3px 8px color-mix(in srgb,var(--tab-accent) 24%,transparent); }
 .source-tabs button.active { border-color:var(--tab-accent); background:var(--tab-accent); color:#fff; box-shadow:0 3px 9px color-mix(in srgb,var(--tab-accent) 32%,transparent); }
-.fullscreen-button { min-width:0; max-width:140px; gap:5px; padding:7px 9px !important; font-size:11px !important; }
+.fullscreen-button { min-width:0; max-width:140px; gap:5px; padding:7px 9px !important; font-size:12px !important; }
 .sample-select, .access-workspace .field { min-width:0; min-height:34px; padding:6px 10px; border-radius:8px; font-size:12px; }
 .live-camera-tools { display:flex; flex-wrap:wrap; gap:6px; }
 .live-camera-tools button { min-height:34px; padding:6px 10px; font-size:12px; }
