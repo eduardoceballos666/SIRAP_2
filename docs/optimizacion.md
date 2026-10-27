@@ -165,14 +165,17 @@ Además de los hiperparámetros de entrenamiento, el sistema tiene dos umbrales 
 ### 6.1 Efecto de la regla de decisión optimizada (SAVH, lista simulada, 399 imágenes)
 
 | Configuración | Falsos autorizados | Rechazos indebidos | A verificación manual |
-|---|---|---|---|
+|---|---|---|---|---|
 | Sin umbral OCR | 0 de 202 | 1 de 197 | 4,0 % |
-| Umbral OCR 0,99 (escenario medido en SAVH; no es el activo en la app) | 0 de 202 | 1 de 197 | 15,5 % |
+| Umbral OCR 0,99 (escenario de estudio) | 0 de 202 | 1 de 197 | 15,5 % |
+| Umbral OCR 0,94 (umbral operativo; evaluación offline) | 0 de 202 | 1 de 197 | 12,0 % |
 
-En la evaluación SAVH, 0,99 baja el **peor caso** estimado de vehículos no autorizados que entrarían como
-autorizados de 6,3 % a 3,0 % (sección 5.5 del notebook), a costa de más verificaciones manuales. El Space usa
-0,94 por decisión del proyecto; por tanto, los resultados de este escenario no deben interpretarse como métricas
-directas del umbral activo. Para comparar ambas configuraciones se requiere recalcular las métricas con 0,94.
+La matriz de 0,94 se calculó offline con las predicciones OCR SAVH, referencias revisadas y la misma lista simulada:
+no se observó falso autorizado y hubo 1 rechazo indebido entre 197 autorizadas; 48/399 (12,0 %) quedaron para revisión
+manual. A 0,94, 14/399 (3,5 %) fueron lecturas equivocadas aceptadas, frente a 12/399 (3,0 %) a 0,99. Estos son
+resultados por recorte con datos guardados, no una medición punta a punta en video ni una verificación en producción.
+Las referencias incluyen 69 sugerencias aún no confirmadas. La comparación base/optimizada del detector sigue basada
+en una sola semilla por configuración; repetir ambas con varias semillas continúa pendiente.
 
 ### 6.2 Curvas del entrenamiento base
 
