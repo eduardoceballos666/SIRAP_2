@@ -14,6 +14,7 @@ const auth = useAuthStore()
 const now = ref(new Date())
 const displayClock = computed(() => now.value.toLocaleString('es-EC', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }))
 const cameraPanel = ref(null)
+const clearReadingButton = ref(null)
 const fullscreen = ref(false)
 let clockTimer
 
@@ -535,7 +536,7 @@ async function register(accion) {
     if (['APERTURA_MANUAL', 'APERTURA_AUTOMATICA'].includes(out.accion)) {
       await new Promise((resolve) => setTimeout(resolve, 3000))
       busy.value = false
-      clearCurrentReading()
+      clearReadingButton.value?.click()
     }
   } catch (e) {
     session.notify(e.message, 'bad')
@@ -641,7 +642,7 @@ onMounted(async () => {
         <div class="camera-meta">
           <span :style="!detection && !sourceLabel ? { fontSize: '18px', whiteSpace: 'normal', overflowWrap: 'anywhere' } : undefined">{{ detection ? detection.detector + (recognition ? ' · ' + recognition.timings_ms.total?.toFixed(0) + ' ms' : ' · confirmando OCR ≥94 % en dos cuadros') : sourceLabel || 'Seleccione una imagen o fuente de video' }}</span>
           <div class="camera-meta-actions">
-            <button class="btn-ghost clear-reading-button" :disabled="loading || busy || (!file && !preview && !mediaUrl && !onlineConnected && !decision && !manualPlate)" @click="clearCurrentReading"><AppIcon name="trash" :size="14" /> Limpiar lectura</button>
+            <button ref="clearReadingButton" class="btn-ghost clear-reading-button" :disabled="loading || busy || (!file && !preview && !mediaUrl && !onlineConnected && !decision && !manualPlate)" @click="clearCurrentReading"><AppIcon name="trash" :size="14" /> Limpiar lectura</button>
             <button class="btn-ghost" :disabled="loading || (!file && !mediaReady)" @click="processCurrentMedia"><AppIcon name="refresh" :size="15" /> Reprocesar</button>
           </div>
         </div>
