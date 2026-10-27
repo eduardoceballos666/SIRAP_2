@@ -529,7 +529,7 @@ onMounted(async () => {
         <div class="panel-toolbar camera-toolbar">
           <h2><AppIcon name="camera" :size="18" /> Lectura del vehículo</h2>
           <div class="source-tabs" role="group" aria-label="Fuente de imagen">
-            <button v-for="s in [['camara', 'En vivo'], ['subir', 'Subir archivo'], ['online', 'Cámara URL']]" :key="s[0]" :aria-pressed="source === s[0]" :class="{ active: source === s[0] }" :disabled="loading || busy" @click="setSource(s[0])">{{ s[1] }}</button>
+            <button v-for="s in [['camara', 'Cámara local'], ['subir', 'Subir archivo'], ['online', 'Cámara URL']]" :key="s[0]" :aria-pressed="source === s[0]" :class="{ active: source === s[0] }" :disabled="loading || busy" @click="setSource(s[0])">{{ s[1] }}</button>
           </div>
           <button class="btn-ghost fullscreen-button" :aria-label="fullscreen ? 'Salir de pantalla completa' : 'Ver en pantalla completa'" :title="fullscreen ? 'Salir de pantalla completa' : 'Ver en pantalla completa'" @click="toggleFullscreen">
             <AppIcon :name="fullscreen ? 'minimize' : 'fullscreen'" :size="17" /><span>{{ fullscreen ? 'Salir' : 'Pantalla completa' }}</span>
