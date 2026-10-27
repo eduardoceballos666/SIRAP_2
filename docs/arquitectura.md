@@ -119,7 +119,7 @@ flowchart TD
     B -- no --> M[VERIFICACIÓN MANUAL<br/>placa no legible]
     B -- sí --> B2{¿Confianza del detector ≥ 0,30?}
     B2 -- no --> M4[VERIFICACIÓN MANUAL<br/>detección dudosa]
-    B2 -- sí --> C{¿Confianza OCR ≥ 0,94?}
+    B2 -- sí --> C{¿Confianza OCR ≥ 0,99?}
     C -- no --> M2[VERIFICACIÓN MANUAL<br/>confianza baja]
     C -- sí --> D{¿En lista RESTRINGIDA vigente?}
     D -- sí --> X[ACCESO DENEGADO]
@@ -130,9 +130,9 @@ flowchart TD
     F -- no --> N[NO REGISTRADO]
 ```
 
-Los umbrales activos son detector 0,30 (calibrado en *val*) y OCR 0,94; la distancia para «¿quiso decir…?» es 1.
-Están configurados en `config/config.yaml`. El estudio de SAVH evaluó también 0,99, pero ese no es el umbral usado
-por la aplicación desplegada. La decisión **nunca abre la barrera sola**: la
+Los umbrales operativos son detector 0,30 (calibrado en *val*) y OCR 0,99; la distancia para «¿quiso decir…?» es 1.
+La interfaz exige al menos 99 % de confianza OCR antes de mostrar la lectura como confirmada. Los resultados de evaluación offline
+con umbral 0,94 corresponden a una configuración anterior y no describen el rendimiento medido de la app con 0,99. La decisión **nunca abre la barrera sola**: la
 interfaz habilita «Registrar y Abrir Barrera» solo con *acceso autorizado* y una vez por captura.
 
 ## 4. Pipeline de datos (de la entrada a la salida)
