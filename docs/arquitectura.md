@@ -192,8 +192,16 @@ erDiagram
     }
 ```
 
-Los registros se guardan en archivos CSV locales.
-parametrizadas.
+Las tablas operativas se guardan como CSV en el directorio de trabajo local. En el Space, `SIRAP_DATA_GITHUB_TOKEN`
+y `SIRAP_DATA_GITHUB_REPO` permiten restaurarlas desde el repositorio privado al iniciar y sincronizar los cambios;
+si esa integración no está configurada en otra instalación, los archivos permanecen solo en el almacenamiento local
+de ese entorno.
+
+La ficha del vehículo también puede solicitar datos públicos al SRI y el nombre visible asociado a la placa en
+EcuadorLegalOnline. La API usa la placa como criterio de búsqueda; estos resultados solo complementan la ficha, no
+forman parte de la regla de acceso y pueden no estar disponibles. La exportación enriquecida de detecciones es
+independiente: `GITHUB_TOKEN` y `GITHUB_DATA_REPOSITORY` guardan eventos en `data/detecciones.csv`, no las tablas
+operativas.
 
 ## 6. Despliegue
 

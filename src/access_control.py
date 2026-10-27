@@ -95,7 +95,7 @@ def decide_access(plate: str | None, ocr_confidence: float, store: Any,
                               sugerencia=suggestion,
                               motivos=[f"La lectura difiere en un carácter de la placa registrada {suggestion}."])
     return AccessDecision("NO_REGISTRADO", "ACCESO NO REGISTRADO", "PLACA NO REGISTRADA",
-                          motivos=["La placa no está en la registro CSV de vehículos."])
+                          motivos=["La placa no está en el registro CSV de vehículos."])
 
 
 def _suggest(plate: str, store: Any, max_distance: int) -> str | None:

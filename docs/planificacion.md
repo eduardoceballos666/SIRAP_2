@@ -14,7 +14,7 @@ difícil de auditar. El caso de partida del proyecto fue el ingreso de camiones 
 verifica en la garita antes de levantar la barrera.
 
 **SIRAP** automatiza ese flujo: una cámara captura el vehículo, un detector localiza la placa, un OCR la lee, el
-sistema la busca en la archivos CSV y propone una decisión (*autorizado*, *denegado*, *no registrado* o
+sistema la busca en los archivos CSV y propone una decisión (*autorizado*, *denegado*, *no registrado* o
 *verificación manual*). El operador confirma y la operación queda registrada.
 
 ## 2. Objetivos
