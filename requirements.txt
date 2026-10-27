@@ -1,4 +1,4 @@
-# SIRAP_2 – dependencias del backend (src/), la API FastAPI (api/) y la interfaz Streamlit (app/).
+# SIRAP_2 – dependencias Python del backend (src/) y la API FastAPI (api/).
 # El detector corre con ONNX Runtime (sin PyTorch); ultralytics solo hace falta para entrenar
 # (requirements-dev.txt). El frontend Vue tiene sus versiones fijadas en frontend/package-lock.json.
 streamlit==1.66.1
