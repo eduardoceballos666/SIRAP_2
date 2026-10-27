@@ -21,7 +21,7 @@ aplicación web profesional: **API REST en FastAPI** con autenticación por usua
 [**Aplicación en vivo**](https://eduardoceballos-sirap.hf.space) · [Manual de usuario](docs/manual_usuario.md) ·
 [Documentación de la API](https://eduardoceballos-sirap.hf.space/docs) · [Notebook de backend](notebooks/SIRAP_backend.ipynb)
 
-<img src="docs/img/vue_reconocimiento.png" alt="SIRAP 2 – Reconocimiento y Acceso" width="900">
+<img src="https://raw.githubusercontent.com/eduardoceballos666/SIRAP_2/396855f38f95c209d201768d6e31312dc7d41203/docs/img/vue_reconocimiento.png" alt="SIRAP 2 – Reconocimiento y Acceso" width="900">
 
 </div>
 
@@ -212,7 +212,7 @@ celular, **tema claro/oscuro** (botón sol/luna), historial y comparación de la
 
 | Reconocimiento (anotado en el manual) | Dashboard | Tema oscuro | Celular |
 |---|---|---|---|
-| <img src="docs/img/vue_reconocimiento.png" width="300"> | <img src="docs/img/vue_dashboard.png" width="300"> | <img src="docs/img/vue_verificacion.png" width="300"> | <img src="docs/img/vue_movil.png" width="110"> |
+| <img src="https://raw.githubusercontent.com/eduardoceballos666/SIRAP_2/396855f38f95c209d201768d6e31312dc7d41203/docs/img/vue_reconocimiento.png" width="300"> | <img src="docs/img/vue_dashboard.png" width="300"> | <img src="docs/img/vue_verificacion.png" width="300"> | <img src="docs/img/vue_movil.png" width="110"> |
 
 ### 6.1 API REST
 
