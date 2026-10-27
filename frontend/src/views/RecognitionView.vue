@@ -422,20 +422,9 @@ async function loadVehicleDetails(plate) {
       if (result.estado === 'completado') {
         vehicleLookup.value = result.vehiculo || null
         const sriOk = result.fuentes?.sri === 'encontrado'
-        const ownerState = result.fuentes?.ecuadorlegalonline
-        const ownerMessages = {
-          acceso_restringido: 'el sitio pidió verificación humana o bloqueó la consulta',
-          anuncio_requerido: 'se requiere ver un anuncio para habilitar el formulario; la consulta automática no puede avanzar',
-          interfaz_no_reconocida: 'no se encontró el formulario esperado',
-          placa_no_coincide: 'la respuesta no correspondió a la placa consultada',
-          sin_respuesta_verificable: 'no se pudo confirmar el campo Nombre para esta placa',
-          sin_datos: 'el sitio no devolvió un nombre',
-          error: 'falló la consulta al sitio',
-        }
-        const ownerMessage = ownerState === 'encontrado'
-          ? 'Nombre del Propietario encontrado en EcuadorLegalOnline'
-          : `EcuadorLegalOnline: ${ownerMessages[ownerState] || 'no se obtuvo el nombre'}${result.detalle_propietario ? ` (${result.detalle_propietario})` : ''}`
-        vehicleLookupStatus.value = `${ownerMessage}. ${sriOk ? 'Marca, modelo y año cargados desde el SRI.' : 'El SRI no devolvió todos los datos.'}`
+        vehicleLookupStatus.value = sriOk
+          ? 'Marca, modelo y año cargados desde el SRI.'
+          : 'El SRI no devolvió todos los datos; se muestran los valores locales disponibles.'
         return
       }
     }
@@ -480,7 +469,6 @@ const vehicleDisplay = computed(() => ({
   marca: vehicleLookup.value?.marca || vehicle.value?.marca || '',
   modelo: vehicleLookup.value?.modelo || vehicle.value?.modelo || '',
   anio: vehicleLookup.value?.anio || vehicle.value?.anio || vehicle.value?.year || '',
-  propietario: vehicleLookup.value?.propietario || vehicle.value?.propietario || '',
   transportista: vehicleLookup.value?.transportista || vehicle.value?.transportista || '',
 }))
 const decisionLabel = computed(() => decision.value?.resultado === 'NO_REGISTRADO' && vehicle.value
@@ -699,7 +687,6 @@ onMounted(async () => {
             <div><dt>Marca</dt><dd :title="vehicleDisplay.marca">{{ vehicleDisplay.marca || '—' }}</dd></div>
             <div><dt>Modelo</dt><dd :title="vehicleDisplay.modelo">{{ vehicleDisplay.modelo || '—' }}</dd></div>
             <div><dt>Año</dt><dd :title="vehicleDisplay.anio">{{ vehicleDisplay.anio || '—' }}</dd></div>
-            <div><dt>Nombre del Propietario</dt><dd :title="vehicleDisplay.propietario">{{ vehicleDisplay.propietario || '—' }}</dd></div>
             <div><dt>Compañía de transportes</dt><dd :title="vehicleDisplay.transportista">{{ vehicleDisplay.transportista || '—' }}</dd></div>
           </dl>
           <p v-if="vehicleLookupStatus" class="registered-note" role="status" aria-live="polite">{{ vehicleLookupStatus }}</p>
@@ -728,7 +715,7 @@ onMounted(async () => {
       <div class="mt-4 flex justify-end gap-2"><button type="button" class="btn-ghost" @click="registrationOpen = false">Cancelar</button><button type="submit" class="btn-primary" :disabled="busy">{{ busy ? 'Guardando…' : 'Guardar camión' }}</button></div>
     </form>
   </ModalDialog>
-  <ModalDialog :open="detailsOpen" title="Detalle de la verificación" @close="detailsOpen = false"><ResultCard :decision="decision" :loading="loading" /><dl v-if="vehicle" class="mt-3 space-y-2 text-sm"><div v-for="[k,v] in [['Marca', vehicle.marca], ['Modelo', vehicle.modelo], ['Año', vehicleDisplay.anio], ['Nombre del Propietario', vehicleDisplay.propietario], ['Compañía de transportes', vehicleDisplay.transportista]]" :key="k"><dt class="font-bold">{{ k }}</dt><dd class="break-words">{{ v || '—' }}</dd></div></dl><button class="btn-ghost mt-4" @click="detailsOpen = false">Cerrar</button></ModalDialog>
+  <ModalDialog :open="detailsOpen" title="Detalle de la verificación" @close="detailsOpen = false"><ResultCard :decision="decision" :loading="loading" /><dl v-if="vehicle" class="mt-3 space-y-2 text-sm"><div v-for="[k,v] in [['Marca', vehicle.marca], ['Modelo', vehicle.modelo], ['Año', vehicleDisplay.anio], ['Compañía de transportes', vehicleDisplay.transportista]]" :key="k"><dt class="font-bold">{{ k }}</dt><dd class="break-words">{{ v || '—' }}</dd></div></dl><button class="btn-ghost mt-4" @click="detailsOpen = false">Cerrar</button></ModalDialog>
   <ModalDialog :open="readingsOpen" title="Lecturas de esta sesión" @close="readingsOpen = false"><div class="max-h-[60vh] overflow-auto">
     <div class="table-wrap">
       <table class="tbl">
