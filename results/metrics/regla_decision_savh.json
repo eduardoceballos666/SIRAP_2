@@ -35,5 +35,26 @@
     "rechazos_indebidos": 1,
     "verificacion_manual": 0.155
   },
-  "fuente": "Notebook SIRAP_backend, sección 5.5 (evaluación de la regla con lista simulada)"
+  "fuente": "Notebook SIRAP_backend, sección 5.5 (evaluación de la regla con lista simulada)",
+  "umbral_ocr_0_94": {
+    "matriz": {
+      "autorizada": {
+        "AUTORIZADO": 172,
+        "VERIFICACION_MANUAL": 24,
+        "NO_REGISTRADO": 1
+      },
+      "no_autorizada": {
+        "AUTORIZADO": 0,
+        "VERIFICACION_MANUAL": 24,
+        "NO_REGISTRADO": 178
+      }
+    },
+    "falsos_autorizados": 0,
+    "rechazos_indebidos": 1,
+    "verificacion_manual": 0.12030075187969924,
+    "casos_verificacion_manual": 48,
+    "lecturas_equivocadas_aceptadas": 14,
+    "peor_caso_no_autorizados_aceptados_equivocadamente": 0.03508771929824561,
+    "nota": "Evaluación offline por recorte SAVH con lista simulada y predicciones OCR guardadas; no representa rendimiento punta a punta en video. 69 etiquetas son sugerencias sin confirmar."
+  }
 }
