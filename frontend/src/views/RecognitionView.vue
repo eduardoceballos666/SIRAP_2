@@ -18,7 +18,7 @@ const clearReadingButton = ref(null)
 const fullscreen = ref(false)
 let clockTimer
 
-const source = ref('ejemplos')
+const source = ref('subir')
 const samples = ref([])
 const selectedSample = ref('')
 const sourceLabel = ref('') // de dónde vino la imagen (para la tabla de lecturas)
