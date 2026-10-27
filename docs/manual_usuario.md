@@ -47,7 +47,7 @@ vuelve a pedir la contraseña.
 | 3 | ¿Cómo se usa esta pantalla? | Ayuda en cuatro pasos. Se abre sola en la primera visita |
 | 4 | Fuente de la imagen | **Ejemplos** (botones «Probar con un ejemplo»), **Subir imagen** (JPG/PNG/WEBP, máx. 10 MB) o **Cámara** del dispositivo |
 | 5 | Imagen de la garita | Placa enmarcada con el color del resultado, garita y fecha/hora. Debajo: detector usado y tiempos de detección y OCR |
-| 6 | Resultado de acceso | Decisión del sistema y motivo (p. ej. «Confianza OCR 30 % < umbral 94 %») y, si existe, «¿Quiso decir …?» |
+| 6 | Resultado de acceso | Decisión del sistema y motivo (p. ej. «Confianza OCR 30 % < umbral 99 %») y, si existe, «¿Quiso decir …?» |
 | 7 | Placa identificada | Placa en formato `ABC-1234`, **confianza OCR**, recorte que leyó el OCR, lectura cruda y confianza del detector |
 | 8 | Corregir o escribir la placa | Escriba la placa que ve en la imagen y pulse **Verificar** |
 | 9 | Punto de control | Garita, operador (usuario de la sesión) y tipo de operación que se guardan con cada registro |
@@ -66,7 +66,7 @@ vuelve a pedir la contraseña.
 | 🟠 Ámbar | **NO REGISTRADO** | No abra. Consulte con el residente o la empresa, o regístrelo en Administración |
 | 🟠 Ámbar | **VERIFICACIÓN MANUAL** | La lectura es dudosa: compare la placa con la imagen y corríjala (3.2) |
 
-**Confianza OCR.** Es la seguridad del lector en el carácter **menos** claro de la placa. Por debajo de 94 % el sistema
+**Confianza OCR.** Es la seguridad del lector en el carácter **menos** claro de la placa. Por debajo de 99 % el sistema
 no decide solo y pide verificación manual. **Registrar y Abrir Barrera** solo se habilita con **ACCESO AUTORIZADO**, y
 el servidor lo vuelve a comprobar antes de abrir.
 
