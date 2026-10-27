@@ -144,6 +144,39 @@ def add_user(body: schemas.UserIn, _: dict = Depends(admin_only)) -> dict[str, s
     return {"mensaje": "Usuario " + usuario + " creado."}
 
 
+@router.put("/usuarios/{usuario}", summary="Actualizar nombre y rol de un usuario")
+def update_user(usuario: str, body: schemas.AdminUserUpdateIn,
+                actor: dict = Depends(admin_only)) -> dict[str, str]:
+    target = usuario.strip()
+    if not target:
+        raise HTTPException(422, "Seleccione un usuario válido.")
+    db = get_store()
+    users = _run(db.table, "usuarios")
+    target_rows = users[users["usuario"].astype(str) == target]
+    if target_rows.empty:
+        raise HTTPException(404, "El usuario seleccionado no existe.")
+    target_row = target_rows.iloc[-1]
+    if target_row["rol"] == "ADMINISTRADOR" and body.rol != "ADMINISTRADOR" and _active(target_row["activo"]):
+        active_admins = int(((users["rol"] == "ADMINISTRADOR") & users["activo"].map(_active)).sum())
+        if active_admins <= 1:
+            raise HTTPException(409, "No se puede cambiar el rol del último usuario Administrador activo.")
+    _run(db.update_user, target, body.nombre, body.rol)
+    return {"usuario": target, "mensaje": "Datos del usuario " + target + " actualizados."}
+
+
+@router.put("/usuarios/{usuario}/password", summary="Restablecer contraseña de un usuario")
+def reset_user_password(usuario: str, body: schemas.AdminPasswordResetIn,
+                        _: dict = Depends(admin_only)) -> dict[str, str]:
+    target = usuario.strip()
+    if not target:
+        raise HTTPException(422, "Seleccione un usuario válido.")
+    users = _run(get_store().table, "usuarios")
+    if not (users["usuario"].astype(str) == target).any():
+        raise HTTPException(404, "El usuario seleccionado no existe.")
+    _run(set_password, get_store(), target, body.password)
+    return {"usuario": target, "mensaje": "Contraseña de " + target + " restablecida correctamente."}
+
+
 @router.delete("/usuarios/{usuario}", summary="Inactivar un usuario")
 def inactivate_user(usuario: str, actor: dict = Depends(admin_only)) -> dict[str, str]:
     target = usuario.strip()
