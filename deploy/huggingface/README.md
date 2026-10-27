@@ -31,11 +31,12 @@ si no se define, el código usa ese repositorio por defecto. En el despliegue ac
 valida el token y configura ambos valores como secretos del Space. Esta es la integración que mantiene los datos
 principales después de reiniciar el contenedor.
 
-La app consulta datos vehiculares públicos en el SRI y el nombre visible del propietario en EcuadorLegalOnline.
-Estas consultas complementan la ficha del vehículo; no intervienen en la decisión de acceso. La búsqueda externa usa
-la placa y la respuesta de la consulta de ficha es temporal. La exportación enriquecida separada puede guardar datos
-limitados en su CSV cuando está configurada; no se consultan cédula, domicilio ni teléfono. Si una fuente no responde
-o requiere CAPTCHA, se muestra que los datos no están disponibles y no se intenta eludir sus controles.
+La ficha de la aplicación consulta el servicio público del SRI para completar marca, modelo y año. La API también
+consulta EcuadorLegalOnline con la placa; puede recibir el nombre visible asociado públicamente, aunque el panel actual
+no lo muestra. Las respuestas complementan los datos locales y no intervienen en la decisión de acceso. Se mantienen
+temporalmente en memoria durante la consulta. La exportación enriquecida independiente puede guardar resultados en
+`data/detecciones.csv` solo si se configura con sus variables propias. No se consultan cédula, domicilio ni teléfono;
+si una fuente no responde o requiere CAPTCHA, no se eluden sus controles.
 
 ### B. Exportación enriquecida de detecciones
 
