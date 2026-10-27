@@ -35,7 +35,13 @@ notebook cuenta, por split, imágenes, placas e imágenes **sin** placa (negativ
 Casi todas las imágenes tienen exactamente una placa y solo 9 de 10 125 son negativos (0,09 %): el dataset casi no
 enseña qué **no** es una placa, por lo que conviene vigilar falsos positivos en escenas con letreros.
 
+![Proporción de imágenes sin placa por split](../results/figures/dataset_negativos_por_split.svg)
+
 ![Composición del dataset y tamaño de las placas](../results/figures/dataset_composicion_tamanos.png)
+
+El primer panel compara imágenes y placas por split; el segundo distribuye las placas de *test* por tamaño. Junto con
+las gráficas de imágenes negativas y de legibilidad de SAVH que siguen, y la gráfica de confianza OCR de la sección
+2.2, el análisis incluye seis visualizaciones cuantitativas, además de ejemplos visuales de etiquetas.
 
 ### 1.2 Tamaño de las placas (criterio COCO)
 
@@ -83,19 +89,24 @@ ecuatorianas de una fila.
 
 | Característica | Valor |
 |---|---|
-| Fuente | SAVH Guayaquil ANPR Plate Images Dataset (público en Zenodo) |
+| Fuente | [SAVH Guayaquil ANPR Plate Images Dataset (Zenodo)](https://zenodo.org/records/21120307); el registro no muestra licencia para este archivo específico |
 | Imágenes totales | 2 000 |
 | Subconjunto usado | 739 recortes de placa con la lectura de la cámara (`ground_truth.csv`) |
 | Legibles / no legibles | 472 / 267 |
 | Imágenes únicas | 666 (73 copias idénticas); 399 legibles únicas |
-| Referencia | 330 conservan la lectura de la cámara (formato válido); 69 corregidas en la hoja «Revisión placas SAVH (142 legibles)», aún sin confirmar |
+| Referencia | 330 conservan la lectura de la cámara (formato válido); 69 sugerencias de revisión aún sin confirmar |
+
+![Recortes legibles y no legibles del subconjunto SAVH](../results/figures/savh_estado_legibilidad.svg)
 
 ### 2.1 Calidad de la referencia
 
 La lectura de la cámara de SAVH **no es una verdad absoluta**: confunde caracteres parecidos (por ejemplo
 `GB01825` cuando la placa es `GBO-1825`). Aceptar patrones de 2 letras + 4 o 5 dígitos, que en realidad son
 estos errores, haría que la normalización diera por buenas lecturas incorrectas. Con la revisión
-manual se confirmó que las 472 placas legibles siguen solo dos formatos:
+manual se confirmó que las 472 placas legibles siguen solo dos formatos. La comparación de EMR por estado de la
+referencia se interpreta con cautela: las 69 sugerencias aún no están confirmadas.
+
+![EMR según el estado de la referencia](../results/figures/savh_emr_estado_referencia.svg)
 
 | Formato | Ejemplo | Normalización |
 |---|---|---|
