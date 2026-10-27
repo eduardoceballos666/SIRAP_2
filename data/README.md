@@ -17,8 +17,7 @@
 
 ## 2. OCR y validación local – SAVH Guayaquil (Zenodo)
 
-- **Fuente:** *SAVH Guayaquil ANPR Plate Images Dataset* (público en Zenodo): 2 000 imágenes de placas
-  ecuatorianas capturadas en Guayaquil.
+- **Fuente:** [*SAVH Guayaquil ANPR Plate Images Dataset* (Zenodo)](https://zenodo.org/records/21120307): 2 000 imágenes de placas ecuatorianas capturadas en Guayaquil. El registro consultado no muestra licencia para este archivo específico; revise sus condiciones antes de redistribuirlo.
 - **Subconjunto usado:** `savh_ground_truth_subset.zip`, 739 recortes con la lectura de la cámara en
   `ground_truth.csv`. Esa lectura se revisó a mano (hoja «Revisión placas SAVH (142 legibles)») porque la cámara
   confunde caracteres (ej. `GB01825` es `GBO-1825`).
@@ -32,13 +31,13 @@ punta a punta (sección 7 del notebook).
 
 ## 4. Autorizaciones y registros del pipeline
 
-El notebook usa `authorized_plates.csv` en la carpeta de Drive como lista de placas autorizadas. Guarda lecturas,
-consultas SRI y resultados del propietario en archivos CSV bajo `registros_csv/`. Si se configura un repositorio
-privado de GitHub en los Secrets de Colab, las detecciones enriquecidas se sincronizan en `data/detecciones.csv`.
-El notebook guarda este flujo en archivos CSV.
+El notebook mantiene sus archivos de trabajo en `registros_csv/`; ese flujo es independiente de la aplicación web.
 
-La aplicación mantiene su almacenamiento de demostración separado en CSV y usa `data/processed/*.csv` con datos
-ficticios; ese esquema no contiene la lista de vehículos de la planta.
+La aplicación web mantiene sus tablas operativas en `data/processed/*.csv` y, en el Space, las restaura y sincroniza
+con el repositorio privado `SIRAP_datos_privados` mediante `SIRAP_DATA_GITHUB_TOKEN` y
+`SIRAP_DATA_GITHUB_REPO`. La exportación enriquecida opcional usa `GITHUB_TOKEN` y
+`GITHUB_DATA_REPOSITORY` para escribir eventos en `data/detecciones.csv`; no sustituye el respaldo de las tablas
+operativas. La demo usa datos ficticios y no contiene la lista de vehículos de la planta.
 
 ## 5. Imágenes de ejemplo (`samples/`)
 
