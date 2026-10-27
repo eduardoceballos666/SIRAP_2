@@ -422,10 +422,19 @@ async function loadVehicleDetails(plate) {
       if (result.estado === 'completado') {
         vehicleLookup.value = result.vehiculo || null
         const sriOk = result.fuentes?.sri === 'encontrado'
-        const ownerOk = result.fuentes?.ecuadorlegalonline === 'encontrado'
-        vehicleLookupStatus.value = sriOk || ownerOk
-          ? 'Consulta finalizada. Datos del registro local completan transportista y campos disponibles.'
-          : 'Consulta finalizada; los sitios no devolvieron todos los datos. Se muestran los datos locales disponibles.'
+        const ownerState = result.fuentes?.ecuadorlegalonline
+        const ownerMessages = {
+          acceso_restringido: 'el sitio pidió verificación humana o bloqueó la consulta',
+          interfaz_no_reconocida: 'no se encontró el formulario esperado',
+          placa_no_coincide: 'la respuesta no correspondió a la placa consultada',
+          sin_respuesta_verificable: 'no se pudo confirmar el campo Nombre para esta placa',
+          sin_datos: 'el sitio no devolvió un nombre',
+          error: 'falló la consulta al sitio',
+        }
+        const ownerMessage = ownerState === 'encontrado'
+          ? 'Nombre del Propietario encontrado en EcuadorLegalOnline'
+          : `EcuadorLegalOnline: ${ownerMessages[ownerState] || 'no se obtuvo el nombre'}${result.detalle_propietario ? ` (${result.detalle_propietario})` : ''}`
+        vehicleLookupStatus.value = `${ownerMessage}. ${sriOk ? 'Marca, modelo y año cargados desde el SRI.' : 'El SRI no devolvió todos los datos.'}`
         return
       }
     }
