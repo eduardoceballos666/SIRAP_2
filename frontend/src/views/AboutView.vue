@@ -2,6 +2,8 @@
 import { computed, onMounted, ref } from 'vue'
 import { api } from '@/lib/api'
 import AppIcon from '@/components/AppIcon.vue'
+import VChart from 'vue-echarts'
+import { baseOption, chartTheme } from '@/lib/charts'
 import { num, pct } from '@/lib/format'
 import { useSessionStore } from '@/stores/session'
 
@@ -21,6 +23,96 @@ const cards = computed(() => {
     { label: 'Tiempo por decisión', value: e.tiempo_ms_promedio ? `${Math.round(e.tiempo_ms_promedio)} ms` : '—', sub: 'Detección + OCR (meta < 1 s)' },
     { label: 'Umbral del detector', value: num(m.value.umbrales?.YOLO11?.conf, 2), sub: 'Calibrado en validación' },
   ]
+})
+const dark = computed(() => session.theme === 'dark')
+const theme = computed(() => chartTheme(dark.value))
+const percentValue = (value) => Number.isFinite(Number(value)) ? Number((Number(value) * 100).toFixed(1)) : 0
+
+function percentBarChart(rows, color) {
+  return {
+    ...baseOption(dark.value),
+    tooltip: {
+      trigger: 'axis',
+      axisPointer: { type: 'shadow' },
+      formatter: (items) => `${items[0]?.name || ''}: ${Number(items[0]?.value || 0).toFixed(1)}%`,
+    },
+    legend: { show: false },
+    grid: { left: 132, right: 36, top: 14, bottom: 28 },
+    xAxis: {
+      type: 'value', min: 0, max: 100,
+      axisLabel: { color: theme.value.text, formatter: '{value}%' },
+      splitLine: { lineStyle: { color: theme.value.grid } },
+    },
+    yAxis: { type: 'category', data: rows.map((row) => row.label), axisLabel: { color: theme.value.text } },
+    series: [{
+      type: 'bar',
+      data: rows.map((row) => percentValue(row.value)),
+      barMaxWidth: 24,
+      itemStyle: { color, borderRadius: [0, 6, 6, 0] },
+      label: { show: true, position: 'right', formatter: '{c}%', color: theme.value.text, fontWeight: 700 },
+    }],
+  }
+}
+const detectorChart = computed(() => {
+  const d = m.value.detector_test || {}
+  return percentBarChart([
+    { label: 'mAP@0.5', value: d.map50 },
+    { label: 'mAP@0.5:0.95', value: d.map50_95 },
+    { label: 'Precisión', value: d.precision },
+    { label: 'Recall', value: d.recall },
+    { label: 'F1', value: d.f1 },
+  ], '#2156e8')
+})
+const plateSizeChart = computed(() => {
+  const d = m.value.detector_test || {}
+  return percentBarChart([
+    { label: 'Pequeñas', value: d.map50_95_pequenas },
+    { label: 'Medianas', value: d.map50_95_medianas },
+    { label: 'Grandes', value: d.map50_95_grandes },
+  ], '#0f766e')
+})
+const ocrChart = computed(() => {
+  const o = m.value.ocr_savh || {}
+  return percentBarChart([
+    { label: 'Lectura exacta (EMR)', value: o.emr },
+    { label: 'Formato válido', value: o.formato_valido },
+  ], '#16a34a')
+})
+const latencyChart = computed(() => {
+  const speed = m.value.velocidad || {}
+  const ocr = m.value.ocr_savh || {}
+  const e = m.value.e2e || {}
+  const labels = ['Detector · GPU L4', 'OCR por recorte', 'Decisión completa']
+  const values = [speed.latencia_ms_media, ocr.ms_por_recorte_media, e.tiempo_ms_promedio]
+  return {
+    ...baseOption(dark.value),
+    tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, formatter: (items) => `${items[0]?.name || ''}: ${Number(items[0]?.value || 0).toFixed(1)} ms` },
+    legend: { show: false },
+    grid: { left: 132, right: 28, top: 16, bottom: 28 },
+    xAxis: { type: 'value', min: 0, axisLabel: { color: theme.value.text, formatter: '{value} ms' }, splitLine: { lineStyle: { color: theme.value.grid } } },
+    yAxis: { type: 'category', data: labels, axisLabel: { color: theme.value.text } },
+    series: [{
+      type: 'bar', data: values, barMaxWidth: 24,
+      itemStyle: { color: '#d98a00', borderRadius: [0, 6, 6, 0] },
+      label: { show: true, position: 'right', formatter: '{c} ms', color: theme.value.text, fontWeight: 700 },
+    }],
+  }
+})
+const optimizationChart = computed(() => {
+  const comparison = opt.value.comparacion_test || {}
+  const metrics = [['mAP@0.5', 'map50'], ['mAP@0.5:0.95', 'map50_95']]
+  return {
+    ...baseOption(dark.value),
+    tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, valueFormatter: (value) => `${Number(value).toFixed(1)}%` },
+    legend: { bottom: 0, textStyle: { color: theme.value.text } },
+    grid: { left: 112, right: 24, top: 18, bottom: 42 },
+    xAxis: { type: 'value', min: 0, max: 100, axisLabel: { color: theme.value.text, formatter: '{value}%' }, splitLine: { lineStyle: { color: theme.value.grid } } },
+    yAxis: { type: 'category', data: metrics.map(([label]) => label), axisLabel: { color: theme.value.text } },
+    series: [
+      { name: 'Base', type: 'bar', data: metrics.map(([, key]) => percentValue(comparison[key]?.base)), itemStyle: { color: '#94a3b8', borderRadius: [0, 5, 5, 0] } },
+      { name: 'Optimizada', type: 'bar', data: metrics.map(([, key]) => percentValue(comparison[key]?.optimizada)), itemStyle: { color: '#2156e8', borderRadius: [0, 5, 5, 0] } },
+    ],
+  }
 })
 const tr = computed(() => m.value.entrenamiento || {})
 const ft = computed(() => m.value.ocr_afinamiento || {})
@@ -49,6 +141,38 @@ const opt = computed(() => m.value.optimizacion_resumen || {})
       <p class="mt-1 text-sm text-muted">{{ c.sub }}</p>
     </div>
   </div>
+
+  <section class="mt-5" aria-labelledby="metrics-charts-heading">
+    <h2 id="metrics-charts-heading" class="card-title">Gráficos de métricas y mediciones</h2>
+    <div class="grid gap-5 xl:grid-cols-2">
+      <section class="card">
+        <h3 class="font-bold">Evaluación del detector YOLO11-s</h3>
+        <p class="text-sm text-muted">Resultados del conjunto de prueba ({{ m.detector_test?.imagenes ?? '—' }} imágenes, {{ m.detector_test?.placas ?? '—' }} placas).</p>
+        <VChart :option="detectorChart" autoresize style="height: 270px" />
+      </section>
+      <section class="card">
+        <h3 class="font-bold">Detección según tamaño de placa</h3>
+        <p class="text-sm text-muted">mAP@0.5:0.95; permite comparar la localización por tamaño.</p>
+        <VChart :option="plateSizeChart" autoresize style="height: 230px" />
+      </section>
+      <section class="card">
+        <h3 class="font-bold">Lectura OCR en placas de Guayaquil</h3>
+        <p class="text-sm text-muted">SAVH, {{ m.ocr_savh?.n ?? '—' }} placas revisadas. CER: {{ pct(m.ocr_savh?.cer, 1) }} (menor es mejor).</p>
+        <VChart :option="ocrChart" autoresize style="height: 210px" />
+      </section>
+      <section class="card">
+        <h3 class="font-bold">Tiempo medido por etapa</h3>
+        <p class="text-sm text-muted">Milisegundos; el tiempo completo corresponde a detección + OCR en el video de garita.</p>
+        <VChart :option="latencyChart" autoresize style="height: 230px" />
+      </section>
+      <section class="card xl:col-span-2">
+        <h3 class="font-bold">Comparación antes y después de Optuna</h3>
+        <p class="text-sm text-muted">Métricas del conjunto de prueba; se muestra el modelo base y la configuración optimizada.</p>
+        <VChart :option="optimizationChart" autoresize style="height: 230px" />
+      </section>
+    </div>
+    <p class="mt-3 text-xs text-muted">Los valores se cargan desde los archivos de métricas del proyecto. En porcentajes, un valor más alto indica mejor resultado; el CER se informa aparte porque mide errores.</p>
+  </section>
 
   <div class="mt-5 grid gap-5 xl:grid-cols-2">
     <section class="card space-y-3 leading-relaxed">
