@@ -280,7 +280,7 @@ def _query_owner(plate: str) -> dict:
                 browser = pw.chromium.launch(headless=True)
                 try:
                     page = browser.new_page(locale="es-EC", viewport={"width": 1360, "height": 900})
-                    page.goto(_OWNER_URL, wait_until="domcontentloaded", timeout=25000)
+                    page.goto(_OWNER_URL, wait_until="domcontentloaded", timeout=30000)
                     entry = page.locator('input[name*="placa" i], input[placeholder*="placa" i]')
                     if entry.count() == 0:
                         entry = page.get_by_label("Placa", exact=True)
@@ -292,7 +292,7 @@ def _query_owner(plate: str) -> dict:
                     if submit.count() == 0:
                         return {"propietario_estado": "interfaz_no_reconocida",
                                 "propietario_detalle": "No se localizó el botón Consultar."}
-                    submit.first.click(timeout=25000)
+                    submit.first.click(timeout=30000)
                     deadline = time.monotonic() + 45
                     while time.monotonic() < deadline:
                         text = page.locator("body").inner_text(timeout=8000)
