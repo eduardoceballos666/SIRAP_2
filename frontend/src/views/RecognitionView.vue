@@ -638,8 +638,8 @@ onMounted(async () => {
           <dl class="vehicle-rows">
             <div><dt>Marca</dt><dd :title="vehicle?.marca || ''">{{ vehicle?.marca || '—' }}</dd></div>
             <div><dt>Modelo</dt><dd :title="vehicle?.modelo || ''">{{ vehicle?.modelo || '—' }}</dd></div>
-            <div><dt>Color</dt><dd :title="vehicle?.color || ''">{{ vehicle?.color || '—' }}</dd></div>
-            <div><dt>Propietario</dt><dd :title="vehicle?.propietario || ''">{{ vehicle?.propietario || '—' }}</dd></div>
+            <div><dt>Año</dt><dd :title="vehicle?.anio || vehicle?.year || ''">{{ vehicle?.anio || vehicle?.year || '—' }}</dd></div>
+            <div><dt>Nombre del Propietario</dt><dd :title="vehicle?.propietario || ''">{{ vehicle?.propietario || '—' }}</dd></div>
             <div><dt>Compañía de transportes</dt><dd :title="vehicle?.transportista || ''">{{ vehicle?.transportista || '—' }}</dd></div>
           </dl>
           <p v-if="done" class="registered-note" role="status">✓ Lectura registrada en el historial.</p>
@@ -667,7 +667,7 @@ onMounted(async () => {
       <div class="mt-4 flex justify-end gap-2"><button type="button" class="btn-ghost" @click="registrationOpen = false">Cancelar</button><button type="submit" class="btn-primary" :disabled="busy">{{ busy ? 'Guardando…' : 'Guardar camión' }}</button></div>
     </form>
   </ModalDialog>
-  <ModalDialog :open="detailsOpen" title="Detalle de la verificación" @close="detailsOpen = false"><ResultCard :decision="decision" :loading="loading" /><dl v-if="vehicle" class="mt-3 space-y-2 text-sm"><div v-for="[k,v] in [['Marca', vehicle.marca], ['Modelo', vehicle.modelo], ['Color', vehicle.color], ['Propietario', vehicle.propietario], ['Compañía de transportes', vehicle.transportista]]" :key="k"><dt class="font-bold">{{ k }}</dt><dd class="break-words">{{ v || '—' }}</dd></div></dl><button class="btn-ghost mt-4" @click="detailsOpen = false">Cerrar</button></ModalDialog>
+  <ModalDialog :open="detailsOpen" title="Detalle de la verificación" @close="detailsOpen = false"><ResultCard :decision="decision" :loading="loading" /><dl v-if="vehicle" class="mt-3 space-y-2 text-sm"><div v-for="[k,v] in [['Marca', vehicle.marca], ['Modelo', vehicle.modelo], ['Año', vehicle.anio || vehicle.year], ['Nombre del Propietario', vehicle.propietario], ['Compañía de transportes', vehicle.transportista]]" :key="k"><dt class="font-bold">{{ k }}</dt><dd class="break-words">{{ v || '—' }}</dd></div></dl><button class="btn-ghost mt-4" @click="detailsOpen = false">Cerrar</button></ModalDialog>
   <ModalDialog :open="readingsOpen" title="Lecturas de esta sesión" @close="readingsOpen = false"><div class="max-h-[60vh] overflow-auto">
     <div class="table-wrap">
       <table class="tbl">
