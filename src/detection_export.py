@@ -311,10 +311,14 @@ def _query_owner(plate: str) -> dict:
                             if section:
                                 lines = [line.strip() for line in section.group(1).splitlines() if line.strip()]
                                 for index, line in enumerate(lines):
-                                    name_match = re.match(r"^Nombre\s*[:：]?\s*(.*)$", line, re.I)
+                                    # El resultado puede aparecer como "Nombre | VALOR", "Nombre: VALOR"
+                                    # o en dos líneas separadas; normaliza el separador antes de validar.
+                                    name_match = re.match(r"^Nombre\s*(?:[:：|]\s*)?(.*)$", line, re.I)
                                     if name_match:
-                                        name = _visible_name(name_match.group(1) or
-                                                             (lines[index + 1] if index + 1 < len(lines) else ""))
+                                        candidate = (name_match.group(1) or "").strip().lstrip("|:： \t").strip()
+                                        if not candidate and index + 1 < len(lines):
+                                            candidate = lines[index + 1].strip().lstrip("|:： \t").strip()
+                                        name = _visible_name(candidate)
                                         if name:
                                             return {
                                                 "propietario_nombre": name,
