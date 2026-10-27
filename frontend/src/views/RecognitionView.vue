@@ -35,7 +35,7 @@ const onlineUrlDraft = ref('')
 const onlineUrl = ref('')
 const onlineMode = ref('video')
 const onlineConnected = ref(false)
-const imagePreviewVisible = computed(() => source.value === 'ejemplos' || (source.value === 'subir' && mediaKind.value === 'image') || showCapture.value)
+const imagePreviewVisible = computed(() => source.value === '' || source.value === 'ejemplos' || (source.value === 'subir' && mediaKind.value === 'image') || showCapture.value)
 const hasActiveVideo = computed(() => source.value === 'camara' || (source.value === 'subir' && mediaKind.value === 'video') || (source.value === 'online' && onlineConnected.value))
 
 const loading = ref(false)
