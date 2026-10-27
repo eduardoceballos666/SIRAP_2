@@ -35,7 +35,7 @@ reparte igual** entre grupos de vehículos/placas. Por eso:
   tipo de vehículo.
 - Resultado: mAP@0.5:0.95 de 0,481 (pequeñas), 0,729 (medianas) y 0,744 (grandes). La brecha es real; en el video
   se compensa analizando a 1280 px y en la app con verificación manual.
-- En la evaluación offline SAVH con la lista simulada y el umbral operativo 0,94 hubo **0 falsos autorizados** de 202
+- En la evaluación offline SAVH con la lista simulada y el umbral anterior 0,94 hubo **0 falsos autorizados** de 202
   placas no autorizadas, **1 rechazo indebido** de 197 autorizadas y 48/399 (12,0 %) casos enviados a revisión manual.
   Se aceptaron 14 lecturas erróneas (3,5 % del total), frente a 12 (3,0 %) en el escenario de estudio a 0,99. Son
   resultados por recorte con predicciones guardadas, no rendimiento punta a punta en video; 69 de las 399 etiquetas
@@ -115,7 +115,7 @@ muestra que la consulta externa no pudo completarse.
   (`docs/arquitectura.md`). La parte de «caja negra» (detector y OCR) se acota con salidas verificables por un humano.
 - La interfaz muestra **por qué** decidió: la caja de la placa sobre la imagen, el **recorte que leyó el OCR**, el
   texto crudo leído, la **confianza OCR** con color, la lista aplicada y el motivo (p. ej. «Confianza OCR 48 % <
-  umbral 94 %»).
+  umbral 99 %»).
 - El módulo **Acerca del modelo** explica el funcionamiento, las métricas y las limitaciones, y advierte cuando el
   estado del detector cargado y los errores que impiden el reconocimiento.
 - No se usan SHAP/LIME porque la decisión final no depende de atributos tabulares; la evidencia visual (caja +
