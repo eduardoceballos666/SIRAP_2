@@ -679,8 +679,8 @@ onMounted(async () => {
           </div>
           <div class="ocr-meter">
             <span><AppIcon name="chart" :size="15" /> SIRAP en acción</span>
-            <strong>{{ origin === 'MANUAL' ? 'Manual' : pct(recognition?.ocr_confidence) }}</strong>
-            <div class="meter-track" role="progressbar" :aria-valuenow="Math.round((recognition?.ocr_confidence || 0) * 100)" aria-valuemin="0" aria-valuemax="100"><i :style="{ width: Math.max(0, Math.min(100, (recognition?.ocr_confidence || 0) * 100)) + '%' }"></i></div>
+            <strong>100%</strong>
+            <div class="meter-track" role="progressbar" aria-label="Indicador visual de SIRAP" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"><i style="width:100%"></i></div>
           </div>
         </section>
 
