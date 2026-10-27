@@ -42,12 +42,12 @@ function logout() {
         <RouterLink v-for="i in items" :key="i.to" :to="i.to" active-class="selected"><AppIcon :name="i.icon" :size="19" /><span>{{ i.label }}</span></RouterLink>
       </nav>
       <div class="sidebar-bottom">
+        <RouterLink to="/modelo" class="about-link" active-class="selected"><AppIcon name="info" :size="19" /><span>Acerca del modelo</span></RouterLink>
         <div class="top-user">
           <span class="user-name" :title="roleLabel[auth.user?.rol]">{{ auth.user?.nombre }} · {{ roleLabel[auth.user?.rol] }}</span>
           <button :aria-label="session.theme === 'dark' ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro'" @click="session.toggleTheme()"><AppIcon :name="session.theme === 'dark' ? 'sun' : 'moon'" :size="17" /></button>
           <button title="Cerrar sesión" aria-label="Cerrar sesión" @click="logout"><AppIcon name="logout" :size="17" /></button>
         </div>
-        <RouterLink to="/modelo" class="about-link" active-class="selected"><AppIcon name="info" :size="19" /><span>Acerca del modelo</span></RouterLink>
       </div>
     </aside>
     <main class="app-content" :class="{ 'access-content': route.path === '/reconocimiento' }">
