@@ -35,9 +35,11 @@ reparte igual** entre grupos de vehículos/placas. Por eso:
   tipo de vehículo.
 - Resultado: mAP@0.5:0.95 de 0,481 (pequeñas), 0,729 (medianas) y 0,744 (grandes). La brecha es real; en el video
   se compensa analizando a 1280 px y en la app con verificación manual.
-- En la regla de decisión evaluada con SAVH (lista simulada, 399 imágenes): **0 falsos autorizados** de 202 y
-  **1 rechazo indebido** de 197 en el escenario estudiado con umbral OCR 0,99. La aplicación publicada usa 0,94;
-  las tasas de ese estudio no representan directamente el comportamiento con el umbral activo.
+- En la evaluación offline SAVH con la lista simulada y el umbral operativo 0,94 hubo **0 falsos autorizados** de 202
+  placas no autorizadas, **1 rechazo indebido** de 197 autorizadas y 48/399 (12,0 %) casos enviados a revisión manual.
+  Se aceptaron 14 lecturas erróneas (3,5 % del total), frente a 12 (3,0 %) en el escenario de estudio a 0,99. Son
+  resultados por recorte con predicciones guardadas, no rendimiento punta a punta en video; 69 de las 399 etiquetas
+  SAVH son sugerencias todavía no confirmadas.
 - Se recomienda medir el EMR por **formato** (3 vs 4 dígitos: placas antiguas vs nuevas) y por **provincia**
   (primera letra) cuando haya datos suficientes; esa métrica de paridad queda como trabajo futuro.
 
