@@ -200,15 +200,19 @@ async function updateSelectedTruckAuthorization(lista) {
     busy.value = false
   }
 }
+function resetGate() {
+  Object.assign(gate, { nombre: '', ubicacion: '' })
+}
 async function saveGate() {
   const payload = { nombre: gate.nombre.trim(), ubicacion: gate.ubicacion.trim() }
   if (!payload.nombre || !payload.ubicacion) {
     session.notify('Complete el nombre y la ubicación antes de agregar la garita.', 'warn')
     return
   }
-  if (await run(() => api('/api/admin/garitas', { method: 'POST', body: payload }))) {
-    Object.assign(gate, { nombre: '', ubicacion: '' })
-  }
+  if (await run(() => api('/api/admin/garitas', { method: 'POST', body: payload }))) resetGate()
+}
+function resetUser() {
+  Object.assign(user, { usuario: '', nombre: '', rol: '', password: '' })
 }
 async function saveUser() {
   const payload = {
@@ -222,9 +226,7 @@ async function saveUser() {
     session.notify('Complete todos los campos obligatorios. El usuario requiere 3 caracteres y la contraseña al menos 8.', 'warn')
     return
   }
-  if (await run(() => api('/api/admin/usuarios', { method: 'POST', body: payload }))) {
-    Object.assign(user, { usuario: '', nombre: '', rol: '', password: '' })
-  }
+  if (await run(() => api('/api/admin/usuarios', { method: 'POST', body: payload }))) resetUser()
 }
 function toggleUserSelection(username, checked) {
   selectedUsers.value = checked
@@ -288,7 +290,8 @@ onMounted(load)
           <div><label class="field-label" for="authorization-expiry">Vigente hasta *</label><input id="authorization-expiry" v-model="auth_.vigente_hasta" type="date" class="field" required /></div>
           <div class="flex gap-2">
             <button class="btn-primary flex-1" :disabled="busy">Asignar</button>
-            <button type="button" class="btn-ghost" :disabled="busy || !auth_.placa" @click="revoke">Quitar de listas</button>
+            <button type="button" class="btn-ghost flex-1" :disabled="busy" @click="resetAuth">Limpiar Campos</button>
+            <button type="button" class="btn-ghost flex-1" :disabled="busy || !auth_.placa" @click="revoke">Quitar de listas</button>
           </div>
         </form>
       </template>
@@ -297,7 +300,10 @@ onMounted(load)
         <form class="space-y-3" @submit.prevent="saveGate">
           <input v-model.trim="gate.nombre" class="field" placeholder="Nombre (Garita 4) *" required maxlength="60" />
           <input v-model.trim="gate.ubicacion" class="field" placeholder="Ubicación *" required maxlength="120" />
-          <button class="btn-primary w-full" :disabled="busy">Agregar garita</button>
+          <div class="flex gap-2">
+            <button class="btn-primary flex-1" :disabled="busy">Agregar garita</button>
+            <button type="button" class="btn-ghost flex-1" :disabled="busy" @click="resetGate">Limpiar Campos</button>
+          </div>
         </form>
       </template>
       <template v-else-if="tab === 'usuarios'">
@@ -312,7 +318,10 @@ onMounted(load)
             <option value="ADMINISTRADOR">ADMINISTRADOR</option>
           </select>
           <input v-model="user.password" type="password" class="field" placeholder="Contraseña * (mín. 8)" required minlength="8" maxlength="128" autocomplete="new-password" />
-          <button class="btn-primary w-full" :disabled="busy">Crear usuario</button>
+          <div class="flex gap-2">
+            <button class="btn-primary flex-1" :disabled="busy">Crear usuario</button>
+            <button type="button" class="btn-ghost flex-1" :disabled="busy" @click="resetUser">Limpiar Campos</button>
+          </div>
         </form>
       </template>
       <template v-else-if="tab === 'demo'">
