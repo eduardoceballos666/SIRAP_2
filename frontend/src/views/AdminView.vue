@@ -61,13 +61,21 @@ function resetVehicle() {
 }
 function loadVehicleForEdit() {
   const key = plateKey(vehicle.placa)
-  if (!key || (editingVehiclePlate.value && plateKey(editingVehiclePlate.value) === key)) return
+  if (!key) {
+    session.notify('Ingrese una placa para buscarla en la lista.', 'warn')
+    return
+  }
+  if (editingVehiclePlate.value && plateKey(editingVehiclePlate.value) === key) {
+    session.notify(`Los datos de ${editingVehiclePlate.value} ya están cargados.`, 'ok')
+    return
+  }
   const existing = rows.value.find((row) => plateKey(row.placa) === key)
   if (!existing) {
     if (editingVehiclePlate.value) {
       Object.assign(vehicle, { marca: '', modelo: '', color: '', tipo: '', propietario: '', transportista: '' })
       editingVehiclePlate.value = ''
     }
+    session.notify('La placa no está registrada. Puede completar los campos para agregar el vehículo.', 'warn')
     return
   }
   Object.assign(vehicle, {
@@ -256,7 +264,7 @@ onMounted(load)
       <template v-if="tab === 'vehiculos'">
         <h2 class="card-title"><span class="icon-chip"><AppIcon name="car" /></span> Crear o actualizar vehículo</h2>
         <form class="space-y-3" novalidate @submit.prevent="saveVehicle">
-          <input v-model.trim="vehicle.placa" class="field font-mono uppercase" placeholder="Placa (PBA-8901) *" required @input="loadVehicleForEdit" />
+          <input v-model.trim="vehicle.placa" class="field font-mono uppercase" placeholder="Placa (PBA-8901) *" required @keydown.enter.prevent="loadVehicleForEdit" />
           <div class="grid grid-cols-2 gap-3">
             <input v-model.trim="vehicle.marca" class="field bg-subtle font-semibold" placeholder="Marca *" required />
             <input v-model.trim="vehicle.modelo" class="field bg-subtle font-semibold" placeholder="Modelo *" required />
