@@ -60,7 +60,7 @@ guardia lee la placa, la busca en una lista y la anota. Eso produce **colas**, *
 | Dataset | Uso | Tamaño | Licencia / fuente |
 |---|---|---|---|
 | [License Plate Recognition v11](https://universe.roboflow.com/roboflow-universe-projects/license-plate-recognition-rxg4e) (Roboflow Universe) | Entrenar y evaluar el detector | 10 125 imágenes (7 057 / 2 048 / 1 020), 1 clase, 10 637 placas | CC BY 4.0 |
-| SAVH Guayaquil ANPR Plate Images | Evaluar el OCR con placas **ecuatorianas** reales | 739 recortes (472 legibles; 399 legibles únicas) | Zenodo (público) |
+| [SAVH Guayaquil ANPR Plate Images](https://zenodo.org/records/21120307) | Evaluar el OCR con placas **ecuatorianas** reales | 739 recortes (472 legibles; 399 legibles únicas) | Zenodo; el registro no muestra licencia para este archivo específico |
 | Video e imágenes de la garita | Pipeline de video y prueba punta a punta | 1 video de 10 min (18 115 cuadros) | Propio, con autorización escrita; **no se publica** |
 
 Detalles, EDA y decisiones de preprocesamiento: [`docs/analisis_datos.md`](docs/analisis_datos.md) y
@@ -196,8 +196,10 @@ de la guía [`docs/img/SIRAP_Dashboard.png`](docs/img/SIRAP_Dashboard.png). Publ
 | **Administración** | Vehículos, listas blanca/restringida con vigencia, propietarios, garitas, usuarios con contraseña; datos de demostración |
 | **Acerca del modelo** | Funcionamiento, métricas, entrenamiento, optimización y **limitaciones y advertencias** |
 
-La ficha también puede complementarse con consultas a datos vehiculares públicos del SRI y el nombre visible que
-EcuadorLegalOnline asocia a la placa; se presentan como información auxiliar y no alteran la decisión de acceso.
+La API consulta el servicio público del SRI para completar marca/modelo/año; también consulta EcuadorLegalOnline y
+puede recibir el nombre público asociado a la placa, aunque el panel actual no lo muestra. Ninguna consulta interviene
+en la decisión de acceso. La exportación enriquecida separada puede guardar ese resultado en `data/detecciones.csv`
+si se configura con sus propias variables de GitHub.
 
 **Requisitos de la interfaz cubiertos:** validación de entradas (tipo, tamaño y resolución de imagen en el servidor;
 formato de placa), indicador de carga, mensajes de error comprensibles (sin trazas técnicas), confianza OCR y de
@@ -305,7 +307,7 @@ el dataset de Roboflow es CC BY 4.0.
 - fast-plate-ocr — https://github.com/ankandrew/fast-plate-ocr
 - OC-SORT / `trackers` y `supervision` de Roboflow — https://github.com/roboflow/trackers
 - Roboflow Universe, *License Plate Recognition* — https://universe.roboflow.com/roboflow-universe-projects/license-plate-recognition-rxg4e
-- SAVH Guayaquil ANPR Plate Images Dataset — Zenodo
+- [SAVH Guayaquil ANPR Plate Images Dataset — Zenodo](https://zenodo.org/records/21120307) (el registro no muestra licencia para este archivo específico)
 - FastAPI — https://fastapi.tiangolo.com/ · Vue 3 — https://vuejs.org/ · Vite — https://vite.dev/ · Pinia —
   https://pinia.vuejs.org/ · Vue Router — https://router.vuejs.org/ · Tailwind CSS — https://tailwindcss.com/ ·
   Apache ECharts — https://echarts.apache.org/
