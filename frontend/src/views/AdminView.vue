@@ -21,7 +21,7 @@ const editingVehiclePlate = ref('')
 const auth_ = reactive({ placa: '', lista: '', motivo: '', vigente_hasta: '' })
 const gate = reactive({ nombre: '', ubicacion: '' })
 const user = reactive({ usuario: '', nombre: '', rol: 'OPERADOR', password: '' })
-const demoN = ref(120)
+const demoN = ref(20)
 
 const columns = computed(() => (rows.value[0] ? Object.keys(rows.value[0]) : []))
 const selectableTrucks = computed(() => rows.value.filter((row) => row.tipo === 'CAMION' && row.placa).map((row) => row.placa))
@@ -249,6 +249,12 @@ const demoMessage = ref('')
 const demoMessageKind = ref('ok')
 async function runDemo(action) {
   if (busy.value) return
+  if (action === 'generate' && (!Number.isInteger(demoN.value) || demoN.value < 1 || demoN.value > 20)) {
+    demoMessageKind.value = 'bad'
+    demoMessage.value = 'Ingrese un número entero entre 1 y 20. No se permiten valores menores que 1 ni mayores que 20.'
+    session.notify(demoMessage.value, 'bad')
+    return
+  }
   demoMessageKind.value = 'ok'
   demoMessage.value = action === 'generate' ? 'Generando operaciones de demostración…' : 'Borrando operaciones de demostración…'
   busy.value = true
@@ -350,7 +356,7 @@ onMounted(load)
         <h2 class="card-title"><span class="icon-chip"><AppIcon name="chart" /></span> Datos de demostración</h2>
         <p class="mb-3 text-sm text-muted">Operaciones ficticias (origen DEMO) para mostrar el Dashboard. No son resultados del modelo y se pueden ocultar o borrar.</p>
         <div class="flex gap-2">
-          <input v-model.number="demoN" type="number" min="1" max="1000" class="field !w-28" />
+          <input v-model.number="demoN" type="number" min="1" max="20" step="1" inputmode="numeric" class="field !w-28" aria-label="Cantidad de operaciones demo, de 1 a 20" />
           <button class="btn-primary flex-1" :disabled="busy" @click="runDemo('generate')">Generar</button>
         </div>
         <button class="btn-red mt-3 w-full" :disabled="busy" @click="runDemo('clear')">Borrar operaciones DEMO</button>
