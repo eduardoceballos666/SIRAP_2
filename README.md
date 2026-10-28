@@ -26,6 +26,13 @@ aplicación web profesional: **API REST en FastAPI** con autenticación por usua
 
 ---
 
+## Versiones del proyecto
+
+- **Versión del producto SIRAP:** 1.0.
+- **API:** 2.0.0, identificador técnico expuesto por FastAPI/OpenAPI y el endpoint de salud.
+- **Frontend:** 2.0.0 es la versión del paquete npm en `frontend/package.json`; no es la versión del producto.
+- **Tag de GitHub `v2.0`:** identifica el corte del repositorio publicado con la arquitectura FastAPI + Vue 3 (release titulada «SIRAP 2.0 – FastAPI + Vue 3»). Es un identificador técnico e histórico del código; el producto SIRAP continúa en la versión 1.0.
+
 ## Tabla de contenidos
 
 1. [Problema](#1-problema)
@@ -141,7 +148,7 @@ mediante el secreto `SIRAP_DEMO_PASSWORD`.
 | Tarea | Comando |
 |---|---|
 | Desarrollo con recarga en caliente | `uvicorn api.main:app --reload` y, en otra terminal, `cd frontend && npm run dev` (http://localhost:5173) |
-| Docker (API + interfaz) | `docker build -t sirap2 . && docker run -p 7860:7860 -e SIRAP_JWT_SECRET=... sirap2` → http://localhost:7860 |
+| Docker (API + interfaz) | `docker build -t sirap:1.0 . && docker run -p 7860:7860 -e SIRAP_JWT_SECRET=... sirap:1.0` → http://localhost:7860 |
 | Documentación interactiva de la API | http://localhost:8000/docs (Swagger) |
 | Pruebas (unitarias, integración y API) | `pip install -r requirements-dev.txt && pytest` |
 | Exportar los pesos entrenados a ONNX | `python -m src.train --export-only models/best_model.pt` |
@@ -309,7 +316,7 @@ Resumen de [`docs/consideraciones_eticas.md`](docs/consideraciones_eticas.md):
 ## 10. Licencia
 
 Código bajo licencia [MIT](LICENSE). Los pesos entrenados con Ultralytics están sujetos a su licencia AGPL-3.0;
-el dataset de Roboflow es CC BY 4.0.
+el dataset de Roboflow es CC BY 4.0. Las atribuciones y condiciones de los demás componentes y recursos se detallan en [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 
 ## 11. Agradecimientos y referencias
 
