@@ -150,6 +150,8 @@ Usuarios de demostración: `operador`, `supervisor` y `admin`; la contraseña ac
 | Docker (API + interfaz) | `docker build -t sirap:1.0 . && docker run -p 7860:7860 -e SIRAP_JWT_SECRET=... sirap:1.0` → http://localhost:7860 |
 | Documentación interactiva de la API | http://localhost:8000/docs (Swagger) |
 | Pruebas (unitarias, integración y API) | `pip install -r requirements-dev.txt && pytest` |
+| Pruebas del frontend Vue | `cd frontend && npm ci && npm test` |
+| Integración continua | GitHub Actions ejecuta `pytest`, `npm test` y la compilación de Vue en cada push y pull request |
 | Exportar los pesos entrenados a ONNX | `python -m src.train --export-only models/best_model.pt` |
 | Reentrenar (no hace falta) | `ROBOFLOW_API_KEY=... python -m src.train --roboflow --force` |
 | Evaluar el detector en *test* | `python -m src.evaluate detector --data <data.yaml>` |
