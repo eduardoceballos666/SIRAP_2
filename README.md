@@ -220,7 +220,8 @@ Documentación interactiva (Swagger) en [`/docs`](https://eduardoceballos-sirap.
 | `POST /api/operations` | todos | El operador inicia el registro y solicita la apertura; el servidor recalcula la decisión y solo permite la apertura automática si está AUTORIZADO. La apertura manual de contingencia exige motivo; SIRAP ejecuta la orden |
 | `GET /api/operations` · `/api/operations/export.csv` | todos · supervisor/admin | Historial filtrado y exportación CSV |
 | `GET /api/dashboard` | todos | Indicadores y datos de los gráficos |
-| `GET/POST/DELETE /api/admin/...` | admin (lectura: supervisor) | Vehículos, listas, garitas, usuarios, datos de demostración |
+| `GET /api/admin/{table}` | todos los usuarios autenticados | Consultar las tablas de vehículos, propietarios, autorizaciones, garitas y usuarios |
+| `POST/PUT/DELETE /api/admin/...` | administrador | Crear o modificar vehículos, autorizaciones, garitas, usuarios y datos de demostración |
 | `GET /api/system` · `/api/model/info` · `/api/samples` | todos | Estado, métricas del modelo e imágenes de ejemplo |
 
 ### 6.2 Despliegue
@@ -325,3 +326,6 @@ el dataset de Roboflow es CC BY 4.0.
 
 - 🎬 **Video pitch (5 min):** _pendiente de grabación y publicación_
 - 🎤 **Video de respuestas a las preguntas:** _pendiente de grabación y publicación_
+
+
+La API permite que cualquier usuario autenticado, incluido el Operador, consulte las tablas de Administración mediante `GET /api/admin/{table}`. La pantalla y la ruta de Administración en la interfaz están disponibles solo para Supervisor y Administrador. Consultar las tablas por API no concede permisos de modificación: las operaciones de escritura requieren el rol Administrador.
