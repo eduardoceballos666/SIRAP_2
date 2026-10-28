@@ -19,11 +19,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
----------------------------------------------------------------------------
-Componentes de terceros (cada uno con su propia licencia):
-- Ultralytics YOLO11 (AGPL-3.0) — usado para entrenar el detector.
-- fast-plate-ocr (MIT) — OCR de placas.
-- Dataset "License Plate Recognition" de Roboflow Universe (CC BY 4.0).
-- SAVH Guayaquil ANPR Plate Images Dataset (Zenodo; ver su licencia).
-Los pesos entrenados con Ultralytics quedan sujetos a la licencia AGPL-3.0 de Ultralytics.
