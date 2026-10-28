@@ -104,7 +104,7 @@ se agregó al final para tener una arquitectura cliente-servidor con autenticaci
 | Llaves de API expuestas | Media | Alto | Secretos de entrenamiento y despliegue; se revocaron las llaves que quedaron en una versión antigua del notebook |
 | Datos personales (placas, propietarios) | Alta | Alto | Datos ficticios en la demo; minimización; ver `consideraciones_eticas.md` |
 | Cambios de tecnología a mitad del proyecto | Alta | Medio | Pipeline modular: detector, OCR y decisión se cambian por separado |
-| La plataforma de despliegue no da recursos gratuitos | Media | Medio | Ocurrió: fue necesario pagar a Hugging Face para que el Space Docker pudiera ejecutar la aplicación; sin el pago no corría. La imagen Docker sigue siendo portátil y se analizaron alternativas (Render y Railway: 512 MB, insuficientes para ≈410 MB de la API) |
+| Costo del despliegue de demostración | Media | Medio | Durante la planificación, la universidad asumió que Hugging Face Spaces Docker sería gratuito; se confirmó que no es así y que ejecutar el Space en hardware requiere un plan de pago. La instancia actual usa Docker con 2 vCPU y sin GPU dedicada; la API ocupa alrededor de 410 MB de RAM con los modelos cargados. El despliegue automático y la persistencia necesitan los secretos descritos en el README. La imagen también puede ejecutarse en infraestructura Docker compatible. |
 | Acceso no autorizado a la app publicada | Media | Alto | Inicio de sesión con contraseña (PBKDF2), JWT con vencimiento, permisos por rol y decisión recalculada en el servidor |
 
 ## Umbral operativo OCR
