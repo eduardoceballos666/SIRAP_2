@@ -231,7 +231,7 @@ frontend (`npm ci && npm run build`); (2) `python:3.11-slim` instala `requiremen
 | ultralytics | 8.4.177 | Entrenamiento, validación y exportación de YOLO11 |
 | onnxruntime | ≥ 1.20 (notebook: 1.31.0) | Inferencia del detector y del OCR en CPU |
 | fast-plate-ocr | 1.1.0 | OCR de placas |
-| opencv-python-headless | ≥ 4.10 | Procesamiento de imagen |
+| opencv-python-headless | 4.12.0.88 | Redimensionado y codificación JPEG |
 | supervision | 0.30.9 | Anotación de video y mAP por tamaño (notebook) |
 | trackers | 2.6.1 | OC-SORT (notebook) |
 | Levenshtein | ≥ 0.25 | Distancia entre placas, CER |
