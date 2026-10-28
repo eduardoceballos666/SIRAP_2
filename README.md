@@ -245,7 +245,7 @@ documentación, notebooks o pruebas no coinciden con esos filtros. Los cambios r
 | `SIRAP_DATA_GITHUB_TOKEN` | Secret (obligatorio para despliegues) | Token fine-grained con acceso Contents: Read and write solo a `SIRAP_datos_privados`; Actions lo valida y lo guarda automáticamente como secreto del Space para que la API respalde los CSV. |
 | `HF_SPACE` | Variable (opcional) | Otro Space, p. ej. `usuario/sirap` |
 
-**Despliegue actual:** Hugging Face Spaces ejecuta el contenedor Docker del repositorio en el puerto 7860. La API ocupa aproximadamente 410 MB de RAM con los modelos cargados. El despliegue automático requiere los secretos `HF_TOKEN` y `SIRAP_DATA_GITHUB_TOKEN`; también se recomienda configurar `SIRAP_JWT_SECRET`.
+**Despliegue actual:** SIRAP se aloja como una Space Docker en [Hugging Face Spaces](https://huggingface.co/spaces/eduardoceballos/SIRAP), en el puerto 7860. Hugging Face indica que ejecutar Spaces Docker requiere un plan de pago; el costo del hardware depende del recurso seleccionado ([detalle de hardware](https://huggingface.co/docs/hub/spaces-overview#hardware-resources)). La infraestructura de demostración documentada usa 2 vCPU y no tiene GPU dedicada. La API ocupa aproximadamente 410 MB de RAM con los modelos cargados. El despliegue automático requiere los secretos `HF_TOKEN` y `SIRAP_DATA_GITHUB_TOKEN`; también se recomienda configurar `SIRAP_JWT_SECRET`.
 
 > **Estado:** prototipo funcional. La barrera es **simulada** y la base de demostración contiene **datos ficticios**.
 > El Space tiene configurado el respaldo de sus tablas CSV en el repositorio privado `SIRAP_datos_privados`.
