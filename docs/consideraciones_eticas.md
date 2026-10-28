@@ -145,8 +145,7 @@ sustituto: siempre hay un humano que confirma.
 - **Autenticación por usuario (SIRAP 1.0):** cada persona inicia sesión con su contraseña (guardada solo como hash
   PBKDF2-SHA256 con sal) y recibe una sesión firmada (JWT) que vence a las 12 h. Cada operación queda asociada al
   usuario autenticado, no a un nombre escrito a mano, lo que permite auditar quién abrió la barrera.
-- **Permisos por rol, comprobados en el servidor:** operador (reconoce y registra), supervisor (además exporta el
-  historial y consulta la administración), administrador (gestiona vehículos, listas, garitas y usuarios).
+- **Permisos por rol:** los tres perfiles autenticados pueden consultar las tablas administrativas mediante `GET /api/admin/{table}`. El Operador puede hacerlo desde la API, aunque la interfaz no muestra la sección Administración; el Supervisor la consulta desde la interfaz en modo de solo lectura y también puede exportar el Historial. Solo el Administrador puede modificar vehículos, listas, garitas y usuarios. Las operaciones de escritura se restringen en el servidor.
 - **La interfaz no puede forzar una apertura:** antes de registrar, la API vuelve a calcular la decisión con la placa
   final; solo abre automáticamente un AUTORIZADO y la apertura manual exige motivo.
 - **Responsables:** la instalación que opera SIRAP es responsable del tratamiento de datos; el equipo desarrollador
@@ -169,7 +168,7 @@ masiva, seguimiento de una persona concreta, perfiles de movimiento, venta de da
 **Salvaguardas**
 
 - La app funciona **por captura en un punto de control**: no busca placas en video público ni cruza cámaras.
-- Sin búsqueda de «dónde estuvo esta placa» fuera de la instalación; el historial es local.
+- Sin búsqueda de «dónde estuvo esta placa» fuera de la instalación. El historial se limita a cada instalación; en el Space, los CSV operativos se restauran y sincronizan con el repositorio privado `SIRAP_datos_privados`. En una instalación local, se guardan en los archivos CSV configurados en el servidor.
 - Imágenes no almacenadas; datos mínimos.
 - Licencia y documentación declaran los usos prohibidos (abajo).
 
