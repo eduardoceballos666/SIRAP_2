@@ -43,7 +43,7 @@ operativas. La demo usa datos ficticios y no contiene la lista de vehículos de 
 
 | Archivo | Origen | Resultado esperado |
 |---|---|---|
-| `garita3_PBA-8901.jpg` | Recorte de la guía de diseño `docs/img/SIRAP_Dashboard.png` (se quitó el recuadro verde) | Autorizado – lista blanca |
+| `garita3_PBA-8901.jpg` | Recorte de la guía de diseño `docs/img/vue_dashboard.png` (se quitó el recuadro verde) | Autorizado – lista blanca |
 | `garita2_GBO-0429.jpg` | La misma imagen con la placa reemplazada (sintética) | Denegado – lista restringida |
 | `garita1_GSA-1234.jpg` | La misma imagen con la placa reemplazada (sintética) | No registrado |
 | `garita3_PCD-5678_desenfocada.jpg` | Placa reemplazada y desenfoque gaussiano (sintética) | Verificación manual (confianza baja) |
