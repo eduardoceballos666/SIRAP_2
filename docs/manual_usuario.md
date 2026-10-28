@@ -155,9 +155,11 @@ Como referencia para ejecución local: procesador Intel Core i7-8650U, 8 GB de R
 
 [**13. Solución de problemas frecuentes**](#solución-de-problemas-frecuentes) **23**
 
-[**14. Lista de comprobación del operador**](#lista-de-comprobación-del-operador) **23**
+[**14. Preguntas frecuentes**](#preguntas-frecuentes) **24**
 
-[**15. Glosario**](#glosario) **24**
+[**15. Lista de comprobación del operador**](#lista-de-comprobación-del-operador) **25**
+
+[**16. Glosario**](#glosario) **26**
 
 # Cómo utilizar este manual
 
@@ -187,7 +189,15 @@ Este documento describe cada pantalla de SIRAP, indica qué hace cada control y 
 
 11 SIRAP en celulares y otros dispositivos
 
-12 Casos prácticos, problemas frecuentes y glosario
+12 Casos prácticos de uso
+
+13 Solución de problemas frecuentes
+
+14 Preguntas frecuentes
+
+15 Lista de comprobación del operador
+
+16 Glosario
 
 ## Ruta rápida: registrar una entrada
 
@@ -808,7 +818,37 @@ No almacene fotografías de placas innecesariamente en el equipo y cierre sesió
 
 *Tabla 8. Guía de solución de problemas frecuentes*
 
-# 14. Lista de comprobación del operador
+# 14. Preguntas frecuentes
+
+## ¿Una placa reconocida queda autorizada?
+
+No por el solo hecho de reconocerla. Compruebe la autorización vigente y el resultado de SIRAP antes de registrar una acción.
+
+## ¿Qué hago si el OCR lee mal la placa?
+
+Compare la lectura con la imagen. Corrija únicamente los caracteres que pueda confirmar; si persiste la duda, repita la captura o solicite verificación manual.
+
+## ¿Registrar un camión nuevo desde Reconocimiento y Acceso autoriza su ingreso?
+
+El formulario guarda el camión y lo agrega a la lista blanca. Revise el resultado y siga el procedimiento de registro; guardar el camión no abre por sí solo la barrera.
+
+## ¿La barrera se abre automáticamente?
+
+No. El operador inicia la acción de registro/apertura y el servidor valida la autorización. En la demostración, la barrera es simulada y su control corresponde al operador.
+
+## ¿SIRAP conserva las imágenes y los videos?
+
+Se procesan temporalmente para reconocer la placa y no se conservan como archivos permanentes en SIRAP. Las operaciones registradas sí pueden consultarse en Historial.
+
+## ¿Quién puede exportar el Historial a CSV?
+
+Los perfiles Supervisor y Administrador pueden exportarlo. El Operador puede consultar las operaciones según los permisos de la interfaz.
+
+## ¿Qué hago si SIRAP o la conexión no están disponibles?
+
+Mantenga cerrada la barrera y siga el procedimiento de contingencia autorizado. Registre manualmente la operación y compruebe el Historial al restablecerse el servicio para evitar duplicados.
+
+# 15. Lista de comprobación del operador
 
 □ Garita y operación (Entrada/Salida) correctas.
 
@@ -826,7 +866,7 @@ No almacene fotografías de placas innecesariamente en el equipo y cierre sesió
 
 □ Sesión cerrada al finalizar, especialmente en dispositivos móviles.
 
-# 15. Glosario
+# 16. Glosario
 
 | TÉRMINO           | EXPLICACIÓN SENCILLA                                                           |
 |-------------------|--------------------------------------------------------------------------------|
