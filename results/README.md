@@ -22,3 +22,7 @@
 Los valores salen de las carpetas `resultados/` y `figuras/` del experimento en Drive
 (`MyDrive/proyecto_integrador_placas/experimentos/<dataset>/`). Si un archivo no está, la app muestra
 «pendiente» en lugar de inventar un número.
+
+## Umbral operativo OCR
+
+La aplicación usa un umbral de confianza OCR de **99 %**. Las lecturas por debajo pasan a verificación manual.
