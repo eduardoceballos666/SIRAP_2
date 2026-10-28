@@ -1,7 +1,9 @@
-# Planificación del proyecto – SIRAP 2 (FastAPI + Vue 3)
+# Planificación del proyecto – SIRAP 1.0 (FastAPI + Vue 3)
 
 **Proyecto Integrador en IA (MIAR0545)** · Eduardo Alejandro Ceballos Jijón · Christian Xavier Valle Maridueña
 Periodo: 12/09/2026 – 24/10/2026 (6 semanas) · Dedicación: ≈8 h/semana por integrante (Python / Google Colab)
+
+> **Versionado:** la versión del producto es **SIRAP 1.0**. La API y el paquete frontend registran **2.0.0** como versiones de sus componentes. El tag `v2.0` identifica el corte técnico del repositorio asociado a la arquitectura FastAPI + Vue 3, no una versión 2.0 del producto.
 
 ---
 
@@ -48,7 +50,7 @@ un operador de garita, que lea placas ecuatorianas y registre cada operación.
 - Detector de placas YOLO11-s entrenado y evaluado; OCR `fast-plate-ocr`; normalización al formato ecuatoriano.
 - Regla de decisión con listas blanca/restringida, umbral de confianza y detección de lecturas «casi iguales».
 - Tablas operativas CSV de vehículos y propietarios, listas/autorizaciones, garitas, usuarios e historial.
-- **Aplicación web SIRAP 2:** API REST en FastAPI con autenticación por usuario y roles (operador, supervisor,
+- **Aplicación web SIRAP 1.0:** API REST en FastAPI con autenticación por usuario y roles (operador, supervisor,
   administrador) y frontend en Vue 3 (Vite, Pinia, Vue Router, Tailwind CSS) con Dashboard, Reconocimiento y Acceso,
   Historial (con exportación CSV), Administración y Acerca del modelo; publicada en Hugging Face Spaces con Docker.
 - Pipeline de video y modo en vivo en el notebook (seguimiento OC-SORT, voto de lecturas).
@@ -74,7 +76,7 @@ un operador de garita, que lea placas ecuatorianas y registre cada operación.
 | 3 (26/09–02/10) | Preparación de datos y primer entrenamiento | Dataset de Roboflow (10 125 imágenes) como base de detección; SAVH para el OCR |
 | 4 (03–09/10) | Pipeline completo y regla de decisión | 07/10: YOLOv8n, normalización, validación de formato y regla de 3 estados |
 | 5 (10–16/10) | Optimización y evaluación | Lista de autorizaciones CSV, verificación SRI, registros CSV, pipeline de video y modo en vivo |
-| 6 (17–24/10) | Interfaz, documentación y videos | 23/10: detector final YOLO11-s y OCR fast-plate-ocr; versión inicial de SIRAP; repositorio y documentación. 24/10: afinamiento del OCR, estudio de hiperparámetros (Optuna, 24 *trials*) y **SIRAP 2**: API FastAPI + frontend Vue 3 publicada en Hugging Face Spaces |
+| 6 (17–24/10) | Interfaz, documentación y videos | 23/10: detector final YOLO11-s y OCR fast-plate-ocr; versión inicial de SIRAP; repositorio y documentación. 24/10: afinamiento del OCR, estudio de hiperparámetros (Optuna, 24 *trials*) y **SIRAP 1.0 (arquitectura FastAPI + Vue 3)** publicada en Hugging Face Spaces |
 
 **Desviaciones.** El detector cambió cuatro veces (YOLOv8 → RF-DETR → YOLOv8n → YOLO11-s) y el OCR también
 cambió hasta llegar a fast-plate-ocr. Los cambios se debieron al costo de cómputo en Colab (RF-DETR es pesado) y a la
@@ -87,7 +89,7 @@ se agregó al final para tener una arquitectura cliente-servidor con autenticaci
 | Tipo | Recurso |
 |---|---|
 | Datos | License Plate Recognition v11 (Roboflow, CC BY 4.0); SAVH Guayaquil (Zenodo); imágenes y video de la garita (con autorización); lista de placas autorizadas en CSV |
-| Hardware | Google Colab con GPU (T4 para pruebas; el entrenamiento final y las mediciones se hicieron en una NVIDIA L4); CPU para el OCR y la app; Hugging Face Spaces (Docker) para SIRAP 2 |
+| Hardware | Google Colab con GPU (T4 para pruebas; el entrenamiento final y las mediciones se hicieron en una NVIDIA L4); CPU para el OCR y la app; Hugging Face Spaces (Docker) para SIRAP 1.0 |
 | Software | Python 3.11+, Ultralytics 8.4.177, fast-plate-ocr 1.1.0, ONNX Runtime, supervision, trackers (OC-SORT), CSV, FastAPI, Vue 3, Vite, Pinia, Vue Router, Tailwind CSS, ECharts, Docker |
 | Personas | 2 integrantes, ≈8 h/semana cada uno |
 
