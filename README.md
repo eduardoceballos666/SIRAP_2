@@ -79,11 +79,7 @@ Detalles, EDA y decisiones de preprocesamiento: [`docs/analisis_datos.md`](docs/
 **Preprocesamiento:** copia local del dataset, `data.yaml` con rutas absolutas, *letterbox* a 640 px, aumentos por
 defecto de Ultralytics; recorte con margen antes del OCR.
 **Entrenamiento:** `yolo11s.pt` (COCO) → 40 épocas, imgsz 640, batch 16 (nbs 64), paciencia 10, semilla 0, AdamW.
-**Optimización:** calibración de umbrales en *val* (detector: precisión ≥ 95 %; OCR: estudio de confianza en SAVH),
-resolución de inferencia en video (640 → 1280 px) y estudio de sensibilidad de hiperparámetros (Optuna + fANOVA +
-PDP, 24 *trials*) en [`notebooks/04_optimizacion.ipynb`](notebooks/04_optimizacion.ipynb): `lr0` explica el 62 % de
-la variación del mAP; la mejor configuración (`lr0` ≈ 1,6e-4) sube el mAP@0.5:0.95 de *test* de 0,693 a 0,704 con el
-mismo mAP@0.5, y se mantiene el modelo entregado — ver [`docs/optimizacion.md`](docs/optimizacion.md).
+**Optimización:** los umbrales se calibraron en *val* (detector: precisión ≥ 95 %; OCR: estudio de confianza en SAVH); la inferencia de video se comparó a 640 y 1280 px. Los 24 *trials* de Optuna seleccionaron hiperparámetros según mAP@0.5:0.95 en *val*; `lr0` explicó el 62 % de la variación. El *test* se reservó para la comparación final del modelo base y el optimizado (1.020 imágenes, 1.085 placas): mAP@0.5:0.95 pasó de 0,693 a 0,704 (+0,011) y mAP@0.5 de 0,97223 a 0,97284 (+0,00061; redondeado a tres decimales: 0,972 y 0,973). Se mantiene el modelo entregado — ver [`notebooks/04_optimizacion.ipynb`](notebooks/04_optimizacion.ipynb) y [`docs/optimizacion.md`](docs/optimizacion.md).
 **Métricas:** mAP@0.5 y mAP@0.5:0.95 (también por tamaño de placa), precisión, recall y F1 al umbral calibrado;
 EMR y CER para el OCR; falsos autorizados y tiempo por decisión para el sistema.
 
@@ -91,7 +87,7 @@ Arquitectura completa y diagramas: [`docs/arquitectura.md`](docs/arquitectura.md
 
 ## 4. Resultados
 
-Preset «completo», split *test* nunca visto en el entrenamiento (salidas del notebook, `results/metrics/`).
+Preset «completo». Para el detector, el conjunto *test* (1.020 imágenes, 1.085 placas) no se usó para seleccionar hiperparámetros: los 24 ensayos se compararon en *val* y *test* se reservó para la evaluación final (`results/metrics/`).
 
 | Componente | Métrica | Resultado | Meta |
 |---|---|---|---|
@@ -100,7 +96,7 @@ Preset «completo», split *test* nunca visto en el entrenamiento (salidas del n
 | | Precisión / Recall / F1 (umbral 0,30) | 0,986 / 0,956 / 0,971 | — |
 | | mAP@0.5:0.95 placas pequeñas / medianas / grandes | 0,481 / 0,729 / 0,744 | — |
 | | Latencia (lote 1, FP16, GPU L4) | 23,3 ms (43 FPS) | — |
-| Detector con hiperparámetros optimizados (Optuna, 24 *trials*) | mAP@0.5 / mAP@0.5:0.95 *test* | 0,973 / 0,704 (+0,011, una semilla): se mantiene el entregado | — |
+| Detector con hiperparámetros optimizados (Optuna, 24 *trials*) | mAP@0.5 / mAP@0.5:0.95 *test* | 0,973 / 0,704 (+0,001 / +0,011; una semilla): se mantiene el entregado | — |
 | OCR (SAVH Guayaquil, 399 legibles) | EMR / CER sin filtrar por confianza | **93,7 %** / 0,010 | EMR ≥ 80 % ✅ |
 | OCR (SAVH, evaluación offline al umbral anterior 0,94) | Cobertura / EMR entre aceptadas | 363/399 (91,0 %) / 349/363 (96,1 %); 14 lecturas erróneas aceptadas | — |
 | OCR afinado con placas ecuatorianas (*test* separado por placa, n=86) | EMR original / afinado | 94,2 % / 94,2 % (McNemar *p* = 1,0): se mantiene el original | — |
