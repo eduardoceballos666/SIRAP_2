@@ -397,7 +397,7 @@ onMounted(load)
       </template>
       <template v-else-if="tab === 'demo'">
         <h2 class="card-title"><span class="icon-chip"><AppIcon name="chart" /></span> Datos de demostración</h2>
-        <p class="mb-3 text-sm text-muted">Operaciones ficticias (origen DEMO) para mostrar el Dashboard. No son resultados del modelo y se pueden ocultar o borrar.</p>
+        <p class="mb-3 text-sm text-muted">Estas operaciones son datos simulados generados exclusivamente para la visualización del Dashboard y la validación de registros. No corresponden a resultados reales del modelo ni son válidas para ejecución. Pueden ser ocultadas o eliminadas del sistema sin impacto.</p>
         <div class="flex gap-2">
           <input v-model.number="demoN" type="number" min="1" max="20" step="1" inputmode="numeric" class="field !w-28" aria-label="Cantidad de operaciones demo, de 1 a 20" />
           <button class="btn-primary flex-1" :disabled="busy" @click="runDemo('generate')">Generar</button>
