@@ -18,7 +18,7 @@ const clearReadingButton = ref(null)
 const fullscreen = ref(false)
 let clockTimer
 
-const OCR_MIN_CONFIDENCE = 0.99
+const OCR_MIN_CONFIDENCE = 0.94
 const source = ref('')
 const samples = ref([])
 const selectedSample = ref('')
@@ -117,7 +117,7 @@ function clearPlateConfirmation() {
 function finishVideoAnalysis() {
   stopContinuousAnalysis()
   if (!recognition.value) {
-    analysisMessage.value = 'El video terminó sin confirmar la misma placa en dos cuadros con confianza ≥99 %. Verifique la placa manualmente.'
+    analysisMessage.value = 'El video terminó sin confirmar la misma placa en dos cuadros con confianza ≥94 %. Verifique la placa manualmente.'
     session.notify(analysisMessage.value, 'warn')
   }
 }
@@ -382,7 +382,7 @@ async function recognize() {
     }
     if (!accepted) return
 
-    // En video/cámara, la misma placa debe superar 99 % en dos cuadros muestreados.
+    // En video/cámara, la misma placa debe superar 94 % en dos cuadros muestreados.
     recognition.value = data.recognition
     if (continuousAnalysis.value) stopContinuousAnalysis()
     decision.value = data.decision
@@ -635,14 +635,14 @@ onMounted(async () => {
         <section class="rounded-xl border border-line bg-surface px-3 py-2" aria-label="Análisis OCR" aria-live="polite">
           <div class="flex items-center justify-between gap-2">
             <strong class="text-xs uppercase text-ink">Análisis OCR</strong>
-            <span class="text-xs font-semibold text-brand-700">{{ analysisMessage || (loading ? 'Analizando fotograma…' : recognition ? 'Lectura confirmada en dos cuadros' : ocrAttempt ? (ocrAttempt.hasPlate && ocrAttempt.confidence >= 0.99 && continuousAnalysis ? 'Confirmando la misma placa: ' + confirmedFrames + '/2 cuadros' : ocrAttempt.hasPlate ? 'Buscando confianza ≥99 %' : 'No se leyó placa; continúa el análisis') : 'Esperando imagen o video') }}</span>
+            <span class="text-xs font-semibold text-brand-700">{{ analysisMessage || (loading ? 'Analizando fotograma…' : recognition ? 'Lectura confirmada en dos cuadros' : ocrAttempt ? (ocrAttempt.hasPlate && ocrAttempt.confidence >= 0.94 && continuousAnalysis ? 'Confirmando la misma placa: ' + confirmedFrames + '/2 cuadros' : ocrAttempt.hasPlate ? 'Buscando confianza ≥94 %' : 'No se leyó placa; continúa el análisis') : 'Esperando imagen o video') }}</span>
           </div>
           <div class="mt-1 h-2 overflow-hidden rounded-full bg-subtle-2" role="progressbar" :aria-valuenow="Math.round((ocrAttempt?.confidence || 0) * 100)" aria-valuemin="0" aria-valuemax="100" aria-label="Confianza OCR actual">
             <i class="block h-full rounded-full bg-brand-600 transition-all" :style="{ width: Math.max(0, Math.min(100, (ocrAttempt?.confidence || 0) * 100)) + '%' }"></i>
           </div>
         </section>
         <div class="camera-meta">
-          <span :style="!detection && !sourceLabel ? { fontSize: '18px', whiteSpace: 'normal', overflowWrap: 'anywhere' } : undefined">{{ detection ? detection.detector + (recognition ? ' · ' + recognition.timings_ms.total?.toFixed(0) + ' ms' : ' · confirmando OCR ≥99 % en dos cuadros') : sourceLabel || 'Seleccione una imagen o fuente de video' }}</span>
+          <span :style="!detection && !sourceLabel ? { fontSize: '18px', whiteSpace: 'normal', overflowWrap: 'anywhere' } : undefined">{{ detection ? detection.detector + (recognition ? ' · ' + recognition.timings_ms.total?.toFixed(0) + ' ms' : ' · confirmando OCR ≥94 % en dos cuadros') : sourceLabel || 'Seleccione una imagen o fuente de video' }}</span>
           <div class="camera-meta-actions">
             <button ref="clearReadingButton" class="btn-ghost clear-reading-button" :disabled="loading || busy || (!file && !preview && !mediaUrl && !onlineConnected && !decision && !manualPlate)" @click="clearCurrentReading"><AppIcon name="trash" :size="14" /> Limpiar lectura</button>
             <button class="btn-ghost" :disabled="loading || (!file && !mediaReady)" @click="processCurrentMedia"><AppIcon name="refresh" :size="15" /> Reprocesar</button>
@@ -710,7 +710,7 @@ onMounted(async () => {
 
 
   </div>
-  <ModalDialog :open="helpOpen" title="Cómo registrar un acceso" @close="helpOpen = false"><ol class="list-decimal space-y-3 pl-5"><li>Elija un ejemplo, suba una imagen o video, o conecte una cámara local o una URL compatible.</li><li>Las imágenes se analizan al seleccionarlas. Los videos y cámaras se analizan automáticamente cada 1 segundo hasta leer una placa válida con al menos 99 % de confianza OCR; las lecturas inferiores no se muestran.</li><li>Revise la placa, el vehículo y el resultado. Corrija la placa y pulse Verificar si es necesario.</li><li>Autorice y abra solo cuando el resultado lo permita, o registre sin abrir. La apertura manual requiere un motivo.</li><li>Las lecturas solo se guardan en el historial al registrar una acción.</li></ol><button class="btn-primary mt-4" @click="helpOpen = false">Entendido</button></ModalDialog>
+  <ModalDialog :open="helpOpen" title="Cómo registrar un acceso" @close="helpOpen = false"><ol class="list-decimal space-y-3 pl-5"><li>Elija un ejemplo, suba una imagen o video, o conecte una cámara local o una URL compatible.</li><li>Las imágenes se analizan al seleccionarlas. Los videos y cámaras se analizan automáticamente cada 1 segundo hasta leer una placa válida con al menos 94 % de confianza OCR; las lecturas inferiores no se muestran.</li><li>Revise la placa, el vehículo y el resultado. Corrija la placa y pulse Verificar si es necesario.</li><li>Autorice y abra solo cuando el resultado lo permita, o registre sin abrir. La apertura manual requiere un motivo.</li><li>Las lecturas solo se guardan en el historial al registrar una acción.</li></ol><button class="btn-primary mt-4" @click="helpOpen = false">Entendido</button></ModalDialog>
   <ModalDialog :open="registrationOpen" title="Registrar camión nuevo" @close="registrationOpen = false">
     <form class="vehicle-registration-form" @submit.prevent="saveVehicle">
       <div class="registration-plate"><span>Placa detectada</span><strong>{{ plateShown }}</strong></div>
@@ -736,7 +736,7 @@ onMounted(async () => {
             <td>
               <div v-if="l.confianza !== null" class="flex items-center gap-2">
                 <div class="h-2 w-20 overflow-hidden rounded-full bg-subtle-2">
-                  <div class="h-full rounded-full" :class="l.confianza >= 0.99 ? 'bg-ok' : 'bg-warn'" :style="{ width: `${l.confianza * 100}%` }"></div>
+                  <div class="h-full rounded-full" :class="l.confianza >= 0.94 ? 'bg-ok' : 'bg-warn'" :style="{ width: `${l.confianza * 100}%` }"></div>
                 </div>
                 {{ pct(l.confianza, 1) }}
               </div>
