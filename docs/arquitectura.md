@@ -1,4 +1,6 @@
-# Arquitectura – SIRAP 2 (FastAPI + Vue 3)
+# Arquitectura – SIRAP 1.0 (API FastAPI 2.0.0 + Vue 3)
+
+> **Versionado:** SIRAP es el producto versión **1.0**. El **2.0.0** de la API y del paquete frontend corresponde a los componentes técnicos. El tag GitHub `v2.0` identifica el corte del repositorio de la arquitectura FastAPI + Vue 3, no la versión del producto.
 
 ## 1. Visión general
 
