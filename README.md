@@ -255,22 +255,32 @@ documentación, notebooks o pruebas no coinciden con esos filtros. Los cambios r
 
 ```
 SIRAP_2/
-├── api/                    # API REST FastAPI: main.py, routers/ (auth, recognition, reports, admin), security.py (JWT + PBKDF2), schemas.py
-├── frontend/               # interfaz Vue 3: src/views, src/components, src/stores (Pinia), src/router, src/lib
-├── src/                    # backend: data_processing, model, access_control, storage, train, evaluate, utils
-├── notebooks/              # SIRAP_backend.ipynb (completo) y 01–06 (EDA, preprocesamiento, modelado, optimización, evaluación, OCR)
-├── models/                 # pesos de YOLO11-s (best_model.pt / .onnx) y ficha del modelo
-├── data/                   # samples/ (ejemplos de la app), raw/, processed/ y descripción de los datos
-├── data/processed/         # CSV de vehículos, listas, usuarios e historial
-├── config/config.yaml      # parámetros (sin secretos)
-├── docs/                   # planificación, EDA, arquitectura, optimización, ética, manual e imágenes
-├── results/                # figures/, metrics/ (JSON/CSV del notebook), reports/
-├── tests/                  # pytest: procesamiento, modelo, decisión, almacenamiento CSV, app y API
-├── deploy/huggingface/     # README del Space y script de publicación
-├── .github/workflows/      # despliegue automático en Hugging Face Spaces
-├── Dockerfile              # imagen única: frontend compilado + API
-├── requirements.txt        # dependencias con versiones (backend y API)
-└── requirements-dev.txt    # entrenamiento, notebooks y pruebas
+├── .github/workflows/       # Despliegue en Hugging Face Spaces
+├── api/                     # API REST con FastAPI
+├── app/                     # Interfaz alternativa con Streamlit
+├── config/                  # Configuración sin secretos
+├── data/
+│   ├── processed/           # Datos CSV de ejecución
+│   ├── raw/
+│   └── samples/             # Imágenes de ejemplo
+├── deploy/huggingface/      # Publicación del Space
+├── docs/
+│   ├── img/                 # Capturas e imágenes
+│   └── ...                  # Manual y documentación técnica
+├── frontend/                # Interfaz Vue 3
+├── models/                  # Modelos y pesos
+├── notebooks/               # Análisis, entrenamiento y evaluación; incluye SIRAP_backend.ipynb
+├── results/                 # Figuras, métricas e informes
+├── src/                     # Modelo, OCR, decisiones y almacenamiento
+├── tests/                   # Pruebas
+├── Videos_Imagenes_Prueba/  # Recursos para probar el software
+├── app.py                   # Lanzador compatible de app/app.py
+├── Dockerfile
+├── LICENSE
+├── manual_usuario.pdf
+├── README.md
+├── requirements.txt
+└── requirements-dev.txt
 ```
 
 ## 8. Consideraciones éticas
