@@ -4,7 +4,6 @@
 numpy>=2.0,<3
 pandas>=2.2,<4
 pillow>=11.0
-opencv-python-headless>=4.10
 onnxruntime>=1.20,<2
 fast-plate-ocr==1.1.0
 Levenshtein>=0.25
