@@ -6,6 +6,7 @@ La licencia MIT de [LICENSE](LICENSE) cubre el código original de SIRAP. No sus
 
 - **Ultralytics YOLO11:** detector utilizado para localizar placas. Los pesos entrenados con Ultralytics están sujetos a AGPL-3.0, conforme a las condiciones de Ultralytics.
 - **fast-plate-ocr:** biblioteca de reconocimiento óptico de caracteres (OCR) distribuida bajo MIT.
+- **OpenCV (`opencv-python-headless` 4.12.0.88):** operaciones auxiliares de redimensionado y codificación JPEG. No realiza la detección de placas; esta corresponde a YOLO11. Licencia Apache 2.0 ([texto oficial](https://github.com/opencv/opencv/blob/4.12.0/LICENSE)).
 
 ## Conjuntos de datos
 
