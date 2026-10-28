@@ -188,7 +188,7 @@ print(decide_access(rec.plate, rec.ocr_confidence, store).titulo)   # ACCESO AUT
 ## 6. Interfaz de usuario
 
 **Opción D del enunciado: FastAPI + frontend Vue 3** (Vite, Pinia, Vue Router, Tailwind CSS, ECharts), con el diseño
-de la guía [`docs/img/SIRAP_Dashboard.png`](docs/img/SIRAP_Dashboard.png). Publicada en
+de la guía [`docs/img/vue_dashboard.png`](docs/img/vue_dashboard.png). Publicada en
 **https://eduardoceballos-sirap.hf.space** (Hugging Face Spaces). Guía completa: [manual de usuario](docs/manual_usuario.md).
 
 | Módulo | Qué hace |
