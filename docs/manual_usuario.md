@@ -15,6 +15,8 @@ Guía práctica de operación, consulta y administración en computadora y dispo
 | **ALCANCE** Guía orientada a la interfaz mostrada en los documentos del proyecto. Algunas funciones, permisos y métricas dependen de la configuración de la instancia. |
 |------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 
+**Versionado:** la versión del producto SIRAP es **1.0**. API 2.0.0 y paquete frontend 2.0.0 son identificadores técnicos de componentes. El tag GitHub `v2.0` señala el corte de código asociado con FastAPI + Vue 3; no es la versión del producto.
+
 **CRÉDITOS, PROPIEDAD INTELECTUAL Y ATRIBUCIONES DE SOFTWARE**
 
 **SIRAP — Sistema de Detección y Reconocimiento Automático de Placas** \| Manual de usuario y documentación técnica
