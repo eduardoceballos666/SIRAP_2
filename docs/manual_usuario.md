@@ -515,6 +515,8 @@ Figura 9. Lecturas de la sesión: hora, imagen, placa y resultado.
 
 El Historial permite buscar acciones previamente registradas y verificar fecha, garita, placa, resultado y responsable. Es la vista apropiada para consultar una operación ya cerrada.
 
+**Exportar resultados a CSV:** Supervisor y Administrador pueden descargar las operaciones que coincidan con los filtros aplicados mediante el botón **Exportar CSV**. El archivo puede abrirse en una hoja de cálculo.
+
 ![](img/manual_usuario_image13.jpg)
 
 Figura 10. Historial y principales controles de búsqueda.
