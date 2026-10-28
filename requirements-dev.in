@@ -1,0 +1,10 @@
+# Desarrollo, entrenamiento, notebooks y pruebas (incluye dependencias de producción).
+-r requirements.in
+ultralytics==8.4.177
+roboflow==1.7.1
+supervision==0.30.9
+matplotlib>=3.8
+jupyter==1.1.1
+pytest>=8.0
+httpx==0.28.1  # cliente de pruebas de la API
+opencv-python==4.12.0.88  # requerido por Ultralytics; mantiene la misma versión de OpenCV que producción
