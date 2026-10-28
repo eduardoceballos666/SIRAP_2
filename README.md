@@ -1,7 +1,7 @@
 <div align="center">
 
-# 🚧 SIRAP 2
-### Sistema de Detección y Reconocimiento Automático de Placas · versión web FastAPI + Vue 3
+# SIRAP
+### Sistema de Detección y Reconocimiento Automático de Placas · versión del producto 1.0 · FastAPI + Vue 3
 
 ![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?logo=python&logoColor=white)
 ![FastAPI](https://img.shields.io/badge/API-FastAPI%200.162-009688?logo=fastapi&logoColor=white)
@@ -15,13 +15,13 @@
 
 **SIRAP** reconoce la placa del vehículo que llega a una garita, la busca en el registro CSV y propone una
 decisión de acceso (autorizado, denegado, no registrado o verificación manual). El operador confirma, la operación
-queda registrada y la barrera se abre solo cuando corresponde. **SIRAP 2** ofrece el mismo sistema como una
+queda registrada y la barrera se abre solo cuando corresponde. La versión 1.0 de **SIRAP** ofrece el sistema como una
 aplicación web profesional: **API REST en FastAPI** con autenticación por usuario y **frontend en Vue 3**.
 
 [**Aplicación en vivo**](https://eduardoceballos-sirap.hf.space) · [Manual de usuario](docs/manual_usuario.md) ·
 [Documentación de la API](https://eduardoceballos-sirap.hf.space/docs) · [Notebook de backend](notebooks/SIRAP_backend.ipynb)
 
-<img src="https://raw.githubusercontent.com/eduardoceballos666/SIRAP_2/396855f38f95c209d201768d6e31312dc7d41203/docs/img/vue_reconocimiento.png" alt="SIRAP 2 – Reconocimiento y Acceso" width="900">
+<img src="https://raw.githubusercontent.com/eduardoceballos666/SIRAP_2/396855f38f95c209d201768d6e31312dc7d41203/docs/img/vue_reconocimiento.png" alt="SIRAP – Reconocimiento y Acceso" width="900">
 
 </div>
 
