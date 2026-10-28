@@ -224,6 +224,8 @@ Documentación interactiva (Swagger) en [`/docs`](https://eduardoceballos-sirap.
 | `POST/PUT/DELETE /api/admin/...` | administrador | Crear o modificar vehículos, autorizaciones, garitas, usuarios y datos de demostración |
 | `GET /api/system` · `/api/model/info` · `/api/samples` | todos | Estado, métricas del modelo e imágenes de ejemplo |
 
+La API permite que cualquier usuario autenticado, incluido el Operador, consulte las tablas de Administración mediante `GET /api/admin/{table}`. La pantalla y la ruta de Administración en la interfaz están disponibles solo para Supervisor y Administrador. Consultar las tablas por API no concede permisos de modificación: las operaciones de escritura requieren el rol Administrador.
+
 ### 6.2 Despliegue
 
 El workflow [`.github/workflows/deploy-hf-space.yml`](.github/workflows/deploy-hf-space.yml) publica en el Space
@@ -326,6 +328,3 @@ el dataset de Roboflow es CC BY 4.0.
 
 - 🎬 **Video pitch (5 min):** _pendiente de grabación y publicación_
 - 🎤 **Video de respuestas a las preguntas:** _pendiente de grabación y publicación_
-
-
-La API permite que cualquier usuario autenticado, incluido el Operador, consulte las tablas de Administración mediante `GET /api/admin/{table}`. La pantalla y la ruta de Administración en la interfaz están disponibles solo para Supervisor y Administrador. Consultar las tablas por API no concede permisos de modificación: las operaciones de escritura requieren el rol Administrador.
