@@ -1,0 +1,17 @@
+# Dependencias directas de producción para SIRAP (Python 3.11).
+# Mantener en sincronía con requirements.txt; OpenCV se usa para redimensionar y codificar imágenes.
+numpy>=2.0,<3
+pandas>=2.2,<4
+pillow>=11.0
+opencv-python-headless==4.12.0.88
+onnxruntime>=1.20,<2
+fast-plate-ocr==1.1.0
+Levenshtein>=0.25
+pyyaml>=6.0
+plotly>=6.0
+fastapi==0.162.0
+uvicorn[standard]==0.54.0
+python-multipart==0.0.32
+PyJWT==2.15.0
+requests>=2.32,<3
+playwright>=1.51,<2
