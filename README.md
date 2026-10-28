@@ -301,7 +301,7 @@ Resumen de [`docs/consideraciones_eticas.md`](docs/consideraciones_eticas.md):
 
 | Integrante | Rol |
 |---|---|
-| **Eduardo Alejandro Ceballos Jijón** | Modelado y entrenamiento de YOLO11-s y OCR (fast-plate-ocr) |
+| **Eduardo Alejandro Ceballos Jijón** | Modelado y entrenamiento de YOLO11-s y OCR (fast-plate-ocr).  Desarrollo de la intefaz web Vue 3|
 | **Christian Xavier Valle Maridueña** | Datos (SAVH Guayaquil e imágenes de la garita) y desarrollo de la interfaz web Vue 3 |
 
 *Maestría en Inteligencia Artificial — Proyecto Integrador en IA (MIAR0545), 2026.*
