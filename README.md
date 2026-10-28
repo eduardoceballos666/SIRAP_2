@@ -14,8 +14,7 @@
 ![License](https://img.shields.io/badge/License-MIT-yellow)
 
 **SIRAP** reconoce la placa del vehículo que llega a una garita, la busca en el registro CSV y propone una
-decisión de acceso (autorizado, denegado, no registrado o verificación manual). El operador confirma, la operación
-queda registrada y la barrera se abre solo cuando corresponde. La versión 1.0 de **SIRAP** ofrece el sistema como una
+decisión de acceso (autorizado, denegado, no registrado o verificación manual). El operador inicia el registro y solicita la apertura desde SIRAP. El servidor vuelve a validar la autorización: solo permite la apertura automática si el acceso está autorizado; la apertura manual de contingencia requiere un motivo. La aplicación ejecuta la orden solicitada y, en la demostración, la barrera es simulada. La versión 1.0 de **SIRAP** ofrece el sistema como una
 aplicación web profesional: **API REST en FastAPI** con autenticación por usuario y **frontend en Vue 3**.
 
 [**Aplicación en vivo**](https://eduardoceballos-sirap.hf.space) · [Manual de usuario](docs/manual_usuario.md) ·
@@ -224,7 +223,7 @@ Documentación interactiva (Swagger) en [`/docs`](https://eduardoceballos-sirap.
 | `POST /api/recognize` | todos | Imagen → placa, confianza, caja, recorte y decisión (no registra) |
 | `POST /api/plates/verify` | todos | Verificar una placa escrita o corregida a mano |
 | `POST /api/plates/vehicle-data` · `GET /api/plates/vehicle-data/{request_id}` | todos | Consulta asíncrona al SRI y EcuadorLegalOnline; entrega datos complementarios de la placa, sin cambiar la decisión de acceso |
-| `POST /api/operations` | todos | Registrar la operación; el servidor recalcula la decisión, solo abre automáticamente si está AUTORIZADO y exige motivo en la apertura manual |
+| `POST /api/operations` | todos | El operador inicia el registro y solicita la apertura; el servidor recalcula la decisión y solo permite la apertura automática si está AUTORIZADO. La apertura manual de contingencia exige motivo; SIRAP ejecuta la orden |
 | `GET /api/operations` · `/api/operations/export.csv` | todos · supervisor/admin | Historial filtrado y exportación CSV |
 | `GET /api/dashboard` | todos | Indicadores y datos de los gráficos |
 | `GET/POST/DELETE /api/admin/...` | admin (lectura: supervisor) | Vehículos, listas, garitas, usuarios, datos de demostración |
