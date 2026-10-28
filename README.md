@@ -142,8 +142,7 @@ cd frontend && npm ci && npm run build && cd ..        # compila la interfaz Vue
 uvicorn api.main:app --port 8000                       # abre http://localhost:8000 (API + interfaz)
 ```
 
-Usuarios de demostración: `operador`, `supervisor` y `admin`; contraseña inicial `sirap2026`. Se puede cambiar
-mediante el secreto `SIRAP_DEMO_PASSWORD`.
+Usuarios de demostración: `operador`, `supervisor` y `admin`; la contraseña actual para los tres perfiles es `sirap2026`. Puede cambiarse en el despliegue mediante el secreto `SIRAP_DEMO_PASSWORD`.
 
 | Tarea | Comando |
 |---|---|
@@ -247,7 +246,7 @@ documentación, notebooks o pruebas no coinciden con esos filtros. Los cambios r
 |---|---|---|
 | `HF_TOKEN` | Secret (obligatorio) | Token de Hugging Face con permiso **Write** |
 | `SIRAP_JWT_SECRET` | Secret (recomendado) | Cadena larga y aleatoria para firmar las sesiones |
-| `SIRAP_DEMO_PASSWORD` | Secret (opcional) | Reemplaza la contraseña inicial `sirap2026` de las cuentas de demostración |
+| `SIRAP_DEMO_PASSWORD` | Secret (opcional) | Define la contraseña común de las cuentas de demostración; el despliegue actual usa `sirap2026` |
 | `SIRAP_DATA_GITHUB_TOKEN` | Secret (obligatorio para despliegues) | Token fine-grained con acceso Contents: Read and write solo a `SIRAP_datos_privados`; Actions lo valida y lo guarda automáticamente como secreto del Space para que la API respalde los CSV. |
 | `HF_SPACE` | Variable (opcional) | Otro Space, p. ej. `usuario/sirap` |
 
