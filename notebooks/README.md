@@ -17,3 +17,7 @@ Secrets necesarios: `ROBOFLOW_API_KEY` (dataset). Para sincronizar lecturas, opc
 **Versión del 24/10/2026.** El backend usa un solo detector, YOLO11-s, y un solo OCR, fast-plate-ocr; las secciones
 se ordenaron según el enunciado (datos → preprocesamiento → modelado → optimización → evaluación). El entrenamiento de YOLO11-s (preset `completo`, 40 épocas, 0,70 h en una GPU L4)
 se conserva en Drive y el notebook no lo repite.
+
+## Umbral operativo OCR
+
+La aplicación usa un umbral de confianza OCR de **99 %**. Las lecturas por debajo pasan a verificación manual.
