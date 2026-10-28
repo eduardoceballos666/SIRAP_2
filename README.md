@@ -316,7 +316,7 @@ Resumen de [`docs/consideraciones_eticas.md`](docs/consideraciones_eticas.md):
 ## 10. Licencia
 
 Código bajo licencia [MIT](LICENSE). Los pesos entrenados con Ultralytics están sujetos a su licencia AGPL-3.0;
-el dataset de Roboflow es CC BY 4.0. Las atribuciones y condiciones de los demás componentes y recursos se detallan en [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+el dataset de Roboflow es CC BY 4.0; OpenCV 4.x se distribuye bajo Apache 2.0. Consulta [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) para atribuciones y condiciones adicionales. Las atribuciones y condiciones de los demás componentes y recursos se detallan en [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 
 ## 11. Agradecimientos y referencias
 
@@ -330,7 +330,7 @@ SIRAP integra componentes de terceros para detección, OCR, procesamiento de im�
 
 - **Detección y OCR:** [Ultralytics YOLO11](https://docs.ultralytics.com/models/yolo11/) y [fast-plate-ocr](https://github.com/ankandrew/fast-plate-ocr).
 - **Entrenamiento e inferencia:** [PyTorch](https://pytorch.org/) se utiliza en el entorno de entrenamiento; la aplicación desplegada ejecuta el modelo exportado mediante [ONNX Runtime](https://onnxruntime.ai/).
-- **Imágenes y datos:** [Pillow](https://python-pillow.org/), [NumPy](https://numpy.org/) y [Pandas](https://pandas.pydata.org/).
+- **Imágenes y datos:** [OpenCV](https://github.com/opencv/opencv) (`opencv-python-headless` 4.12.0.88; Apache 2.0) se usa para redimensionar imágenes y codificar JPEG; la detección la realiza YOLO11. [Pillow](https://python-pillow.org/), [NumPy](https://numpy.org/) y [Pandas](https://pandas.pydata.org/) complementan el procesamiento.
 - **Seguimiento de video:** [OC-SORT](https://github.com/noahcao/OC_SORT), [Roboflow Trackers](https://github.com/roboflow/trackers) y [Roboflow Supervision](https://github.com/roboflow/supervision).
 - **API y servidor:** [FastAPI](https://fastapi.tiangolo.com/) y [Uvicorn](https://www.uvicorn.org/).
 - **Interfaz web:** [Vue 3](https://vuejs.org/), [Vite](https://vite.dev/), [Pinia](https://pinia.vuejs.org/), [Vue Router](https://router.vuejs.org/), [Apache ECharts](https://echarts.apache.org/), [Vue ECharts](https://github.com/ecomfe/vue-echarts) y [Tailwind CSS](https://tailwindcss.com/).
