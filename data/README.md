@@ -50,3 +50,7 @@ operativas. La demo usa datos ficticios y no contiene la lista de vehículos de 
 
 > Estas imágenes **no** son capturas reales ni forman parte de la evaluación: existen para probar la interfaz. Las
 > métricas del modelo se calculan con los splits de *test* y con SAVH Guayaquil.
+
+## Umbral operativo OCR
+
+La aplicación usa un umbral de confianza OCR de **99 %**. Las lecturas por debajo pasan a verificación manual.
