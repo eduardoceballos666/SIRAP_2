@@ -12,7 +12,7 @@ short_description: Reconocimiento de placas y control de acceso (YOLO11 + OCR)
 
 # SIRAP · Sistema de Detección y Reconocimiento Automático de Placas
 
-Versión web (API FastAPI + interfaz Vue 3). Código fuente y documentación:
+**Versión del producto: SIRAP 1.0.** La API identifica su versión técnica como 2.0.0 y el paquete npm del frontend como 2.0.0. El tag de GitHub `v2.0` identifica el corte del código que incorpora la arquitectura FastAPI + Vue 3; no representa la versión del producto. Código fuente y documentación:
 https://github.com/eduardoceballos666/SIRAP_2
 
 Usuarios de demostración: `operador`, `supervisor` y `admin`; contraseña inicial `sirap2026`. Los registros contienen
