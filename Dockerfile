@@ -23,7 +23,7 @@ RUN chown user:user /home/user/app
 
 COPY --chown=user requirements.txt ./
 COPY --chown=user api/requirements.txt api/requirements.txt
-RUN pip install -r api/requirements.txt
+RUN pip install --require-hashes -r api/requirements.txt
 # Chromium solo consulta el nombre público visible en EcuadorLegalOnline. No automatiza CAPTCHA ni reportes de pago.
 RUN PLAYWRIGHT_BROWSERS_PATH=/ms-playwright python -m playwright install --with-deps chromium \
     && chmod -R a+rX /ms-playwright \
