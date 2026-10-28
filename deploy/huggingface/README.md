@@ -50,3 +50,7 @@ privado de destino.
 |---|---|---|
 | Persistencia de la aplicación | `SIRAP_DATA_GITHUB_TOKEN`, `SIRAP_DATA_GITHUB_REPO` | CSV operativos en `SIRAP_datos_privados`; restaura al iniciar y sincroniza cambios |
 | Exportación enriquecida | `GITHUB_TOKEN`, `GITHUB_DATA_REPOSITORY` (opcionales: `GITHUB_DATA_BRANCH`, `GITHUB_DATA_PATH`) | Eventos de detección enriquecidos en `data/detecciones.csv` |
+
+## Umbral operativo OCR
+
+La aplicación usa un umbral de confianza OCR de **99 %**. Las lecturas por debajo pasan a verificación manual.
