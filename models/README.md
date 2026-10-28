@@ -35,3 +35,7 @@ muestra un error y no procesa la imagen.
 El proyecto probó YOLOv8 + EasyOCR/PaddleOCR (v1), RF-DETR + OC-SORT y YOLOv8n antes de la versión final
 YOLO11-s + fast-plate-ocr. Si se conservan pesos de esas versiones, guárdelos como `model_v1.pt`,
 `model_v2.pt`, … con una línea en esta tabla indicando de qué versión son.
+
+## Umbral operativo OCR
+
+La aplicación usa un umbral de confianza OCR de **99 %**. Las lecturas por debajo pasan a verificación manual.
