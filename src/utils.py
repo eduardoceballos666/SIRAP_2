@@ -63,7 +63,7 @@ def load_config(path: str | os.PathLike | None = None) -> dict[str, Any]:
 
 
 def get_secret(name: str, default: str | None = None) -> str | None:
-    """Lee un secreto de ``st.secrets`` (Streamlit), de Colab o de una variable de entorno.
+    """Lee un secreto de ``st.secrets``, de Colab o de una variable de entorno.
 
     El orden es: variable de entorno → ``st.secrets`` → ``google.colab.userdata``.
     Nunca se escriben llaves en el código ni en ``config.yaml``.
@@ -134,7 +134,7 @@ def get_logger(name: str = "sirap") -> logging.Logger:
 def now_local() -> datetime:
     """Fecha y hora actuales en la zona de la configuración (America/Guayaquil), sin tzinfo.
 
-    Streamlit Community Cloud corre en UTC; sin esto el historial quedaría 5 horas adelantado.
+    Community Cloud corre en UTC; sin esto el historial quedaría 5 horas adelantado.
     """
     try:
         tz = ZoneInfo(load_config()["app"].get("zona_horaria", "America/Guayaquil"))
