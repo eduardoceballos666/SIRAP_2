@@ -186,9 +186,7 @@ print(decide_access(rec.plate, rec.ocr_confidence, store).titulo)   # ACCESO AUT
 
 ## 6. Interfaz de usuario
 
-**Opción D del enunciado: FastAPI + frontend Vue 3** (Vite, Pinia, Vue Router, Tailwind CSS, ECharts), con el diseño
-de la guía [`docs/img/vue_dashboard.png`](docs/img/vue_dashboard.png). Publicada en
-**https://eduardoceballos-sirap.hf.space** (Hugging Face Spaces). Guía completa: [manual de usuario](docs/manual_usuario.md).
+**Aplicación web:** SIRAP usa una API en FastAPI y un frontend en Vue 3 (Vite, Pinia, Vue Router, Tailwind CSS y ECharts). Está desplegada en Hugging Face Spaces mediante Docker. Consulte la [aplicación en vivo](https://eduardoceballos-sirap.hf.space), la captura del [dashboard](docs/img/vue_dashboard.png) y la [guía de usuario](docs/manual_usuario.md).
 
 | Módulo | Qué hace |
 |---|---|
@@ -247,8 +245,7 @@ documentación, notebooks o pruebas no coinciden con esos filtros. Los cambios r
 | `SIRAP_DATA_GITHUB_TOKEN` | Secret (obligatorio para despliegues) | Token fine-grained con acceso Contents: Read and write solo a `SIRAP_datos_privados`; Actions lo valida y lo guarda automáticamente como secreto del Space para que la API respalde los CSV. |
 | `HF_SPACE` | Variable (opcional) | Otro Space, p. ej. `usuario/sirap` |
 
-Fue necesario pagar a Hugging Face para que la aplicación pudiera ejecutarse en el Space; sin ese pago, no corría.
-La API ocupa ≈410 MB de RAM con los modelos cargados.
+**Despliegue actual:** Hugging Face Spaces ejecuta el contenedor Docker del repositorio en el puerto 7860. La API ocupa aproximadamente 410 MB de RAM con los modelos cargados. El despliegue automático requiere los secretos `HF_TOKEN` y `SIRAP_DATA_GITHUB_TOKEN`; también se recomienda configurar `SIRAP_JWT_SECRET`.
 
 > **Estado:** prototipo funcional. La barrera es **simulada** y la base de demostración contiene **datos ficticios**.
 > El Space tiene configurado el respaldo de sus tablas CSV en el repositorio privado `SIRAP_datos_privados`.
