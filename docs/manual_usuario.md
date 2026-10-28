@@ -67,6 +67,8 @@ SIRAP utiliza componentes de terceros para la detección y lectura de placas, el
 >
 > **• fast-plate-ocr:** reconocimiento de los caracteres de las placas.
 >
+> **• OpenCV (`opencv-python-headless` 4.12.0.88):** redimensionado y codificación JPEG; no es el detector de placas. Licencia Apache 2.0.
+>
 > **• Pillow, NumPy y Pandas:** procesamiento de imágenes y datos.
 >
 > **• FastAPI y Uvicorn:** API y servidor de la aplicación.
