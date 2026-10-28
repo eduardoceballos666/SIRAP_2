@@ -313,16 +313,31 @@ el dataset de Roboflow es CC BY 4.0.
 
 ## 11. Agradecimientos y referencias
 
-- Ultralytics YOLO11 — https://docs.ultralytics.com/models/yolo11/
-- fast-plate-ocr — https://github.com/ankandrew/fast-plate-ocr
-- OC-SORT / `trackers` y `supervision` de Roboflow — https://github.com/roboflow/trackers
-- Roboflow Universe, *License Plate Recognition* — https://universe.roboflow.com/roboflow-universe-projects/license-plate-recognition-rxg4e
-- [SAVH Guayaquil ANPR Plate Images Dataset — Zenodo](https://zenodo.org/records/21120307) (el registro no muestra licencia para este archivo específico)
-- FastAPI — https://fastapi.tiangolo.com/ · Vue 3 — https://vuejs.org/ · Vite — https://vite.dev/ · Pinia —
-  https://pinia.vuejs.org/ · Vue Router — https://router.vuejs.org/ · Tailwind CSS — https://tailwindcss.com/ ·
-  Apache ECharts — https://echarts.apache.org/
-- Hugging Face Spaces — https://huggingface.co/spaces
-- A la empresa que autorizó la toma de imágenes en su garita, y a los docentes del programa.
+### Agradecimientos
+
+A **Gladys María Villegas Rugel**, por la dirección y asesoría académica; a la empresa que autorizó la toma de imágenes en su garita y a los docentes del programa. Los autores y sus contribuciones se presentan en la [sección 9](#9-autores-y-contribuciones).
+
+### Componentes de software
+
+SIRAP integra componentes de terceros para detección, OCR, procesamiento de imágenes y datos, seguimiento de video, API, interfaz web y consultas de información pública:
+
+- **Detección y OCR:** [Ultralytics YOLO11](https://docs.ultralytics.com/models/yolo11/) y [fast-plate-ocr](https://github.com/ankandrew/fast-plate-ocr).
+- **Entrenamiento e inferencia:** [PyTorch](https://pytorch.org/) se utiliza en el entorno de entrenamiento; la aplicación desplegada ejecuta el modelo exportado mediante [ONNX Runtime](https://onnxruntime.ai/).
+- **Imágenes y datos:** [Pillow](https://python-pillow.org/), [NumPy](https://numpy.org/) y [Pandas](https://pandas.pydata.org/).
+- **Seguimiento de video:** [OC-SORT](https://github.com/noahcao/OC_SORT), [Roboflow Trackers](https://github.com/roboflow/trackers) y [Roboflow Supervision](https://github.com/roboflow/supervision).
+- **API y servidor:** [FastAPI](https://fastapi.tiangolo.com/) y [Uvicorn](https://www.uvicorn.org/).
+- **Interfaz web:** [Vue 3](https://vuejs.org/), [Vite](https://vite.dev/), [Pinia](https://pinia.vuejs.org/), [Vue Router](https://router.vuejs.org/), [Apache ECharts](https://echarts.apache.org/), [Vue ECharts](https://github.com/ecomfe/vue-echarts) y [Tailwind CSS](https://tailwindcss.com/).
+- **Consulta de información pública:** [Playwright](https://playwright.dev/) y [Chromium](https://www.chromium.org/).
+
+Las marcas, derechos y licencias de los componentes de terceros pertenecen a sus respectivos titulares. La licencia MIT del código de SIRAP, la licencia aplicable a los pesos de Ultralytics y la licencia del dataset de Roboflow se indican en la [sección 10](#10-licencia).
+
+### Datos y recursos del proyecto
+
+- [Roboflow Universe — License Plate Recognition](https://universe.roboflow.com/roboflow-universe-projects/license-plate-recognition-rxg4e) (dataset utilizado para entrenar y evaluar el detector; licencia CC BY 4.0).
+- [SAVH Guayaquil ANPR Plate Images Dataset — Zenodo](https://zenodo.org/records/21120307) (el registro no muestra una licencia para este archivo específico).
+- **Código fuente:** [GitHub — eduardoceballos666/SIRAP_2](https://github.com/eduardoceballos666/SIRAP_2).
+- **Plataforma de despliegue:** [Hugging Face Spaces — eduardoceballos/SIRAP](https://huggingface.co/spaces/eduardoceballos/SIRAP).
+- **Aplicación en vivo:** [eduardoceballos-sirap.hf.space](https://eduardoceballos-sirap.hf.space).
 
 ## 12. Videos
 
