@@ -1,5 +1,3 @@
-"""Punto de entrada para Streamlit Community Cloud (https://sirapapp.streamlit.app/).
-
 La aplicación vive en ``app/app.py`` (estructura pedida en el proyecto final). Este archivo existe
 para que el despliegue actual, configurado con ``app.py`` en la raíz, siga funcionando sin cambios.
 
