@@ -1,4 +1,6 @@
-# Consideraciones éticas – SIRAP 2
+# Consideraciones éticas – SIRAP 1.0
+
+> **Versionado:** SIRAP es el producto versión **1.0**. API 2.0.0, paquete frontend 2.0.0 y tag GitHub `v2.0` son identificadores técnicos de componentes/código; no cambian la versión del producto.
 
 SIRAP lee placas de vehículos, las asocia con personas y empresas y decide si una barrera se abre. Una placa no es
 solo un número: **identifica indirectamente a una persona** y, acumulada en un historial, revela sus horarios y
@@ -76,7 +78,7 @@ reparte igual** entre grupos de vehículos/placas. Por eso:
 - En el Space, los secretos configurados permiten restaurar y sincronizar las tablas CSV con el repositorio privado
   `SIRAP_datos_privados`. El contenedor conserva una copia de trabajo temporal; el respaldo privado es la fuente de
   persistencia entre reinicios. En instalaciones propias, restrinja el repositorio y los permisos de acceso.
-- **Versión web (SIRAP 2):** la imagen viaja por HTTPS hasta la API, se procesa en memoria y se descarta; la respuesta
+- **Versión web (producto SIRAP 1.0):** la imagen viaja por HTTPS hasta la API, se procesa en memoria y se descarta; la respuesta
   devuelve temporalmente el recorte para mostrarlo al operador. Las «lecturas de esta sesión» se guardan en la
   memoria del navegador hasta que se registran. Los CSV de datos de la demo son ficticios y se respaldan en el
   repositorio privado configurado; las imágenes reales de la garita no se publican.
@@ -140,7 +142,7 @@ sustituto: siempre hay un humano que confirma.
 - **Si el modelo falla, la decisión final es del operador**, que confirma cada apertura; el sistema no abre solo.
 - La **apertura manual** exige motivo (≥ 10 caracteres) y confirmación explícita, y queda registrada con nombre.
 - El **historial es de solo inserción**: la app no permite editar ni borrar operaciones.
-- **Autenticación por usuario (SIRAP 2):** cada persona inicia sesión con su contraseña (guardada solo como hash
+- **Autenticación por usuario (SIRAP 1.0):** cada persona inicia sesión con su contraseña (guardada solo como hash
   PBKDF2-SHA256 con sal) y recibe una sesión firmada (JWT) que vence a las 12 h. Cada operación queda asociada al
   usuario autenticado, no a un nombre escrito a mano, lo que permite auditar quién abrió la barrera.
 - **Permisos por rol, comprobados en el servidor:** operador (reconoce y registra), supervisor (además exporta el
