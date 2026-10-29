@@ -370,7 +370,7 @@ Evite reflejos, contraluz, placas sucias y desenfoque por movimiento.
 
 En SIRAP 1.0, para fotografías se recomienda que el lado menor tenga al menos 160 píxeles.
 
-En SIRAP 1.0, el límite documentado para archivos de imagen es 1 GB; por facilidad de uso, conviene trabajar con fotos mucho más pequeñas.
+En SIRAP 1.0, el límite documentado para archivos de imagen es 200 MB; por facilidad de uso, conviene trabajar con fotos mucho más pequeñas.
 
 En caso de duda, repita la toma y no utilice caracteres que no puedan comprobarse visualmente.
 
