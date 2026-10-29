@@ -2,11 +2,10 @@
 
 **MANUAL DE USUARIO**
 
+![](img/manual_usuario_image0.jpg)
 Sistema de Detección y Reconocimiento Automático de Placas
 
 Guía práctica de operación, consulta y administración en computadora y dispositivos móviles.
-
-![](img/manual_usuario_image0.jpg)
 
 | **VERSIÓN / REVISIÓN**                                          | **DESTINATARIOS**                          |
 |-----------------------------------------------------------------|--------------------------------------------|
