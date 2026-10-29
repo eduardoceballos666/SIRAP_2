@@ -1,5 +1,7 @@
 **SIRAP**
+
 ![](img/manual_usuario_image0.jpg)
+
 **Sistema de Detección y Reconocimiento Automático de Placas**
 
 **MANUAL DE USUARIO**
