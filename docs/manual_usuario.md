@@ -370,7 +370,7 @@ Evite reflejos, contraluz, placas sucias y desenfoque por movimiento.
 
 En SIRAP 1.0, para fotografías se recomienda que el lado menor tenga al menos 160 píxeles.
 
-En SIRAP 1.0, el límite documentado para archivos de imagen es 200 MB; por facilidad de uso, conviene trabajar con fotos mucho más pequeñas.
+En SIRAP 1.0, el tamaño máximo documentado para las imágenes es de 200 MB, de acuerdo con las restricciones de compatibilidad de Hugging Face Spaces. Su infraestructura puede limitar el tamaño de las solicitudes HTTP a entre 100 y 200 MB, por lo que superar ese máximo podría generar un error. Para facilitar la carga y el procesamiento, se recomienda usar imágenes mucho más pequeñas.
 
 En caso de duda, repita la toma y no utilice caracteres que no puedan comprobarse visualmente.
 
