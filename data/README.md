@@ -33,7 +33,7 @@ punta a punta (sección 7 del notebook).
 
 El notebook mantiene sus archivos de trabajo en `registros_csv/`; ese flujo es independiente de la aplicación web.
 
-**Fuente única en producción:** el repositorio privado [SIRAP_datos_privados](https://github.com/eduardoceballos666/SIRAP_datos_privados). Las siete tablas operativas se guardan allí (no en el repositorio público):
+**Fuente única en producción:** el repositorio privado [SIRAP_datos_privados](https://github.com/eduardoceballos666/SIRAP_datos_privados). Los seis CSV principales que maneja `src/storage.py` y el CSV separado de detecciones enriquecidas (siete archivos en total) se guardan allí, no en el repositorio público:
 - `data/processed/vehiculos.csv`, `autorizaciones.csv`, `operaciones.csv`;
 - `data/processed/usuarios.csv`, `garitas.csv`, `credenciales.csv` (solo hashes de contraseñas);
 - `data/processed/detecciones.csv` (exportación enriquecida; usa el mismo secreto).
