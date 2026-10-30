@@ -1,0 +1,46 @@
+{
+  "Regla actual (OCR_CONF_MIN = None)": {
+    "falsos_autorizados": 0,
+    "no_autorizadas": 202,
+    "rechazos_indebidos": 1,
+    "autorizadas": 197,
+    "verificacion_manual": 0.040100250626566414,
+    "peor_caso_falsos_autorizados": 0.06265664160401002,
+    "tabla": {
+      "AUTORIZADO": {
+        "autorizada": 184,
+        "no autorizada": 0
+      },
+      "VERIFICACION_MANUAL": {
+        "autorizada": 12,
+        "no autorizada": 4
+      },
+      "NO_REGISTRADO": {
+        "autorizada": 1,
+        "no autorizada": 198
+      }
+    }
+  },
+  "Con el umbral sugerido (OCR_CONF_MIN = 0.99)": {
+    "falsos_autorizados": 0,
+    "no_autorizadas": 202,
+    "rechazos_indebidos": 1,
+    "autorizadas": 197,
+    "verificacion_manual": 0.15538847117794485,
+    "peor_caso_falsos_autorizados": 0.03007518796992481,
+    "tabla": {
+      "AUTORIZADO": {
+        "autorizada": 165,
+        "no autorizada": 0
+      },
+      "VERIFICACION_MANUAL": {
+        "autorizada": 31,
+        "no autorizada": 31
+      },
+      "NO_REGISTRADO": {
+        "autorizada": 1,
+        "no autorizada": 171
+      }
+    }
+  }
+}

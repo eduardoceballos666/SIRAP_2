@@ -1,0 +1,49 @@
+{
+  "umbral_sugerido": 0.99,
+  "modelo_ocr": "fast-plate-ocr cct-s-v2-global-model",
+  "auroc": 0.7624598930481283,
+  "umbrales": [
+    {
+      "umbral": "solo formato",
+      "a verificación manual": 0.0,
+      "EMR de las aceptadas": 0.9373433583959899,
+      "equivocadas aceptadas": 25
+    },
+    {
+      "umbral": 0.5,
+      "a verificación manual": 0.0,
+      "EMR de las aceptadas": 0.9373433583959899,
+      "equivocadas aceptadas": 25
+    },
+    {
+      "umbral": 0.7,
+      "a verificación manual": 0.02506265664160401,
+      "EMR de las aceptadas": 0.9434447300771208,
+      "equivocadas aceptadas": 22
+    },
+    {
+      "umbral": 0.8,
+      "a verificación manual": 0.040100250626566414,
+      "EMR de las aceptadas": 0.9503916449086162,
+      "equivocadas aceptadas": 19
+    },
+    {
+      "umbral": 0.9,
+      "a verificación manual": 0.07518796992481203,
+      "EMR de las aceptadas": 0.962059620596206,
+      "equivocadas aceptadas": 14
+    },
+    {
+      "umbral": 0.95,
+      "a verificación manual": 0.09774436090225563,
+      "EMR de las aceptadas": 0.9638888888888889,
+      "equivocadas aceptadas": 13
+    },
+    {
+      "umbral": 0.99,
+      "a verificación manual": 0.13032581453634084,
+      "EMR de las aceptadas": 0.9654178674351584,
+      "equivocadas aceptadas": 12
+    }
+  ]
+}
