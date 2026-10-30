@@ -87,7 +87,7 @@ Detalles, EDA y decisiones de preprocesamiento: [`docs/analisis_datos.md`](docs/
 defecto de Ultralytics; recorte con margen antes del OCR.
 **Entrenamiento:** `yolo11s.pt` (COCO) → 40 épocas, imgsz 640, batch 16 (nbs 64), paciencia 10, semilla 0, AdamW.
 **Optimización:** los umbrales se calibraron en *val* (detector: precisión ≥ 95 %; OCR: estudio de confianza en SAVH); la inferencia de video se comparó a 640 y 1280 px. Los 24 *trials* de Optuna seleccionaron hiperparámetros según mAP@0.5:0.95 en *val*; `lr0` explicó el 62 % de la variación. El *test* se reservó para la comparación final del modelo base y el optimizado (1.020 imágenes, 1.085 placas): mAP@0.5:0.95 pasó de 0,693 a 0,704 (+0,011) y mAP@0.5 de 0,97223 a 0,97284 (+0,00061; redondeado a tres decimales: 0,972 y 0,973). Se mantiene el modelo entregado — ver [`notebooks/04_optimizacion.ipynb`](notebooks/04_optimizacion.ipynb) y [`docs/optimizacion.md`](docs/optimizacion.md).
-**Validación de calidad pendiente (30/10/2026):** las 69 referencias SAVH sugeridas requieren confirmación visual y la mejora del detector debe contrastarse en varias semillas. Se prepararon los ejecutables `scripts/auditar_savh.py` y `scripts/validar_multisemilla_yolo11.py`; **no se han completado las revisiones humanas ni las seis nuevas corridas de entrenamiento**. Procedimiento y condiciones de cierre: [`docs/validacion_savh_multisemilla.md`](docs/validacion_savh_multisemilla.md). El modelo base publicado no cambia.
+**Validación de calidad pendiente (30/10/2026):** las 69 referencias SAVH sugeridas requieren confirmación visual y la mejora del detector debe contrastarse en varias semillas. Se prepararon los ejecutables `scripts/auditar_savh.py` y `scripts/validar_multisemilla_yolo11.py`; **las seis corridas multisemilla ya están registradas; la revisión humana de las 69 etiquetas SAVH sigue pendiente**. Procedimiento y condiciones de cierre: [`docs/validacion_savh_multisemilla.md`](docs/validacion_savh_multisemilla.md). El modelo base publicado no cambia.
 **Métricas:** mAP@0.5 y mAP@0.5:0.95 (también por tamaño de placa), precisión, recall y F1 al umbral calibrado;
 EMR y CER para el OCR; falsos autorizados y tiempo por decisión para el sistema.
 
@@ -372,3 +372,8 @@ Las marcas, derechos y licencias de los componentes de terceros pertenecen a sus
 
 - 🎬 **Video pitch (5 min):** _pendiente de grabación y publicación_
 - 🎤 **Video de respuestas a las preguntas:** _pendiente de grabación y publicación_
+
+
+### Actualización: validación multisemilla (30/10/2026)
+
+Las seis corridas (base y optimizada, semillas 0, 1 y 2) se completaron. El mAP50:95 mejoró en los tres pares: **+0,3743 puntos porcentuales en promedio** (desviación estándar muestral **0,3153 pp**); el recall medio cambió aproximadamente **+0,3017 pp**. Es evidencia descriptiva de tres semillas, no significación estadística ni una evaluación punta a punta. Se conserva el modelo publicado y sigue pendiente verificar visualmente las 69 etiquetas SAVH. [Detalle y limitaciones](docs/validacion_savh_multisemilla.md) · [Métricas CSV](results/metrics/validacion_multisemilla_comparacion.csv).
