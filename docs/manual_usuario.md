@@ -261,14 +261,6 @@ Permisos y conectividad suficientes para acceder a la cámara o transmitir video
 
 Figura 1. Pantalla de inicio de sesión SIRAP.
 
-## Cambiar el idioma de la interfaz
-
-SIRAP ofrece **Español** (idioma predeterminado) y **English** desde la misma [dirección de la aplicación](https://eduardoceballos-sirap.hf.space); no se requiere una URL distinta. En el inicio de sesión, use el selector **Idioma**. Después de ingresar, encontrará el mismo selector en el menú común, como se muestra en la figura. Elija **English** para cambiar a inglés o **Español** para volver a español. La preferencia se conserva en este navegador al navegar y al volver a abrir SIRAP.
-
-![Selector de idioma Español / English en el menú común de SIRAP](img/selector_idioma_sirap.jpeg)
-
-*Figura 2. Selector «Idioma» del menú común. Seleccione Español o English para cambiar el idioma de la interfaz.*
-
 **01** Abra [SIRAP](https://eduardoceballos-sirap.hf.space) desde el navegador autorizado de la organización.
 
 **02** Escriba su nombre de usuario en el campo Usuario.
@@ -276,6 +268,14 @@ SIRAP ofrece **Español** (idioma predeterminado) y **English** desde la misma [
 **03** Ingrese su contraseña personal.
 
 **04** Pulse Ingresar y compruebe que aparece la pantalla principal.
+
+## Cambiar el idioma de la interfaz
+
+SIRAP ofrece **Español** (idioma predeterminado) y **English** desde la misma [dirección de la aplicación](https://eduardoceballos-sirap.hf.space); no se requiere una URL distinta. En el inicio de sesión, use el selector **Idioma**. Después de ingresar, encontrará el mismo selector en el menú común, como se muestra en la figura. Elija **English** para cambiar a inglés o **Español** para volver a español. La preferencia se conserva en este navegador al navegar y al volver a abrir SIRAP.
+
+![Selector de idioma Español / English en el menú común de SIRAP](img/selector_idioma_sirap.jpeg)
+
+*Figura 2. Selector «Idioma» del menú común. Seleccione Español o English para cambiar el idioma de la interfaz.*
 
 ## Perfiles disponibles
 
