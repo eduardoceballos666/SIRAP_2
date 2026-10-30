@@ -1,0 +1,87 @@
+{
+  "protocol": {
+    "sample_interval_s": 1.0,
+    "ocr_confidence_threshold": 0.94,
+    "consecutive_same_plate": 2,
+    "max_gap_s": 7.5,
+    "replay_after_video_end_s": 15.0,
+    "detector": "YOLO11-s (ONNX)",
+    "ocr": "cct-s-v2-global-model",
+    "inference_device": "CPU",
+    "repository_commit": "a240ce7fd0a68f86be95f88b3f6bcb75c9213f76",
+    "detector_sha256": "5e54250fdcd7007ebd0102f8097ef8d90ebdb869933e8eee9624dfb0155a6199",
+    "platform": "Linux-6.18.57-x86_64-with-glibc2.39"
+  },
+  "summary": {
+    "videos": 5,
+    "events_confirmed": 5,
+    "exact_event_matches": 3,
+    "event_emr": 0.6,
+    "mean_time_to_confirmation_s": 10.6,
+    "median_time_to_confirmation_s": 8.0
+  },
+  "events": [
+    {
+      "video": "Video_05.mp4",
+      "duration_s": 35.965,
+      "frames_sampled": 27,
+      "accepted_frames": 2,
+      "confirmed": true,
+      "exact_event_match": true,
+      "time_to_confirmation_s": 26.0,
+      "confirmation_inference_ms": 1161.3,
+      "wall_runtime_s": 26.634,
+      "video_sha256": "020b28dd2877f5afa2ae425abf58e6c3ac8f83c4c950964cd7a06fd9021d3625"
+    },
+    {
+      "video": "Video_06.mp4",
+      "duration_s": 14.298,
+      "frames_sampled": 8,
+      "accepted_frames": 2,
+      "confirmed": true,
+      "exact_event_match": true,
+      "time_to_confirmation_s": 7.0,
+      "confirmation_inference_ms": 225.0,
+      "wall_runtime_s": 6.629,
+      "video_sha256": "f3834cdd7467b532a2a113384234f9dd31cf82caa9102cfc53a9ca54f42544a0"
+    },
+    {
+      "video": "video_01.mp4",
+      "duration_s": 12.667,
+      "frames_sampled": 9,
+      "accepted_frames": 2,
+      "confirmed": true,
+      "exact_event_match": true,
+      "time_to_confirmation_s": 8.0,
+      "confirmation_inference_ms": 202.5,
+      "wall_runtime_s": 6.286,
+      "video_sha256": "a97ea3c3cfccc12b152a5b78786b25aa395b6dcc1bdd017156d1fdf88e87bcc7"
+    },
+    {
+      "video": "video_02.mp4",
+      "duration_s": 8.267,
+      "frames_sampled": 4,
+      "accepted_frames": 2,
+      "confirmed": true,
+      "exact_event_match": false,
+      "time_to_confirmation_s": 3.0,
+      "confirmation_inference_ms": 247.3,
+      "wall_runtime_s": 1.776,
+      "video_sha256": "89fb919442aa166baf3457ac1f620cc72959c6c669d19b228e18b98a72294230"
+    },
+    {
+      "video": "video_04.mp4",
+      "duration_s": 6.368,
+      "frames_sampled": 10,
+      "accepted_frames": 3,
+      "confirmed": true,
+      "exact_event_match": false,
+      "time_to_confirmation_s": 9.0,
+      "confirmation_inference_ms": 220.4,
+      "wall_runtime_s": 9.187,
+      "video_sha256": "5e114882164f0fdbf5e2eba386541be7e8c2cfe6aad92a9658b99323a47c0cde"
+    }
+  ],
+  "ground_truth_sha256": "ac3cb02cffc8cd8251d2d3ce192e6a73d716d15d8e42906e4213e7db1e71202a",
+  "pathology": "E2E event-level read confirmation; it does not measure user confirmation, storage writes, authorization persistence, or physical barrier movement."
+}

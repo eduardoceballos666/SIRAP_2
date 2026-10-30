@@ -2,7 +2,7 @@
 
 **Actualización de cierre de etiquetas (30/10/2026):** se registraron respuestas para los 69 grupos SAVH y las 330 referencias de cámara; `fila_gt=398` está **marcada `ilegible`** y excluida. El EMR offline condicionado a estas respuestas es **388/398 = 97,49 %**. Los apartados 1–7 documentan etapas anteriores y sus estados pendientes son históricos. Véase el apartado 8 y [las métricas registradas](../results/metrics/ocr_savh_aprobaciones_398.json). **No equivale a una evaluación ciega ni punta a punta.**
 
-> **Estado: entrenamiento multisemilla completado; revisión visual SAVH pendiente. No atribuir al modelo publicado una mejora no desplegada.**
+> **Estado: validación multisemilla completada; piloto visual ciego ejecutado pero no suficiente para cierre; evaluación E2E en cinco clips completada (3/5 exactas). La revisión humana independiente y la evaluación del video operativo con referencia siguen pendientes. No atribuir al modelo publicado una mejora no desplegada.**
 > Los archivos de este procedimiento no reemplazan `models/best_model.pt`, `models/best_model.onnx`,
 > `config/config.yaml` ni el Space en Hugging Face.
 
@@ -171,3 +171,32 @@ Con el caché OCR original se reproducen los resultados históricos `374/399 = 9
 **Evidencia privada en Drive:** `ocr/SAVH_ground_truth_cerrado_739.csv` (las 739 filas y estados, una excluida), `ocr/SAVH_ground_truth_evaluable_398.csv`, `ocr/SAVH_resultado_ocr_398_referencias_aprobadas.csv` y `ocr/SAVH_metricas_aprobaciones_398_cerrado.json`. El resumen **agregado**, sin placas ni fotos, está en [`results/metrics/ocr_savh_aprobaciones_398.json`](../results/metrics/ocr_savh_aprobaciones_398.json). Los archivos históricos `ocr_savh.json` y `ocr_savh_revision_asistida_397.json` no se sobrescriben. El despliegue y los pesos publicados permanecen sin cambios.
 
 **Estado actual:** decisiones de etiquetas **registradas y aplicadas**, una imagen **excluida por ilegibilidad**, recálculo offline terminado; **validación ciega independiente y evaluación real punta a punta en video todavía pendientes**.
+
+
+## 9. Piloto ciego SAVH y evaluación E2E con clips de prueba (30/10/2026)
+
+### 9.1 Relectura visual ciega del split test de OCR
+
+Se preparó una pasada visual sin mostrar al anotador las predicciones del OCR. De las 86 imágenes del split `test` de `evidence/savh/ocr/afinamiento/particion.csv`, se releyeron 84; se excluyeron antes de anotar dos cuyos identificadores con placa quedaron visibles durante la preparación. Las referencias visuales se congelaron antes de ejecutar el modelo `cct-s-v2-global-model` de la aplicación. No se modificó el ground truth original.
+
+Resultados **provisionales** de las 84 imágenes: EMR por imagen **73/84 = 86,90 %**, EMR por placa única **63/74 = 85,14 %**, CER medio **2,04 %**; con confianza mínima 0,94 se aceptaron 80/84 (**95,24 % de cobertura**) y 9 de esas 80 lecturas fueron distintas de la referencia visual.
+
+La relectura visual coincide con 71/84 (**84,52 %**) de las referencias archivadas. Las 13 diferencias requieren adjudicación. Además, esta pasada la realizó el asistente visual y no una segunda persona independiente. Por estas dos razones, se registra como **piloto de control de etiquetas**, no como validación ciega independiente cerrada. No se sustituyen las métricas publicadas ni se actualizan las etiquetas por escoger la salida del OCR. Hace falta que una persona independiente revise, sin ver las predicciones, las 13 discrepancias y confirme las etiquetas antes de recalcular. El resumen agregado, sin placas, está en [métricas del piloto ciego](../results/metrics/ocr_savh_validacion_ciega_piloto.json); las anotaciones individuales se conservan fuera del repositorio público.
+
+### 9.2 Evaluación punta a punta de lectura en video
+
+Se procesaron cinco MP4 disponibles en `Videos_Imagenes_Prueba/` con los pesos `models/best_model.onnx` y el OCR activo `cct-s-v2-global-model` (CPU). Se anotó visualmente el vehículo principal de cada clip antes de inferir. El evaluador reproduce la lógica de la interfaz: muestreo cada 1 s, confianza OCR ≥0,94, dos cuadros con la misma placa dentro de 7,5 s y repetición del video durante 15 s después del final si todavía no hay confirmación.
+
+| Resultado | Valor |
+|---|---:|
+| Clips / eventos anotados | 5 |
+| Lecturas confirmadas en dos cuadros | 5/5 |
+| Coincidencias exactas con la referencia visual | **3/5 (60 %)** |
+| Tiempo hasta la confirmación, mediana de la línea de tiempo del video | 8 s |
+| Tiempo hasta la confirmación, promedio | 10,6 s |
+
+En dos clips el sistema confirmó una lectura incorrecta; ambas superaron el umbral operativo. No se publican las placas. El tercer archivo `video_03.z03` es solo una parte de un archivo dividido, no un video reproducible, y se excluyó. Estos cinco clips no sustituyen el video operativo `video_camiones.mp4`: este último y una referencia anotada por evento no estaban disponibles en el repositorio ni en Drive al ejecutar la evaluación. Por ello, el resultado es una medición reproducible de clips de prueba, no una validación del video operativo. Tampoco mide el registro en almacenamiento ni el accionamiento de una barrera física.
+
+El script reproducible es [`scripts/evaluate_video_e2e.py`](../scripts/evaluate_video_e2e.py); el resumen sin placas y los hashes de los archivos probados están en [video_e2e_muestra.json](../results/metrics/video_e2e_muestra.json). La tabla privada de referencias `video_path,plate_gt` no se publica.
+
+**Estado de las dos tareas:** la lectura de video ya tiene una evaluación de cinco clips, con dos errores de aceptación que deben corregirse antes de adoptar cambios; falta evaluar el video operativo con su ground truth. La validación ciega independiente queda pendiente hasta adjudicar las 13 discrepancias mediante un revisor humano independiente.

@@ -1,0 +1,24 @@
+{
+  "status": "pilot_only_independent_human_review_pending",
+  "dataset": "SAVH OCR afinamiento test split",
+  "blind_visual_reannotation": true,
+  "annotator": "assistant visual pass; not a second independent human reviewer",
+  "excluded_before_annotation": 2,
+  "n_images": 84,
+  "n_unique_plates": 74,
+  "agreement_with_archived_reference": {
+    "agree": 71,
+    "n": 84,
+    "rate": 0.8452380952380952
+  },
+  "ocr_model": "cct-s-v2-global-model",
+  "image_emr": 0.8690476190476191,
+  "unique_plate_emr": 0.8513513513513513,
+  "mean_cer": 0.02040816326530612,
+  "threshold": 0.94,
+  "coverage": 0.9523809523809523,
+  "accepted_images": 80,
+  "errors_among_accepted": 9,
+  "private_annotation_sha256": "01b40e4d557ae5cd59a5e1eb2671551f20ccf9ef9a138cf74e32683cf3bfc7fe",
+  "caveat": "The 13 label disagreements have not been adjudicated. Do not interpret these pilot metrics as a final blind independent validation; original GT and published metrics remain unchanged."
+}

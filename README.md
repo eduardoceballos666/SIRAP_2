@@ -395,6 +395,13 @@ El cotejo entre **330 etiquetas de cámara** y las predicciones OCR guardadas de
 
 Las dos pestañas de la hoja SAVH contienen decisiones para los **69 grupos** de sugerencias y las **330 referencias de cámara** (329 `ok` y un `ilegible`). El grupo `n=20` se aprobó mediante sus copias idénticas 21 y 22. La imagen `fila_gt=398` se marcó `ilegible` y se **excluye**, sin asignar una placa inventada. El `ground truth` trazable corregido se conserva en Drive privado.
 
-El cálculo offline reutilizando las salidas OCR anteriores resulta en **388 coincidencias exactas de 398 imágenes únicas (EMR 97,49 %)**; con confianza offline ≥94 %, se aceptan 362 lecturas (359 aciertos, 3 errores). **No representa una mejora demostrada del OCR**, ya que algunas etiquetas se aprobaron viendo las propias propuestas OCR; tampoco valida el video ni la operación de barrera. Los resultados de 399 y 397 imágenes del historial siguen disponibles, pero no son el corte más reciente. Se conserva sin cambios el modelo publicado y el despliegue.
+El cálculo offline reutilizando las salidas OCR anteriores resulta en **388 coincidencias exactas de 398 imágenes únicas (EMR 97,49 %)**; con confianza offline ≥94 %, se aceptan 362 lecturas (359 aciertos, 3 errores). **No representa una mejora demostrada del OCR**, ya que algunas etiquetas se aprobaron viendo las propias propuestas OCR. Los resultados de 399 y 397 imágenes del historial siguen disponibles, pero no son el corte más reciente. Se conserva sin cambios el modelo publicado y el despliegue. El piloto ciego y la evaluación de clips de video se documentan debajo.
 
 [Detalle, metodología y advertencias](docs/validacion_savh_multisemilla.md) · [Métricas agregadas registradas](results/metrics/ocr_savh_aprobaciones_398.json).
+
+
+### Evaluación de seguimiento: ceguera y videos (30/10/2026)
+
+La pasada visual ciega preliminar del split test SAVH cubrió 84 de 86 imágenes; sus etiquetas coinciden con 71/84 referencias archivadas. **No cierra la validación independiente**: faltan adjudicar 13 diferencias y una segunda revisión humana. Sus métricas OCR se publican solo como piloto, sin placas: [resumen](results/metrics/ocr_savh_validacion_ciega_piloto.json).
+
+La evaluación E2E de cinco clips de prueba confirmó una lectura en dos cuadros para los cinco; **tres coincidieron exactamente (3/5)** y dos fueron lecturas incorrectas aceptadas. El video operativo con ground truth no estuvo disponible. Este resultado no valida la barrera, el almacenamiento ni el video operativo; véase el [protocolo y sus limitaciones](docs/validacion_savh_multisemilla.md#92-evaluacion-punta-a-punta-de-lectura-en-video) y el [resumen de métricas](results/metrics/video_e2e_muestra.json).
