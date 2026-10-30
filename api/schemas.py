@@ -81,6 +81,7 @@ class OperationIn(BaseModel):
     motivo: Optional[str] = Field(default=None, max_length=250)
     origen: Literal["DETECCION", "MANUAL"] = "DETECCION"
     tiempo_ms: Optional[float] = None
+    operacion_id: Optional[str] = Field(default=None, min_length=36, max_length=36)
 
 
 class OperationOut(BaseModel):
@@ -100,6 +101,8 @@ class VehicleIn(BaseModel):
     tipo: Literal["LIVIANO", "CAMION", "MOTO", "OTRO"] = "LIVIANO"
     propietario: Optional[str] = None
     transportista: Optional[str] = None
+    placa_confirmada: bool = False
+    autorizar: bool = False
 
 
 class AdminVehicleIn(BaseModel):
