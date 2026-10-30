@@ -1,7 +1,8 @@
-"""Respaldo privado de los CSV de SIRAP en GitHub Contents API.
+"""GitHub privado es la fuente persistente de CSV operativos de SIRAP.
 
-El repositorio se valida como privado antes de leer o guardar datos. El token solo se
-lee desde el entorno; nunca se escribe en archivos ni registros.
+El disco del hosting se usa solo como copia de trabajo. Las escrituras usan el
+SHA de GitHub para evitar sobreescribir cambios concurrentes o registros previos.
+No se envían datos a ningún repositorio público.
 """
 from __future__ import annotations
 
@@ -25,22 +26,26 @@ _PRIVATE_REPO_VERIFIED = False
 
 
 class GitHubStorageError(RuntimeError):
-    """Fallo de acceso al respaldo privado de datos."""
+    """Fallo al leer, confirmar o escribir CSV en GitHub privado."""
 
 
 def _token() -> str | None:
     return os.getenv("SIRAP_DATA_GITHUB_TOKEN") or None
 
 
+def remote_storage_required() -> bool:
+    return os.getenv("SIRAP_GITHUB_REQUIRED", "").strip().lower() in ("1", "true", "yes", "si", "sí")
+
+
 def durable_backup_configured() -> bool:
-    """Una barrera física requiere token para persistir antes de enviar la orden."""
+    """La presencia del token no prueba acceso; la escritura comprueba el repo."""
     return bool(_token())
 
 
 def _request(method: str, path: str, payload: dict | None = None) -> dict | None:
     token = _token()
     if not token:
-        return None
+        raise GitHubStorageError("Falta SIRAP_DATA_GITHUB_TOKEN para acceder al almacenamiento privado.")
     body = json.dumps(payload).encode("utf-8") if payload is not None else None
     request = urllib.request.Request(
         API + path,
@@ -50,7 +55,7 @@ def _request(method: str, path: str, payload: dict | None = None) -> dict | None
             "Authorization": f"Bearer {token}",
             "Accept": "application/vnd.github+json",
             "X-GitHub-Api-Version": "2022-11-28",
-            "User-Agent": "SIRAP-private-csv-backup",
+            "User-Agent": "SIRAP-private-csv-primary",
             **({"Content-Type": "application/json"} if body is not None else {}),
         },
     )
@@ -60,14 +65,15 @@ def _request(method: str, path: str, payload: dict | None = None) -> dict | None
     except urllib.error.HTTPError as exc:
         if exc.code == 404:
             return None
-        raise GitHubStorageError(f"GitHub respondió HTTP {exc.code} al acceder al respaldo.") from exc
-    except (urllib.error.URLError, TimeoutError, json.JSONDecodeError) as exc:
-        raise GitHubStorageError(f"No se pudo acceder al respaldo privado de GitHub: {exc}") from exc
+        # Un 409/422 siempre significa abortar, NUNCA repetir la misma copia antigua.
+        raise GitHubStorageError(f"GitHub respondió HTTP {exc.code} al acceder al CSV privado.") from exc
+    except (urllib.error.URLError, TimeoutError, ValueError) as exc:
+        raise GitHubStorageError("No se pudo acceder al repositorio privado de GitHub.") from exc
 
 
 def _repo_path(file_name: str) -> str:
     if file_name not in _ALLOWED:
-        raise ValueError(f"CSV no permitido para sincronización: {file_name}")
+        raise ValueError("CSV no permitido para sincronización: " + file_name)
     owner, repo = REPOSITORY.split("/", 1)
     return f"/repos/{urllib.parse.quote(owner)}/{urllib.parse.quote(repo)}/contents/data/processed/{file_name}"
 
@@ -75,82 +81,110 @@ def _repo_path(file_name: str) -> str:
 def _verify_private_repository() -> None:
     global _PRIVATE_REPO_VERIFIED
     if not _token():
-        return
+        raise GitHubStorageError("GitHub es obligatorio: configure SIRAP_DATA_GITHUB_TOKEN.")
     if _PRIVATE_REPO_VERIFIED:
         return
     owner, repo = REPOSITORY.split("/", 1)
     info = _request("GET", f"/repos/{urllib.parse.quote(owner)}/{urllib.parse.quote(repo)}")
     if not info or info.get("private") is not True:
-        raise GitHubStorageError(f"El repositorio {REPOSITORY} no existe, no es accesible o no es privado.")
+        raise GitHubStorageError(f"El repositorio {REPOSITORY} debe existir y ser privado.")
     _PRIVATE_REPO_VERIFIED = True
 
 
-def restore_csvs(data_dir: str | Path) -> bool:
-    """Descarga los CSV existentes antes de que CsvStore cree tablas iniciales."""
-    if not _token():
-        return False
+def _read_item(file_name: str) -> tuple[str | None, str | None]:
     _verify_private_repository()
-    target = Path(data_dir)
-    target.mkdir(parents=True, exist_ok=True)
+    item = _request("GET", _repo_path(file_name))
+    if item is None:
+        return None, None
+    if item.get("type") != "file" or not item.get("sha"):
+        raise GitHubStorageError(f"Archivo remoto no válido: {file_name}")
+    encoded = item.get("content") if item.get("encoding") == "base64" else None
+    if not encoded:
+        blob_sha = item["sha"]
+        blob = _request("GET", f"/repos/{REPOSITORY}/git/blobs/{blob_sha}")
+        encoded = blob.get("content") if blob and blob.get("encoding") == "base64" else None
+    if not encoded:
+        raise GitHubStorageError(f"GitHub no entregó el contenido de {file_name}.")
+    try:
+        return base64.b64decode(encoded, validate=False).decode("utf-8-sig"), item["sha"]
+    except (ValueError, UnicodeDecodeError) as exc:
+        raise GitHubStorageError(f"CSV remoto ilegible: {file_name}") from exc
+
+
+def read_csv(file_name: str) -> tuple[str | None, str | None]:
+    """Leer siempre la versión más reciente; nunca dar por buena una caché local."""
+    if not _token():
+        if remote_storage_required():
+            raise GitHubStorageError("GitHub es obligatorio: falta SIRAP_DATA_GITHUB_TOKEN.")
+        return None, None
     with _LOCK:
+        return _read_item(file_name)
+
+
+def restore_csvs(data_dir: str | Path) -> bool:
+    """Descarga todos los CSV antes de tocar el disco; no crea ni trunca los remotos."""
+    if not _token():
+        if remote_storage_required():
+            raise GitHubStorageError("No se iniciará SIRAP sin el token de GitHub privado.")
+        return False
+    target = Path(data_dir)
+    with _LOCK:
+        downloaded = {}
         for file_name in sorted(_ALLOWED):
-            item = _request("GET", _repo_path(file_name))
-            if not item:
+            contents, _sha = _read_item(file_name)
+            if contents is None:
+                if remote_storage_required():
+                    raise GitHubStorageError(f"Falta {file_name} en GitHub privado; no inicializar con CSV vacío.")
                 continue
-            if item.get("type") != "file":
-                raise GitHubStorageError(f"El archivo {file_name} del respaldo no tiene un formato compatible.")
-            encoded = item.get("content")
-            if item.get("encoding") != "base64" or not encoded:
-                blob_sha = item.get("sha")
-                blob_path = "/repos/" + REPOSITORY + "/git/blobs/" + blob_sha if blob_sha else ""
-                blob = _request("GET", blob_path) if blob_path else None
-                encoded = blob.get("content") if blob and blob.get("encoding") == "base64" else None
-            if not encoded:
-                raise GitHubStorageError(f"No se pudo descargar el contenido de {file_name}.")
-            try:
-                contents = base64.b64decode(encoded)
-                contents.decode("utf-8")
-            except (ValueError, UnicodeDecodeError) as exc:
-                raise GitHubStorageError(f"El archivo {file_name} del respaldo no es un CSV UTF-8 válido.") from exc
-            (target / file_name).write_bytes(contents)
+            downloaded[file_name] = contents
+        target.mkdir(parents=True, exist_ok=True)
+        for file_name, contents in downloaded.items():
+            (target / file_name).write_text(contents, encoding="utf-8")
     return True
 
 
 def backup_missing_csvs(data_dir: str | Path) -> None:
-    """Sube las tablas locales que aún no existen en el respaldo (primera inicialización)."""
-    if not _token():
+    """Solo para instalaciones locales iniciales; nunca importa copias de hosting obsoletas."""
+    if remote_storage_required() or not _token():
         return
-    _verify_private_repository()
-    target = Path(data_dir)
     with _LOCK:
+        _verify_private_repository()
         for file_name in sorted(_ALLOWED):
-            if _request("GET", _repo_path(file_name)):
+            existing, _sha = _read_item(file_name)
+            if existing is not None:
                 continue
-            path = target / file_name
+            path = Path(data_dir) / file_name
             if path.is_file():
-                save_csv(file_name, path.read_text(encoding="utf-8"))
+                save_csv(file_name, path.read_text(encoding="utf-8"), expected_sha=None)
 
 
-def save_csv(file_name: str, contents: str) -> None:
-    """Guarda un CSV completo en una ruta permitida del repositorio privado."""
+def save_csv(file_name: str, contents: str, *, expected_sha: str | None = None) -> str | None:
+    """CAS: si otro escritor cambió GitHub, abortar sin sustituir registros ajenos.
+
+    Un caller no debe volver a enviar el mismo contenido después de un conflicto:
+    debe releer GitHub, reconstruir su cambio y ejecutar otra vez la operación.
+    """
     if not _token():
-        return
-    _verify_private_repository()
-    path = _repo_path(file_name)
-    encoded = base64.b64encode(contents.encode("utf-8")).decode("ascii")
+        if remote_storage_required():
+            raise GitHubStorageError("GitHub obligatorio: se canceló escritura sin token.")
+        return None
     with _LOCK:
-        for attempt in range(2):
-            existing = _request("GET", path)
-            payload = {
-                "message": f"Actualizar respaldo SIRAP: {file_name}",
-                "content": encoded,
-            }
-            if existing and existing.get("sha"):
-                payload["sha"] = existing["sha"]
-            try:
-                _request("PUT", path, payload)
-                return
-            except GitHubStorageError as exc:
-                if "HTTP 409" not in str(exc) or attempt:
-                    raise
-        raise GitHubStorageError(f"No se pudo guardar {file_name} en el respaldo privado.")
+        _verify_private_repository()
+        path = _repo_path(file_name)
+        existing = _request("GET", path)
+        actual_sha = existing.get("sha") if existing else None
+        if actual_sha != expected_sha:
+            raise GitHubStorageError(
+                f"Conflicto de versión en {file_name}. Se conservan los registros de GitHub; "
+                "vuelva a cargar el historial antes de reintentar."
+            )
+        payload = {
+            "message": f"Guardar CSV persistente SIRAP: {file_name}",
+            "content": base64.b64encode(contents.encode("utf-8")).decode("ascii"),
+        }
+        if expected_sha:
+            payload["sha"] = expected_sha
+        result = _request("PUT", path, payload)
+        if not result or not result.get("content", {}).get("sha"):
+            raise GitHubStorageError(f"GitHub no confirmó la escritura de {file_name}.")
+        return result["content"]["sha"]
