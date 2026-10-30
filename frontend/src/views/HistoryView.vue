@@ -5,6 +5,7 @@ import { api, getToken } from '@/lib/api'
 import { ACTION, RESULT, TONE_PILL, formatDateTime, pct, today } from '@/lib/format'
 import { useAuthStore } from '@/stores/auth'
 import { useSessionStore } from '@/stores/session'
+import { localeTag } from '@/i18n'
 
 const auth = useAuthStore()
 const session = useSessionStore()
@@ -78,7 +79,7 @@ onMounted(async () => {
           <th>{{ $t("Resultado") }}</th><th>{{ $t("Acción") }}</th><th>{{ $t("Estado barrera") }}</th><th>{{ $t("ID operación") }}</th><th>{{ $t("Lista") }}</th><th>{{ $t("Operador") }}</th><th>{{ $t("Origen") }}</th><th>{{ $t("Motivo") }}</th></tr></thead>
         <tbody>
           <tr v-for="r in rows" :key="r.id">
-            <td>{{ formatDateTime(r.fecha_hora) }}</td><td>{{ r.garita }}</td><td>{{ $t(r.tipo_movimiento === 'ENTRADA' ? 'Entrada' : 'Salida') }}</td>
+            <td>{{ formatDateTime(r.fecha_hora, localeTag) }}</td><td>{{ r.garita }}</td><td>{{ $t(r.tipo_movimiento === 'ENTRADA' ? 'Entrada' : 'Salida') }}</td>
             <td class="font-mono">{{ r.placa_leida || '—' }}</td><td class="font-mono font-bold">{{ r.placa_final || '—' }}</td>
             <td>{{ pct(r.confianza_ocr, 1) }}</td>
             <td><span class="pill" :class="TONE_PILL[RESULT[r.resultado]?.tone]">{{ $t(RESULT[r.resultado]?.label || r.resultado) }}</span></td>
