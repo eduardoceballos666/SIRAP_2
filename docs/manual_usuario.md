@@ -259,7 +259,7 @@ Permisos y conectividad suficientes para acceder a la cámara o transmitir video
 
 ![](img/manual_usuario_image2.jpg)
 
-Figura 2. Pantalla de inicio de sesión SIRAP.
+Figura 1. Pantalla de inicio de sesión SIRAP.
 
 ## Cambiar el idioma de la interfaz
 
