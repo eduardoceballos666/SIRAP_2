@@ -1,5 +1,5 @@
 """Exporta operaciones confirmadas a un CSV de un repositorio GitHub privado
-y enriquece cada fila con consultas públicas del SRI y EcuadorLegalOnline.
+y completa cada fila con datos públicos del vehículo y del propietario.
 """
 
 from __future__ import annotations
@@ -289,7 +289,7 @@ def _query_owner(plate: str) -> dict:
                     if re.search(r"VER ANUNCIO Y CONTINUAR|PARA ACCEDER AL CONTENIDO", initial_text, re.I):
                         return {
                             "propietario_estado": "anuncio_requerido",
-                            "propietario_detalle": "EcuadorLegalOnline exige ver un anuncio para habilitar el formulario.",
+                            "propietario_detalle": "La fuente de consulta solicita una acción adicional antes de habilitar el formulario.",
                         }
                     entry = page.locator('input[name*="placa" i], input[placeholder*="placa" i]')
                     if entry.count() == 0:
@@ -332,7 +332,7 @@ def _query_owner(plate: str) -> dict:
                                         if name:
                                             return {
                                                 "propietario_nombre": name,
-                                                "propietario_fuente": "ecuadorlegalonline_publico",
+                                                "propietario_fuente": "consulta_publica",
                                                 "propietario_consultado_en": now_local().isoformat(sep=" ", timespec="seconds"),
                                                 "propietario_estado": "encontrado",
                                                 "propietario_detalle": "",
@@ -380,7 +380,7 @@ def _enrich(event_id: str, plate: str, plant_brand: str | None) -> None:
             logger.exception("No se pudo registrar el error SRI para %s", plate)
     try:
         owner = _query_owner(plate)
-        owner.setdefault("propietario_fuente", "ecuadorlegalonline_publico")
+        owner.setdefault("propietario_fuente", "consulta_publica")
         owner.setdefault("propietario_consultado_en", now_local().isoformat(sep=" ", timespec="seconds"))
         update_detection(event_id, owner)
     except Exception as exc:
