@@ -164,3 +164,10 @@ La auditoría detallada, sus limitaciones y pendientes están en [validación SA
 Se cruzaron **330 recortes legibles únicos con etiqueta de cámara `camara_formato_valido`** y las predicciones OCR originales: 312 coincidencias y **18 discrepancias**. Se inspeccionaron los 18 recortes; la evaluación visual asistida favorece provisionalmente la lectura OCR en 14, la de cámara en 3 y considera 1 incierto. No hay aprobaciones humanas. Por tanto, llamar «confirmadas» a las 330 referencias de cámara es incorrecto: la validez del formato no equivale a verificación de su contenido.
 
 El EMR previo de 374/399 y el recálculo de 373/397 emplean referencias que todavía necesitan validación independiente. **No calcular un EMR más alto sustituyendo automáticamente la referencia por la lectura OCR:** cambiaría la verdad terreno en favor del modelo evaluado. La lista de 18 discrepancias, tres láminas de recortes y el informe se guardaron en Drive privado, y se añadió una pestaña `Auditoria camara OCR` a la hoja de revisión. Véase [protocolo de cierre](validacion_savh_multisemilla.md).
+
+
+## 6. Estado posterior a aprobaciones registradas (30/10/2026)
+
+La hoja de revisión SAVH contiene respuestas para **69 de 69 grupos**; la pestaña cámara–OCR tiene **329 `ok` y un `ilegible`** (`fila_gt=398`). Esta última referencia se excluye del cálculo y conserva la traza de revisión sin inventar matrícula. Tras aplicar las decisiones a las salidas OCR cacheadas, quedan **398 imágenes legibles únicas** con **388 aciertos exactos (EMR 97,49 %)** y CER medio **0,003649**. Con umbral offline de 94 %, 362 se aceptarían (359 correctas, 3 erróneas).
+
+Esto **actualiza el corte de 397 imágenes de la sección 5**, pero la evaluación **no es independiente ni ciega**: algunas etiquetas se aprobaron tras mostrar al revisor la lectura del mismo OCR que se evalúa. Por ello, el incremento de EMR no demuestra que el modelo haya mejorado. Los datos individuales se almacenan solo en Drive privado. [Protocolo y advertencias](validacion_savh_multisemilla.md) · [resumen agregado](../results/metrics/ocr_savh_aprobaciones_398.json).
