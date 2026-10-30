@@ -73,6 +73,10 @@
 /* SIRAP compact operator layout — based on the supplied dashboard reference. */
 .app-shell { display:grid; grid-template-columns:276px minmax(0,1fr); width:100%; height:100dvh; overflow:hidden; background:var(--color-canvas); }
 .app-topbar { position:relative; display:flex; flex-direction:column; align-items:stretch; gap:24px; width:276px; height:100dvh; box-sizing:border-box; padding:26px 16px 18px; background:linear-gradient(180deg,#0d1b33 0%,#0a1529 100%); color:#fff; }
+.language-switcher { display:flex; align-items:center; justify-content:space-between; gap:10px; min-width:0; color:inherit; font-size:12px; font-weight:700; }
+.language-switcher select { min-width:112px; max-width:100%; border:1px solid rgba(255,255,255,.24); border-radius:9px; padding:7px 9px; background:#152744; color:#fff; font:inherit; cursor:pointer; }
+.public-shell { position:relative; min-height:100dvh; }
+.language-switcher-public { position:absolute; z-index:30; top:16px; right:18px; width:auto; gap:8px; padding:8px 10px; border-radius:10px; background:rgba(13,27,51,.92); color:#fff; box-shadow:0 4px 14px rgba(0,0,0,.2); }
 .sidebar-brand { display:block; flex:none; padding:0 12px; }
 .sidebar-brand .text-center { max-width:220px; margin:auto; }
 .sidebar-brand p { margin-top:8px; font-size:14px; line-height:1.25; }
@@ -275,6 +279,8 @@
 @media (max-width:820px) {
   .app-shell { grid-template-columns:70px minmax(0,1fr); overflow:auto; }
   .app-topbar { position:sticky; top:0; align-items:center; width:70px; height:100dvh; padding:16px 7px 10px; gap:16px; }
+  .app-topbar .language-switcher span { display:none; }
+  .app-topbar .language-switcher select { min-width:58px; width:58px; padding:6px 4px; font-size:10px; }
   .sidebar-brand { width:54px; padding:0; overflow:hidden; }
   .sidebar-brand .text-center { width:190px; transform:translateX(-68px); }
   .sidebar-brand .text-4xl { font-size:22px; }
@@ -294,6 +300,8 @@
   .access-action-bar { grid-template-columns:1fr; }
 }
 @media (max-width:560px) {
+  .language-switcher-public { top:10px; right:10px; }
+  .language-switcher-public span { display:none; }
   .access-content { padding:8px; }
   .control-strip { grid-template-columns:1fr 1fr; gap:7px; padding:9px; }
   .workspace-clock { justify-content:flex-start; grid-column:span 2; font-size:15px; }
