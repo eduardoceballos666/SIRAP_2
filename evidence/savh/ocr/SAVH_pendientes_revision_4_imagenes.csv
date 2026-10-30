@@ -1,0 +1,5 @@
+﻿n,grupo,imagen,placa_camara,sugerencia,lectura_OCR,observacion
+7,7,placa_legible/evt_dahua_20260611215323_03de0b62_GB01825_crop.jpg,GB01825,GBO1825,GBU1825,La tercera letra se ve como O o U; el OCR cacheado lee GBU1825 y la sugerencia es GBO1825. Los otros dos archivos son copias idénticas.
+8,7,placa_legible/evt_dahua_20260611215324_e015bd40_GB01825_crop.jpg,GB01825,GBO1825,(duplicado),La tercera letra se ve como O o U; el OCR cacheado lee GBU1825 y la sugerencia es GBO1825. Los otros dos archivos son copias idénticas.
+9,7,placa_legible/evt_dahua_20260611215326_1976c79c_GB01825_crop.jpg,GB01825,GBO1825,(duplicado),La tercera letra se ve como O o U; el OCR cacheado lee GBU1825 y la sugerencia es GBO1825. Los otros dos archivos son copias idénticas.
+52,52,placa_legible/evt_dahua_20260611192611_984c4a87_GRMQ495_crop.jpg,GRMQ495,GRH0495,GRH0495,La tercera letra se ve como H o M. La cámara sugiere M; el OCR cacheado lee H.
