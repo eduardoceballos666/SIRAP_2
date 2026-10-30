@@ -1,0 +1,99 @@
+{
+  "proyecto": "SIRAP_2",
+  "estado": "PARCIAL - NO DEFINITIVO",
+  "fecha_analisis": "2026-10-30",
+  "modelo": "fast-plate-ocr cct-s-v2-global-model",
+  "inferencias_repetidas": false,
+  "metodo": "Reevaluación offline de predicciones OCR guardadas, normalización de placas de 3 letras + 3/4 dígitos según notebook. CER = media de distancias Levenshtein / longitud por imagen.",
+  "fuentes": {
+    "ocr_cache": "ocr/savh_ocr_salidas_cct-s-v2-global-model.csv",
+    "ocr_cache_sha256": "3be02bd2d7e870cf086c8b3586fbc1f80ee281ce8f11a7f17ef274abe27657d4",
+    "ground_truth_previo": "ocr/savh_ground_truth_corregido.csv",
+    "ground_truth_previo_sha256": "f963fbfeb8b637f5da27d769b5ebe577c03d8b5343852395166bf8b8c0c9188a",
+    "hoja": "Revisión placas SAVH (142 legibles)",
+    "fotografias": "MyDrive/proyecto_integrador_placas/revision_visual_savh/placa_legible"
+  },
+  "inspeccion": {
+    "imagenes_representativas_inspeccionadas": 69,
+    "grupos_visualmente_consistentes_por_asistente": 67,
+    "imagenes_con_etiqueta_asistida": 138,
+    "grupos_ambiguos": 2,
+    "imagenes_ambiguas_excluidas": 4,
+    "ids_grupos_ambiguos": [
+      "7",
+      "52"
+    ],
+    "duplicados_en_hoja": 73,
+    "referencias_camara_sin_inspeccion_visual_en_este_trabajo": 330,
+    "confirmacion_humana_no_supuestamente_otorgada": true
+  },
+  "historico_antes_de_exclusion": {
+    "n": 399,
+    "exactas": 374,
+    "emr": 0.9373433583959899,
+    "cer_medio": 0.01020408163265306,
+    "umbrales": {
+      "0.94": {
+        "accepted": 363,
+        "manual": 36,
+        "errors_accepted": 14,
+        "exact_accepted": 349,
+        "accuracy_accepted": 0.9614325068870524,
+        "manual_rate": 0.09022556390977443
+      },
+      "0.99": {
+        "accepted": 347,
+        "manual": 52,
+        "errors_accepted": 12,
+        "exact_accepted": 335,
+        "accuracy_accepted": 0.9654178674351584,
+        "manual_rate": 0.13032581453634084
+      }
+    }
+  },
+  "evaluacion_actual_de_397": {
+    "n": 397,
+    "exactas": 373,
+    "emr": 0.9395465994962217,
+    "cer_medio": 0.009895645915797049,
+    "umbrales": {
+      "0.94": {
+        "accepted": 362,
+        "manual": 35,
+        "errors_accepted": 14,
+        "exact_accepted": 348,
+        "accuracy_accepted": 0.9613259668508287,
+        "manual_rate": 0.08816120906801007
+      },
+      "0.99": {
+        "accepted": 346,
+        "manual": 51,
+        "errors_accepted": 12,
+        "exact_accepted": 334,
+        "accuracy_accepted": 0.9653179190751445,
+        "manual_rate": 0.12846347607052896
+      }
+    }
+  },
+  "subgrupos": {
+    "revisadas_visualmente_por_asistente": {
+      "n": 67,
+      "exactas": 61,
+      "emr": 0.9104477611940298,
+      "cer_medio": 0.01279317697228145
+    },
+    "camara_formato_valido": {
+      "n": 330,
+      "exactas": 312,
+      "emr": 0.9454545454545454,
+      "cer_medio": 0.009307359307359306
+    }
+  },
+  "limitaciones": [
+    "Dos grupos sin resolución visual concluyente; no deben entrar a la evaluación",
+    "Las otras 330 referencias legibles conservan estado camara_formato_valido, no confirmado por humano",
+    "La evaluación utiliza OCR cacheado; no mide detección, seguimiento, dos cuadros, autorización ni vídeo",
+    "El cambio de muestra (399 a 397) impide atribuir diferencias de EMR a un modelo más preciso",
+    "No sustituir pesos publicados ni cambiar umbral del servidor basándose solo en estas cifras"
+  ]
+}
