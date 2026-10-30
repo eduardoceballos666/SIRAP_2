@@ -106,7 +106,7 @@ Preset «completo». Para el detector, el conjunto *test* (1.020 imágenes, 1.08
 | | Latencia (lote 1, FP16, GPU L4) | 23,3 ms (43 FPS) | — |
 | Detector con hiperparámetros optimizados (Optuna, 24 *trials*) | mAP@0.5 / mAP@0.5:0.95 *test* | 0,973 / 0,704 (+0,001 / +0,011; una semilla): se mantiene el entregado | — |
 | OCR (SAVH Guayaquil, 399 legibles) | EMR / CER sin filtrar por confianza | **93,7 %** / 0,010 | EMR ≥ 80 % ✅ |
-| OCR (SAVH, evaluación offline al umbral 0,94) | Cobertura / EMR entre aceptadas | 363/399 (91,0 %) / 349/363 (96,1 %); 14 lecturas erróneas aceptadas | — |
+| OCR (SAVH, evaluación offline al umbral 0,94) | Cobertura / EMR entre aceptadas | 363/399 (91,0 %) / 349/363 (96,1 %) | — |
 | OCR afinado con placas ecuatorianas (*test* separado por placa, n=86) | EMR original / afinado | 94,2 % / 94,2 % (McNemar *p* = 1,0): se mantiene el original | — |
 | Regla de decisión (SAVH, lista simulada) | Falsos autorizados / rechazos indebidos | 0 de 202 / 1 de 197 | — |
 | Sistema (video de la garita) | Tiempo por decisión (detección + OCR) | 99 ms | ≤ 1 s ✅ |
