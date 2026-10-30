@@ -8,6 +8,7 @@ import { formatDateTime } from '@/lib/format'
 import { RESULT_COLORS, baseOption, chartTheme } from '@/lib/charts'
 import { useSessionStore } from '@/stores/session'
 import { t } from '@/i18n'
+import { localeTag } from '@/i18n'
 
 const session = useSessionStore()
 const dark = computed(() => session.theme === 'dark')
@@ -127,7 +128,7 @@ const empty = computed(() => data.value && !data.value.por_resultado.length)
           <thead><tr><th>{{ $t("Fecha y hora") }}</th><th>{{ $t("Garita") }}</th><th>{{ $t("Placa") }}</th><th>{{ $t("Resultado") }}</th><th>{{ $t("Acción") }}</th><th>{{ $t("Operador") }}</th></tr></thead>
           <tbody>
             <tr v-for="(a, i) in data?.alertas || []" :key="i">
-              <td>{{ formatDateTime(a.fecha_hora) }}</td><td>{{ a.garita }}</td><td class="font-mono font-bold">{{ a.placa_final || '—' }}</td>
+              <td>{{ formatDateTime(a.fecha_hora, localeTag) }}</td><td>{{ a.garita }}</td><td class="font-mono font-bold">{{ a.placa_final || '—' }}</td>
               <td>{{ $t(a.resultado_txt) }}</td><td>{{ $t(ACTION[a.accion] || a.accion) }}</td><td>{{ a.operador }}</td>
             </tr>
             <tr v-if="!data?.alertas?.length"><td colspan="6" class="text-center text-muted">{{ $t("Sin alertas.") }}</td></tr>
