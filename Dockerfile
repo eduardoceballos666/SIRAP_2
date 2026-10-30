@@ -17,6 +17,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends libgl1 libglib2
     && useradd -m -u 1000 user
 ENV HOME=/home/user PATH=/home/user/.local/bin:$PATH \
     SIRAP_DATA_DIR=/home/user/app/data/processed \
+    SIRAP_GITHUB_REQUIRED=1 \
     PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
 WORKDIR /home/user/app
 RUN chown user:user /home/user/app
