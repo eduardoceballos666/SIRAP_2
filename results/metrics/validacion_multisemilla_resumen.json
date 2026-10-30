@@ -1,0 +1,34 @@
+{
+  "estado": "completo",
+  "corridas": 6,
+  "pares_completos": 3,
+  "comparaciones_pareadas": [
+    {
+      "semilla": 0,
+      "delta_map50": 0.000378206657276392,
+      "delta_map50_95": 0.007371671411887326,
+      "delta_precision": -0.0033221198328891033,
+      "delta_recall": -0.00046281882536147734
+    },
+    {
+      "semilla": 1,
+      "delta_map50": 0.002837671272876041,
+      "delta_map50_95": 0.0021836941552316746,
+      "delta_precision": 0.0030218944488944466,
+      "delta_recall": 0.009216589861751112
+    },
+    {
+      "semilla": 2,
+      "delta_map50": 0.0015639181738490437,
+      "delta_map50_95": 0.0016728921262975094,
+      "delta_precision": 0.004688931709595612,
+      "delta_recall": 0.00029821822020559274
+    }
+  ],
+  "delta_medio_map50_95": 0.00374275256447217,
+  "delta_std_muestral_map50_95": 0.0031530966808892055,
+  "delta_medio_recall": 0.003017329752198409,
+  "semillas_con_mejora": 3,
+  "limitaciones": "Tres semillas; estabilidad descriptiva, no significación estadística. No se ha cambiado el modelo desplegado. 69 etiquetas SAVH requieren verificación visual.",
+  "fuente": "Google Drive validacion_multisemilla comparacion_multisemilla.csv, resumen_multisemilla.json, protocolo.json (2026-10-30)"
+}
