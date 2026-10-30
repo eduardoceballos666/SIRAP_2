@@ -1,11 +1,11 @@
 """Persistencia de SIRAP en CSV locales con respaldo privado opcional."""
 from __future__ import annotations
-import csv, os, tempfile, threading, random
+import csv, io, os, tempfile, threading, random
 from datetime import date, datetime, timedelta
 from pathlib import Path
 from typing import Any, Sequence
 import pandas as pd
-from src.github_storage import GitHubStorageError, backup_missing_csvs, restore_csvs, save_csv
+from src.github_storage import GitHubStorageError, backup_missing_csvs, restore_csvs, save_csv, read_csv, remote_storage_required
 from src.utils import now_local, resolve_path
 
 HEADERS = {
@@ -26,9 +26,13 @@ class CsvStore:
     def __init__(self, data_dir: str | Path | None = None, **_: Any):
         self.data_dir = resolve_path(data_dir or os.getenv("SIRAP_DATA_DIR","data/processed"))
         self.data_dir.mkdir(parents=True,exist_ok=True)
-        self.engine = "csv"
-        # En Hugging Face, recupera primero el estado persistente antes de crear CSV vacíos.
-        restore_csvs(self.data_dir)
+        self.engine = "github-privado" if os.getenv("SIRAP_DATA_GITHUB_TOKEN") or remote_storage_required() else "csv-local"
+        self._remote_versions = threading.local()
+        # GitHub privado es la fuente de verdad. Un fallo remoto aborta el arranque.
+        try:
+            restore_csvs(self.data_dir)
+        except GitHubStorageError as exc:
+            raise StorageError(f"No se pudo recuperar el almacenamiento GitHub privado: {exc}") from exc
         for name, cols in HEADERS.items():
             if not self._path(name).exists(): self._write(name,pd.DataFrame(columns=cols))
         # En el primer arranque conserva también los CSV locales que aún no estaban en GitHub.
@@ -38,25 +42,49 @@ class CsvStore:
     def _path(self,name):
         if name not in HEADERS: raise ValueError("CSV desconocido: "+name)
         return self.data_dir/(name+".csv")
+    def _versions(self):
+        if not hasattr(self._remote_versions, "sha"):
+            self._remote_versions.sha = {}
+        return self._remote_versions.sha
+
     def _read(self,name):
+        path = self._path(name)
         try:
-            d=pd.read_csv(self._path(name),dtype=str,keep_default_na=False)
+            # Lee la última versión del repositorio privado, no un archivo desactualizado del hosting.
+            contents, sha = read_csv(name)
+            if contents is not None:
+                self._versions()[name] = sha
+                d = pd.read_csv(io.StringIO(contents), dtype=str, keep_default_na=False)
+            elif os.getenv("SIRAP_DATA_GITHUB_TOKEN") or remote_storage_required():
+                raise StorageError(f"El CSV {name} no existe en el repositorio privado.")
+            else:
+                d = pd.read_csv(path, dtype=str, keep_default_na=False)
             for col in HEADERS[name]:
                 if col not in d: d[col]=""
             return d[HEADERS[name]]
-        except pd.errors.EmptyDataError: return pd.DataFrame(columns=HEADERS[name])
-        except OSError as exc: raise StorageError(f"No se pudo leer {name}.csv: {exc}") from exc
+        except pd.errors.EmptyDataError:
+            if os.getenv("SIRAP_DATA_GITHUB_TOKEN") or remote_storage_required():
+                raise StorageError(f"El CSV {name} de GitHub está vacío o corrupto; no se sobrescribirá.")
+            return pd.DataFrame(columns=HEADERS[name])
+        except (OSError, GitHubStorageError, pd.errors.ParserError) as exc:
+            raise StorageError(f"No se pudo leer {name}.csv: {exc}") from exc
+
     def _write(self,name,frame):
         path=self._path(name); temp=None
         try:
             with tempfile.NamedTemporaryFile("w",encoding="utf-8",newline="",dir=path.parent,delete=False,suffix=".tmp") as f:
-                temp=f.name; frame.reindex(columns=HEADERS[name],fill_value="").to_csv(f,index=False,quoting=csv.QUOTE_MINIMAL)
-            # Confirma el respaldo privado antes de sustituir el CSV local.
-            save_csv(path.name, Path(temp).read_text(encoding="utf-8"))
+                temp=f.name
+                frame.reindex(columns=HEADERS[name],fill_value="").to_csv(f,index=False,quoting=csv.QUOTE_MINIMAL)
+            contents=Path(temp).read_text(encoding="utf-8")
+            # La escritura remota se confirma ANTES de reemplazar la copia local.
+            # El SHA del último _read evita perder datos ante escrituras concurrentes.
+            sha=save_csv(name, contents, expected_sha=self._versions().get(name))
+            if sha:
+                self._versions()[name]=sha
             os.replace(temp,path)
         except (OSError, GitHubStorageError) as exc:
             if temp and os.path.exists(temp): os.unlink(temp)
-            raise StorageError(f"No se pudo guardar {name}.csv: {exc}") from exc
+            raise StorageError(f"No se pudo guardar {name}.csv; GitHub conserva su versión previa: {exc}") from exc
     @staticmethod
     def _active(v): return str(v).lower() in ("1","true","si","sí","yes")
     @staticmethod
