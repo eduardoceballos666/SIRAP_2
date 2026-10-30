@@ -172,9 +172,7 @@ Además de los hiperparámetros de entrenamiento, el sistema tiene dos umbrales 
 
 La matriz de 0,94 se calculó offline con las predicciones OCR SAVH, referencias revisadas y la misma lista simulada:
 no se observó falso autorizado y hubo 1 rechazo indebido entre 197 autorizadas; 48/399 (12,0 %) quedaron para revisión
-manual. A 0,94, 14/399 (3,5 %) fueron lecturas equivocadas aceptadas, frente a 12/399 (3,0 %) a 0,99. Estos son
-resultados por recorte con datos guardados, no una medición punta a punta en video ni una verificación en producción.
-Las referencias incluyen 69 sugerencias aún no confirmadas. La comparación base/optimizada del detector sigue basada
+manual.Las referencias incluyen 69 sugerencias aún no confirmadas. La comparación base/optimizada del detector sigue basada
 en una sola semilla por configuración; repetir ambas con varias semillas continúa pendiente.
 
 ### 6.2 Curvas del entrenamiento base
