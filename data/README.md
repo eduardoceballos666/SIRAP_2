@@ -77,4 +77,6 @@ del almacenamiento operativo de la aplicación web.
 
 ## Umbral operativo OCR
 
-La aplicación usa un umbral de confianza OCR de **99 %**. Las lecturas por debajo pasan a verificación manual.
+La aplicación usa **94 %** como umbral operativo, elegido para reducir verificaciones manuales y responder con mayor agilidad en el hosting documentado de Hugging Face, que usa 2 vCPU y no tiene GPU dedicada. En videos y cámaras, la misma placa debe alcanzar al menos 94 % en dos cuadros muestreados, separados por 1 segundo; si la lectura queda por debajo del umbral o los cuadros no coinciden, se solicita validación manual al terminar el análisis. En una imagen estática se evalúa el cuadro disponible.
+
+Al alcanzar el 94 %, el servidor declara la placa autorizada solo si tiene una autorización vigente en la lista blanca y no está restringida. La barrera no se acciona solo por reconocer la placa: el operador debe solicitar la apertura. La evaluación offline de 0,94 en recortes SAVH registró 14 lecturas OCR incorrectas entre 363 aceptadas; no midió la regla de dos cuadros ni el desempeño punta a punta en video. Por eso, el 94 % es el umbral operativo elegido, no una garantía de rendimiento.
