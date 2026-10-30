@@ -78,7 +78,7 @@ class CsvStore:
             contents=Path(temp).read_text(encoding="utf-8")
             # La escritura remota se confirma ANTES de reemplazar la copia local.
             # El SHA del último _read evita perder datos ante escrituras concurrentes.
-            sha=save_csv(name, contents, expected_sha=self._versions().get(name))
+            sha=save_csv(path.name, contents, expected_sha=self._versions().get(name))
             if sha:
                 self._versions()[name]=sha
             os.replace(temp,path)
