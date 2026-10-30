@@ -134,7 +134,8 @@ Se reutilizaron las 666 predicciones conservadas de `fast-plate-ocr cct-s-v2-glo
 `ocr/SAVH_ground_truth_revision_asistida_739.csv`,
 `ocr/SAVH_ground_truth_evaluable_397.csv`,
 `ocr/SAVH_metricas_OCR_revision_asistida_397.json` y
-`ocr/SAVH_dos_placas_por_confirmar.png`.
+`ocr/SAVH_dos_placas_por_confirmar.png` y
+`ocr/SAVH_pendientes_revision_4_imagenes.csv`.
 Los archivos se encuentran en el Drive privado de `proyecto_integrador_placas`; el resumen público agregado y su trazabilidad se guardan en [resultados OCR de la revisión asistida](../results/metrics/ocr_savh_revision_asistida_397.json). Se preservan los resultados históricos y las seis corridas multisemilla sin cambios.
 
 **Para cerrar SAVH:** confirmar visualmente las 69 referencias con aprobación humana explícita (especialmente 7 y 52), registrar `ok`, placa corregida o `ilegible` en la columna J; después ejecutar nuevamente las secciones 2.2, 4.3 y 5.4 de `SIRAP_backend.ipynb`, verificar los conteos, recalcular las métricas definitivas y actualizar los resultados publicados con su nuevo estado y evidencia. Hasta ese momento, **SAVH sigue pendiente de cierre**.
