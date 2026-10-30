@@ -11,7 +11,6 @@ El flujo valida el token y lo guarda como secreto del Space para que la API acce
 
 from __future__ import annotations
 
-import csv
 import os
 import shutil
 import tempfile
@@ -51,6 +50,28 @@ def main() -> None:
         raise RuntimeError(f"No se pudo verificar el repositorio privado de datos {data_repo}.") from exc
     if metadata.get("private") is not True:
         raise RuntimeError(f"El repositorio de datos {data_repo} debe ser privado.")
+    # El despliegue nunca puede iniciarse con CSV vacíos o antiguos.
+    # Verificar los seis archivos existentes ANTES de copiar o reconstruir el Space.
+    for file_name in (
+        "vehiculos.csv", "autorizaciones.csv", "operaciones.csv",
+        "usuarios.csv", "garitas.csv", "credenciales.csv",
+    ):
+        path = f"/repos/{owner}/{repo}/contents/data/processed/{file_name}"
+        file_request = urllib.request.Request(
+            "https://api.github.com" + path,
+            headers={"Authorization": f"Bearer {data_token}",
+                     "Accept": "application/vnd.github+json",
+                     "X-GitHub-Api-Version": "2022-11-28", "User-Agent": "SIRAP-deploy"},
+        )
+        try:
+            with urllib.request.urlopen(file_request, timeout=20) as response:
+                row = json.loads(response.read().decode("utf-8"))
+            if row.get("type") != "file" or not row.get("sha"):
+                raise ValueError("Archivo remoto inválido.")
+        except (urllib.error.URLError, ValueError, json.JSONDecodeError) as exc:
+            raise RuntimeError(
+                f"No se desplegará SIRAP: falta o no es legible {file_name} en GitHub privado."
+            ) from exc
     api = HfApi(token=token)
     api.create_repo(space, repo_type="space", space_sdk="docker", exist_ok=True)
     for name in ("SIRAP_JWT_SECRET", "SIRAP_DEMO_PASSWORD"):
@@ -73,23 +94,9 @@ def main() -> None:
         processed.mkdir(parents=True, exist_ok=True)
         (processed / ".gitkeep").touch()
 
-        # Tabla de garitas vacía, con el esquema que espera CsvStore.
-        with (processed / "garitas.csv").open("w", encoding="utf-8", newline="") as handle:
-            csv.writer(handle).writerow(["id", "nombre", "ubicacion", "activa"])
-        with (processed / "autorizaciones.csv").open("w", encoding="utf-8", newline="") as handle:
-            csv.writer(handle).writerow([
-                "id", "placa", "lista", "motivo", "vigente_desde", "vigente_hasta", "activa", "creado_por"
-            ])
-
-        # Cuentas de demostración; las contraseñas se generan al iniciar desde el secreto privado.
-        with (processed / "usuarios.csv").open("w", encoding="utf-8", newline="") as handle:
-            writer = csv.writer(handle)
-            writer.writerow(["id", "usuario", "nombre", "rol", "activo"])
-            writer.writerows([
-                ["1", "operador", "Operador de demostración", "OPERADOR", "true"],
-                ["2", "supervisor", "Supervisor de demostración", "SUPERVISOR", "true"],
-                ["3", "admin", "Administrador de demostración", "ADMINISTRADOR", "true"],
-            ])
+        # No incluir CSV operativos ni cuentas predeterminadas en la imagen.
+        # El servidor recupera exclusivamente los archivos ya existentes de GitHub privado.
+        # El repositorio y su rama de respaldo conservan los registros históricos.
         shutil.copy2(Path(__file__).with_name("README.md"), out / "README.md")
         sha = os.environ.get("GITHUB_SHA", "local")[:7]
         api.upload_folder(folder_path=out, repo_id=space, repo_type="space", delete_patterns="*",
