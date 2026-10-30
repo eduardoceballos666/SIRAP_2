@@ -31,20 +31,19 @@ async function submit() {
     <div class="w-full max-w-md">
       <SirapLogo class="mb-6" />
       <form class="card space-y-4" @submit.prevent="submit">
-        <h1 class="text-xl font-bold">Iniciar sesión</h1>
+        <h1 class="text-xl font-bold">{{ $t("Iniciar sesión") }}</h1>
         <div>
-          <label class="field-label" for="u">Usuario</label>
+          <label class="field-label" for="u">{{ $t("Usuario") }}</label>
           <input id="u" v-model.trim="usuario" class="field" autocomplete="username" required />
         </div>
         <div>
-          <label class="field-label" for="p">Contraseña</label>
+          <label class="field-label" for="p">{{ $t("Contraseña") }}</label>
           <input id="p" v-model="password" type="password" class="field" autocomplete="current-password" required />
         </div>
-        <p v-if="error" class="rounded-lg bg-bad-soft px-3 py-2 text-sm font-semibold text-bad">{{ error }}</p>
-        <button class="btn-primary w-full" :disabled="loading">{{ loading ? 'Ingresando…' : 'Ingresar' }}</button>
+        <p v-if="error" class="rounded-lg bg-bad-soft px-3 py-2 text-sm font-semibold text-bad">{{ $t(error) }}</p>
+        <button class="btn-primary w-full" :disabled="loading">{{ $t(loading ? 'Ingresando…' : 'Ingresar') }}</button>
         <p class="text-xs text-muted">
-          Usuarios de demostración: <b>operador</b>, <b>supervisor</b> y <b>admin</b>. La contraseña de demostración
-          se define con <code>SIRAP_DEMO_PASSWORD</code> en el servidor.
+          {{ $t("Usuarios de demostración:") }} <b>{{ $t("operador") }}</b>{{ $t(",") }} <b>{{ $t("supervisor") }}</b> {{ $t("y") }} <b>{{ $t("admin") }}</b>{{ $t(". La contraseña de demostración\n          se define con") }} <code>{{ $t("SIRAP_DEMO_PASSWORD") }}</code> {{ $t("en el servidor.") }}
         </p>
       </form>
     </div>
