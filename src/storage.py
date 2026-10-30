@@ -51,7 +51,7 @@ class CsvStore:
         path = self._path(name)
         try:
             # Lee la última versión del repositorio privado, no un archivo desactualizado del hosting.
-            contents, sha = read_csv(name)
+            contents, sha = read_csv(name + ".csv")
             if contents is not None:
                 self._versions()[name] = sha
                 d = pd.read_csv(io.StringIO(contents), dtype=str, keep_default_na=False)
