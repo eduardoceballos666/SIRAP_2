@@ -33,11 +33,35 @@ punta a punta (sección 7 del notebook).
 
 El notebook mantiene sus archivos de trabajo en `registros_csv/`; ese flujo es independiente de la aplicación web.
 
-La aplicación web mantiene sus tablas operativas en `data/processed/*.csv` y, en el Space, las restaura y sincroniza
-con el repositorio privado `SIRAP_datos_privados` mediante `SIRAP_DATA_GITHUB_TOKEN` y
-`SIRAP_DATA_GITHUB_REPO`. La exportación enriquecida opcional usa `GITHUB_TOKEN` y
-`GITHUB_DATA_REPOSITORY` para escribir eventos en `data/detecciones.csv`; no sustituye el respaldo de las tablas
-operativas. La demo usa datos ficticios y no contiene la lista de vehículos de la planta.
+**Fuente única en producción:** el repositorio privado [SIRAP_datos_privados](https://github.com/eduardoceballos666/SIRAP_datos_privados). Las siete tablas operativas se guardan allí (no en el repositorio público):
+- `data/processed/vehiculos.csv`, `autorizaciones.csv`, `operaciones.csv`;
+- `data/processed/usuarios.csv`, `garitas.csv`, `credenciales.csv` (solo hashes de contraseñas);
+- `data/processed/detecciones.csv` (exportación enriquecida; usa el mismo secreto).
+
+`SIRAP_DATA_GITHUB_TOKEN` y `SIRAP_DATA_GITHUB_REPO` dan acceso a ese repositorio.
+En Docker se exige `SIRAP_GITHUB_REQUIRED=1`: si falta GitHub, algún CSV histórico o el token,
+**la aplicación no debe arrancar con datos locales desactualizados ni crear tablas vacías**.
+Las lecturas se hacen contra la última versión de GitHub; las escrituras requieren el SHA de la
+versión previamente leída, rechazando cambios concurrentes en vez de sobrescribir registros ajenos.
+La carpeta local del hosting es una copia efímera de trabajo, nunca la fuente de verdad.
+
+**Protección previa a la migración:** rama privada
+`respaldo-pre-migracion-2026-10-30` con los seis CSV originales.
+La rama `main` privada conserva las filas históricas; solo se ha agregado el CSV de detecciones,
+que no existía allí. No borrar el respaldo. La exportación pública antigua
+`data/detecciones.csv` (solo encabezados cuando se inspeccionó) no se usa para nuevos eventos;
+cualquier histórico de instalaciones anteriores que usara otro repositorio sigue sin modificarse.
+
+**Al cambiar de hosting:** configurar el mismo secreto, repo y `SIRAP_GITHUB_REQUIRED=1`
+en el nuevo servidor, mantener `data/processed/` como caché escribible y arrancar.
+La configuración de GitHub sigue siendo la fuente persistente. La demo usa datos ficticios;
+no copie datos reales al repositorio público.
+
+**Limitaciones:** GitHub Contents API tiene latencia y conflictos de versión; si falla,
+SIRAP debe rechazar escrituras y aperturas en vez de guardar solo localmente. Para mucho tráfico
+concurrente es recomendable migrar a una base de datos transaccional privada. El notebook
+de entrenamiento guarda artefactos y CSV de experimentos en Google Drive; no forman parte
+del almacenamiento operativo de la aplicación web.
 
 ## 5. Imágenes de ejemplo (`samples/`)
 
