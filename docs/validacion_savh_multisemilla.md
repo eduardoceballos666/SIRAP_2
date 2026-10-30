@@ -44,7 +44,7 @@ Una vez revisadas las imágenes, en `notebooks/SIRAP_backend.ipynb` ejecutar sec
 
 ## 3. Validar la estabilidad del detector con semillas emparejadas
 
-**No repetir los 24 trials de Optuna:** el trabajo consiste en reentrenar de forma independiente la configuración base y el trial 12 con semillas **0, 1 y 2**, manteniendo protocolo y dataset, para totalizar **seis entrenamientos completos**.
+**Protocolo ejecutado el 30/10/2026.** No se repitieron los 24 trials de Optuna: el trabajo consistió en reentrenar de forma independiente la configuración base y el trial 12 con semillas **0, 1 y 2**, manteniendo protocolo y dataset, para totalizar **seis entrenamientos completos**.
 
 Este proceso exige **Google Colab con GPU CUDA**. No se ha ejecutado desde esta auditoría; no hay GPU CUDA en el entorno actual. Los números multisemilla no existen hasta ejecutar el script y revisar sus salidas.
 
@@ -70,7 +70,7 @@ El script evita reemplazar una corrida existente y permite reutilizar métricas 
 
 - Confirmación visual documentada de las 69 referencias únicas; sin respuestas incompletas/conflictivas en la hoja, o exclusión motivada de imágenes ilegibles.
 - `savh_ground_truth_corregido.csv` regenerado y `ocr_savh.json` recalculado con etiquetas fiables; revisar cuántas imágenes válidas quedan después de excluir.
-- Seis entrenamientos terminados, resultados de los tres pares y variabilidad documentada.
+- **Completado (30/10/2026):** seis entrenamientos terminados, resultados de los tres pares y variabilidad documentada.
 - Medir cambios en **recall** además de mAP; no adoptar una mejora de cajas que comprometa el número de placas detectadas.
 - Actualizar `docs/optimizacion.md`, `docs/analisis_datos.md` y `README.md` **solo con resultados efectivos y verificables**; no copiar resultados hipotéticos.
 - Conservar el modelo base de Hugging Face salvo una decisión posterior justificada por evaluación punta a punta, recalibración, exportación ONNX y pruebas integrales.
