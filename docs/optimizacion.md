@@ -159,7 +159,7 @@ Además de los hiperparámetros de entrenamiento, el sistema tiene dos umbrales 
 | Umbral | Cómo se fija | Valor |
 |---|---|---|
 | Confianza del detector | Calibrado **en *val*** (sección 4.1 del notebook): máx. F1 para seguir (`conf_track`) y menor umbral con precisión ≥ 95 % para decidir (`conf_decision`), con piso 0,10 | **0,30** y **0,30** (F1 máx. en val = 0,967) |
-| Confianza OCR para decidir sin verificación manual | Estudio de confianza en SAVH (sección 4.3): se compararon umbrales 0,5–0,99 | **0,94** como umbral operativo elegido para reducir verificaciones manuales en el hosting CPU; en video/cámara, la interfaz exige coincidencia de la misma placa en dos cuadros muestreados |
+| Confianza OCR para decidir sin verificación manual | Estudio de confianza en SAVH (sección 4.3): se compararon umbrales 0,5–0,99 | **0,94** como umbral operativo elegido ante la capacidad CPU limitada del hosting: en video/cámara permite confirmar antes la misma placa en dos cuadros y potencialmente evitar inferencias adicionales; busca reducir verificaciones manuales, pero no reduce el costo de cada inferencia |
 | Tamaño de inferencia en video | Comparación 640 vs 1280 px en el video de la garita (sección 6.8 del notebook) | 1280 px en video, 640 px en imágenes |
 
 ### 6.1 Efecto de la regla de decisión optimizada (SAVH, lista simulada, 399 imágenes)
