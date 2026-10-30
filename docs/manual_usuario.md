@@ -93,6 +93,8 @@ Como referencia para ejecución local: procesador Intel Core i7-8650U, 8 GB de R
 
 [**2. Acceso, perfiles y seguridad**](#acceso-perfiles-y-seguridad) **5**
 
+[Cambiar el idioma de la interfaz](#cambiar-el-idioma-de-la-interfaz) **5**
+
 [**3. Reconocimiento y Acceso**](#reconocimiento-y-acceso) **6**
 
 [**4. Capturar o cargar imágenes y videos**](#capturar-o-cargar-imágenes-y-videos) **7**
@@ -259,9 +261,15 @@ Permisos y conectividad suficientes para acceder a la cámara o transmitir video
 
 Figura 1. Pantalla de inicio de sesión SIRAP.
 
-**01** Abra [SIRAP](https://eduardoceballos-sirap.hf.space) desde el navegador autorizado de la organización. La misma dirección ofrece ambos idiomas; no se necesita una URL distinta.
+## Cambiar el idioma de la interfaz
 
-**Idioma de la interfaz:** al entrar, use el selector **Idioma** que aparece en la pantalla de inicio de sesión y elija **Español** o **English**. Español es la opción predeterminada. El selector sigue disponible en el menú común después de iniciar sesión. La elección se conserva en el mismo navegador al cambiar de pantalla o volver a abrir la aplicación.
+SIRAP ofrece **Español** (idioma predeterminado) y **English** desde la misma [dirección de la aplicación](https://eduardoceballos-sirap.hf.space); no se requiere una URL distinta. En el inicio de sesión, use el selector **Idioma**. Después de ingresar, encontrará el mismo selector en el menú común, como se muestra en la figura. Elija **English** para cambiar a inglés o **Español** para volver a español. La preferencia se conserva en este navegador al navegar y al volver a abrir SIRAP.
+
+![Selector de idioma Español / English en el menú común de SIRAP](img/selector_idioma_sirap.jpeg)
+
+*Figura 2. Selector «Idioma» del menú común. Seleccione Español o English para cambiar el idioma de la interfaz.*
+
+**01** Abra [SIRAP](https://eduardoceballos-sirap.hf.space) desde el navegador autorizado de la organización.
 
 **02** Escriba su nombre de usuario en el campo Usuario.
 
