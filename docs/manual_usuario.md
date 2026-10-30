@@ -271,9 +271,9 @@ Figura 1. Pantalla de inicio de sesión SIRAP.
 
 | PERFIL        | FUNCIONES DISPONIBLES                                                                                                                                                                                                                                                                                                    |
 |---------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Operador      | Captura y reconocimiento; verificación de placas; registro de acciones permitidas y consulta del Historial. Puede registrar camiones nuevos desde Reconocimiento y Acceso; al guardarlos, se agregan a la lista blanca.                                                                                                  |
-| Supervisor    | Funciones operativas; consulta y exportación del Historial a CSV. Puede consultar Dashboard y Administración en modo de solo lectura. También puede registrar camiones nuevos desde Reconocimiento y Acceso; al guardarlos, se agregan a la lista blanca.                                                                |
-| Administrador | Modifica la configuración y los datos del sistema. En Administración, es el único que crea o actualiza vehículos, gestiona sus autorizaciones, administra garitas y usuarios, y genera o borra operaciones DEMO. También puede registrar camiones nuevos desde Reconocimiento y Acceso; consulta y exporta el Historial. |
+| Operador      | Captura y reconocimiento; verificación de placas, registro de acciones e Historial. Puede registrar y, tras confirmar visualmente, **autorizar expresamente** un camión NUEVO desde Reconocimiento y Acceso. No puede modificar placas existentes desde ese módulo. |
+| Supervisor    | Operaciones de garita; consulta y exportación del Historial; Dashboard y Administración de solo lectura. Puede registrar y autorizar expresamente placas nuevas desde Reconocimiento y Acceso después de verificarlas. |
+| Administrador | Además de las funciones de garita y autorización expresa de placas nuevas, puede administrar vehículos existentes, listas, usuarios, garitas y datos DEMO desde Administración. |
 
 *Tabla 2. Perfiles de usuario y funciones disponibles*
 
@@ -389,7 +389,7 @@ En caso de duda, repita la toma y no utilice caracteres que no puedan comprobars
 
 ## 5.1. Vehículo no registrado
 
-Cuando SIRAP informa «No registrado», no abra. Si registra el vehículo desde Reconocimiento y Acceso, SIRAP guarda la ficha y agrega la placa a la lista blanca; esto no abre la barrera por sí solo. Verifique el resultado final y revise que no exista una restricción vigente.
+Cuando SIRAP informa «No registrado», no abra. Al registrar el camión desde Reconocimiento y Acceso, se guarda la ficha sin autorización automática. Cualquiera de los tres perfiles puede marcar expresamente «Autorizar ahora» después de verificar la placa y las condiciones de ingreso. El registro, con o sin autorización, no abre la barrera por sí solo.
 
 ![](img/manual_usuario_image6.jpg)
 
@@ -448,7 +448,7 @@ Detalle del vehículo. Ejemplo de datos del automotor consultados al SRI y de in
 
 ## 5.5. Registrar camión nuevo
 
-Cuando SIRAP identifica una placa sin ficha, cualquiera de los tres perfiles autenticados (Operador, Supervisor o Administrador) puede seleccionar «Sí, registrar» desde Reconocimiento y Acceso para abrir el formulario. Al guardar, el sistema crea la ficha del camión y agrega automáticamente la placa a la lista blanca. Si se selecciona «No, continuar», no se crea el registro. Registrar el camión no abre por sí solo la barrera: revise el resultado de autorización antes de actuar.
+Cuando SIRAP identifica una placa sin ficha, cualquiera de los tres perfiles autenticados (Operador, Supervisor o Administrador) puede seleccionar «Sí, registrar». Debe confirmar visualmente la placa y, solo si ha verificado el permiso de ingreso, marcar la casilla «Autorizar ahora este camión en la lista blanca». Si no la marca, se crea la ficha sin autorización. El formulario nunca modifica una placa existente, especialmente si está restringida. Registrar o autorizar no abre la barrera por sí solo.
 
 ![](img/manual_usuario_image10.jpg)
 
@@ -462,17 +462,17 @@ Figura 8B. Formulario «Registrar camión nuevo» para completar la información
 
 **01** En el panel de detalles del vehículo, pulse «Sí, registrar» si la placa no tiene ficha y ha confirmado que corresponde al vehículo presente.
 
-02 Compruebe la Placa detectada que aparece en la parte superior de la ventana. Verifique que coincide con la lectura obtenida por SIRAP.
+02 Compare la Placa detectada con la matrícula visible del vehículo; no basta con confiar en el OCR.
 
 03 Complete los campos solicitados. Marca, Modelo, Color y Propietario son obligatorios; el campo Transportista es opcional.
 
-04 Revise cuidadosamente la información antes de guardar. Cuando exista apoyo de otras fuentes, como la consulta al SRI o documentos del transportista, úselo para validar los datos digitados.
+04 Revise cuidadosamente los datos y marque «Confirmo que comparé la placa con el vehículo». Si verificó que el ingreso está permitido, puede marcar además «Autorizar ahora este camión en la lista blanca». Si no, deje esta segunda casilla desmarcada.
 
-**05** Presione Guardar camión. SIRAP registra el vehículo y agrega automáticamente la placa a la lista blanca; esta opción está disponible para los tres perfiles autenticados desde Reconocimiento y Acceso.
+**05** Presione Guardar camión. SIRAP registra el vehículo y, únicamente si se marcó la segunda casilla, lo incorpora a la lista blanca con el usuario responsable identificado. Esta opción está disponible para los tres perfiles autenticados.
 
 06 Si el operador no desea crear el registro en ese momento, puede pulsar Cancelar para cerrar la ventana sin guardar cambios.
 
-Nota operativa. Guardar el camión lo agrega automáticamente a la lista blanca. Verifique la identidad del vehículo antes de guardar. Los tres perfiles autenticados pueden hacerlo desde Reconocimiento y Acceso; crear o actualizar vehículos y sus autorizaciones desde Administración es exclusivo del Administrador. Una restricción vigente prevalece sobre la lista blanca. Si no corresponde registrarlo, seleccione «No, continuar» o «Cancelar».
+Nota operativa. Registrar no significa autorizar: la lista blanca requiere una confirmación explícita. Operador, Supervisor y Administrador pueden otorgarla a vehículos **nuevos** desde Reconocimiento; solo el Administrador puede cambiar autorizaciones o datos **existentes** desde Administración. Una placa ya registrada no puede sobrescribirse desde Reconocimiento. Si hay dudas sobre el permiso, guarde sin autorizar o cancele.
 
 # 6. Registrar acciones y utilizar la barrera
 
@@ -553,7 +553,7 @@ Figura 10. Historial y principales controles de búsqueda.
 
 # 8. Administración de datos maestros
 
-Administración reúne los datos que SIRAP necesita para identificar vehículos, asignar listas vigentes y administrar puntos de control. Solo el Administrador puede modificar estos datos; el Supervisor puede consultar las secciones en modo de solo lectura. La API aplica los mismos permisos. Los tres perfiles autenticados pueden registrar un camión nuevo desde Reconocimiento y Acceso; al guardarlo, se agrega automáticamente a la lista blanca.
+Administración reúne los datos que SIRAP necesita para identificar vehículos, asignar listas vigentes y administrar puntos de control. Solo el Administrador puede modificar estos datos desde Administración; el Supervisor puede consultar en modo de solo lectura. En Reconocimiento y Acceso, los tres perfiles pueden crear un camión nuevo y autorizarlo de manera expresa tras confirmar su placa; si no lo autorizan, queda registrado sin permiso. No se permite sobrescribir una placa existente desde esa pantalla.
 
 ## 8.1. Vehículos
 
@@ -836,7 +836,11 @@ Compare la lectura con la imagen. Corrija únicamente los caracteres que pueda c
 
 ## ¿Registrar un camión nuevo desde Reconocimiento y Acceso autoriza su ingreso?
 
-El formulario guarda el camión y lo agrega a la lista blanca. Revise el resultado y siga el procedimiento de registro; guardar el camión no abre por sí solo la barrera.
+No automáticamente. Los tres perfiles pueden confirmar la placa y marcar «Autorizar ahora» al registrar un camión nuevo. Sin esa selección, quedará sin permiso. Una placa existente o restringida no puede modificarse desde ese formulario. Registrar o autorizar no abre por sí solo la barrera.
+
+## ¿Qué sucede si falla el almacenamiento durante una apertura?
+
+SIRAP debe guardar la solicitud de apertura en el historial **antes** de emitir la orden de barrera. Si el CSV no puede guardarse, la apertura se bloquea. Después registra el resultado (`CONFIRMADA`, `FALLIDA` o `INDETERMINADA`); si esa actualización falla, conserva `SOLICITADA` y exige conciliación manual. No repita la misma apertura ante un error de red: consulte su identificador y estado en el Historial. La barrera incluida en esta versión es simulada.
 
 ## ¿La barrera se abre automáticamente?
 
