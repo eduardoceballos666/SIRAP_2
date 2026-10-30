@@ -227,13 +227,18 @@ Documentación interactiva (Swagger) en [`/docs`](https://eduardoceballos-sirap.
 | `POST /api/auth/login` · `GET /api/auth/me` | — | Inicio de sesión (JWT con rol, 12 h) |
 | `POST /api/recognize` | todos | Imagen → placa, confianza, caja, recorte y decisión (no registra) |
 | `POST /api/plates/verify` | todos | Verificar una placa escrita o corregida a mano |
+| `POST /api/plates/register` | todos los perfiles autenticados | Crear un camión NUEVO tras confirmar visualmente la placa; la autorización en lista blanca requiere marcarla expresamente. Registra el usuario autorizador y no sobrescribe placas existentes o restringidas. |
 | `POST /api/plates/vehicle-data` · `GET /api/plates/vehicle-data/{request_id}` | todos | Consulta asíncrona al SRI y EcuadorLegalOnline; entrega datos complementarios de la placa, sin cambiar la decisión de acceso |
-| `POST /api/operations` | todos | El operador inicia el registro y solicita la apertura; el servidor recalcula la decisión y solo permite la apertura automática si está AUTORIZADO. La apertura manual de contingencia exige motivo; SIRAP ejecuta la orden |
+| `POST /api/operations` | todos | Recalcula la autorización y persiste una solicitud identificada por UUID antes de abrir; después guarda el estado de barrera. Bloquea aperturas si falla el CSV y evita repetir una operación con el mismo UUID. La apertura manual requiere motivo. |
 | `GET /api/operations` · `/api/operations/export.csv` | todos · supervisor/admin | Historial filtrado y exportación CSV |
 | `GET /api/dashboard` | todos | Indicadores y datos de los gráficos |
 | `GET /api/admin/{table}` | todos los usuarios autenticados | Consultar las tablas de vehículos, propietarios, autorizaciones, garitas y usuarios |
 | `POST/PUT/DELETE /api/admin/...` | administrador | Crear o modificar vehículos, autorizaciones, garitas, usuarios y datos de demostración |
 | `GET /api/system` · `/api/model/info` · `/api/samples` | todos | Estado, métricas del modelo e imágenes de ejemplo |
+
+**Política de registro en Reconocimiento:** Operador, Supervisor y Administrador pueden crear y autorizar una placa nueva si la verifican visualmente y marcan explícitamente la autorización. Sin aprobación, permanece registrada sin permiso. Si la placa ya existe, el endpoint rechaza la modificación para proteger su registro y cualquier restricción. En cambio, la gestión de datos existentes y listas desde Administración sigue reservada al Administrador.
+
+**Trazabilidad de apertura:** `operaciones.csv` guarda `operacion_id`, `estado_barrera` y `actualizado_en`. Las aperturas registran primero `SOLICITADA`, y después `CONFIRMADA`, `FALLIDA` o `INDETERMINADA` según la respuesta. Si falla el guardado inicial, no se abre. Si falla el guardado final, se conserva la solicitud y es necesaria conciliación manual; no debe repetirse automáticamente la orden. El modo físico requiere respaldo CSV privado configurado; la barrera actual es simulada.
 
 La API permite que cualquier usuario autenticado, incluido el Operador, consulte las tablas de Administración mediante `GET /api/admin/{table}`. La pantalla y la ruta de Administración en la interfaz están disponibles solo para Supervisor y Administrador. Consultar las tablas por API no concede permisos de modificación: las operaciones de escritura requieren el rol Administrador.
 
