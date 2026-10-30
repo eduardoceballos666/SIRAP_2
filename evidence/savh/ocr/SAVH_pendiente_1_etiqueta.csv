@@ -1,0 +1,2 @@
+﻿fila_gt,image_path,folder,plate_camara,plate_gt,estado_gt,n_hoja,chequeo_visual,respuesta,duplicado_de_fila,fuente_aprobacion,decision_final,aprobacion_humana,aplicable_evaluacion,grupo_revision
+398,placa_legible/evt_dahua_20260611222609_df2f48c2_GBP6149_crop.jpg,legible,GBP6149,,pendiente_interpretacion,,,ok,,hoja_Camara_OCR_col_J,ok_no_define_placa_cuando_sugerencia_incierta,ok_indeterminado,NO,
