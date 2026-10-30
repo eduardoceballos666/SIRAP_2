@@ -1,0 +1,70 @@
+{
+  "estado": "EVALUACION_OCR_CONDICIONADA_A_APROBACIONES_REGISTRADAS",
+  "fecha": "2026-10-30",
+  "origen": "Hoja Google Sheets Revisión placas SAVH (142 legibles), dos pestañas; caché OCR SAVH privado; recálculo offline sin inferencia nueva",
+  "modelo_ocr": "fast-plate-ocr cct-s-v2-global-model",
+  "ground_truth": {
+    "total_original": 739,
+    "recortes_legibles_originales": 472,
+    "no_legibles_originales": 267,
+    "recortes_legibles_unicos_antes_de_exclusion": 399,
+    "grupos_savh_69_con_respuesta": 69,
+    "filas_savh_142_con_respuesta": 141,
+    "grupo_20_resuelto_con_copias": [
+      21,
+      22
+    ],
+    "referencias_camara_ok": 329,
+    "referencias_camara_excluidas_ilegible": 1,
+    "fila_gt_excluida": [
+      398
+    ],
+    "pendientes_sin_decision": 0,
+    "unicos_evaluables": 398
+  },
+  "resultados_historicos": {
+    "n": 399,
+    "exactas": 374,
+    "emr": 0.9373433583959899
+  },
+  "resultados_ajustados_a_aprobaciones": {
+    "n": 398,
+    "exactas": 388,
+    "emr": 0.9748743718592965,
+    "cer_medio_por_imagen": 0.0036491983728164632
+  },
+  "umbral_ocr_offline": {
+    "0.94": {
+      "aceptadas": 362,
+      "exactas_aceptadas": 359,
+      "erroneas_aceptadas": 3,
+      "derivadas_revision_manual": 36
+    },
+    "0.99": {
+      "aceptadas": 346,
+      "exactas_aceptadas": 343,
+      "erroneas_aceptadas": 3,
+      "derivadas_revision_manual": 52
+    }
+  },
+  "cambios_etiquetas": {
+    "grupos_sugeridos_en_hoja_1": 69,
+    "referencias_de_camara_sugeridas_ocr_y_aceptadas": 14,
+    "referencias_de_camara_aceptadas_como_camara": 3,
+    "recorte_de_camara_ilegible": 1
+  },
+  "limitaciones": [
+    "Las propuestas OCR estaban visibles al revisor, de modo que el EMR está condicionado a una anotación no ciega. No prueba que el OCR haya mejorado.",
+    "Una respuesta ok en la hoja segunda se interpretó según la propuesta explícita de esa fila, no uniformemente como OCR.",
+    "La imagen fila_gt 398 está excluida por ilegible, no corregida con una matrícula inventada.",
+    "El caché OCR corresponde a recortes estáticos; no evalúa detección en video, regla de dos cuadros ni apertura de barrera.",
+    "No se modificaron los pesos del modelo, el umbral operativo ni la aplicación desplegada.",
+    "Las matrículas, fotografías y datos individuales se conservan en Google Drive privado y no se publican en este archivo."
+  ],
+  "evidencias_drive_privado": [
+    "proyecto_integrador_placas/ocr/SAVH_ground_truth_cerrado_739.csv",
+    "proyecto_integrador_placas/ocr/SAVH_ground_truth_evaluable_398.csv",
+    "proyecto_integrador_placas/ocr/SAVH_resultado_ocr_398_referencias_aprobadas.csv",
+    "proyecto_integrador_placas/ocr/SAVH_metricas_aprobaciones_398_cerrado.json"
+  ]
+}
