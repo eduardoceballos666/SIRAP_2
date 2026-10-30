@@ -204,8 +204,7 @@ const opt = computed(() => m.value.optimizacion_resumen || {})
         <li>El detector se entrenó con placas de varios países; no es específico de Ecuador. El OCR se validó con placas reales
           de <b>SAVH Guayaquil</b>, pero rinde menos con placas sucias, dañadas, de noche, muy inclinadas o lejanas
           (mAP@0.5:0.95 de placas pequeñas: {{ num(m.detector_test?.map50_95_pequenas) }}).</li>
-        <li>Una lectura con confianza OCR menor a {{ pct(info?.umbral_ocr ?? 0.94) }} <b>no</b> se decide sola: pasa a verificación manual.
-          El operador confirma siempre; la barrera nunca se abre sin una acción humana.</li>
+        <li>El umbral OCR operativo es {{ pct(info?.umbral_ocr ?? 0.94) }}. Se eligió considerando los recursos CPU limitados del hosting: en video y cámara, la interfaz analiza cada segundo y puede terminar antes cuando confirma la misma placa en dos cuadros, evitando cuadros adicionales. El umbral no acelera cada inferencia. Las lecturas inferiores o inconsistentes pasan a verificación manual. El operador solicita la apertura; la barrera no se abre solo por reconocer una placa.</li>
         <li>El EMR punta a punta en la garita real aún no se midió (falta la referencia anotada del video).</li>
         <li>Las imágenes de ejemplo derivan del diseño de la interfaz; no son capturas reales. La barrera de esta versión es
           <b>simulada</b> y la base de demostración contiene datos <b>ficticios</b> respaldados en el repositorio privado configurado.</li>
