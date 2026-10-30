@@ -377,3 +377,8 @@ Las marcas, derechos y licencias de los componentes de terceros pertenecen a sus
 ### Actualización: validación multisemilla (30/10/2026)
 
 Las seis corridas (base y optimizada, semillas 0, 1 y 2) se completaron. El mAP50:95 mejoró en los tres pares: **+0,3743 puntos porcentuales en promedio** (desviación estándar muestral **0,3153 pp**); el recall medio cambió aproximadamente **+0,3017 pp**. Es evidencia descriptiva de tres semillas, no significación estadística ni una evaluación punta a punta. Se conserva el modelo publicado y sigue pendiente verificar visualmente las 69 etiquetas SAVH. [Detalle y limitaciones](docs/validacion_savh_multisemilla.md) · [Métricas CSV](results/metrics/validacion_multisemilla_comparacion.csv).
+
+
+### Estado de revisión SAVH (30/10/2026; provisional)
+
+Se localizaron y examinaron de forma asistida las 69 imágenes SAVH representativas: 67 sugerencias visualmente compatibles y 2 grupos que siguen ambiguos (7 y 52). **La columna de confirmación humana continúa vacía**; las otras 330 etiquetas de cámara tampoco se consideran verificadas visualmente. Tras excluir 2 imágenes únicas ambiguas, se recalculó con las salidas OCR cacheadas un **EMR offline de 373/397 = 93,95 %** (frente al histórico de 374/399 = 93,73 %); con un umbral offline del 94 % hubo **14 errores entre 362 lecturas aceptadas**. El cambio en EMR es consecuencia de la exclusión de casos, **no una mejora del OCR**. No se validó el funcionamiento punta a punta en video ni la regla de dos cuadros. Se mantuvieron sin cambios el modelo y el despliegue de Hugging Face. [Auditoría y pendientes](docs/validacion_savh_multisemilla.md) · [Resumen provisional](results/metrics/ocr_savh_revision_asistida_397.json).
