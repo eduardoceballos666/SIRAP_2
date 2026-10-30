@@ -20,6 +20,8 @@ aplicación web profesional: **API REST en FastAPI** con autenticación por usua
 [**Aplicación en vivo**](https://eduardoceballos-sirap.hf.space) · [Manual de usuario](docs/manual_usuario.md) ·
 [Documentación de la API](https://eduardoceballos-sirap.hf.space/docs) · [Notebook de backend](notebooks/SIRAP_backend.ipynb)
 
+**Idiomas de la interfaz:** SIRAP está disponible en **Español** (idioma predeterminado) y **English**. Ambas versiones se abren desde la misma [aplicación en vivo](https://eduardoceballos-sirap.hf.space): en la pantalla de inicio de sesión, use el selector **Idioma** y elija **Español** o **English**. El selector también está en el menú común después de iniciar sesión. La preferencia se guarda en este navegador y se conserva al navegar o volver a abrir SIRAP.
+
 <img src="https://raw.githubusercontent.com/eduardoceballos666/SIRAP_2/396855f38f95c209d201768d6e31312dc7d41203/docs/img/vue_reconocimiento.png" alt="SIRAP – Reconocimiento y Acceso" width="900">
 
 </div>
