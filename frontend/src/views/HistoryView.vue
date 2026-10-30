@@ -75,17 +75,20 @@ onMounted(async () => {
     <div class="table-wrap max-h-[65vh]">
       <table class="tbl">
         <thead><tr><th>Fecha y hora</th><th>Garita</th><th>Mov.</th><th>Placa leída</th><th>Placa final</th><th>Conf. OCR</th>
-          <th>Resultado</th><th>Acción</th><th>Lista</th><th>Operador</th><th>Origen</th><th>Motivo</th></tr></thead>
+          <th>Resultado</th><th>Acción</th><th>Estado barrera</th><th>ID operación</th><th>Lista</th><th>Operador</th><th>Origen</th><th>Motivo</th></tr></thead>
         <tbody>
           <tr v-for="r in rows" :key="r.id">
             <td>{{ r.fecha_hora }}</td><td>{{ r.garita }}</td><td>{{ r.tipo_movimiento === 'ENTRADA' ? 'Entrada' : 'Salida' }}</td>
             <td class="font-mono">{{ r.placa_leida || '—' }}</td><td class="font-mono font-bold">{{ r.placa_final || '—' }}</td>
             <td>{{ pct(r.confianza_ocr, 1) }}</td>
             <td><span class="pill" :class="TONE_PILL[RESULT[r.resultado]?.tone]">{{ RESULT[r.resultado]?.label || r.resultado }}</span></td>
-            <td>{{ ACTION[r.accion] || r.accion }}</td><td>{{ r.lista || '—' }}</td><td>{{ r.operador }}</td>
+            <td>{{ ACTION[r.accion] || r.accion }}</td>
+            <td :title="r.estado_barrera || ''"><span :class="r.estado_barrera === 'INDETERMINADA' || r.estado_barrera === 'SOLICITADA' ? 'font-bold text-warn' : ''">{{ r.estado_barrera || '—' }}</span></td>
+            <td class="font-mono text-xs" :title="r.operacion_id || ''">{{ r.operacion_id || '—' }}</td>
+            <td>{{ r.lista || '—' }}</td><td>{{ r.operador }}</td>
             <td>{{ r.origen }}</td><td class="max-w-64 truncate" :title="r.motivo">{{ r.motivo || '' }}</td>
           </tr>
-          <tr v-if="!rows.length && !loading"><td colspan="12" class="py-6 text-center text-muted">Sin operaciones para estos filtros.</td></tr>
+          <tr v-if="!rows.length && !loading"><td colspan="14" class="py-6 text-center text-muted">Sin operaciones para estos filtros.</td></tr>
         </tbody>
       </table>
     </div>
