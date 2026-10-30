@@ -204,6 +204,7 @@ const en = {
   'getUserMedia no disponible': 'getUserMedia is unavailable',
   'No se pudo acceder a la cámara local. Verifique el permiso del navegador y use HTTPS o localhost.': 'Could not access the local camera. Check browser permissions and use HTTPS or localhost.',
   'El video terminó sin confirmar la misma placa en dos cuadros con confianza ≥94 %. Verifique la placa manualmente.': 'The video ended without confirming the same plate in two frames at ≥94% confidence. Verify the plate manually.',
+  'El video terminó sin confirmar la placa. Se repetirá el video y continuará la detección durante 15 segundos antes de solicitar validación manual.': 'The video ended without confirming the plate. Playback will restart and detection will continue for 15 seconds before requesting manual review.',
   'No se pudo reproducir el enlace. Use una URL HTTP/HTTPS compatible con el navegador.': 'Could not play the link. Use an HTTP/HTTPS URL supported by the browser.',
   'No se pudo reproducir este video. Pruebe un archivo MP4 o WebM.': 'Could not play this video. Try an MP4 or WebM file.',
   'Espere a que el video esté reproduciéndose antes de analizar un fotograma.': 'Wait for the video to play before analyzing a frame.',
