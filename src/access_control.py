@@ -45,7 +45,7 @@ class AccessDecision:
 
 
 def decide_access(plate: str | None, ocr_confidence: float, store: Any,
-                  confidence_threshold: float = 0.99, max_similar_distance: int = 1,
+                  confidence_threshold: float = 0.94, max_similar_distance: int = 1,
                   det_confidence: float | None = None, det_threshold: float = 0.0) -> AccessDecision:
     """Aplica la regla de decisión de SIRAP.
 
