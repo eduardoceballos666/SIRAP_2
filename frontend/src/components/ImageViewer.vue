@@ -13,7 +13,7 @@ const fontSize = computed(() => Math.max(16, Math.round((props.width || 1000) / 
 <template>
   <div class="relative overflow-hidden rounded-2xl bg-navy-900 p-2">
     <div v-if="src" class="relative">
-      <img :src="src" alt="Imagen de la garita" class="block max-h-[62vh] w-full rounded-xl object-contain" />
+      <img :src="src" :alt="$t('Imagen de la garita')" class="block max-h-[62vh] w-full rounded-xl object-contain" />
       <svg v-if="box && width && height" :viewBox="`0 0 ${width} ${height}`" preserveAspectRatio="xMidYMid meet"
            class="pointer-events-none absolute inset-0 h-full w-full">
         <rect :x="box[0]" :y="box[1]" :width="box[2] - box[0]" :height="box[3] - box[1]" fill="none"
@@ -22,7 +22,7 @@ const fontSize = computed(() => Math.max(16, Math.round((props.width || 1000) / 
           <rect :x="box[0]" :y="Math.max(0, box[1] - fontSize * 1.5)" :width="label.length * fontSize * 0.68 + fontSize"
                 :height="fontSize * 1.35" :fill="color" rx="4" />
           <text :x="box[0] + fontSize * 0.5" :y="Math.max(fontSize * 1.05, box[1] - fontSize * 0.42)" :font-size="fontSize"
-                font-weight="800" fill="#0d1b33" font-family="Inter, Arial, sans-serif">{{ label }}</text>
+                font-weight="800" fill="#0d1b33" font-family="Inter, Arial, sans-serif">{{ $t(label) }}</text>
         </template>
       </svg>
       <div v-if="loading" class="absolute inset-0 grid place-items-center rounded-xl bg-navy-950/45">
@@ -36,8 +36,8 @@ const fontSize = computed(() => Math.max(16, Math.round((props.width || 1000) / 
     <div v-else class="grid aspect-video place-items-center rounded-xl border-2 border-dashed border-white/20 text-slate-300">
       <div class="text-center">
         <AppIcon name="image" :size="72" class="mx-auto mb-5 opacity-70" />
-        <p class="text-4xl font-bold leading-tight">Sin imagen</p>
-        <p class="mt-3 text-2xl leading-relaxed opacity-90">Seleccione Subir archivo, Cámara Local o Cámara URL para comenzar.</p>
+        <p class="text-4xl font-bold leading-tight">{{ $t("Sin imagen") }}</p>
+        <p class="mt-3 text-2xl leading-relaxed opacity-90">{{ $t("Seleccione Subir archivo, Cámara Local o Cámara URL para comenzar.") }}</p>
       </div>
     </div>
   </div>

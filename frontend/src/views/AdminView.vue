@@ -4,6 +4,7 @@ import AppIcon from '@/components/AppIcon.vue'
 import { api } from '@/lib/api'
 import { useAuthStore } from '@/stores/auth'
 import { useSessionStore } from '@/stores/session'
+import { t } from '@/i18n'
 
 const auth = useAuthStore()
 const session = useSessionStore()
@@ -99,7 +100,7 @@ async function saveVehicle() {
     return
   }
   const existing = rows.value.find((row) => plateKey(row.placa) === plateKey(vehicle.placa))
-  if (existing && !window.confirm(`La placa ${existing.placa} ya existe en el listado. ¿Desea actualizarla?`)) {
+  if (existing && !window.confirm(t(`La placa ${existing.placa} ya existe en el listado. ¿Desea actualizarla?`))) {
     session.notify('No se actualizó el registro.', 'warn')
     return
   }
@@ -141,7 +142,7 @@ async function saveAuth() {
   let method = 'POST'
   let url = '/api/admin/autorizaciones'
   if (existing) {
-    if (!window.confirm('La placa existe, ¿desea actualizar?')) {
+    if (!window.confirm(t('La placa existe, ¿desea actualizar?'))) {
       session.notify('No se actualizó la placa.', 'warn')
       resetAuth()
       return
@@ -256,7 +257,7 @@ async function resetUserPassword() {
     session.notify('La nueva contraseña debe tener al menos 8 caracteres.', 'warn')
     return
   }
-  if (!window.confirm(`¿Restablecer la contraseña de ${username}?`)) return
+  if (!window.confirm(t(`¿Restablecer la contraseña de ${username}?`))) return
   const saved = await run(() => api(`/api/admin/usuarios/${encodeURIComponent(username)}/password`, {
     method: 'PUT',
     body: { password },
@@ -318,133 +319,133 @@ onMounted(load)
 <template>
   <div class="mb-4 flex flex-wrap gap-1 rounded-xl bg-surface p-1 shadow-sm">
     <button v-for="[k, l] in TABS" :key="k" class="rounded-lg px-4 py-2 text-sm font-semibold transition"
-            :class="tab === k ? 'bg-brand-600 text-white' : 'text-muted hover:bg-subtle-2'" @click="tab = k">{{ l }}</button>
+            :class="tab === k ? 'bg-brand-600 text-white' : 'text-muted hover:bg-subtle-2'" @click="tab = k">{{ $t(l) }}</button>
   </div>
   <p v-if="!isAdmin" class="mb-4 rounded-xl bg-warn-soft px-4 py-3 text-sm font-semibold text-warn">
-    Modo de consulta: solo el rol Administrador puede modificar datos.
+    {{ $t("Modo de consulta: solo el rol Administrador puede modificar datos.") }}
   </p>
 
   <div class="grid gap-5" :class="isAdmin && tab !== 'propietarios' ? 'xl:grid-cols-3' : ''">
     <section v-if="isAdmin && tab !== 'propietarios'" class="card">
       <template v-if="tab === 'vehiculos'">
-        <h2 class="card-title"><span class="icon-chip"><AppIcon name="car" /></span> Crear o actualizar vehículo</h2>
+        <h2 class="card-title"><span class="icon-chip"><AppIcon name="car" /></span> {{ $t("Crear o actualizar vehículo") }}</h2>
         <form class="space-y-3" novalidate @submit.prevent="saveVehicle">
-          <input v-model.trim="vehicle.placa" class="field font-mono uppercase" placeholder="Placa (PBA-8901) *" required @keydown.enter.prevent="loadVehicleForEdit" />
+          <input v-model.trim="vehicle.placa" class="field font-mono uppercase" :placeholder='$t("Placa (PBA-8901) *")' required @keydown.enter.prevent="loadVehicleForEdit" />
           <div class="grid grid-cols-2 gap-3">
-            <input v-model.trim="vehicle.marca" class="field bg-subtle font-semibold" placeholder="Marca *" required />
-            <input v-model.trim="vehicle.modelo" class="field bg-subtle font-semibold" placeholder="Modelo *" required />
-            <input v-model.trim="vehicle.color" class="field bg-subtle font-semibold" placeholder="Color *" required />
-            <select v-model="vehicle.tipo" class="field" required><option disabled value="">Seleccione tipo *</option><option value="LIVIANO">LIVIANO</option><option value="CAMION">CAMION</option><option value="MOTO">MOTO</option><option value="OTRO">OTRO</option></select>
+            <input v-model.trim="vehicle.marca" class="field bg-subtle font-semibold" :placeholder='$t("Marca *")' required />
+            <input v-model.trim="vehicle.modelo" class="field bg-subtle font-semibold" :placeholder='$t("Modelo *")' required />
+            <input v-model.trim="vehicle.color" class="field bg-subtle font-semibold" :placeholder='$t("Color *")' required />
+            <select v-model="vehicle.tipo" class="field" required><option disabled value="">{{ $t("Seleccione tipo *") }}</option><option value="LIVIANO">{{ $t("LIVIANO") }}</option><option value="CAMION">{{ $t("CAMION") }}</option><option value="MOTO">{{ $t("MOTO") }}</option><option value="OTRO">{{ $t("OTRO") }}</option></select>
           </div>
-          <input v-model.trim="vehicle.propietario" class="field bg-subtle font-semibold" placeholder="Propietario *" required />
-          <input v-model.trim="vehicle.transportista" class="field bg-subtle font-semibold" placeholder="Transportista *" required />
+          <input v-model.trim="vehicle.propietario" class="field bg-subtle font-semibold" :placeholder='$t("Propietario *")' required />
+          <input v-model.trim="vehicle.transportista" class="field bg-subtle font-semibold" :placeholder='$t("Transportista *")' required />
           <div class="flex gap-2">
-            <button class="btn-primary flex-1" :disabled="busy">Guardar vehículo</button>
-            <button type="button" class="btn-ghost flex-1" :disabled="busy" @click="resetVehicle">Limpiar campos</button>
+            <button class="btn-primary flex-1" :disabled="busy">{{ $t("Guardar vehículo") }}</button>
+            <button type="button" class="btn-ghost flex-1" :disabled="busy" @click="resetVehicle">{{ $t("Limpiar campos") }}</button>
           </div>
         </form>
       </template>
       <template v-else-if="tab === 'autorizaciones'">
-        <h2 class="card-title"><span class="icon-chip"><AppIcon name="lock" /></span> Lista blanca o restringida</h2>
+        <h2 class="card-title"><span class="icon-chip"><AppIcon name="lock" /></span> {{ $t("Lista blanca o restringida") }}</h2>
         <form class="space-y-3" @submit.prevent="saveAuth">
-          <input v-model.trim="auth_.placa" class="field font-mono uppercase" placeholder="Placa registrada *" required @keydown.enter.prevent="loadAuthForEdit" />
-          <select v-model="auth_.lista" class="field" required><option disabled value="">Seleccione una lista *…</option><option value="BLANCA">Lista blanca (autorizado)</option><option value="RESTRINGIDA">Lista restringida (denegado)</option></select>
-          <input v-model.trim="auth_.motivo" class="field" placeholder="Motivo *" required />
-          <div><label class="field-label" for="authorization-expiry">Vigente hasta *</label><input id="authorization-expiry" v-model="auth_.vigente_hasta" type="date" class="field" required /></div>
+          <input v-model.trim="auth_.placa" class="field font-mono uppercase" :placeholder="$t('Placa registrada *')" required @keydown.enter.prevent="loadAuthForEdit" />
+          <select v-model="auth_.lista" class="field" required><option disabled value="">{{ $t("Seleccione una lista *…") }}</option><option value="BLANCA">{{ $t("Lista blanca (autorizado)") }}</option><option value="RESTRINGIDA">{{ $t("Lista restringida (denegado)") }}</option></select>
+          <input v-model.trim="auth_.motivo" class="field" :placeholder="$t('Motivo *')" required />
+          <div><label class="field-label" for="authorization-expiry">{{ $t("Vigente hasta *") }}</label><input id="authorization-expiry" v-model="auth_.vigente_hasta" type="date" class="field" required /></div>
           <div class="flex gap-2">
-            <button class="btn-primary flex-1" :disabled="busy">Asignar</button>
-            <button type="button" class="btn-ghost flex-1" :disabled="busy" @click="resetAuth">Limpiar Campos</button>
-            <button type="button" class="btn-ghost flex-1" :disabled="busy || !auth_.placa" @click="revoke">Quitar de listas</button>
+            <button class="btn-primary flex-1" :disabled="busy">{{ $t("Asignar") }}</button>
+            <button type="button" class="btn-ghost flex-1" :disabled="busy" @click="resetAuth">{{ $t("Limpiar Campos") }}</button>
+            <button type="button" class="btn-ghost flex-1" :disabled="busy || !auth_.placa" @click="revoke">{{ $t("Quitar de listas") }}</button>
           </div>
         </form>
       </template>
       <template v-else-if="tab === 'garitas'">
-        <h2 class="card-title"><span class="icon-chip"><AppIcon name="pin" /></span> Nueva garita</h2>
+        <h2 class="card-title"><span class="icon-chip"><AppIcon name="pin" /></span> {{ $t("Nueva garita") }}</h2>
         <form class="space-y-3" @submit.prevent="saveGate">
-          <input v-model.trim="gate.nombre" class="field" placeholder="Nombre (Garita 4) *" required maxlength="60" />
-          <input v-model.trim="gate.ubicacion" class="field" placeholder="Ubicación *" required maxlength="120" />
+          <input v-model.trim="gate.nombre" class="field" :placeholder="$t('Nombre (Garita 4) *')" required maxlength="60" />
+          <input v-model.trim="gate.ubicacion" class="field" :placeholder="$t('Ubicación *')" required maxlength="120" />
           <div class="flex gap-2">
-            <button class="btn-primary flex-1" :disabled="busy">Agregar garita</button>
-            <button type="button" class="btn-ghost flex-1" :disabled="busy" @click="resetGate">Limpiar Campos</button>
+            <button class="btn-primary flex-1" :disabled="busy">{{ $t("Agregar garita") }}</button>
+            <button type="button" class="btn-ghost flex-1" :disabled="busy" @click="resetGate">{{ $t("Limpiar Campos") }}</button>
           </div>
         </form>
       </template>
       <template v-else-if="tab === 'usuarios'">
-        <h2 class="card-title"><span class="icon-chip"><AppIcon name="user" /></span> {{ editingUser ? 'Editar usuario' : 'Nuevo usuario' }}</h2>
+        <h2 class="card-title"><span class="icon-chip"><AppIcon name="user" /></span> {{ $t(editingUser ? 'Editar usuario' : 'Nuevo usuario') }}</h2>
         <form class="space-y-3" @submit.prevent="saveUser">
-          <input v-model.trim="user.usuario" class="field" placeholder="Usuario *" required minlength="3" maxlength="40" pattern="[a-zA-Z0-9_.-]+" autocomplete="username" :disabled="busy || Boolean(editingUser)" />
-          <input v-model.trim="user.nombre" class="field" placeholder="Nombre completo *" required maxlength="120" autocomplete="name" />
+          <input v-model.trim="user.usuario" class="field" :placeholder="$t('Usuario *')" required minlength="3" maxlength="40" pattern="[a-zA-Z0-9_.-]+" autocomplete="username" :disabled="busy || Boolean(editingUser)" />
+          <input v-model.trim="user.nombre" class="field" :placeholder="$t('Nombre completo *')" required maxlength="120" autocomplete="name" />
           <select v-model="user.rol" class="field" required>
-            <option disabled value="">Seleccione un rol *</option>
-            <option value="OPERADOR">OPERADOR</option>
-            <option value="SUPERVISOR">SUPERVISOR</option>
-            <option value="ADMINISTRADOR">ADMINISTRADOR</option>
+            <option disabled value="">{{ $t("Seleccione un rol *") }}</option>
+            <option value="OPERADOR">{{ $t("OPERADOR") }}</option>
+            <option value="SUPERVISOR">{{ $t("SUPERVISOR") }}</option>
+            <option value="ADMINISTRADOR">{{ $t("ADMINISTRADOR") }}</option>
           </select>
           <template v-if="!editingUser">
-            <input v-model="user.password" type="password" class="field" placeholder="Contraseña * (mín. 8)" required minlength="8" maxlength="128" autocomplete="new-password" />
-            <button class="btn-primary w-full" :disabled="busy">Crear usuario</button>
+            <input v-model="user.password" type="password" class="field" :placeholder="$t('Contraseña * (mín. 8)')" required minlength="8" maxlength="128" autocomplete="new-password" />
+            <button class="btn-primary w-full" :disabled="busy">{{ $t("Crear usuario") }}</button>
           </template>
           <template v-else>
             <div class="rounded-xl border border-line bg-subtle p-3">
-              <label class="field-label" :for="'reset-user-password'">Nueva contraseña de {{ editingUser }}</label>
-              <input id="reset-user-password" v-model="user.password" type="password" class="field" placeholder="Nueva contraseña (mín. 8)" minlength="8" maxlength="128" autocomplete="new-password" />
-              <button type="button" class="btn-yellow mt-2 w-full" :disabled="busy || user.password.length < 8" @click="resetUserPassword">Restablecer contraseña</button>
+              <label class="field-label" :for="'reset-user-password'">{{ $t("Nueva contraseña de") }} {{ editingUser }}</label>
+              <input id="reset-user-password" v-model="user.password" type="password" class="field" :placeholder="$t('Nueva contraseña (mín. 8)')" minlength="8" maxlength="128" autocomplete="new-password" />
+              <button type="button" class="btn-yellow mt-2 w-full" :disabled="busy || user.password.length < 8" @click="resetUserPassword">{{ $t("Restablecer contraseña") }}</button>
             </div>
-            <button class="btn-primary w-full" :disabled="busy">Guardar cambios</button>
+            <button class="btn-primary w-full" :disabled="busy">{{ $t("Guardar cambios") }}</button>
           </template>
-          <button type="button" class="btn-ghost w-full" :disabled="busy" @click="resetUser">Limpiar Campos</button>
+          <button type="button" class="btn-ghost w-full" :disabled="busy" @click="resetUser">{{ $t("Limpiar Campos") }}</button>
         </form>
       </template>
       <template v-else-if="tab === 'demo'">
-        <h2 class="card-title"><span class="icon-chip"><AppIcon name="chart" /></span> Datos de demostración</h2>
-        <p class="mb-3 text-base text-muted">Estas operaciones son datos simulados generados exclusivamente para la visualización del Dashboard y la validación de registros. No corresponden a resultados reales del modelo ni son válidas para ejecución. Pueden ser ocultadas o eliminadas del sistema sin impacto.</p>
+        <h2 class="card-title"><span class="icon-chip"><AppIcon name="chart" /></span> {{ $t("Datos de demostración") }}</h2>
+        <p class="mb-3 text-base text-muted">{{ $t("Estas operaciones son datos simulados generados exclusivamente para la visualización del Dashboard y la validación de registros. No corresponden a resultados reales del modelo ni son válidas para ejecución. Pueden ser ocultadas o eliminadas del sistema sin impacto.") }}</p>
         <div class="flex gap-2">
-          <input v-model.number="demoN" type="number" min="1" max="20" step="1" inputmode="numeric" class="field !w-28" aria-label="Cantidad de operaciones demo, de 1 a 20" />
-          <button class="btn-primary flex-1" :disabled="busy" @click="runDemo('generate')">Generar</button>
+          <input v-model.number="demoN" type="number" min="1" max="20" step="1" inputmode="numeric" class="field !w-28" :aria-label="$t('Cantidad de operaciones demo, de 1 a 20')" />
+          <button class="btn-primary flex-1" :disabled="busy" @click="runDemo('generate')">{{ $t("Generar") }}</button>
         </div>
-        <button class="btn-red mt-3 w-full" :disabled="busy" @click="runDemo('clear')">Borrar operaciones DEMO</button>
+        <button class="btn-red mt-3 w-full" :disabled="busy" @click="runDemo('clear')">{{ $t("Borrar operaciones DEMO") }}</button>
         <p v-if="demoMessage" class="mt-3 rounded-lg bg-subtle px-3 py-2 text-sm font-semibold text-muted"
            :class="demoMessageKind === 'bad' ? 'text-warn' : ''" role="status" aria-live="polite">
-          {{ demoMessage }}
+          {{ $t(demoMessage) }}
         </p>
       </template>
     </section>
 
     <section v-if="tab !== 'demo'" class="card" :class="isAdmin && tab !== 'propietarios' ? 'xl:col-span-2' : ''">
       <div class="mb-3 flex flex-wrap items-center justify-between gap-3">
-        <p class="font-semibold">{{ rows.length }} registros</p>
+        <p class="font-semibold">{{ rows.length }} {{ $t('registros') }}</p>
         <div v-if="isAdmin && tab === 'vehiculos'" class="flex flex-wrap items-center gap-2">
-          <span class="text-xs text-muted">{{ selectedTruckPlates.length }} camión(es) seleccionados</span>
-          <button class="btn-primary" :disabled="busy || !selectedTruckPlates.length" @click="updateSelectedTruckAuthorization('BLANCA')">Autorizar seleccionados</button>
-          <button class="btn-ghost" :disabled="busy || !selectedTruckPlates.length" @click="updateSelectedTruckAuthorization(null)">Dejar sin autorización</button>
+          <span class="text-xs text-muted">{{ selectedTruckPlates.length }} {{ $t("camión(es) seleccionados") }}</span>
+          <button class="btn-primary" :disabled="busy || !selectedTruckPlates.length" @click="updateSelectedTruckAuthorization('BLANCA')">{{ $t("Autorizar seleccionados") }}</button>
+          <button class="btn-ghost" :disabled="busy || !selectedTruckPlates.length" @click="updateSelectedTruckAuthorization(null)">{{ $t("Dejar sin autorización") }}</button>
         </div>
         <div v-if="isAdmin && tab === 'usuarios'" class="flex flex-wrap items-center gap-2">
-          <span class="text-xs text-muted">{{ selectedUsers.length }} usuario(s) seleccionados</span>
-          <button class="btn-red" :disabled="busy || !selectedUsers.length" @click="updateSelectedUserState(false)">Inactivar usuario</button>
-          <button class="btn-primary" :disabled="busy || !selectedUsers.length" @click="updateSelectedUserState(true)">Activar usuario</button>
+          <span class="text-xs text-muted">{{ selectedUsers.length }} {{ $t("usuario(s) seleccionados") }}</span>
+          <button class="btn-red" :disabled="busy || !selectedUsers.length" @click="updateSelectedUserState(false)">{{ $t("Inactivar usuario") }}</button>
+          <button class="btn-primary" :disabled="busy || !selectedUsers.length" @click="updateSelectedUserState(true)">{{ $t("Activar usuario") }}</button>
         </div>
         <div v-if="isAdmin && tab === 'garitas'" class="flex flex-wrap items-center gap-2">
-          <span class="text-xs text-muted">{{ selectedGateNames.length }} garita(s) seleccionadas</span>
-          <button class="btn-red" :disabled="busy || !selectedGateNames.length" @click="updateSelectedGateState(false)">Inactivar garita</button>
-          <button class="btn-primary" :disabled="busy || !selectedGateNames.length" @click="updateSelectedGateState(true)">Activar garita</button>
+          <span class="text-xs text-muted">{{ selectedGateNames.length }} {{ $t("garita(s) seleccionadas") }}</span>
+          <button class="btn-red" :disabled="busy || !selectedGateNames.length" @click="updateSelectedGateState(false)">{{ $t("Inactivar garita") }}</button>
+          <button class="btn-primary" :disabled="busy || !selectedGateNames.length" @click="updateSelectedGateState(true)">{{ $t("Activar garita") }}</button>
         </div>
       </div>
       <div class="table-wrap max-h-[65vh]">
         <table class="tbl">
           <thead><tr>
-            <th v-if="isAdmin && tab === 'usuarios'"><input type="checkbox" aria-label="Seleccionar todos los usuarios" :checked="allUsersSelected" :disabled="!selectableUsers.length" @change="selectAllUsers($event.target.checked)" /></th>
-            <th v-if="isAdmin && tab === 'garitas'"><input type="checkbox" aria-label="Seleccionar todas las garitas" :checked="allGatesSelected" :disabled="!selectableGates.length" @change="selectAllGates($event.target.checked)" /></th>
-            <th v-if="isAdmin && tab === 'vehiculos'"><input type="checkbox" aria-label="Seleccionar todos los camiones" :checked="allTrucksSelected" :disabled="!selectableTrucks.length" @change="selectAllTrucks($event.target.checked)" /></th>
-            <th v-for="c in columns" :key="c">{{ c }}</th>
-            <th v-if="isAdmin && tab === 'usuarios'">Acciones</th>
+            <th v-if="isAdmin && tab === 'usuarios'"><input type="checkbox" :aria-label="$t('Seleccionar todos los usuarios')" :checked="allUsersSelected" :disabled="!selectableUsers.length" @change="selectAllUsers($event.target.checked)" /></th>
+            <th v-if="isAdmin && tab === 'garitas'"><input type="checkbox" :aria-label="$t('Seleccionar todas las garitas')" :checked="allGatesSelected" :disabled="!selectableGates.length" @change="selectAllGates($event.target.checked)" /></th>
+            <th v-if="isAdmin && tab === 'vehiculos'"><input type="checkbox" :aria-label="$t('Seleccionar todos los camiones')" :checked="allTrucksSelected" :disabled="!selectableTrucks.length" @change="selectAllTrucks($event.target.checked)" /></th>
+            <th v-for="c in columns" :key="c">{{ $t(c) }}</th>
+            <th v-if="isAdmin && tab === 'usuarios'">{{ $t("Acciones") }}</th>
           </tr></thead>
           <tbody><tr v-for="(r, i) in rows" :key="i">
-            <td v-if="isAdmin && tab === 'usuarios'"><input type="checkbox" :aria-label="'Seleccionar usuario ' + r.usuario" :checked="selectedUsers.includes(r.usuario)" :disabled="r.usuario === auth.user?.usuario" @change="toggleUserSelection(r.usuario, $event.target.checked)" /></td>
-            <td v-if="isAdmin && tab === 'garitas'"><input type="checkbox" :aria-label="'Seleccionar garita ' + r.nombre" :checked="selectedGateNames.includes(r.nombre)" @change="toggleGateSelection(r.nombre, $event.target.checked)" /></td>
-            <td v-if="isAdmin && tab === 'vehiculos'"><input v-if="r.tipo === 'CAMION'" type="checkbox" :aria-label="`Seleccionar camión ${r.placa}`" :checked="selectedTruckPlates.includes(r.placa)" @change="toggleTruckSelection(r.placa, $event.target.checked)" /></td>
-            <td v-for="c in columns" :key="c">{{ fmt(r[c]) }}</td>
+            <td v-if="isAdmin && tab === 'usuarios'"><input type="checkbox" :aria-label="$t('Seleccionar usuario ') + r.usuario" :checked="selectedUsers.includes(r.usuario)" :disabled="r.usuario === auth.user?.usuario" @change="toggleUserSelection(r.usuario, $event.target.checked)" /></td>
+            <td v-if="isAdmin && tab === 'garitas'"><input type="checkbox" :aria-label="$t('Seleccionar garita ') + r.nombre" :checked="selectedGateNames.includes(r.nombre)" @change="toggleGateSelection(r.nombre, $event.target.checked)" /></td>
+            <td v-if="isAdmin && tab === 'vehiculos'"><input v-if="r.tipo === 'CAMION'" type="checkbox" :aria-label="$t('Seleccionar camión') + ' ' + r.placa" :checked="selectedTruckPlates.includes(r.placa)" @change="toggleTruckSelection(r.placa, $event.target.checked)" /></td>
+            <td v-for="c in columns" :key="c">{{ $t(fmt(r[c])) }}</td>
             <td v-if="isAdmin && tab === 'usuarios'">
-              <button class="btn-ghost whitespace-nowrap" :disabled="busy" @click="editUser(r)">Editar</button>
+              <button class="btn-ghost whitespace-nowrap" :disabled="busy" @click="editUser(r)">{{ $t("Editar") }}</button>
             </td>
           </tr></tbody>
         </table>

@@ -8,11 +8,12 @@ import { api } from '@/lib/api'
 import { ACTION, RESULT, TONE_PILL, pct } from '@/lib/format'
 import { useSessionStore } from '@/stores/session'
 import { useAuthStore } from '@/stores/auth'
+import { localeTag } from '@/i18n'
 
 const session = useSessionStore()
 const auth = useAuthStore()
 const now = ref(new Date())
-const displayClock = computed(() => now.value.toLocaleString('es-EC', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }))
+const displayClock = computed(() => now.value.toLocaleString(localeTag.value, { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }))
 const cameraPanel = ref(null)
 const fullscreen = ref(false)
 let clockTimer
@@ -164,7 +165,7 @@ function mediaFailed() {
 function frameLabel(media) {
   const time = Number.isFinite(media?.currentTime) && media.currentTime > 0
     ? new Date(Math.floor(media.currentTime) * 1000).toISOString().slice(14, 19)
-    : new Date().toLocaleTimeString('es-EC')
+    : new Date().toLocaleTimeString(localeTag.value)
   if (source.value === 'camara') return `Cámara local · ${time}`
   if (source.value === 'online') return `Cámara en línea · ${time}`
   return `${uploadedVideoName.value || 'Video'} · ${time}`
@@ -283,7 +284,7 @@ function setImage(blob, label = '') {
   if (preview.value) URL.revokeObjectURL(preview.value)
   file.value = blob
   preview.value = URL.createObjectURL(blob)
-  stamp.value = new Date().toLocaleString('es-EC')
+  stamp.value = new Date().toLocaleString(localeTag.value)
   reset()
 }
 function clearCurrentReading() {
@@ -341,7 +342,7 @@ async function onUpload(event) {
     uploadedVideoName.value = f.name
     mediaUrl.value = URL.createObjectURL(f)
     sourceLabel.value = f.name
-    stamp.value = new Date().toLocaleString('es-EC')
+    stamp.value = new Date().toLocaleString(localeTag.value)
     reset()
   } else {
     mediaKind.value = 'image'
@@ -584,169 +585,169 @@ onMounted(async () => {
 <template>
   <div class="access-workspace">
     <div class="control-strip">
-      <div class="control-field"><span>Punto de control</span><strong><AppIcon name="pin" :size="17" /> Garita de acceso</strong></div>
-      <label class="control-field" for="garita"><span>Garita</span><select id="garita" v-model="session.garita" class="field"><option v-for="g in session.system?.garitas || []" :key="g">{{ g }}</option></select></label>
-      <div class="control-field"><span>Operador</span><strong><AppIcon name="user" :size="17" /> {{ auth.user?.nombre || '—' }}</strong></div>
-      <label class="control-field" for="mov"><span>Operación</span><select id="mov" v-model="session.movimiento" class="field"><option value="ENTRADA">Entrada</option><option value="SALIDA">Salida</option></select></label>
-      <button class="btn-ghost help-button" aria-label="Ayuda" title="Ayuda" @click="helpOpen = true"><AppIcon name="help" :size="17" /><span>Ayuda</span></button>
+      <div class="control-field"><span>{{ $t("Punto de control") }}</span><strong><AppIcon name="pin" :size="17" /> {{ $t("Garita de acceso") }}</strong></div>
+      <label class="control-field" for="garita"><span>{{ $t("Garita") }}</span><select id="garita" v-model="session.garita" class="field"><option v-for="g in session.system?.garitas || []" :key="g">{{ g }}</option></select></label>
+      <div class="control-field"><span>{{ $t("Operador") }}</span><strong><AppIcon name="user" :size="17" /> {{ auth.user?.nombre || '—' }}</strong></div>
+      <label class="control-field" for="mov"><span>{{ $t("Operación") }}</span><select id="mov" v-model="session.movimiento" class="field"><option value="ENTRADA">{{ $t("Entrada") }}</option><option value="SALIDA">{{ $t("Salida") }}</option></select></label>
+      <button class="btn-ghost help-button" :aria-label='$t("Ayuda")' :title='$t("Ayuda")' @click="helpOpen = true"><AppIcon name="help" :size="17" /><span>{{ $t("Ayuda") }}</span></button>
       <div class="workspace-clock"><AppIcon name="calendar" :size="18" /> {{ displayClock }}</div>
     </div>
 
     <div class="access-grid">
-      <section ref="cameraPanel" class="card camera-panel" aria-label="Cámara e imagen">
+      <section ref="cameraPanel" class="card camera-panel" :aria-label='$t("Cámara e imagen")'>
         <div class="panel-toolbar camera-toolbar">
-          <h2><AppIcon name="camera" :size="18" /> Lectura del vehículo</h2>
-          <div class="source-tabs" role="group" aria-label="Fuente de imagen">
-            <button v-for="s in [['subir', 'Subir archivo'], ['camara', 'Cámara Local'], ['online', 'Cámara URL']]" :key="s[0]" :aria-pressed="source === s[0]" :class="[s[0], { active: source === s[0] }]" :disabled="loading || busy" @click="setSource(s[0])">{{ s[1] }}</button>
+          <h2><AppIcon name="camera" :size="18" /> {{ $t("Lectura del vehículo") }}</h2>
+          <div class="source-tabs" role="group" :aria-label='$t("Fuente de imagen")'>
+            <button v-for="s in [['subir', 'Subir archivo'], ['camara', 'Cámara Local'], ['online', 'Cámara URL']]" :key="s[0]" :aria-pressed="source === s[0]" :class="[s[0], { active: source === s[0] }]" :disabled="loading || busy" @click="setSource(s[0])">{{ $t(s[1]) }}</button>
           </div>
-          <button class="btn-ghost fullscreen-button" :aria-label="fullscreen ? 'Salir de pantalla completa' : 'Ver en pantalla completa'" :title="fullscreen ? 'Salir de pantalla completa' : 'Ver en pantalla completa'" @click="toggleFullscreen">
-            <AppIcon :name="fullscreen ? 'minimize' : 'fullscreen'" :size="17" /><span>{{ fullscreen ? 'Salir' : 'Pantalla completa' }}</span>
+          <button class="btn-ghost fullscreen-button" :aria-label="$t(fullscreen ? 'Salir de pantalla completa' : 'Ver en pantalla completa')" :title="$t(fullscreen ? 'Salir de pantalla completa' : 'Ver en pantalla completa')" @click="toggleFullscreen">
+            <AppIcon :name="fullscreen ? 'minimize' : 'fullscreen'" :size="17" /><span>{{ $t(fullscreen ? 'Salir' : 'Pantalla completa') }}</span>
           </button>
         </div>
 
-        <select v-if="source === 'ejemplos'" :value="selectedSample" class="field sample-select" aria-label="Probar con un ejemplo" :disabled="loading" @change="pickSample($event.target.value)">
-          <option disabled value="">Seleccionar imagen de ejemplo…</option><option v-for="s in samples" :key="s.nombre" :value="s.nombre">{{ s.etiqueta }}</option>
+        <select v-if="source === 'ejemplos'" :value="selectedSample" class="field sample-select" :aria-label='$t("Probar con un ejemplo")' :disabled="loading" @change="pickSample($event.target.value)">
+          <option disabled value="">{{ $t("Seleccionar imagen de ejemplo…") }}</option><option v-for="s in samples" :key="s.nombre" :value="s.nombre">{{ $t(s.etiqueta) }}</option>
         </select>
         <div v-else-if="source === 'subir'" class="media-source-tools">
-          <label class="upload-compact"><AppIcon name="upload" :size="17" /><span>{{ mediaKind === 'video' ? 'Cambiar archivo' : 'Elegir imagen o video' }} · JPG, PNG, WEBP, MP4 o WEBM</span><input type="file" accept="image/jpeg,image/png,image/webp,video/*" class="hidden" @change="onUpload" /></label>
+          <label class="upload-compact"><AppIcon name="upload" :size="17" /><span>{{ $t(mediaKind === 'video' ? 'Cambiar archivo' : 'Elegir imagen o video') }} {{ $t("· JPG, PNG, WEBP, MP4 o WEBM") }}</span><input type="file" accept="image/jpeg,image/png,image/webp,video/*" class="hidden" @change="onUpload" /></label>
           <div v-if="mediaKind === 'video'" class="live-camera-tools">
-            <button class="btn-primary" :disabled="!mediaReady || loading" @click="captureFrame({ freeze: true })"><AppIcon name="scan" :size="16" /> Analizar fotograma</button>
-            <button class="btn-ghost" :disabled="!mediaReady || loading" @click="toggleContinuousAnalysis">{{ continuousAnalysis ? 'Detener análisis' : 'Analizar cada 2,5 s' }}</button>
-            <button v-if="showCapture" class="btn-ghost" @click="showCapture = false">Volver al video</button>
+            <button class="btn-primary" :disabled="!mediaReady || loading" @click="captureFrame({ freeze: true })"><AppIcon name="scan" :size="16" /> {{ $t("Analizar fotograma") }}</button>
+            <button class="btn-ghost" :disabled="!mediaReady || loading" @click="toggleContinuousAnalysis">{{ $t(continuousAnalysis ? 'Detener análisis' : 'Analizar cada 2,5 s') }}</button>
+            <button v-if="showCapture" class="btn-ghost" @click="showCapture = false">{{ $t("Volver al video") }}</button>
           </div>
         </div>
         <div v-else-if="source === 'online'" class="online-source-tools">
           <form class="online-camera-form" @submit.prevent="connectOnlineCamera">
-            <select v-model="onlineMode" class="field" aria-label="Formato de la cámara en línea"><option value="video">Video web (MP4/WebM)</option><option value="mjpeg">MJPEG</option></select>
-            <input v-model.trim="onlineUrlDraft" class="field" aria-label="URL de cámara en línea" placeholder="https://dirección-de-cámara/video" />
-            <button class="btn-primary" :disabled="!onlineUrlDraft.trim()">Conectar</button>
+            <select v-model="onlineMode" class="field" :aria-label='$t("Formato de la cámara en línea")'><option value="video">{{ $t("Video web (MP4/WebM)") }}</option><option value="mjpeg">{{ $t("MJPEG") }}</option></select>
+            <input v-model.trim="onlineUrlDraft" class="field" :aria-label='$t("URL de cámara en línea")' :placeholder='$t("https://dirección-de-cámara/video")' />
+            <button class="btn-primary" :disabled="!onlineUrlDraft.trim()">{{ $t("Conectar") }}</button>
           </form>
-          <p class="camera-stream-hint">Use una URL HTTP/HTTPS compatible con el navegador (MP4/WebM o MJPEG). HLS solo funciona donde el navegador lo admite; RTSP requiere un servidor puente. Para analizar fuentes externas, habilite CORS.</p>
+          <p class="camera-stream-hint">{{ $t("Use una URL HTTP/HTTPS compatible con el navegador (MP4/WebM o MJPEG). HLS solo funciona donde el navegador lo admite; RTSP requiere un servidor puente. Para analizar fuentes externas, habilite CORS.") }}</p>
           <div v-if="onlineConnected" class="live-camera-tools">
-            <button class="btn-primary" :disabled="!mediaReady || loading" @click="captureFrame({ freeze: true })"><AppIcon name="scan" :size="16" /> Analizar fotograma</button>
-            <button class="btn-ghost" :disabled="!mediaReady || loading" @click="toggleContinuousAnalysis">{{ continuousAnalysis ? 'Detener análisis' : 'Analizar cada 2,5 s' }}</button>
-            <button v-if="showCapture" class="btn-ghost" @click="showCapture = false">Volver al video</button>
+            <button class="btn-primary" :disabled="!mediaReady || loading" @click="captureFrame({ freeze: true })"><AppIcon name="scan" :size="16" /> {{ $t("Analizar fotograma") }}</button>
+            <button class="btn-ghost" :disabled="!mediaReady || loading" @click="toggleContinuousAnalysis">{{ $t(continuousAnalysis ? 'Detener análisis' : 'Analizar cada 2,5 s') }}</button>
+            <button v-if="showCapture" class="btn-ghost" @click="showCapture = false">{{ $t("Volver al video") }}</button>
           </div>
         </div>
         <div v-else-if="source === 'camara'" class="live-camera-tools">
-          <button class="btn-primary" :disabled="!mediaReady || loading" @click="capture"><AppIcon name="camera" :size="16" /> Capturar y reconocer</button>
-          <button class="btn-ghost" :disabled="!mediaReady || loading" @click="toggleContinuousAnalysis">{{ continuousAnalysis ? 'Detener análisis' : 'Analizar cada 2,5 s' }}</button>
-          <button v-if="showCapture" class="btn-ghost" @click="showCapture = false">Volver a cámara local</button>
+          <button class="btn-primary" :disabled="!mediaReady || loading" @click="capture"><AppIcon name="camera" :size="16" /> {{ $t("Capturar y reconocer") }}</button>
+          <button class="btn-ghost" :disabled="!mediaReady || loading" @click="toggleContinuousAnalysis">{{ $t(continuousAnalysis ? 'Detener análisis' : 'Analizar cada 2,5 s') }}</button>
+          <button v-if="showCapture" class="btn-ghost" @click="showCapture = false">{{ $t("Volver a cámara local") }}</button>
         </div>
 
-        <p v-if="cameraError" role="alert" class="camera-error">{{ cameraError }}</p>
+        <p v-if="cameraError" role="alert" class="camera-error">{{ $t(cameraError) }}</p>
         <div class="camera-stage">
           <video v-if="source === 'camara'" v-show="!showCapture" ref="video" autoplay playsinline muted @loadedmetadata="mediaLoaded" @playing="mediaPlaying" @error="mediaFailed"></video>
           <video v-else-if="source === 'subir' && mediaKind === 'video'" v-show="!showCapture" ref="mediaVideo" :src="mediaUrl" controls autoplay playsinline muted @loadedmetadata="mediaLoaded" @playing="mediaPlaying" @ended="videoEnded" @error="mediaFailed"></video>
           <template v-else-if="source === 'online' && onlineConnected">
             <video v-if="onlineMode === 'video'" v-show="!showCapture" ref="mediaVideo" :src="onlineUrl" controls autoplay playsinline muted @loadedmetadata="mediaLoaded" @playing="mediaPlaying" @error="mediaFailed"></video>
-            <img v-else v-show="!showCapture" ref="networkImage" :src="onlineUrl" alt="Video en vivo de cámara en línea" @load="mediaLoaded" @error="mediaFailed" />
+            <img v-else v-show="!showCapture" ref="networkImage" :src="onlineUrl" :alt="$t('Video en vivo de cámara en línea')" @load="mediaLoaded" @error="mediaFailed" />
           </template>
           <ImageViewer v-show="imagePreviewVisible" class="compact-viewer" :src="preview" :width="detection?.image_width" :height="detection?.image_height" :tone="tone" :label="recognition?.plate" :garita="session.garita" :stamp="stamp" :loading="loading" />
         </div>
-        <section class="rounded-xl border border-line bg-surface px-3 py-2" aria-label="Análisis OCR" aria-live="polite">
+        <section class="rounded-xl border border-line bg-surface px-3 py-2" :aria-label="$t('Análisis OCR')" aria-live="polite">
           <div class="flex items-center justify-between gap-2">
-            <strong class="text-xs uppercase text-ink">Análisis OCR</strong>
-            <span class="text-xs font-semibold text-brand-700">{{ analysisMessage || (loading ? 'Analizando fotograma…' : recognition ? 'Lectura confirmada en dos cuadros' : ocrAttempt ? (ocrAttempt.hasPlate && ocrAttempt.confidence >= 0.94 && continuousAnalysis ? 'Confirmando la misma placa: ' + confirmedFrames + '/2 cuadros' : ocrAttempt.hasPlate ? 'Buscando confianza ≥94 %' : 'No se leyó placa; continúa el análisis') : 'Esperando imagen o video') }}</span>
+            <strong class="text-xs uppercase text-ink">{{ $t("Análisis OCR") }}</strong>
+            <span class="text-xs font-semibold text-brand-700">{{ $t(analysisMessage) || (loading ? $t('Analizando fotograma…') : recognition ? $t('Lectura confirmada en dos cuadros') : ocrAttempt ? (ocrAttempt.hasPlate && ocrAttempt.confidence >= 0.94 && continuousAnalysis ? $t('Confirmando la misma placa: ') + confirmedFrames + '/2 ' + $t('cuadros') : ocrAttempt.hasPlate ? $t('Buscando confianza ≥94 %') : $t('No se leyó placa; continúa el análisis')) : $t('Esperando imagen o video')) }}</span>
           </div>
-          <div class="mt-1 h-2 overflow-hidden rounded-full bg-subtle-2" role="progressbar" :aria-valuenow="Math.round((ocrAttempt?.confidence || 0) * 100)" aria-valuemin="0" aria-valuemax="100" aria-label="Confianza OCR actual">
+          <div class="mt-1 h-2 overflow-hidden rounded-full bg-subtle-2" role="progressbar" :aria-valuenow="Math.round((ocrAttempt?.confidence || 0) * 100)" aria-valuemin="0" aria-valuemax="100" :aria-label="$t('Confianza OCR actual')">
             <i class="block h-full rounded-full bg-brand-600 transition-all" :style="{ width: Math.max(0, Math.min(100, (ocrAttempt?.confidence || 0) * 100)) + '%' }"></i>
           </div>
         </section>
         <div class="camera-meta">
-          <span :style="!detection && !sourceLabel ? { fontSize: '18px', whiteSpace: 'normal', overflowWrap: 'anywhere' } : undefined">{{ detection ? detection.detector + (recognition ? ' · ' + recognition.timings_ms.total?.toFixed(0) + ' ms' : ' · confirmando OCR ≥94 % en dos cuadros') : sourceLabel || 'Seleccione una imagen o fuente de video' }}</span>
+          <span :style="!detection && !sourceLabel ? { fontSize: '18px', whiteSpace: 'normal', overflowWrap: 'anywhere' } : undefined">{{ detection ? detection.detector + (recognition ? ' · ' + recognition.timings_ms.total?.toFixed(0) + ' ms' : $t(' · confirmando OCR ≥94 % en dos cuadros')) : $t(sourceLabel) || $t('Seleccione una imagen o fuente de video') }}</span>
           <div class="camera-meta-actions">
-            <button class="btn-ghost clear-reading-button" :disabled="loading || busy || (!file && !preview && !mediaUrl && !onlineConnected && !decision && !manualPlate)" @click="clearCurrentReading"><AppIcon name="trash" :size="14" /> Limpiar lectura</button>
-            <button class="btn-ghost" :disabled="loading || (!file && !mediaReady)" @click="processCurrentMedia"><AppIcon name="refresh" :size="15" /> Reprocesar</button>
+            <button class="btn-ghost clear-reading-button" :disabled="loading || busy || (!file && !preview && !mediaUrl && !onlineConnected && !decision && !manualPlate)" @click="clearCurrentReading"><AppIcon name="trash" :size="14" /> {{ $t("Limpiar lectura") }}</button>
+            <button class="btn-ghost" :disabled="loading || (!file && !mediaReady)" @click="processCurrentMedia"><AppIcon name="refresh" :size="15" /> {{ $t("Reprocesar") }}</button>
           </div>
         </div>
 
-        <section class="reading-gallery" aria-label="Lecturas recientes">
-          <div class="reading-gallery-head"><strong style="font-size:18px">Lecturas recientes</strong><div><button class="text-link" @click="readingsOpen = true">Ver todas ({{ session.lecturas.length }})</button><RouterLink class="text-link" to="/historial">Historial</RouterLink></div></div>
+        <section class="reading-gallery" :aria-label="$t('Lecturas recientes')">
+          <div class="reading-gallery-head"><strong style="font-size:18px">{{ $t("Lecturas recientes") }}</strong><div><button class="text-link" @click="readingsOpen = true">{{ $t("Ver todas") }} ({{ session.lecturas.length }})</button><RouterLink class="text-link" to="/historial">{{ $t("Historial") }}</RouterLink></div></div>
           <div v-if="session.lecturas.length" class="reading-cards">
             <article v-for="l in session.lecturas.slice(0, 4)" :key="l.id" class="reading-card">
               <span class="reading-icon"><AppIcon name="car" :size="20" /></span>
-              <span class="reading-copy"><strong>{{ l.placa || 'Sin placa' }}</strong><small>{{ l.hora }} · {{ RESULT[l.resultado]?.label || l.resultado }}</small></span>
+              <span class="reading-copy"><strong>{{ l.placa || $t('Sin placa') }}</strong><small>{{ l.hora }} · {{ $t(RESULT[l.resultado]?.label || l.resultado) }}</small></span>
             </article>
           </div>
-          <p v-else class="reading-empty" style="font-size:18px">Las lecturas de esta sesión aparecerán aquí.</p>
+          <p v-else class="reading-empty" style="font-size:18px">{{ $t("Las lecturas de esta sesión aparecerán aquí.") }}</p>
         </section>
       </section>
 
       <div class="decision-column" :class="tone ? 'tone-' + tone : 'tone-neutral'">
-        <section class="card plate-panel" aria-label="Placa identificada">
-          <div class="section-heading"><h2><AppIcon name="camera" :size="19" /> Placa identificada</h2><span>{{ origin === 'MANUAL' ? 'Manual' : 'OCR' }}</span></div>
+        <section class="card plate-panel" :aria-label="$t('Placa identificada')">
+          <div class="section-heading"><h2><AppIcon name="camera" :size="19" /> {{ $t("Placa identificada") }}</h2><span>{{ $t(origin === 'MANUAL' ? 'Manual' : 'OCR') }}</span></div>
           <div class="plate-line"><div class="compact-plate">{{ plateShown || '———-————' }}</div></div>
-          <form class="plate-form" @submit.prevent="verifyManual"><input v-model.trim="manualPlate" class="field font-mono uppercase" aria-label="Corregir o escribir placa" placeholder="Corregir / escribir placa" maxlength="12" /><button class="btn-ghost" :disabled="busy || !manualPlate">Verificar</button></form>
+          <form class="plate-form" @submit.prevent="verifyManual"><input v-model.trim="manualPlate" class="field font-mono uppercase" :aria-label="$t('Corregir o escribir placa')" :placeholder="$t('Corregir / escribir placa')" maxlength="12" /><button class="btn-ghost" :disabled="busy || !manualPlate">{{ $t("Verificar") }}</button></form>
         </section>
 
         <section class="card access-result-card" :class="tone ? 'tone-' + tone : 'tone-neutral'" role="status" aria-live="polite">
           <span class="result-mark"><AppIcon :name="tone === 'ok' ? 'check' : tone === 'bad' ? 'x' : tone === 'warn' ? 'alert' : 'bolt'" :size="28" :stroke="2.5" /></span>
           <div class="result-copy">
-            <span class="eyebrow">Resultado de acceso</span>
-            <strong>{{ loading ? 'PROCESANDO…' : decisionLabel }}</strong>
-            <span class="result-detail">{{ decision?.detalle || 'Seleccione o capture una imagen para verificar' }}</span>
-            <button v-if="decision?.resultado === 'DENEGADO'" class="result-action" :disabled="busy || done" @click="register('RECHAZO')">Registrar rechazo</button>
-            <button v-else-if="decision && !decision.permite_apertura" class="result-action" :disabled="busy || done" @click="register('SOLO_REGISTRO')">Registrar sin abrir</button>
-            <button v-if="decision" class="text-link result-detail-link" @click="detailsOpen = true">Ver detalle completo</button>
+            <span class="eyebrow">{{ $t("Resultado de acceso") }}</span>
+            <strong>{{ loading ? $t('PROCESANDO…') : $t(decisionLabel) }}</strong>
+            <span class="result-detail">{{ $t(decision?.detalle || 'Seleccione o capture una imagen para verificar') }}</span>
+            <button v-if="decision?.resultado === 'DENEGADO'" class="result-action" :disabled="busy || done" @click="register('RECHAZO')">{{ $t("Registrar rechazo") }}</button>
+            <button v-else-if="decision && !decision.permite_apertura" class="result-action" :disabled="busy || done" @click="register('SOLO_REGISTRO')">{{ $t("Registrar sin abrir") }}</button>
+            <button v-if="decision" class="text-link result-detail-link" @click="detailsOpen = true">{{ $t("Ver detalle completo") }}</button>
           </div>
           <div class="ocr-meter">
-            <span><AppIcon name="chart" :size="15" /> SIRAP en acción</span>
+            <span><AppIcon name="chart" :size="15" /> {{ $t("SIRAP en acción") }}</span>
             <strong>100%</strong>
-            <div class="meter-track" role="progressbar" aria-label="Indicador visual de SIRAP" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"><i style="width:100%"></i></div>
+            <div class="meter-track" role="progressbar" :aria-label="$t('Indicador visual de SIRAP')" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"><i style="width:100%"></i></div>
           </div>
         </section>
 
-        <section class="card vehicle-panel" aria-label="Detalles del vehículo">
-          <div class="section-heading"><h2><AppIcon name="car" :size="19" /> Detalles del vehículo</h2><button v-if="vehicle" class="text-link" @click="detailsOpen = true">Más datos</button></div>
+        <section class="card vehicle-panel" :aria-label="$t('Detalles del vehículo')">
+          <div class="section-heading"><h2><AppIcon name="car" :size="19" /> {{ $t("Detalles del vehículo") }}</h2><button v-if="vehicle" class="text-link" @click="detailsOpen = true">{{ $t("Más datos") }}</button></div>
           <div v-if="needsVehicleRegistration && !registrationPromptDismissed" class="registration-prompt" role="status">
-            <div><strong>Esta placa no está registrada.</strong><span>¿Desea guardar el camión en la base de datos?</span></div>
-            <div class="registration-prompt-actions"><button class="btn-primary" :disabled="busy" @click="startVehicleRegistration">Sí, registrar</button><button class="btn-ghost" @click="registrationPromptDismissed = true">No, continuar</button></div>
+            <div><strong>{{ $t("Esta placa no está registrada.") }}</strong><span>{{ $t("¿Desea guardar el camión en la base de datos?") }}</span></div>
+            <div class="registration-prompt-actions"><button class="btn-primary" :disabled="busy" @click="startVehicleRegistration">{{ $t("Sí, registrar") }}</button><button class="btn-ghost" @click="registrationPromptDismissed = true">{{ $t("No, continuar") }}</button></div>
           </div>
           <dl class="vehicle-rows">
-            <div><dt>Marca</dt><dd :title="vehicleDisplay.marca">{{ vehicleDisplay.marca || '—' }}</dd></div>
-            <div><dt>Modelo</dt><dd :title="vehicleDisplay.modelo">{{ vehicleDisplay.modelo || '—' }}</dd></div>
-            <div><dt>Año</dt><dd :title="vehicleDisplay.anio">{{ vehicleDisplay.anio || '—' }}</dd></div>
-            <div class="vehicle-carrier-row"><dt>Cia. de transporte</dt><dd :title="vehicleDisplay.transportista">{{ vehicleDisplay.transportista || '—' }}</dd></div>
+            <div><dt>{{ $t("Marca") }}</dt><dd :title="vehicleDisplay.marca">{{ vehicleDisplay.marca || '—' }}</dd></div>
+            <div><dt>{{ $t("Modelo") }}</dt><dd :title="vehicleDisplay.modelo">{{ vehicleDisplay.modelo || '—' }}</dd></div>
+            <div><dt>{{ $t("Año") }}</dt><dd :title="vehicleDisplay.anio">{{ vehicleDisplay.anio || '—' }}</dd></div>
+            <div class="vehicle-carrier-row"><dt>{{ $t("Cia. de transporte") }}</dt><dd :title="vehicleDisplay.transportista">{{ vehicleDisplay.transportista || '—' }}</dd></div>
           </dl>
-          <p v-if="vehicleLookupStatus" class="registered-note" role="status" aria-live="polite">{{ vehicleLookupStatus }}</p>
-          <p v-if="done" class="registered-note" role="status">✓ Lectura registrada en el historial.</p>
+          <p v-if="vehicleLookupStatus" class="registered-note" role="status" aria-live="polite">{{ $t(vehicleLookupStatus) }}</p>
+          <p v-if="done" class="registered-note" role="status">{{ $t("✓ Lectura registrada en el historial.") }}</p>
         </section>
-        <div class="access-action-bar" aria-label="Acciones de acceso">
-          <button class="btn-yellow action-button" :disabled="!canOpen || busy" @click="register('APERTURA_AUTOMATICA')"><AppIcon name="barrier" :size="20" /><span>Registrar y abrir barrera</span></button>
-          <button class="btn-red action-button" :disabled="loading || (!file && !mediaReady)" @click="processCurrentMedia"><AppIcon name="settings" :size="20" /><span>Procesar detección automática</span></button>
-          <button class="btn-navy action-button" :disabled="!decision || busy || done" @click="manualOpen = true"><AppIcon name="lock" :size="19" /><span>Apertura manual (Contingencia)</span></button>
+        <div class="access-action-bar" :aria-label="$t('Acciones de acceso')">
+          <button class="btn-yellow action-button" :disabled="!canOpen || busy" @click="register('APERTURA_AUTOMATICA')"><AppIcon name="barrier" :size="20" /><span>{{ $t("Registrar y abrir barrera") }}</span></button>
+          <button class="btn-red action-button" :disabled="loading || (!file && !mediaReady)" @click="processCurrentMedia"><AppIcon name="settings" :size="20" /><span>{{ $t("Procesar detección automática") }}</span></button>
+          <button class="btn-navy action-button" :disabled="!decision || busy || done" @click="manualOpen = true"><AppIcon name="lock" :size="19" /><span>{{ $t("Apertura manual (Contingencia)") }}</span></button>
         </div>
       </div>
     </div>
 
 
   </div>
-  <ModalDialog :open="helpOpen" title="Cómo registrar un acceso" @close="helpOpen = false"><ol class="list-decimal space-y-3 pl-5"><li>Elija un ejemplo, suba una imagen o video, o conecte una cámara local o una URL compatible.</li><li>Las imágenes se analizan al seleccionarlas. Los videos y cámaras se analizan automáticamente cada 1 segundo hasta leer una placa válida con al menos 94 % de confianza OCR; las lecturas inferiores no se muestran.</li><li>Revise la placa, el vehículo y el resultado. Corrija la placa y pulse Verificar si es necesario.</li><li>Autorice y abra solo cuando el resultado lo permita, o registre sin abrir. La apertura manual requiere un motivo.</li><li>Las lecturas solo se guardan en el historial al registrar una acción.</li></ol><button class="btn-primary mt-4" @click="helpOpen = false">Entendido</button></ModalDialog>
-  <ModalDialog :open="registrationOpen" title="Registrar camión nuevo" @close="registrationOpen = false">
+  <ModalDialog :open="helpOpen" :title="$t('Cómo registrar un acceso')" @close="helpOpen = false"><ol class="list-decimal space-y-3 pl-5"><li>{{ $t("Elija un ejemplo, suba una imagen o video, o conecte una cámara local o una URL compatible.") }}</li><li>{{ $t("Las imágenes se analizan al seleccionarlas. Los videos y cámaras se analizan automáticamente cada 1 segundo hasta leer una placa válida con al menos 94 % de confianza OCR; las lecturas inferiores no se muestran.") }}</li><li>{{ $t("Revise la placa, el vehículo y el resultado. Corrija la placa y pulse Verificar si es necesario.") }}</li><li>{{ $t("Autorice y abra solo cuando el resultado lo permita, o registre sin abrir. La apertura manual requiere un motivo.") }}</li><li>{{ $t("Las lecturas solo se guardan en el historial al registrar una acción.") }}</li></ol><button class="btn-primary mt-4" @click="helpOpen = false">{{ $t("Entendido") }}</button></ModalDialog>
+  <ModalDialog :open="registrationOpen" :title="$t('Registrar camión nuevo')" @close="registrationOpen = false">
     <form class="vehicle-registration-form" @submit.prevent="saveVehicle">
-      <div class="registration-plate"><span>Placa detectada</span><strong>{{ plateShown }}</strong></div>
-      <label class="field-label" for="vehicle-make">Marca *</label><input id="vehicle-make" v-model.trim="vehicleDraft.marca" class="field" required maxlength="80" placeholder="Ej.: Chevrolet" />
-      <label class="field-label" for="vehicle-model">Modelo *</label><input id="vehicle-model" v-model.trim="vehicleDraft.modelo" class="field" required maxlength="80" placeholder="Ej.: NLR Reward" />
-      <label class="field-label" for="vehicle-color">Color *</label><input id="vehicle-color" v-model.trim="vehicleDraft.color" class="field" required maxlength="40" placeholder="Ej.: Blanco" />
-      <label class="field-label" for="vehicle-owner">Propietario *</label><input id="vehicle-owner" v-model.trim="vehicleDraft.propietario" class="field" required maxlength="120" placeholder="Nombre del propietario" />
-      <label class="field-label" for="vehicle-carrier">Transportista</label><input id="vehicle-carrier" v-model.trim="vehicleDraft.transportista" class="field" maxlength="120" placeholder="Empresa transportista (opcional)" />
-      <label class="registration-note"><input type="checkbox" v-model="plateConfirmedForRegistration" required /> Confirmo que comparé la placa con el vehículo y que sus datos son correctos.</label>
-      <label class="registration-note"><input type="checkbox" v-model="authorizeOnRegistration" /> Autorizar ahora este camión en la lista blanca (solo si comprobé que su ingreso está permitido).</label>
-      <p class="registration-note">Los tres perfiles pueden autorizar una placa nueva después de verificarla. Si no marca la autorización, el camión quedará registrado sin permiso de entrada. Una placa existente o restringida no puede modificarse aquí.</p>
-      <div class="mt-4 flex justify-end gap-2"><button type="button" class="btn-ghost" @click="registrationOpen = false">Cancelar</button><button type="submit" class="btn-primary" :disabled="busy || !plateConfirmedForRegistration">{{ busy ? 'Guardando…' : 'Guardar camión' }}</button></div>
+      <div class="registration-plate"><span>{{ $t("Placa detectada") }}</span><strong>{{ plateShown }}</strong></div>
+      <label class="field-label" for="vehicle-make">{{ $t("Marca *") }}</label><input id="vehicle-make" v-model.trim="vehicleDraft.marca" class="field" required maxlength="80" :placeholder="$t('Ej.: Chevrolet')" />
+      <label class="field-label" for="vehicle-model">{{ $t("Modelo *") }}</label><input id="vehicle-model" v-model.trim="vehicleDraft.modelo" class="field" required maxlength="80" :placeholder="$t('Ej.: NLR Reward')" />
+      <label class="field-label" for="vehicle-color">{{ $t("Color *") }}</label><input id="vehicle-color" v-model.trim="vehicleDraft.color" class="field" required maxlength="40" :placeholder="$t('Ej.: Blanco')" />
+      <label class="field-label" for="vehicle-owner">{{ $t("Propietario *") }}</label><input id="vehicle-owner" v-model.trim="vehicleDraft.propietario" class="field" required maxlength="120" :placeholder="$t('Nombre del propietario')" />
+      <label class="field-label" for="vehicle-carrier">{{ $t("Transportista") }}</label><input id="vehicle-carrier" v-model.trim="vehicleDraft.transportista" class="field" maxlength="120" :placeholder="$t('Empresa transportista (opcional)')" />
+      <label class="registration-note"><input type="checkbox" v-model="plateConfirmedForRegistration" required /> {{ $t("Confirmo que comparé la placa con el vehículo y que sus datos son correctos.") }}</label>
+      <label class="registration-note"><input type="checkbox" v-model="authorizeOnRegistration" /> {{ $t("Autorizar ahora este camión en la lista blanca (solo si comprobé que su ingreso está permitido).") }}</label>
+      <p class="registration-note">{{ $t("Los tres perfiles pueden autorizar una placa nueva después de verificarla. Si no marca la autorización, el camión quedará registrado sin permiso de entrada. Una placa existente o restringida no puede modificarse aquí.") }}</p>
+      <div class="mt-4 flex justify-end gap-2"><button type="button" class="btn-ghost" @click="registrationOpen = false">{{ $t("Cancelar") }}</button><button type="submit" class="btn-primary" :disabled="busy || !plateConfirmedForRegistration">{{ $t(busy ? 'Guardando…' : 'Guardar camión') }}</button></div>
     </form>
   </ModalDialog>
-  <ModalDialog :open="detailsOpen" title="Detalle de la verificación" @close="detailsOpen = false"><ResultCard :decision="decision" :loading="loading" /><dl v-if="vehicle" class="mt-3 grid grid-cols-2 gap-2 text-sm"><div v-for="[k,v] in [['Marca', vehicle.marca], ['Modelo', vehicle.modelo], ['Año', vehicleDisplay.anio], ['Cia. de transporte', vehicleDisplay.transportista]]" :key="k"><dt class="font-bold">{{ k }}</dt><dd class="break-words">{{ v || '—' }}</dd></div></dl><button class="btn-ghost mt-4" @click="detailsOpen = false">Cerrar</button></ModalDialog>
-  <ModalDialog :open="readingsOpen" title="Lecturas de esta sesión" @close="readingsOpen = false"><div class="max-h-[60vh] overflow-auto">
+  <ModalDialog :open="detailsOpen" :title="$t('Detalle de la verificación')" @close="detailsOpen = false"><ResultCard :decision="decision" :loading="loading" /><dl v-if="vehicle" class="mt-3 grid grid-cols-2 gap-2 text-sm"><div v-for="[k,v] in [['Marca', vehicle.marca], ['Modelo', vehicle.modelo], ['Año', vehicleDisplay.anio], ['Cia. de transporte', vehicleDisplay.transportista]]" :key="k"><dt class="font-bold">{{ $t(k) }}</dt><dd class="break-words">{{ v || '—' }}</dd></div></dl><button class="btn-ghost mt-4" @click="detailsOpen = false">{{ $t("Cerrar") }}</button></ModalDialog>
+  <ModalDialog :open="readingsOpen" :title="$t('Lecturas de esta sesión')" @close="readingsOpen = false"><div class="max-h-[60vh] overflow-auto">
     <div class="table-wrap">
       <table class="tbl">
-        <thead><tr><th>Hora</th><th>Imagen</th><th>Placa</th><th>Resultado</th><th>Confianza OCR</th><th>Tiempo</th><th>Registro</th></tr></thead>
+        <thead><tr><th>{{ $t("Hora") }}</th><th>{{ $t("Imagen") }}</th><th>{{ $t("Placa") }}</th><th>{{ $t("Resultado") }}</th><th>{{ $t("Confianza OCR") }}</th><th>{{ $t("Tiempo") }}</th><th>{{ $t("Registro") }}</th></tr></thead>
         <tbody>
           <tr v-for="l in session.lecturas" :key="l.id">
             <td>{{ l.hora }}</td><td class="max-w-56 truncate" :title="l.fuente">{{ l.fuente }}</td>
             <td class="font-bold">{{ l.placa || '—' }}</td>
-            <td><span class="pill" :class="TONE_PILL[RESULT[l.resultado]?.tone]">{{ RESULT[l.resultado]?.label }}</span></td>
+            <td><span class="pill" :class="TONE_PILL[RESULT[l.resultado]?.tone]">{{ $t(RESULT[l.resultado]?.label) }}</span></td>
             <td>
               <div v-if="l.confianza !== null" class="flex items-center gap-2">
                 <div class="h-2 w-20 overflow-hidden rounded-full bg-subtle-2">
@@ -754,26 +755,26 @@ onMounted(async () => {
                 </div>
                 {{ pct(l.confianza, 1) }}
               </div>
-              <span v-else class="text-muted">Manual</span>
+              <span v-else class="text-muted">{{ $t("Manual") }}</span>
             </td>
             <td>{{ l.ms ? `${Math.round(l.ms)} ms` : '—' }}</td>
-            <td>{{ l.registro ? ACTION[l.registro] : '—' }}</td>
+            <td>{{ l.registro ? $t(ACTION[l.registro]) : '—' }}</td>
           </tr>
-          <tr v-if="!session.lecturas.length"><td colspan="7" class="text-center text-muted">Sin lecturas todavía. Elija una imagen o capture desde la cámara.</td></tr>
+          <tr v-if="!session.lecturas.length"><td colspan="7" class="text-center text-muted">{{ $t("Sin lecturas todavía. Elija una imagen o capture desde la cámara.") }}</td></tr>
         </tbody>
       </table>
     </div>
-</div><div class="mt-4 flex gap-2"><button class="btn-ghost" @click="exportLecturas">Exportar CSV</button><button class="btn-ghost" @click="session.clearLecturas()">Limpiar</button><button class="btn-primary" @click="readingsOpen = false">Cerrar</button></div></ModalDialog>
-  <ModalDialog :open="manualOpen" title="Apertura manual (contingencia)" @close="manualOpen = false">
+</div><div class="mt-4 flex gap-2"><button class="btn-ghost" @click="exportLecturas">{{ $t("Exportar CSV") }}</button><button class="btn-ghost" @click="session.clearLecturas()">{{ $t("Limpiar") }}</button><button class="btn-primary" @click="readingsOpen = false">{{ $t("Cerrar") }}</button></div></ModalDialog>
+  <ModalDialog :open="manualOpen" :title="$t('Apertura manual (contingencia)')" @close="manualOpen = false">
     <p class="mb-3 text-sm text-muted">
-      Se abrirá la barrera para <b class="font-mono text-ink">{{ plateShown || 'placa sin leer' }}</b> en {{ session.garita }}.
-      La apertura queda registrada con su usuario y el motivo.
+      {{ $t("Se abrirá la barrera para") }} <b class="font-mono text-ink">{{ plateShown || $t('placa sin leer') }}</b> {{ $t("en") }} {{ session.garita }}.
+      {{ $t("La apertura queda registrada con su usuario y el motivo.") }}
     </p>
-    <label class="field-label" for="motivo">Motivo (mín. 10 caracteres)</label>
-    <textarea id="motivo" v-model="motivo" rows="3" maxlength="250" class="field" placeholder="Ej.: placa sucia, conductor identificado con credencial"></textarea>
+    <label class="field-label" for="motivo">{{ $t("Motivo (mín. 10 caracteres)") }}</label>
+    <textarea id="motivo" v-model="motivo" rows="3" maxlength="250" class="field" :placeholder="$t('Ej.: placa sucia, conductor identificado con credencial')"></textarea>
     <div class="mt-4 flex justify-end gap-2">
-      <button class="btn-ghost" @click="manualOpen = false">Cancelar</button>
-      <button class="btn-navy" :disabled="motivo.trim().length < 10 || busy" @click="register('APERTURA_MANUAL')">Abrir y registrar</button>
+      <button class="btn-ghost" @click="manualOpen = false">{{ $t("Cancelar") }}</button>
+      <button class="btn-navy" :disabled="motivo.trim().length < 10 || busy" @click="register('APERTURA_MANUAL')">{{ $t("Abrir y registrar") }}</button>
     </div>
   </ModalDialog>
 </template>

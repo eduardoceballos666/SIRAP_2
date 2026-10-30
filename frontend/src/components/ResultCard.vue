@@ -21,20 +21,20 @@ const s = computed(() => STYLE[props.decision?.resultado])
         <AppIcon v-else name="scan" :size="40" />
       </div>
       <div class="min-w-0">
-        <p class="text-sm font-semibold tracking-wide">RESULTADO DE ACCESO</p>
+        <p class="text-sm font-semibold tracking-wide">{{ $t("RESULTADO DE ACCESO") }}</p>
         <p class="text-2xl leading-tight font-black sm:text-3xl" :class="s ? 'text-ink' : 'text-slate-400'">
-          {{ s ? s.title : loading ? 'PROCESANDO…' : 'EN ESPERA' }}
+          {{ $t(s ? s.title : loading ? 'PROCESANDO…' : 'EN ESPERA') }}
         </p>
         <p class="text-lg font-bold" :class="s ? s.text : 'text-slate-400'">
-          {{ decision ? decision.detalle : 'Seleccione o capture una imagen' }}
+          {{ $t(decision ? decision.detalle : 'Seleccione o capture una imagen') }}
         </p>
       </div>
     </div>
     <ul v-if="decision?.motivos?.length" class="mt-3 list-disc space-y-0.5 pl-6 text-sm text-ink/80">
-      <li v-for="m in decision.motivos" :key="m">{{ m }}</li>
+      <li v-for="m in decision.motivos" :key="m">{{ $t(m) }}</li>
     </ul>
     <p v-if="decision?.sugerencia" class="mt-2 text-sm font-semibold text-ink/80">
-      ¿Quiso decir <span class="rounded bg-surface px-1.5 py-0.5 font-mono">{{ decision.sugerencia }}</span>? (placa registrada parecida)
+      {{ $t("¿Quiso decir") }} <span class="rounded bg-surface px-1.5 py-0.5 font-mono">{{ decision.sugerencia }}</span>{{ $t("? (placa registrada parecida)") }}
     </p>
   </div>
 </template>

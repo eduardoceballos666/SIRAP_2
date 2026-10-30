@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { api } from '@/lib/api'
+import { localeTag } from '@/i18n'
 
 const THEME_KEY = 'sirap_theme'
 
@@ -45,7 +46,7 @@ export const useSessionStore = defineStore('session', {
       this.applyTheme()
     },
     addLectura(lectura) {
-      this.lecturas.unshift({ id: Date.now() + Math.random(), hora: new Date().toLocaleTimeString('es-EC'), ...lectura })
+      this.lecturas.unshift({ id: Date.now() + Math.random(), hora: new Date().toLocaleTimeString(localeTag.value), ...lectura })
       this.lecturas = this.lecturas.slice(0, 50)
     },
     markRegistered(id, accion) {
