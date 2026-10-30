@@ -79,7 +79,7 @@ SIRAP utiliza componentes de terceros para la detección y lectura de placas, el
 
 **Entorno técnico de demostración**
 
-La demostración se despliega en Hugging Face Spaces mediante una imagen Docker. Utiliza Python 3.11 para la aplicación y Node.js 22 para compilar la interfaz web. La instancia de demostración se describe con 2 vCPU y sin GPU dedicada. Los registros se almacenan en archivos CSV.
+La demostración se despliega en Hugging Face Spaces mediante una imagen Docker. Utiliza Python 3.11 para la aplicación y Node.js 22 para compilar la interfaz web. La instancia de demostración se describe con 2 vCPU y sin GPU dedicada. Los registros operativos se persisten en archivos CSV del repositorio privado de GitHub configurado para SIRAP. El disco del hosting es solo una copia de trabajo temporal y no la fuente permanente de los datos.
 
 Como referencia para ejecución local: procesador Intel Core i7-8650U, 8 GB de RAM e Intel UHD Graphics 620, o equipo de características similares.
 
@@ -374,7 +374,7 @@ En SIRAP 1.0, el tamaño máximo documentado para las imágenes es de 200 MB, de
 
 En caso de duda, repita la toma y no utilice caracteres que no puedan comprobarse visualmente.
 
-**Privacidad.** Las imágenes se procesan temporalmente para reconocer la placa y no se conservan como archivos permanentes en SIRAP.
+**Privacidad y almacenamiento.** Las imágenes y los videos se procesan temporalmente para reconocer la placa y no se conservan como archivos permanentes en SIRAP. Los registros operativos se guardan en CSV en el repositorio privado de GitHub configurado para SIRAP; el disco del hosting es solo una copia temporal de trabajo.
 
 # 5. Interpretar los resultados de acceso
 
