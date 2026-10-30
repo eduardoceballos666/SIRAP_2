@@ -1,3 +1,5 @@
+import { localeTag } from '@/i18n'
+
 export const RESULT = {
   AUTORIZADO: { label: 'Autorizado', title: 'ACCESO AUTORIZADO', tone: 'ok' },
   DENEGADO: { label: 'Denegado', title: 'ACCESO DENEGADO', tone: 'bad' },
@@ -20,4 +22,9 @@ export const num = (v, d = 3) => (v === null || v === undefined ? '—' : Number
 export function today(offsetDays = 0) {
   const d = new Date(); d.setDate(d.getDate() + offsetDays)
   return d.toLocaleDateString('en-CA') // AAAA-MM-DD en hora local
+}
+export function formatDateTime(value) {
+  if (!value) return '—'
+  const date = new Date(value)
+  return Number.isNaN(date.getTime()) ? value : date.toLocaleString(localeTag.value)
 }
