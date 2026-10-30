@@ -259,7 +259,9 @@ Permisos y conectividad suficientes para acceder a la cámara o transmitir video
 
 Figura 1. Pantalla de inicio de sesión SIRAP.
 
-**01** Abra SIRAP desde el navegador autorizado de la organización.
+**01** Abra [SIRAP](https://eduardoceballos-sirap.hf.space) desde el navegador autorizado de la organización. La misma dirección ofrece ambos idiomas; no se necesita una URL distinta.
+
+**Idioma de la interfaz:** al entrar, use el selector **Idioma** que aparece en la pantalla de inicio de sesión y elija **Español** o **English**. Español es la opción predeterminada. El selector sigue disponible en el menú común después de iniciar sesión. La elección se conserva en el mismo navegador al cambiar de pantalla o volver a abrir la aplicación.
 
 **02** Escriba su nombre de usuario en el campo Usuario.
 
