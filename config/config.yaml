@@ -40,8 +40,9 @@ placas:
 
 decision:
   # Confianza OCR = menor probabilidad entre los caracteres de la placa (como en el notebook).
-  # Las lecturas por debajo de 0.99 (99 %) pasan a validación manual.
-  umbral_confianza_ocr: 0.99
+  # Umbral operativo elegido: 0.94. En video/cámara se confirma la misma placa en dos cuadros;
+  # las lecturas inferiores o inconsistentes requieren validación manual.
+  umbral_confianza_ocr: 0.94
   # Distancia de Levenshtein máxima para considerar que una lectura "casi coincide" con una placa registrada
   # (posible error del OCR) → verificación manual en lugar de NO REGISTRADO.
   distancia_max_similar: 1
