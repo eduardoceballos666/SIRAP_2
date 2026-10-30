@@ -45,15 +45,19 @@ _CSV_LOCK = threading.RLock()
 
 
 def _config() -> tuple[str, str, str, str]:
-    token = get_secret("GITHUB_TOKEN")
-    repository = get_secret("GITHUB_DATA_REPOSITORY")
-    branch = get_secret("GITHUB_DATA_BRANCH", "main") or "main"
-    path = get_secret("GITHUB_DATA_PATH", "data/detecciones.csv") or "data/detecciones.csv"
-    if not token or not repository:
-        raise RuntimeError("Faltan los secretos GITHUB_TOKEN o GITHUB_DATA_REPOSITORY.")
-    if not re.fullmatch(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+", repository):
-        raise RuntimeError("GITHUB_DATA_REPOSITORY debe tener el formato propietario/repositorio.")
-    return token, repository, branch, path
+    """Todos los CSV de producción residen en el mismo repositorio privado.
+
+    Nunca se envían datos enriquecidos a un destino configurable distinto que
+    pudiera ser público. La exportación antigua queda intacta para recuperar
+    cualquier histórico de otra instalación.
+    """
+    token = get_secret("SIRAP_DATA_GITHUB_TOKEN")
+    repository = get_secret("SIRAP_DATA_GITHUB_REPO", "eduardoceballos666/SIRAP_datos_privados")
+    if not token:
+        raise RuntimeError("Falta SIRAP_DATA_GITHUB_TOKEN para guardar detecciones en GitHub privado.")
+    if not repository or not re.fullmatch(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+", repository):
+        raise RuntimeError("SIRAP_DATA_GITHUB_REPO debe indicar propietario/repositorio privado.")
+    return token, repository, "main", "data/processed/detecciones.csv"
 
 
 def _headers(token: str) -> dict[str, str]:
