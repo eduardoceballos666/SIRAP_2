@@ -21,11 +21,11 @@ def github_remoto(monkeypatch):
     blobs = {}
     for filename, cols in HEADERS.items():
         text = pd.DataFrame(columns=cols).to_csv(index=False)
-        blobs[filename] = {"contents": text, "sha": hashlib.sha1(text.encode()).hexdigest()}
+        blobs[filename + ".csv"] = {"contents": text, "sha": hashlib.sha1(text.encode()).hexdigest()}
 
     def request(method, path, payload=None):
         name = path.rsplit("/", 1)[-1]
-        if name not in HEADERS:
+        if name.removesuffix(".csv") not in HEADERS:
             raise AssertionError(f"Ruta no esperada: {path}")
         existing = blobs.get(name)
         if method == "GET":
