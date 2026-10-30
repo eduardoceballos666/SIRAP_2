@@ -654,9 +654,17 @@ export function setLanguage(value) {
   if (typeof document !== 'undefined') document.documentElement.lang = language.value === 'en' ? 'en' : 'es'
 }
 
+const spanishAliases = {
+  'Subir Archivo': 'Subir archivo',
+  'Camara local': 'Cámara Local',
+  'Camara URL': 'Cámara URL',
+  'Cámara local': 'Cámara Local',
+}
+
 export function t(value) {
   if (value === null || value === undefined) return value
-  const key = String(value)
+  const rawKey = String(value)
+  const key = spanishAliases[rawKey] ?? rawKey
   if (language.value === 'es') return enToEs[key] ?? key
   if (en[key]) return en[key]
 
