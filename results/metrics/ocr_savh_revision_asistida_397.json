@@ -43,5 +43,35 @@
     "La diferencia de EMR se debe a excluir dos casos; no demuestra mejora de OCR",
     "No es una prueba punta a punta en video ni valida la regla de dos cuadros",
     "No se cambian los pesos publicados en Hugging Face ni el umbral operativo"
-  ]
+  ],
+  "base_de_datos_analizada": {
+    "ground_truth_total": 739,
+    "legibles_originales": 472,
+    "no_legibles_originales": 267,
+    "legibles_unicas_previo": 399,
+    "legibles_unicas_excluyendo_ambiguedad": 397,
+    "predicciones_ocr_cacheadas": 666,
+    "duplicados_en_hoja": 73
+  },
+  "trazabilidad_sha256": {
+    "cache_ocr_csv": "3be02bd2d7e870cf086c8b3586fbc1f80ee281ce8f11a7f17ef274abe27657d4",
+    "referencia_anterior_csv": "f963fbfeb8b637f5da27d769b5ebe577c03d8b5343852395166bf8b8c0c9188a"
+  },
+  "archivos_privados_en_drive": [
+    "proyecto_integrador_placas/ocr/SIRAP2_auditoria_visual_OCR_397.xlsx",
+    "proyecto_integrador_placas/ocr/SAVH_ground_truth_revision_asistida_739.csv",
+    "proyecto_integrador_placas/ocr/SAVH_ground_truth_evaluable_397.csv",
+    "proyecto_integrador_placas/ocr/SAVH_metricas_OCR_revision_asistida_397.json",
+    "proyecto_integrador_placas/ocr/SAVH_dos_placas_por_confirmar.png"
+  ],
+  "conjunto_para_aprobacion_humana": {
+    "grupos_restantes_para_confirmacion": 69,
+    "grupos_ambiguos_para_otra_revision": [
+      7,
+      52
+    ],
+    "columna_aprobacion_humana": "revision: ok o placa correcta",
+    "aprobaciones_humanas_registradas": 0
+  },
+  "metodo": "Recomputo offline usando predicciones OCR originales guardadas y referencias asistidas en Drive privado; no se reentrena ni se reejecuta el OCR."
 }
