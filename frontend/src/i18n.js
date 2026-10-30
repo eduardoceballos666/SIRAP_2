@@ -630,6 +630,13 @@ const en = {
   'Dashboard de operaciones': 'Operations dashboard',
   'Historial de operaciones': 'Operations history',
   'Control de acceso': 'Access control',
+  'Alertas': 'Alerts',
+  'Rechazo': 'Rejection',
+  'Apertura automática': 'Automatic opening',
+  'Apertura manual': 'Manual opening',
+  'Solo registro': 'Record only',
+  'NO_APLICA': 'NOT APPLICABLE',
+  'DETECCION': 'DETECTION',
 }
 
 const es = Object.fromEntries(Object.keys(en).map((key) => [key, key]))
