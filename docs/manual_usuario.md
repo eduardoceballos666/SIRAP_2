@@ -10,7 +10,7 @@ Guía práctica de operación, consulta y administración en computadora y dispo
 
 | **VERSIÓN / REVISIÓN**                                          | **DESTINATARIOS**                          |
 |-----------------------------------------------------------------|--------------------------------------------|
-| Aplicación SIRAP 1.0 · Manual revisado el 28 de octubre de 2026 | Operadores, supervisores y administradores |
+| Aplicación SIRAP 1.0 · Manual revisado el 30 de octubre de 2026 | Operadores, supervisores y administradores |
 
 | **ALCANCE** Guía orientada a la interfaz mostrada en los documentos del proyecto. Algunas funciones, permisos y métricas dependen de la configuración de la instancia. |
 |------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
