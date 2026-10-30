@@ -269,14 +269,6 @@ Figura 1. Pantalla de inicio de sesión SIRAP.
 
 **04** Pulse Ingresar y compruebe que aparece la pantalla principal.
 
-## Cambiar el idioma de la interfaz
-
-SIRAP ofrece **Español** (idioma predeterminado) y **English** desde la misma [dirección de la aplicación](https://eduardoceballos-sirap.hf.space); no se requiere una URL distinta. En el inicio de sesión, use el selector **Idioma**. Después de ingresar, encontrará el mismo selector en el menú común, como se muestra en la figura. Elija **English** para cambiar a inglés o **Español** para volver a español. La preferencia se conserva en este navegador al navegar y al volver a abrir SIRAP.
-
-![Selector de idioma Español / English en el menú común de SIRAP](img/selector_idioma_sirap.jpeg)
-
-*Figura 2. Selector «Idioma» del menú común. Seleccione Español o English para cambiar el idioma de la interfaz.*
-
 ## Perfiles disponibles
 
 | PERFIL        | FUNCIONES DISPONIBLES                                                                                                                                                                                                                                                                                                    |
@@ -291,6 +283,14 @@ El menú puede variar según el perfil. Si una opción aparece solo para consult
 
 | **BUENAS PRÁCTICAS** No comparta contraseñas. Cierre la sesión al terminar o al dejar el equipo sin supervisión. El registro de contingencias debe consignar siempre el motivo y la persona responsable. |
 |----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+
+## Cambiar el idioma de la interfaz
+
+SIRAP ofrece **Español** (idioma predeterminado) y **English** desde la misma [dirección de la aplicación](https://eduardoceballos-sirap.hf.space); no se requiere una URL distinta. En el inicio de sesión, use el selector **Idioma**. Después de ingresar, encontrará el mismo selector en el menú común, como se muestra en la figura. Elija **English** para cambiar a inglés o **Español** para volver a español. La preferencia se conserva en este navegador al navegar y al volver a abrir SIRAP.
+
+![Selector de idioma Español / English en el menú común de SIRAP](img/selector_idioma_sirap.jpeg)
+
+*Figura 2. Selector «Idioma» del menú común. Seleccione Español o English para cambiar el idioma de la interfaz.*
 
 # 3. Reconocimiento y Acceso
 
