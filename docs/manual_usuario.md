@@ -298,7 +298,7 @@ Esta es la pantalla que utiliza la garita durante una entrada o salida. En una m
 
 ![](img/manual_usuario_image1.jpg)
 
-Figura 2. Pantalla principal con seis zonas identificadas.
+Figura 3. Pantalla principal con seis zonas identificadas.
 
 | N.º | ZONA         | PARA QUÉ SIRVE                                                |
 |-----|--------------|---------------------------------------------------------------|
@@ -342,7 +342,7 @@ Verificar: consulta el estado de la placa final que se visualiza o que el usuari
 
 ![](img/manual_usuario_image3.jpg)
 
-Figura 3. Botón Subir archivo y área de lectura.
+Figura 4. Botón Subir archivo y área de lectura.
 
 ## 4.2. Analizar un video
 
@@ -350,7 +350,7 @@ Se recomienda cargar videos MP4 o WebM, los formatos destacados por la interfaz.
 
 ![](img/manual_usuario_image4.jpg)
 
-Figura 4. Ejemplo de un camión analizado desde un archivo de video.
+Figura 5. Ejemplo de un camión analizado desde un archivo de video.
 
 ## 4.3. Utilizar Cámara Local
 
@@ -366,7 +366,7 @@ Figura 4. Ejemplo de un camión analizado desde un archivo de video.
 
 ![](img/manual_usuario_image5.jpg)
 
-Figura 5. Reconocimiento mediante captura de cámara local.
+Figura 6. Reconocimiento mediante captura de cámara local.
 
 ## 4.4. Utilizar Cámara URL
 
@@ -403,11 +403,11 @@ Cuando SIRAP informa «No registrado», no abra. Al registrar el camión desde R
 
 ![](img/manual_usuario_image6.jpg)
 
-Figura 6. Ejemplo de un vehículo no registrado.
+Figura 7. Ejemplo de un vehículo no registrado.
 
 ![](img/manual_usuario_image7.jpg)
 
-Figura 7. Confirmación para registrar o continuar sin registrar el vehículo.
+Figura 8. Confirmación para registrar o continuar sin registrar el vehículo.
 
 ## 5.2. Sin autorización y denegado
 
@@ -415,7 +415,7 @@ Si aparece «Sin autorización» o «Denegado», mantenga el acceso cerrado. La 
 
 ![](img/manual_usuario_image8.jpg)
 
-Figura 8. Ejemplo de estado Denegado.
+Figura 9. Ejemplo de estado Denegado.
 
 ## 
 
@@ -462,11 +462,11 @@ Cuando SIRAP identifica una placa sin ficha, cualquiera de los tres perfiles aut
 
 ![](img/manual_usuario_image10.jpg)
 
-Figura 8A. Mensaje de confirmación que aparece al detectar una placa no registrada.
+Figura 9A. Mensaje de confirmación que aparece al detectar una placa no registrada.
 
 ![](img/manual_usuario_image11.jpg)
 
-Figura 8B. Formulario «Registrar camión nuevo» para completar la información del vehículo.
+Figura 9B. Formulario «Registrar camión nuevo» para completar la información del vehículo.
 
 ¿Cómo utilizar esta ventana?
 
@@ -521,7 +521,7 @@ La franja inferior permite consultar las últimas lecturas de la sesión. «Ver 
 
 ![](img/manual_usuario_image12.jpg)
 
-Figura 9. Lecturas de la sesión: hora, imagen, placa y resultado.
+Figura 10. Lecturas de la sesión: hora, imagen, placa y resultado.
 
 # 7. Historial de operaciones
 
@@ -531,7 +531,7 @@ El Historial permite buscar acciones previamente registradas y verificar fecha, 
 
 ![](img/manual_usuario_image13.jpg)
 
-Figura 10. Historial y principales controles de búsqueda.
+Figura 11. Historial y principales controles de búsqueda.
 
 **01** Abra Historial desde el menú izquierdo.
 
@@ -571,7 +571,7 @@ Administración reúne los datos que SIRAP necesita para identificar vehículos,
 
 ![](img/manual_usuario_image14.jpg)
 
-Figura 11. Formulario de vehículos con selección y autorización masiva.
+Figura 12. Formulario de vehículos con selección y autorización masiva.
 
 **01** Entre en Administración y seleccione Vehículos. Solo el Administrador puede crear o actualizar registros; el Supervisor puede consultarlos en modo de solo lectura.
 
@@ -587,7 +587,7 @@ Figura 11. Formulario de vehículos con selección y autorización masiva.
 
 ![](img/manual_usuario_image15.jpg)
 
-Figura 12. Pantalla de asignación de listas y vigencia.
+Figura 13. Pantalla de asignación de listas y vigencia.
 
 **01** Abra la pestaña Listas. Solo el Administrador puede cambiar autorizaciones; el Supervisor puede consultarlas en modo de solo lectura.
 
@@ -608,7 +608,7 @@ La pestaña Propietarios sirve principalmente para consultar registros asociados
 
 ![](img/manual_usuario_image16.jpg)
 
-Figura 13. Consulta de propietarios.
+Figura 14. Consulta de propietarios.
 
 ## 8.4. Garitas
 
@@ -616,7 +616,7 @@ Solo el Administrador puede agregar garitas o cambiar su nombre, ubicación y es
 
 ![](img/manual_usuario_image17.jpg)
 
-Figura 14. Administración de garitas.
+Figura 15. Administración de garitas.
 
 ## 8.5. Usuarios
 
@@ -624,7 +624,7 @@ Solo el Administrador puede crear usuarios, cambiar sus nombres y roles, restabl
 
 ![](img/manual_usuario_image18.jpg)
 
-Figura 15. Creación y mantenimiento de usuarios.
+Figura 16. Creación y mantenimiento de usuarios.
 
 # 9. Dashboard y datos de demostración
 
@@ -632,7 +632,7 @@ El Dashboard presenta indicadores y gráficos para conocer tendencias de las ope
 
 ![](img/manual_usuario_image19.jpg)
 
-Figura 16. Dashboard: indicadores y gráficos de seguimiento.
+Figura 17. Dashboard: indicadores y gráficos de seguimiento.
 
 ## Cómo consultar los indicadores
 
@@ -652,7 +652,7 @@ Los registros DEMO son operaciones ficticias para probar la visualización y el 
 
 ![](img/manual_usuario_image20.jpg)
 
-Figura 17. Controles para generar y borrar operaciones de demostración.
+Figura 18. Controles para generar y borrar operaciones de demostración.
 
 | **REGLA PARA INFORMES** Antes de presentar estadísticas operativas de la planta, desactive la inclusión de datos DEMO. Si un gráfico aparece vacío, revise primero el periodo y los filtros. |
 |----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -663,7 +663,7 @@ La opción «Acerca del modelo» informa sobre la tecnología que interpreta las
 
 ![](img/manual_usuario_image21.jpg)
 
-Figura 18. Pantalla de información del modelo y gráficos de desempeño.
+Figura 19. Pantalla de información del modelo y gráficos de desempeño.
 
 ## Indicadores incluidos
 
@@ -725,9 +725,9 @@ Las siguientes capturas reales muestran el flujo de SIRAP desde un teléfono: pr
 <thead>
 <tr class="header">
 <th><p>![](img/manual_usuario_image22.jpg)</p>
-<p>Figura 19A. Captura y reconocimiento desde Cámara Local: selección de fuente, vista de la imagen y botón «Capturar y reconocer».</p></th>
+<p>Figura 20A. Captura y reconocimiento desde Cámara Local: selección de fuente, vista de la imagen y botón «Capturar y reconocer».</p></th>
 <th><p>![](img/manual_usuario_image23.jpg)</p>
-<p>Figura 19B. Resultado desde el celular: placa leída, estado «No registrado», validación y datos complementarios del vehículo.</p></th>
+<p>Figura 20B. Resultado desde el celular: placa leída, estado «No registrado», validación y datos complementarios del vehículo.</p></th>
 </tr>
 </thead>
 <tbody>
