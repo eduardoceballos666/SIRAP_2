@@ -19,6 +19,7 @@ from api.deps import current_user, get_barrier, get_config, get_store, get_pipel
 from src.access_control import AccessDecision, decide_access
 from src.data_processing import ImageLimits, ImageValidationError, load_image, normalize_plate
 from src.storage import StorageError
+from src.github_storage import durable_backup_configured
 from src.detection_export import append_detection, enrich_detection, _query_owner, _query_sri
 from src.utils import ROOT_DIR, get_logger, now_local
 
@@ -195,13 +196,14 @@ def verify_plate(body: schemas.VerifyIn, _: dict = Depends(current_user)) -> sch
     return schemas.VerifyOut(placa=plate, decision=_decision_out(decision))
 
 
-@router.post("/plates/register", status_code=201, summary="Registrar un camión detectado como nuevo")
+@router.post("/plates/register", status_code=201, summary="Registrar un camión nuevo y, si se confirma, autorizarlo")
 def register_vehicle(body: schemas.VehicleIn, user: dict = Depends(current_user)) -> dict[str, str]:
-    """Permite al operador completar el registro de un camión que no existe en la base."""
+    """Los tres perfiles pueden registrar y autorizar; solo nuevos y con confirmación explícita."""
     plate = normalize_plate(body.placa)
     if not plate:
-        raise HTTPException(422,
-                            "Formato inválido: use 3 letras y 3 o 4 dígitos (ej.: PBA-8901).")
+        raise HTTPException(422, "Formato inválido: use 3 letras y 3 o 4 dígitos (ej.: PBA-8901).")
+    if not body.placa_confirmada:
+        raise HTTPException(422, "Confirme visualmente la placa antes de registrar o autorizar.")
     required = {"marca": body.marca, "modelo": body.modelo, "color": body.color,
                 "propietario": body.propietario or ""}
     missing = [name for name, value in required.items() if not value.strip()]
@@ -209,12 +211,27 @@ def register_vehicle(body: schemas.VehicleIn, user: dict = Depends(current_user)
         raise HTTPException(422, f"Complete los campos obligatorios: {', '.join(missing)}.")
     try:
         db = get_store()
-        db.upsert_vehicle(plate, body.marca.strip(), body.modelo.strip(), body.color.strip(), "CAMION",
-                          body.propietario.strip(), (body.transportista or "").strip() or None)
-        db.set_authorization(plate, "BLANCA", "Autorizado al registrar el camión", None, user["usuario"])
-    except (StorageError, ValueError) as exc:
-        raise HTTPException(422, f"No se pudo registrar y autorizar el camión: {exc}")
-    return {"placa": plate, "mensaje": f"El camión {plate} se registró y quedó autorizado."}
+        db.create_vehicle_from_access(
+            plate, body.marca.strip(), body.modelo.strip(), body.color.strip(),
+            body.propietario.strip(), (body.transportista or "").strip(), user["usuario"])
+    except ValueError as exc:
+        if "ya está registrada" in str(exc):
+            raise HTTPException(status.HTTP_409_CONFLICT, str(exc)) from exc
+        raise HTTPException(422, str(exc)) from exc
+    except StorageError as exc:
+        raise HTTPException(status.HTTP_503_SERVICE_UNAVAILABLE, "No se pudo guardar el camión.") from exc
+
+    if body.autorizar:
+        try:
+            db.set_authorization(plate, "BLANCA", "Autorización explícita tras verificación visual en garita",
+                                 None, user["usuario"])
+        except (StorageError, ValueError) as exc:
+            logger.exception("Camión registrado sin lista blanca porque falló la autorización de %s", plate)
+            raise HTTPException(status.HTTP_503_SERVICE_UNAVAILABLE,
+                                "Camión registrado, pero NO autorizado: falló el guardado de la lista blanca. "
+                                "Un Administrador debe revisar el registro.") from exc
+        return {"placa": plate, "mensaje": f"Camión {plate} registrado y autorizado por {user['usuario']}."}
+    return {"placa": plate, "mensaje": f"Camión {plate} registrado, pendiente de autorización."}
 
 
 @router.post("/operations", response_model=schemas.OperationOut, status_code=201,
@@ -237,21 +254,56 @@ def register_operation(body: schemas.OperationIn, background_tasks: BackgroundTa
     if body.accion == "APERTURA_MANUAL" and len((body.motivo or "").strip()) < 10:
         raise HTTPException(422, "La apertura manual exige un motivo (mín. 10 caracteres).")
     barrier = get_barrier()
-    opened = False
-    if body.accion in ("APERTURA_AUTOMATICA", "APERTURA_MANUAL"):
-        opened = barrier.open(body.garita, body.accion)
-        if not opened:
-            raise HTTPException(status.HTTP_502_BAD_GATEWAY,
-                                "La barrera no confirmó la apertura. Use la apertura manual y avise a soporte.")
-    final = plate if decision.resultado != "VERIFICACION_MANUAL" or body.origen == "MANUAL" else None
+    # El almacenamiento efímero no es suficiente para accionar una barrera física.
+    if not getattr(barrier, "simulated", True) and not durable_backup_configured():
+        raise HTTPException(status.HTTP_503_SERVICE_UNAVAILABLE,
+                            "Apertura bloqueada: configure primero el respaldo CSV privado y persistente.")
     try:
-        get_store().log_operation(
+        op_id = str(uuid.UUID(body.operacion_id)) if body.operacion_id else str(uuid.uuid4())
+    except (ValueError, AttributeError) as exc:
+        raise HTTPException(422, "Identificador de operación UUID inválido.") from exc
+    opening = body.accion in ("APERTURA_AUTOMATICA", "APERTURA_MANUAL")
+    final = plate if decision.resultado != "VERIFICACION_MANUAL" or body.origen == "MANUAL" else None
+    db = get_store()
+
+    # 1. Se escribe la solicitud antes de emitir cualquier orden de apertura.
+    try:
+        db.log_operation(
             garita=body.garita, operador=user["nombre"], tipo_movimiento=body.tipo_movimiento,
             resultado=decision.resultado, accion=body.accion, placa_leida=body.placa_leida, placa_final=final,
             confianza_ocr=body.confianza_ocr, lista=decision.lista, motivo=(body.motivo or None),
-            origen=body.origen, tiempo_ms=body.tiempo_ms)
-    except (StorageError, ValueError) as exc:
-        raise HTTPException(422, f"No se pudo registrar: {exc}")
+            origen=body.origen, tiempo_ms=body.tiempo_ms, operacion_id=op_id,
+            estado_barrera="SOLICITADA" if opening else "NO_APLICA")
+    except ValueError as exc:
+        if "Operación duplicada" in str(exc):
+            raise HTTPException(status.HTTP_409_CONFLICT, str(exc)) from exc
+        raise HTTPException(422, f"No se pudo registrar: {exc}") from exc
+    except StorageError as exc:
+        raise HTTPException(status.HTTP_503_SERVICE_UNAVAILABLE,
+                            "Apertura bloqueada: no se pudo guardar primero la solicitud en el CSV.") from exc
+
+    # 2. La barrera solo recibe la orden después de persistir la solicitud.
+    opened = False
+    barrier_state = "NO_APLICA"
+    if opening:
+        barrier_state = "INDETERMINADA"  # Un fallo de red no demuestra que una barrera física esté cerrada.
+        try:
+            opened = bool(barrier.open(body.garita, body.accion))
+            barrier_state = "CONFIRMADA" if opened else (
+                "FALLIDA" if getattr(barrier, "simulated", False) else "INDETERMINADA")
+        except Exception:
+            logger.exception("No se pudo confirmar la apertura para operación %s", op_id)
+        try:
+            db.update_operation_state(op_id, barrier_state)
+        except (StorageError, ValueError) as exc:
+            logger.exception("No se pudo conciliar el estado de apertura %s; queda solicitud persistida", op_id)
+            raise HTTPException(status.HTTP_503_SERVICE_UNAVAILABLE,
+                                f"Estado de apertura no conciliado para operación {op_id}. "
+                                "NO vuelva a intentar automáticamente; revise el historial y la barrera.") from exc
+        if not opened:
+            raise HTTPException(status.HTTP_502_BAD_GATEWAY,
+                                f"La barrera no confirmó la apertura. Operación {op_id} registrada "
+                                f"con estado {barrier_state}; solicite revisión, no repita automáticamente.")
     export_saved = False
     if body.origen == "DETECCION" and final:
         vehicle = decision.vehiculo or {}
@@ -298,4 +350,4 @@ def register_operation(body: schemas.OperationIn, background_tasks: BackgroundTa
                                   " No se guardó en GitHub; revise la configuración del repositorio y el token.")
     return schemas.OperationOut(registrada=True, resultado=decision.resultado, accion=body.accion,
                                 barrera_abierta=opened, barrera_simulada=getattr(barrier, "simulated", True),
-                                mensaje=messages[body.accion])
+                                operacion_id=op_id, estado_barrera=barrier_state, mensaje=messages[body.accion])
