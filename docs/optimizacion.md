@@ -168,7 +168,7 @@ Además de los hiperparámetros de entrenamiento, el sistema tiene dos umbrales 
 |---|---|---|---|---|
 | Sin umbral OCR | 0 de 202 | 1 de 197 | 4,0 % |
 | Umbral OCR 0,99 (escenario de estudio) | 0 de 202 | 1 de 197 | 15,5 % |
-| Umbral OCR 0,94 (evaluación offline de la configuración anterior) | 0 de 202 | 1 de 197 | 12,0 % |
+| Umbral OCR 0,94 (evaluación offline por recorte) | 0 de 202 | 1 de 197 | 12,0 % |
 
 La matriz de 0,94 se calculó offline con las predicciones OCR SAVH, referencias revisadas y la misma lista simulada:
 no se observó falso autorizado y hubo 1 rechazo indebido entre 197 autorizadas; 48/399 (12,0 %) quedaron para revisión
