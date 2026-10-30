@@ -62,7 +62,8 @@
     "proyecto_integrador_placas/ocr/SAVH_ground_truth_revision_asistida_739.csv",
     "proyecto_integrador_placas/ocr/SAVH_ground_truth_evaluable_397.csv",
     "proyecto_integrador_placas/ocr/SAVH_metricas_OCR_revision_asistida_397.json",
-    "proyecto_integrador_placas/ocr/SAVH_dos_placas_por_confirmar.png"
+    "proyecto_integrador_placas/ocr/SAVH_dos_placas_por_confirmar.png",
+    "proyecto_integrador_placas/ocr/SAVH_pendientes_revision_4_imagenes.csv"
   ],
   "conjunto_para_aprobacion_humana": {
     "grupos_restantes_para_confirmacion": 69,
