@@ -12,7 +12,7 @@
 - `results/metrics/ocr_savh.json` registra **399 imágenes legibles únicas** y **69 referencias sugeridas sin confirmar**. Las otras 330 no son necesariamente todas etiquetas revisadas por una persona: el estado `camara_formato_valido` es distinto de `confirmada`.
 - `results/metrics/optimizacion_resumen.json` registra mAP@0.5:0.95 test **0,692586 (base)** y **0,703834 (trial 12)** con **una sola semilla**. Diferencia preliminar **+0,011248**. Los pesos optimizados NO están desplegados.
 
-Los conteos de la hoja deben revisarse de nuevo antes del informe final. El subconjunto de imágenes `savh_ground_truth_subset.zip` no se encontró entre los archivos actualmente indexados en el Drive conectado; debe estar disponible en Colab para reconstruir la referencia completa. Existe el dataset de origen publicado en Zenodo, pero no sustituir automáticamente el subconjunto ni sus índices por una muestra diferente.
+Los conteos de la hoja deben revisarse de nuevo antes del informe final. Se localizó `savh_ground_truth_subset.zip` en la carpeta privada principal `proyecto_integrador_placas` de Drive. Para la auditoría asistida más reciente se emplearon las fotografías de `revision_visual_savh/placa_legible` y las predicciones OCR ya guardadas; no debe sustituirse automáticamente un subconjunto o sus índices por imágenes distintas.
 
 ## 2. Auditar las etiquetas SAVH, sin inventar ninguna
 
@@ -102,3 +102,39 @@ Evidencia: [comparación CSV](../results/metrics/validacion_multisemilla_compara
 | 2 | 0.970954 | 0.972518 | +0.001564 | 0.988563 | 0.993252 | +0.004689 |
 
 Las diferencias medias pareadas son **+0.001593** en mAP50 (DE muestral **0.001230**) y **+0.001463** en precisión (DE muestral **0.004227**). El valor de precisión también disminuye en la semilla 0; la evidencia de estabilidad de las tres semillas no garantiza una mejora uniforme en todas las métricas. Los seis JSON originales, con las cuatro métricas y rutas a pesos experimentales, se conservan en [resultados individuales](../results/metrics/validacion_multisemilla_individuales/base_semilla_0.json) y los otros cinco archivos del mismo directorio.
+
+
+## 6. Auditoría visual asistida de SAVH y recálculo OCR provisional (30/10/2026)
+
+**Estado: NO es validación definitiva de las 69 etiquetas.** Se localizaron las fotografías originales de la carpeta privada `MyDrive/proyecto_integrador_placas/revision_visual_savh/placa_legible` y se inspeccionaron las 69 imágenes representativas de la hoja **Revisión placas SAVH (142 legibles)**. La auditoría asistida encontró 67 grupos cuyas sugerencias son visualmente compatibles con los recortes, y **2 grupos ambiguos**: `n=7` (O/U; 3 recortes idénticos) y `n=52` (H/M; 1 recorte). La hoja contiene 73 filas marcadas como copias: 71 asociadas a grupos visualmente consistentes y 2 asociadas al grupo ambiguo 7. **No se rellenó la columna `revision: ok o placa correcta`**, que sigue sin aprobaciones humanas. Las columnas auxiliares K:M documentan la evaluación asistida y los grupos; no constituyen validación humana.
+
+La referencia original contiene 739 registros (472 recortes legibles, 267 no legibles). Los 142 registros de la hoja se cruzaron con el CSV de referencia y las fotografías. La referencia corregida original en Drive se preservó sin sobrescribir. Para la reevaluación provisional se generó una copia trazable de las 739 filas y otra de **397 imágenes legibles únicas**, excluyendo únicamente las **2 imágenes únicas ambiguas** (que en la hoja corresponden a 4 filas), sin imputar ninguna letra incierta. Las otras **330 referencias** proceden de etiquetas de la cámara con formato válido, pero **no fueron revisadas visualmente** en esta auditoría.
+
+### Cálculo reproducido con salidas OCR existentes
+
+Se reutilizaron las 666 predicciones conservadas de `fast-plate-ocr cct-s-v2-global-model`, sin una nueva inferencia. El cálculo offline aplica la normalización del notebook y comparación exacta con las referencias de cada recorte único.
+
+| Indicador | Histórico (399) | Revisión asistida excluyendo ambigüedades (397) |
+|---|---:|---:|
+| Imágenes legibles únicas | 399 | 397 |
+| Lecturas exactamente correctas | 374 | 373 |
+| EMR | 93,7343 % | **93,9547 %** |
+| CER medio por imagen | 0,010204 | 0,009896 |
+| Aceptadas con umbral offline 94 % | 363 | 362 |
+| Correctas entre aceptadas con 94 % | 349 | 348 |
+| Erróneas entre aceptadas con 94 % | 14 | **14** |
+| Enviadas a verificación con 94 % | 36 | 35 |
+| Aceptadas con umbral offline 99 % | 347 | 346 |
+| Erróneas entre aceptadas con 99 % | 12 | 12 |
+
+**Interpretación obligatoria:** el cambio de 399 a 397 modifica el denominador; no es una mejora del modelo OCR, ni constituye validación punta a punta. Un umbral de confianza offline no verifica el umbral realmente aplicado por el backend, la regla de dos cuadros, el seguimiento en video o la apertura de barrera. Tampoco confirma todas las referencias originales de la cámara.
+
+**Archivos de evidencia privados**, sin publicar números de matrícula en GitHub:
+`ocr/SIRAP2_auditoria_visual_OCR_397.xlsx`,
+`ocr/SAVH_ground_truth_revision_asistida_739.csv`,
+`ocr/SAVH_ground_truth_evaluable_397.csv`,
+`ocr/SAVH_metricas_OCR_revision_asistida_397.json` y
+`ocr/SAVH_dos_placas_por_confirmar.png`.
+Los archivos se encuentran en el Drive privado de `proyecto_integrador_placas`; el resumen público agregado y su trazabilidad se guardan en [resultados OCR de la revisión asistida](../results/metrics/ocr_savh_revision_asistida_397.json). Se preservan los resultados históricos y las seis corridas multisemilla sin cambios.
+
+**Para cerrar SAVH:** confirmar visualmente las 69 referencias con aprobación humana explícita (especialmente 7 y 52), registrar `ok`, placa corregida o `ilegible` en la columna J; después ejecutar nuevamente las secciones 2.2, 4.3 y 5.4 de `SIRAP_backend.ipynb`, verificar los conteos, recalcular las métricas definitivas y actualizar los resultados publicados con su nuevo estado y evidencia. Hasta ese momento, **SAVH sigue pendiente de cierre**.
