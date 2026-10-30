@@ -81,7 +81,7 @@ Detalles, EDA y decisiones de preprocesamiento: [`docs/analisis_datos.md`](docs/
 | OCR | **fast-plate-ocr** `cct-s-v2-global-model` (5 MB) | Hecho para placas, 16 ms por recorte en CPU, 93,7 % de EMR en placas reales de Guayaquil |
 | Normalización | Formato `XXX-0000`, correcciones letra/dígito por posición (máx. 2) | Validada con placas reales de Guayaquil |
 | Decisión | Listas blanca/restringida + umbrales + «¿quiso decir…?» | Nunca decide a ciegas: lo dudoso va a verificación manual |
-| Datos | Archivos CSV locales | Vehículos, propietarios, listas, garitas, usuarios e historial |
+| Datos | CSV persistentes en GitHub privado (caché local temporal) | Vehículos, autorizaciones, detecciones, garitas, usuarios e historial |
 
 **Preprocesamiento:** copia local del dataset, `data.yaml` con rutas absolutas, *letterbox* a 640 px, aumentos por
 defecto de Ultralytics; recorte con margen antes del OCR.
@@ -160,10 +160,20 @@ Usuarios de demostración: `operador`, `supervisor` y `admin`; la contraseña ac
 **Configuración:** parámetros en [`config/config.yaml`](config/config.yaml); secretos en variables de entorno
 (plantillas [`.env.example`](.env.example) y [`api/.env.example`](api/.env.example)): `SIRAP_JWT_SECRET`,
 `SIRAP_DEMO_PASSWORD`, `SIRAP_DATA_GITHUB_TOKEN` y, si se conecta una barrera física, `BARRERA_URL` y `BARRERA_TOKEN`.
-En el Space, `SIRAP_DATA_GITHUB_TOKEN` y `SIRAP_DATA_GITHUB_REPO` respaldan las tablas CSV principales en el
-repositorio privado `SIRAP_datos_privados`, restaurándolas al iniciar y sincronizando cambios. Es un proceso distinto
-de la exportación enriquecida opcional, que usa `GITHUB_TOKEN` y `GITHUB_DATA_REPOSITORY` para guardar eventos en
-`data/detecciones.csv`; esas variables no son intercambiables.
+**Almacenamiento persistente principal:** todos los CSV operativos residen en el repositorio PRIVADO
+[`SIRAP_datos_privados`](https://github.com/eduardoceballos666/SIRAP_datos_privados), en
+`data/processed/`. Son siete CSV: `vehiculos`, `autorizaciones`, `operaciones`,
+`usuarios`, `garitas`, `credenciales` (hashes) y `detecciones`. La misma identidad
+`SIRAP_DATA_GITHUB_TOKEN` se usa para todo. Hugging Face usa copias de trabajo temporales,
+no datos propios: al arrancar recupera GitHub; cada lectura obtiene la versión remota más
+reciente y cada escritura se confirma contra el SHA previo para impedir sobrescrituras
+concurrentes. En Docker `SIRAP_GITHUB_REQUIRED=1` impide iniciar sin GitHub o sin alguno
+de los seis CSV históricos. La exportación enriquecida usa
+`data/processed/detecciones.csv` en el MISMO repositorio privado.
+**No borrar ni reinicializar estos archivos:** se preservó un respaldo de los seis CSV
+anteriores a la migración en la rama privada
+`respaldo-pre-migracion-2026-10-30`.
+Véase [procedimiento de continuidad y recuperación](data/README.md).
 
 **Ejemplo de uso de la API:**
 
@@ -206,8 +216,9 @@ print(decide_access(rec.plate, rec.ocr_confidence, store).titulo)   # ACCESO AUT
 
 La API consulta el servicio público del SRI para completar marca/modelo/año; también consulta EcuadorLegalOnline y
 puede recibir el nombre público asociado a la placa, aunque el panel actual no lo muestra. Ninguna consulta interviene
-en la decisión de acceso. La exportación enriquecida separada puede guardar ese resultado en `data/detecciones.csv`
-si se configura con sus propias variables de GitHub.
+en la decisión de acceso. La exportación enriquecida guarda eventos en
+`data/processed/detecciones.csv` del repositorio privado de datos mediante el mismo token
+que utiliza el historial; nunca publica registros en SIRAP_2.
 
 **Requisitos de la interfaz cubiertos:** validación de entradas (tipo, tamaño y resolución de imagen en el servidor;
 formato de placa), indicador de carga, mensajes de error comprensibles (sin trazas técnicas), confianza OCR y de
@@ -257,13 +268,15 @@ documentación, notebooks o pruebas no coinciden con esos filtros. Los cambios r
 | `HF_TOKEN` | Secret (obligatorio) | Token de Hugging Face con permiso **Write** |
 | `SIRAP_JWT_SECRET` | Secret (recomendado) | Cadena larga y aleatoria para firmar las sesiones |
 | `SIRAP_DEMO_PASSWORD` | Secret (opcional) | Define la contraseña común de las cuentas de demostración; el despliegue actual usa `sirap2026` |
-| `SIRAP_DATA_GITHUB_TOKEN` | Secret (obligatorio para despliegues) | Token fine-grained con acceso Contents: Read and write solo a `SIRAP_datos_privados`; Actions lo valida y lo guarda automáticamente como secreto del Space para que la API respalde los CSV. |
+| `SIRAP_DATA_GITHUB_TOKEN` | Secret (obligatorio) | Token fine-grained con Contents: Read and write únicamente en `SIRAP_datos_privados`; Actions comprueba los seis CSV históricos y lo guarda en el Space para que GitHub sea la fuente principal. |
 | `HF_SPACE` | Variable (opcional) | Otro Space, p. ej. `usuario/sirap` |
 
 **Despliegue actual:** SIRAP se aloja como una Space Docker en [Hugging Face Spaces](https://huggingface.co/spaces/eduardoceballos/SIRAP), en el puerto 7860. Hugging Face indica que ejecutar Spaces Docker requiere un plan de pago; el costo del hardware depende del recurso seleccionado ([detalle de hardware](https://huggingface.co/docs/hub/spaces-overview#hardware-resources)). La infraestructura de demostración documentada usa 2 vCPU y no tiene GPU dedicada. La API ocupa aproximadamente 410 MB de RAM con los modelos cargados. El despliegue automático requiere los secretos `HF_TOKEN` y `SIRAP_DATA_GITHUB_TOKEN`; también se recomienda configurar `SIRAP_JWT_SECRET`.
 
 > **Estado:** prototipo funcional. La barrera es **simulada** y la base de demostración contiene **datos ficticios**.
-> El Space tiene configurado el respaldo de sus tablas CSV en el repositorio privado `SIRAP_datos_privados`.
+> Los CSV se leen y escriben directamente en GitHub privado. El disco del Space es solo temporal.
+> El despliegue no debe sustituir los CSV históricos; rama privada de recuperación:
+> `respaldo-pre-migracion-2026-10-30`.
 > Para operar en una garita real faltan una cámara IP integrada y el controlador físico de la barrera.
 
 ## 7. Estructura del proyecto
