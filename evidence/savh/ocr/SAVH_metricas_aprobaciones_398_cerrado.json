@@ -1,0 +1,100 @@
+{
+  "estado": "REFERENCIAS_REGISTRADAS_CASO_398_EXCLUIDO_EVALUACION_CONDICIONADA",
+  "fecha": "2026-10-30",
+  "modelo_ocr": "fast-plate-ocr cct-s-v2-global-model",
+  "datos": {
+    "total_original": 739,
+    "legibles": 472,
+    "no_legibles": 267,
+    "legibles_unicas": 399,
+    "grupos_savh_con_respuesta": 69,
+    "copias_savh": 73,
+    "referencias_camara_con_respuesta": 330,
+    "aprobadas_aplicables": 398,
+    "pendientes_etiqueta_equivoca": 0,
+    "fila_gt_pendiente": [],
+    "referencias_excluidas_por_revisor": 1,
+    "fila_gt_excluida_por_ilegibilidad": [
+      398
+    ]
+  },
+  "interpretacion_aprobaciones": {
+    "sugerencias_69": "ok confirma sugerencia; si una fila representativa esta en blanco se usa ok de copia identica del mismo grupo",
+    "camara_312": "ok confirma la lectura en que camara y OCR coinciden",
+    "discrepancias_17": "ok confirma la propuesta explícita por fila: 14 sugerencias OCR y 3 sugerencias camara",
+    "discrepancia_fila_398": "ilegible: el revisor indicó que la matrícula no puede leerse de forma fiable; se excluye del EMR.",
+    "nota_sesgo": "La propuesta OCR era visible al revisor; no es una evaluación de anotación ciega."
+  },
+  "resultado_historico_399": {
+    "n": 399,
+    "exactas": 374,
+    "emr": 0.9373433583959899,
+    "cer_medio_por_imagen": 0.01020408163265306,
+    "umbral_094": {
+      "n": 399,
+      "aceptadas": 363,
+      "exactas_aceptadas": 349,
+      "equivocadas_aceptadas": 14,
+      "pendientes_manual": 36
+    },
+    "umbral_099": {
+      "n": 399,
+      "aceptadas": 347,
+      "exactas_aceptadas": 335,
+      "equivocadas_aceptadas": 12,
+      "pendientes_manual": 52
+    }
+  },
+  "resultado_condicionado_398": {
+    "n": 398,
+    "exactas": 388,
+    "emr": 0.9748743718592965,
+    "cer_medio_por_imagen": 0.0036491983728164632,
+    "umbral_094": {
+      "n": 398,
+      "aceptadas": 362,
+      "exactas_aceptadas": 359,
+      "equivocadas_aceptadas": 3,
+      "pendientes_manual": 36
+    },
+    "umbral_099": {
+      "n": 398,
+      "aceptadas": 346,
+      "exactas_aceptadas": 343,
+      "equivocadas_aceptadas": 3,
+      "pendientes_manual": 52
+    }
+  },
+  "detalles_por_origen": {
+    "sugerencias_confirmadas": 69,
+    "camara_concordante": 312,
+    "ocr_sugerido_confirmado": 14,
+    "camara_sugerida_confirmada": 3,
+    "ambiguo": 0,
+    "excluida_ilegible": 1
+  },
+  "limitaciones": [
+    "La fila_gt 398 fue marcada ilegible en la hoja conectada el 30/10/2026 y excluida del cálculo; la muestra evaluable permanece en 398 imágenes únicas.",
+    "EMR posterior condicionado a etiquetas aceptadas tras mostrar propuestas OCR; riesgo de sesgo circular",
+    "No se verifica modelo publicado ni detección punta a punta en video",
+    "No se modifica el OCR ni sus pesos; es únicamente una reevaluación de etiquetas",
+    "Todas las matrículas y fotografías se mantienen en un almacenamiento privado.",
+    "Las aprobaciones ok se registraron con las propuestas de OCR visibles; el EMR es condicionado a esa revisión, no una medición independiente ni un resultado operativo en video."
+  ],
+  "hashes_sha256": {
+    "ground_truth_origen": "14fa62ad72cea30fd4c5605b8f603663785e270f181815e7399478b942c4120e",
+    "ground_truth_histórico": "f963fbfeb8b637f5da27d769b5ebe577c03d8b5343852395166bf8b8c0c9188a",
+    "cache_ocr": "3be02bd2d7e870cf086c8b3586fbc1f80ee281ce8f11a7f17ef274abe27657d4",
+    "sheet_export": "e76902014d92d782580d6b18f5b42d13782d8c232f81403c856fa51fceae54c1",
+    "ground_truth_cerrado": "6397ed74a657b422c4d872f58de8c5f9274bcdcc3236a5c2b234499d9b90a3b5"
+  },
+  "verificacion_en_sheet": {
+    "fecha": "2026-10-30",
+    "sugerencias_grupos_con_respuesta": 69,
+    "sugerencias_filas_con_respuesta": 141,
+    "sugerencias_filas_totales": 142,
+    "camara_respuestas_ok": 329,
+    "camara_respuestas_ilegible": 1,
+    "fila_gt_398": "ilegible"
+  }
+}
