@@ -116,13 +116,13 @@ referencia se interpreta con cautela: las 69 sugerencias aún no están confirma
 ### 2.2 Confianza del OCR
 
 La confianza del OCR (menor probabilidad entre los caracteres) separa lecturas correctas de equivocadas con un
-**AUROC de 0,76**. El umbral operativo actual de la aplicación es **0,99**. La evaluación offline
-SAVH descrita a continuación se calculó con el umbral anterior de **0,94**; sus resultados no estiman el rendimiento a 0,99.
+**AUROC de 0,76**. El umbral que consta en el repositorio, en `config/config.yaml`, es **0,94**. La evaluación offline
+SAVH descrita a continuación utiliza **0,94**; **0,99** es otro umbral de estudio offline, no se acredita aquí como configuración operativa del despliegue.
 SAVH con predicciones guardadas, 363 de 399 recortes se aceptan (91,0 % de cobertura) y 36 pasan a revisión manual;
 entre las aceptadas, 349/363 son exactas (96,1 %) y 14 contienen una lectura equivocada. El EMR sin filtrar por
-confianza sigue siendo 374/399 (93,7 %). De las 399 referencias, 330 están confirmadas y 69 son sugerencias aún no
+confianza sigue siendo 374/399 (93,7 %). De las 399 referencias, 330 provienen de lecturas de cámara de formato válido (no necesariamente confirmadas visualmente) y 69 son sugerencias aún no
 confirmadas; por ello estos resultados se informan como una evaluación offline y no como rendimiento punta a punta
-en video. El umbral actual de la aplicación es 0,99; esta comparación offline usa predicciones y resultados del estudio, y no constituye una nueva medición en producción.
+en video. El umbral configurado en `config/config.yaml` del repositorio es 0,94; esta comparación offline usa predicciones y resultados del estudio y no constituye una nueva medición en producción ni verifica posibles modificaciones por entorno.
 
 ![Confianza del OCR en SAVH](../results/figures/ocr_confianza_savh.png)
 
@@ -152,8 +152,15 @@ provincias: es una limitación declarada en `consideraciones_eticas.md`.
 
 ## 5. Actualización de auditoría asistida SAVH (30/10/2026)
 
-La revisión visual asistida de 69 fotografías representativas identificó 67 sugerencias compatibles con las imágenes y 2 grupos ambiguos (n=7, n=52). **Ninguno se presenta como aprobación humana** y las otras 330 referencias de cámara con formato válido no fueron inspeccionadas en esta fase. Se separaron los casos inciertos para evitar imponer una etiqueta por reglas de formato.
+La revisión visual asistida de 69 fotografías representativas identificó 67 sugerencias compatibles con las imágenes y 2 grupos ambiguos (n=7, n=52). **Ninguno se presenta como aprobación humana** y las otras 330 referencias de cámara con formato válido se cotejaron posteriormente con OCR, y se inspeccionaron visualmente las 18 discrepancias (sección 5.1); no hay aprobación humana. Se separaron los casos inciertos para evitar imponer una etiqueta por reglas de formato.
 
 Con 666 salidas OCR guardadas, la muestra histórica de 399 recortes legibles únicos tenía 374 aciertos exactos (**EMR 93,7343 %**). Al excluir las 2 imágenes únicas ambiguas, la evaluación offline quedó en **373 aciertos de 397 (EMR 93,9547 %)**. Con umbral offline de 94 %, hubo 362 recortes aceptados y 14 lecturas equivocadas entre ellas. **La diferencia no demuestra mejora del OCR**, porque el denominador cambia y el modelo no se reentrenó. No es evaluación de video ni confirma la regla de dos cuadros.
 
 La auditoría detallada, sus limitaciones y pendientes están en [validación SAVH](validacion_savh_multisemilla.md) y [métricas provisionales](../results/metrics/ocr_savh_revision_asistida_397.json). El recálculo definitivo requiere aprobación humana de las referencias.
+
+
+### 5.1 Comprobación cruzada adicional: cámara frente a OCR
+
+Se cruzaron **330 recortes legibles únicos con etiqueta de cámara `camara_formato_valido`** y las predicciones OCR originales: 312 coincidencias y **18 discrepancias**. Se inspeccionaron los 18 recortes; la evaluación visual asistida favorece provisionalmente la lectura OCR en 14, la de cámara en 3 y considera 1 incierto. No hay aprobaciones humanas. Por tanto, llamar «confirmadas» a las 330 referencias de cámara es incorrecto: la validez del formato no equivale a verificación de su contenido.
+
+El EMR previo de 374/399 y el recálculo de 373/397 emplean referencias que todavía necesitan validación independiente. **No calcular un EMR más alto sustituyendo automáticamente la referencia por la lectura OCR:** cambiaría la verdad terreno en favor del modelo evaluado. La lista de 18 discrepancias, tres láminas de recortes y el informe se guardaron en Drive privado, y se añadió una pestaña `Auditoria camara OCR` a la hoja de revisión. Véase [protocolo de cierre](validacion_savh_multisemilla.md).
