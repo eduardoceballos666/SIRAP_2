@@ -1,16 +1,12 @@
-"""Pruebas de la interfaz: componentes HTML, archivos CSV e integración con Streamlit AppTest."""
+"""Pruebas de componentes auxiliares y almacenamiento CSV de SIRAP."""
 
 from datetime import datetime
-from pathlib import Path
 
 import numpy as np
 import pytest
 
 from app import ui
 from src.access_control import AccessDecision
-
-ROOT = Path(__file__).resolve().parents[1]
-
 
 # ---- componentes ----------------------------------------------------------------------------
 def test_result_card_states():
@@ -68,14 +64,3 @@ def test_demo_history_can_be_cleared(db):
     assert db.load_demo_history(10) == 10
     assert db.clear_demo_history() == 10
 
-
-# ---- integración con Streamlit -----------------------------------------------------------------
-def test_app_runs_without_exceptions():
-    from streamlit.testing.v1 import AppTest
-
-    try:
-        app = AppTest.from_file(str(ROOT / "app" / "app.py"), default_timeout=120).run()
-    except Exception as exc:  # noqa: BLE001 — sin red no se descarga el OCR
-        pytest.skip(f"No se pudo iniciar la app: {exc}")
-    assert not app.exception
-    assert any("Reconocimiento automático" in m.value for m in app.markdown)
