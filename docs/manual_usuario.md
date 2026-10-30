@@ -336,7 +336,7 @@ Figura 3. Botón Subir archivo y área de lectura.
 
 ## 4.2. Analizar un video
 
-Seleccione un archivo de video compatible (por ejemplo MP4, WEBM, MOV o M4V). El sistema trabaja con fotogramas de la reproducción; no es obligatorio interpretar todos los FPS del archivo. Espere lecturas consistentes antes de aceptar una placa.
+Se recomienda cargar videos MP4 o WebM, los formatos destacados por la interfaz. La reproducción de archivos MOV o M4V puede depender del navegador y de los códecs incluidos. Si el video no se reproduce, conviértalo a MP4 con códec H.264. El sistema trabaja con fotogramas de la reproducción; no es obligatorio interpretar todos los FPS del archivo. Espere lecturas consistentes antes de aceptar una placa.
 
 ![](img/manual_usuario_image4.jpg)
 
