@@ -1,0 +1,27 @@
+{
+  "estado": "REVISION_ASISTIDA_NO_DEFINITIVA",
+  "fecha_utc": "2026-10-30",
+  "registros_originales": 739,
+  "imagenes_legibles_unicas": 399,
+  "referencias_camara_validas_unicas": 330,
+  "referencias_camara_concordantes_con_ocr": 312,
+  "referencias_camara_discordantes_con_ocr": 18,
+  "discordantes_revisados_asistidamente": 18,
+  "discordantes_con_imagen_que_sugiere_ocr": 14,
+  "discordantes_con_imagen_que_sugiere_camara": 3,
+  "discordantes_ambiguos": 1,
+  "grupos_anteriores_savh_69": 69,
+  "grupos_anteriores_ambiguos": [
+    7,
+    52
+  ],
+  "grupos_anteriores_qo_para_doble_chequeo": [
+    74,
+    83
+  ],
+  "aprobaciones_humanas_registradas": 0,
+  "recomendacion": "Revisar y confirmar antes de sustituir ground truth, recalcular EMR definitivo o declarar mejora. No autoriza cambiar pesos o despliegue.",
+  "savh_ground_truth_corregido.csv_sha256": "f963fbfeb8b637f5da27d769b5ebe577c03d8b5343852395166bf8b8c0c9188a",
+  "savh_ocr_salidas_cct-s-v2-global-model.csv_sha256": "3be02bd2d7e870cf086c8b3586fbc1f80ee281ce8f11a7f17ef274abe27657d4",
+  "savh_ground_truth_subset.zip_sha256": "98818d10e298745433c6af07c61d5e761ad96e72e9ffa0f964cbbec105a7406f"
+}
