@@ -1,0 +1,40 @@
+{
+  "modelo_ocr": "fast-plate-ocr cct-s-v2-global-model",
+  "emr_legibles_unicas": 0.9373433583959899,
+  "cer_legibles_unicas": 0.01020408163265306,
+  "n_legibles_unicas": 399,
+  "sugerencias_sin_confirmar": 69,
+  "por_estado": {
+    "camara_formato_valido": {
+      "n": 330,
+      "emr": 0.9454545454545454
+    },
+    "sugerida_sin_confirmar": {
+      "n": 69,
+      "emr": 0.8985507246376812
+    }
+  },
+  "ablacion_normalizacion": [
+    {
+      "paso": "solo limpieza (mayúsculas, sin separadores)",
+      "EMR": 0.9348370927318296,
+      "formato válido": 0.9974937343358395,
+      "válidas pero equivocadas": 25
+    },
+    {
+      "paso": "+ búsqueda de la placa en el texto",
+      "EMR": 0.9348370927318296,
+      "formato válido": 0.9974937343358395,
+      "válidas pero equivocadas": 25
+    },
+    {
+      "paso": "+ correcciones por posición (normalize_plate)",
+      "EMR": 0.9373433583959899,
+      "formato válido": 1.0,
+      "válidas pero equivocadas": 25
+    }
+  ],
+  "ocr_s_media": 0.016287837837837837,
+  "muestra": null,
+  "referencia": "/content/drive/MyDrive/proyecto_integrador_placas/ocr/savh_ground_truth_corregido.csv"
+}
