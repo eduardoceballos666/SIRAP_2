@@ -25,8 +25,31 @@ SAMPLES = Path(__file__).resolve().parents[1] / "data" / "samples"
 
 @pytest.fixture(scope="module")
 def client():
-    with TestClient(app) as c:
-        yield c
+    """Las pruebas API usan usuarios y placas ficticios en su propio directorio temporal.
+
+    No dependen de los CSV privados ni de cuentas creadas por el despliegue.
+    """
+    from api.deps import get_store
+    from api.security import set_password
+    from src.storage import CsvStore
+    from conftest import seed_test_vehicles
+
+    db = CsvStore(data_dir=os.environ["SIRAP_DATA_DIR"])
+    for usuario, nombre, rol in (
+        ("admin", "Administrador de prueba", "ADMINISTRADOR"),
+        ("operador", "Operador de prueba", "OPERADOR"),
+        ("supervisor", "Supervisor de prueba", "SUPERVISOR"),
+    ):
+        db.add_user(usuario, nombre, rol)
+        set_password(db, usuario, "sirap2026")
+    db.add_garita("Garita 3", "Ubicación ficticia")
+    seed_test_vehicles(db)
+    get_store.cache_clear()
+    try:
+        with TestClient(app) as c:
+            yield c
+    finally:
+        get_store.cache_clear()
 
 
 def _token(client, usuario="admin", password="sirap2026"):
@@ -103,7 +126,7 @@ def test_operaciones_reglas_del_servidor(client):
 
 def test_roles(client):
     op = _token(client, "operador")
-    assert client.post("/api/admin/garitas", json={"nombre": "Garita X"}, headers=op).status_code == 403
+    assert client.post("/api/admin/garitas", json={"nombre": "Garita X", "ubicacion": "Lugar ficticio"}, headers=op).status_code == 403
     assert client.get("/api/operations/export.csv", headers=op).status_code == 403
     sup = _token(client, "supervisor")
     r = client.get("/api/operations/export.csv", headers=sup)
@@ -112,9 +135,9 @@ def test_roles(client):
 
 def test_administracion(client):
     h = _token(client)
-    r = client.post("/api/admin/vehiculos", json={"placa": "tst-1234", "marca": "Kia", "color": "Rojo"}, headers=h)
+    r = client.post("/api/admin/vehiculos", json={"placa": "tst-1234", "marca": "Kia", "modelo": "Rio", "color": "Rojo", "tipo": "CAMION", "propietario": "Propietario de prueba", "transportista": "Transportista de prueba"}, headers=h)
     assert r.status_code == 201 and r.json()["placa"] == "TST-1234"
-    r = client.post("/api/admin/autorizaciones", json={"placa": "TST-1234", "lista": "BLANCA"}, headers=h)
+    r = client.post("/api/admin/autorizaciones", json={"placa": "TST-1234", "lista": "BLANCA", "motivo": "Alta de prueba", "vigente_hasta": "2099-12-31"}, headers=h)
     assert r.status_code == 201
     v = client.post("/api/plates/verify", json={"placa": "TST-1234"}, headers=h).json()
     assert v["decision"]["resultado"] == "AUTORIZADO"
