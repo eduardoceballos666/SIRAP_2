@@ -281,3 +281,8 @@ Las valoraciones visuales del asistente no son confirmaciones humanas; las 330 r
 ### Auditoría adicional del origen de etiquetas SAVH (30/10/2026)
 
 Al comparar las 330 referencias basadas en lecturas de cámara (`camara_formato_valido`) con las salidas OCR cacheadas, se encontraron **18 desacuerdos** y 312 coincidencias. Las fotografías originales de las 18 discrepancias se examinaron de forma asistida: 14 sugieren provisionalmente OCR, 3 cámara y 1 sigue incierta. Ninguna valoración se registra como aprobación humana. **La coincidencia con el OCR no valida por sí sola una referencia**. Antes de concluir sobre robustez del OCR se deben confirmar las etiquetas de manera independiente y repetir el cómputo con ese ground truth. No se modifican el detector, los pesos ni el despliegue. Detalle en [auditoría SAVH](validacion_savh_multisemilla.md).
+
+
+### Estado actualizado de referencias SAVH (30/10/2026)
+
+La revisión humana consignó decisiones sobre **69 grupos de sugerencias** y **330 referencias de cámara** (329 `ok` y una exclusión `ilegible` en `fila_gt=398`). Con una única imagen legible única excluida, la evaluación **offline** del caché de OCR tiene **388/398 = 97,49 %** de coincidencias exactas y, con umbral 94 %, **3 errores de 362 lecturas aceptadas**. El aumento respecto a los cortes históricos **no prueba mejora del OCR**: hubo propuestas de etiquetas generadas por el mismo modelo y visibles al revisor (posible sesgo circular). No se evaluó el sistema completo en video, no se reentrenó el OCR y no se sustituyen los pesos del detector en producción. [Evidencia agregada](../results/metrics/ocr_savh_aprobaciones_398.json) · [protocolo y limitaciones](validacion_savh_multisemilla.md).
