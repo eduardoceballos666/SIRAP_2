@@ -79,6 +79,9 @@ const analysisMessage = ref('')
 let pendingPlate = ''
 let pendingPlateFrames = 0
 let pendingPlateAt = 0
+const VIDEO_END_GRACE_MS = 15_000
+let videoEndGraceTimer = null
+let videoEndGraceActive = false
 let videoPlaybackEnded = false
 
 async function toggleFullscreen() {
@@ -106,10 +109,16 @@ function stopCamera() {
   stream?.getTracks().forEach((t) => t.stop())
   stream = null
 }
+function clearVideoEndGrace() {
+  if (videoEndGraceTimer) clearTimeout(videoEndGraceTimer)
+  videoEndGraceTimer = null
+  videoEndGraceActive = false
+}
 function stopContinuousAnalysis() {
   if (analysisTimer) clearInterval(analysisTimer)
   analysisTimer = null
   continuousAnalysis.value = false
+  clearVideoEndGrace()
 }
 function clearPlateConfirmation() {
   pendingPlate = ''
@@ -119,6 +128,7 @@ function clearPlateConfirmation() {
 }
 function finishVideoAnalysis() {
   stopContinuousAnalysis()
+  mediaVideo.value?.pause()
   if (!recognition.value) {
     analysisMessage.value = 'El video terminó sin confirmar la misma placa en dos cuadros con confianza ≥94 %. Verifique la placa manualmente.'
     session.notify(analysisMessage.value, 'warn')
@@ -126,7 +136,27 @@ function finishVideoAnalysis() {
 }
 function videoEnded() {
   videoPlaybackEnded = true
-  if (!loading.value) finishVideoAnalysis()
+  if (recognition.value) return
+  if (!continuousAnalysis.value) {
+    if (!loading.value) finishVideoAnalysis()
+    return
+  }
+  if (!videoEndGraceActive) {
+    videoEndGraceActive = true
+    analysisMessage.value = 'El video terminó sin confirmar la placa. Se repetirá el video y continuará la detección durante 15 segundos antes de solicitar validación manual.'
+    videoEndGraceTimer = setTimeout(() => {
+      videoEndGraceTimer = null
+      finishVideoAnalysis()
+    }, VIDEO_END_GRACE_MS)
+  }
+  const media = mediaVideo.value
+  if (media && videoEndGraceActive) {
+    try {
+      media.currentTime = 0
+      const playback = media.play()
+      playback?.catch(() => {})
+    } catch {}
+  }
 }
 function activeMediaElement() {
   if (source.value === 'camara') return video.value
@@ -147,6 +177,7 @@ function mediaPlaying() {
 function startAutomaticAnalysis() {
   if (continuousAnalysis.value || !mediaReady.value) return
   clearPlateConfirmation()
+  clearVideoEndGrace()
   videoPlaybackEnded = false
   analysisMessage.value = ''
   showCapture.value = false
@@ -402,7 +433,7 @@ async function recognize() {
     session.notify(e.message, 'bad')
   } finally {
     loading.value = false
-    if (videoPlaybackEnded && !recognition.value) finishVideoAnalysis()
+    if (videoPlaybackEnded && !recognition.value && !videoEndGraceActive) finishVideoAnalysis()
   }
 }
 
@@ -640,7 +671,7 @@ onMounted(async () => {
           <video v-if="source === 'camara'" v-show="!showCapture" ref="video" autoplay playsinline muted @loadedmetadata="mediaLoaded" @playing="mediaPlaying" @error="mediaFailed"></video>
           <video v-else-if="source === 'subir' && mediaKind === 'video'" v-show="!showCapture" ref="mediaVideo" :src="mediaUrl" controls autoplay playsinline muted @loadedmetadata="mediaLoaded" @playing="mediaPlaying" @ended="videoEnded" @error="mediaFailed"></video>
           <template v-else-if="source === 'online' && onlineConnected">
-            <video v-if="onlineMode === 'video'" v-show="!showCapture" ref="mediaVideo" :src="onlineUrl" controls autoplay playsinline muted @loadedmetadata="mediaLoaded" @playing="mediaPlaying" @error="mediaFailed"></video>
+            <video v-if="onlineMode === 'video'" v-show="!showCapture" ref="mediaVideo" :src="onlineUrl" controls autoplay playsinline muted @loadedmetadata="mediaLoaded" @playing="mediaPlaying" @ended="videoEnded" @error="mediaFailed"></video>
             <img v-else v-show="!showCapture" ref="networkImage" :src="onlineUrl" :alt="$t('Video en vivo de cámara en línea')" @load="mediaLoaded" @error="mediaFailed" />
           </template>
           <ImageViewer v-show="imagePreviewVisible" class="compact-viewer" :src="preview" :width="detection?.image_width" :height="detection?.image_height" :tone="tone" :label="recognition?.plate" :garita="session.garita" :stamp="stamp" :loading="loading" />
