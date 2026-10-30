@@ -269,3 +269,10 @@ Evidencia: [comparación CSV](../results/metrics/validacion_multisemilla_compara
 | 2 | 0.970954 | 0.972518 | +0.001564 | 0.988563 | 0.993252 | +0.004689 |
 
 Las diferencias medias pareadas son **+0.001593** en mAP50 (DE muestral **0.001230**) y **+0.001463** en precisión (DE muestral **0.004227**). El valor de precisión también disminuye en la semilla 0; la evidencia de estabilidad de las tres semillas no garantiza una mejora uniforme en todas las métricas. Los seis JSON originales, con las cuatro métricas y rutas a pesos experimentales, se conservan en [resultados individuales](../results/metrics/validacion_multisemilla_individuales/base_semilla_0.json) y los otros cinco archivos del mismo directorio.
+
+
+### Nota de trazabilidad: auditoría OCR SAVH provisional (30/10/2026)
+
+Se inspeccionaron de forma **asistida**, sin aprobación humana definitiva, las 69 imágenes representativas de SAVH. Hubo 67 lecturas visualmente compatibles con las sugerencias y 2 grupos ambiguos (n=7 y n=52), que se dejaron pendientes. Al excluir únicamente esas 2 imágenes únicas de un conjunto de 399 legibles únicas, el EMR offline de las salidas OCR cacheadas fue **373/397 = 93,9547 %**; con confianza ≥94 % se aceptaron 362 lecturas, de las cuales **14 eran erróneas**. La comparación histórica era 374/399 = 93,7343 % y 14 errores aceptados entre 363. La variación de EMR obedece al cambio de subconjunto; **no es ganancia del modelo OCR ni prueba de robustez en video**.
+
+Las etiquetas aceptadas visualmente por el asistente no son confirmaciones humanas; las otras 330 referencias de cámara tampoco se han auditado aquí. La hoja original conserva vacía su columna de aprobación definitiva. Véase [validación SAVH](validacion_savh_multisemilla.md) y el [resumen de métricas preliminares](../results/metrics/ocr_savh_revision_asistida_397.json). La mejora multisemilla de mAP50:95 pertenece al detector experimental y **no se atribuye a los pesos desplegados**.
