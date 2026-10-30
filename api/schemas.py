@@ -90,6 +90,8 @@ class OperationOut(BaseModel):
     accion: Accion
     barrera_abierta: bool
     barrera_simulada: bool
+    operacion_id: str
+    estado_barrera: str
     mensaje: str
 
 
