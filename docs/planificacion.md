@@ -53,6 +53,7 @@ un operador de garita, que lea placas ecuatorianas y registre cada operación.
 - **Aplicación web SIRAP 1.0:** API REST en FastAPI con autenticación por usuario y roles (operador, supervisor,
   administrador) y frontend en Vue 3 (Vite, Pinia, Vue Router, Tailwind CSS) con Dashboard, Reconocimiento y Acceso,
   Historial (con exportación CSV), Administración y Acerca del modelo; publicada en Hugging Face Spaces con Docker.
+  La interfaz está disponible en Español (predeterminado) e English desde el mismo enlace del Space; el control Idioma está en el inicio de sesión y en el menú común, y recuerda la selección.
 - Pipeline de video y modo en vivo en el notebook (seguimiento OC-SORT, voto de lecturas).
 - Consultas públicas programadas al SRI para completar marca/modelo/año y a EcuadorLegalOnline para buscar el nombre visible asociado a la placa. La interfaz no muestra ese nombre y ninguna consulta interviene en la decisión de acceso; la exportación enriquecida separada puede guardarlo si está configurada.
 - Documentación técnica, ética y manual de usuario; pruebas unitarias.
