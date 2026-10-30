@@ -1,5 +1,7 @@
 # Validación: referencias SAVH pendientes y experimento multisemilla completado (30/10/2026)
 
+**Actualización de cierre de etiquetas (30/10/2026):** se registraron respuestas para los 69 grupos SAVH y las 330 referencias de cámara; `fila_gt=398` está **marcada `ilegible`** y excluida. El EMR offline condicionado a estas respuestas es **388/398 = 97,49 %**. Los apartados 1–7 documentan etapas anteriores y sus estados pendientes son históricos. Véase el apartado 8 y [las métricas registradas](../results/metrics/ocr_savh_aprobaciones_398.json). **No equivale a una evaluación ciega ni punta a punta.**
+
 > **Estado: entrenamiento multisemilla completado; revisión visual SAVH pendiente. No atribuir al modelo publicado una mejora no desplegada.**
 > Los archivos de este procedimiento no reemplazan `models/best_model.pt`, `models/best_model.onnx`,
 > `config/config.yaml` ni el Space en Hugging Face.
@@ -152,3 +154,20 @@ Se añadió una pestaña **Auditoria camara OCR** a la misma hoja de Google Shee
 El **EMR 373/397 = 93,95 % permanece provisional** y ahora tiene un riesgo adicional de etiquetas de cámara potencialmente incorrectas. No se recalcula ni se publica una nueva puntuación «corregida» escogiendo automáticamente las coincidencias con el OCR: eso produciría un sesgo circular a favor del modelo evaluado. Primero hay que aprobar o descartar visualmente los 18 desacuerdos y los grupos 7 y 52, y después revisar las referencias de cámara restantes con un protocolo independiente del OCR.
 
 **Estado de cierre:** 0 aprobaciones humanas en las dos pestañas. Se requiere una revisión humana documentada y luego regenerar un ground truth independiente y evaluar de nuevo. El informe de detector multisemilla y los pesos de producción no cambiaron.
+
+
+## 8. Cierre de respuestas registradas en SAVH y recalculo offline (30/10/2026)
+
+**Verificación de la hoja conectada:** la pestaña `Untitled` tiene 141 respuestas `ok` entre 142 filas, pero **69/69 grupos** están cubiertos porque el grupo `n=20` tiene respuestas en las copias `n=21` y `n=22`. La pestaña `Auditoria camara OCR` tiene **329 respuestas `ok` y 1 `ilegible`**, correspondiente a `fila_gt=398`. No hay casos restantes sin una decisión de grupo o exclusión.
+
+La fotografía `fila_gt=398` no permite leer con seguridad su último carácter. Su respuesta anterior `ok` era ambigua; el revisor cambió explícitamente el valor a **`ilegible`**, y se verificó la actualización en la fuente. La referencia queda **`excluida_por_revisor`**, sin placa imputada. La pestaña de cámara actualizó su estado a «EXCLUIDA POR ILEGIBILIDAD»; el resto indica «APROBACIÓN REGISTRADA (OK)». La pestaña SAVH incluye el estado del grupo, sin modificar las respuestas originales.
+
+### Resultado condicionado a las aprobaciones
+
+Con el caché OCR original se reproducen los resultados históricos `374/399 = 93,73 %`. La referencia elaborada con las respuestas registradas deja **398 recortes legibles únicos evaluables** y una exclusión. La evaluación recalculada produce **388/398 = 97,49 % de coincidencia exacta** y CER medio por imagen **0,003649**. Con umbral offline **0,94** se aceptaron 362 resultados: **359 correctos y 3 erróneos**, y 36 pasarían a revisión. Con umbral offline **0,99** se aceptarían 346: **343 correctos y 3 erróneos**, y 52 pasarían a revisión.
+
+**Advertencia fundamental sobre las métricas:** en parte de las 18 discrepancias cámara/OCR, el revisor confirmó sugerencias que ya incluían la predicción del OCR. Por ello, el aumento numérico del EMR puede contener **sesgo de confirmación** y no es prueba de mejora real del OCR. Se trata de una **validación condicionada a aprobaciones registradas, no ciega**, sin nueva inferencia ni entrenamiento. No mide detección, seguimiento, estabilidad entre dos cuadros, latencia final ni apertura de barrera.
+
+**Evidencia privada en Drive:** `ocr/SAVH_ground_truth_cerrado_739.csv` (las 739 filas y estados, una excluida), `ocr/SAVH_ground_truth_evaluable_398.csv`, `ocr/SAVH_resultado_ocr_398_referencias_aprobadas.csv` y `ocr/SAVH_metricas_aprobaciones_398_cerrado.json`. El resumen **agregado**, sin placas ni fotos, está en [`results/metrics/ocr_savh_aprobaciones_398.json`](../results/metrics/ocr_savh_aprobaciones_398.json). Los archivos históricos `ocr_savh.json` y `ocr_savh_revision_asistida_397.json` no se sobrescriben. El despliegue y los pesos publicados permanecen sin cambios.
+
+**Estado actual:** decisiones de etiquetas **registradas y aplicadas**, una imagen **excluida por ilegibilidad**, recálculo offline terminado; **validación ciega independiente y evaluación real punta a punta en video todavía pendientes**.
