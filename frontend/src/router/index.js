@@ -3,7 +3,7 @@ import { useAuthStore } from '@/stores/auth'
 import { setUnauthorizedHandler } from '@/lib/api'
 
 const routes = [
-  { path: '/login', name: 'login', component: () => import('@/views/LoginView.vue'), meta: { public: true } },
+  { path: '/login', name: 'login', component: () => import('@/views/LoginView.vue'), meta: { public: true, title: 'Iniciar sesión' } },
   { path: '/', redirect: '/reconocimiento' },
   { path: '/reconocimiento', name: 'recognition', component: () => import('@/views/RecognitionView.vue'),
     meta: { title: 'Reconocimiento automático y control de acceso' } },
