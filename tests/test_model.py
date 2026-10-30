@@ -25,24 +25,24 @@ SAMPLES = Path(__file__).resolve().parents[1] / "data" / "samples"
     ("PBA-8901", 0.40, "VERIFICACION_MANUAL"),  # confianza baja
     (None, 0.0, "VERIFICACION_MANUAL"),        # sin lectura
 ])
-def test_decide_access(db, plate, conf, expected):
-    decision = decide_access(plate, conf, db, confidence_threshold=0.85)
+def test_decide_access(seeded_db, plate, conf, expected):
+    decision = decide_access(plate, conf, seeded_db, confidence_threshold=0.85)
     assert decision.resultado == expected
     assert decision.permite_apertura == (expected == "AUTORIZADO")
 
 
-def test_decision_suggests_similar_plate(db):
-    assert decide_access("PBA-8907", 0.99, db).sugerencia == "PBA-8901"
+def test_decision_suggests_similar_plate(seeded_db):
+    assert decide_access("PBA-8907", 0.99, seeded_db).sugerencia == "PBA-8901"
 
 
-def test_authorized_vehicle_details(db):
-    vehicle = decide_access("PBA-8901", 0.99, db).vehiculo
+def test_authorized_vehicle_details(seeded_db):
+    vehicle = decide_access("PBA-8901", 0.99, seeded_db).vehiculo
     assert vehicle["marca"] == "Toyota" and vehicle["propietario"] == "Juan Pérez"
 
 
-def test_revoked_vehicle_is_not_authorized(db):
-    db.revoke_authorization("PBA-8901")
-    assert decide_access("PBA-8901", 0.99, db).resultado == "NO_REGISTRADO"
+def test_revoked_vehicle_is_not_authorized(seeded_db):
+    seeded_db.revoke_authorization("PBA-8901")
+    assert decide_access("PBA-8901", 0.99, seeded_db).resultado == "NO_REGISTRADO"
 
 
 # ---- métricas ---------------------------------------------------------------------------------
@@ -96,18 +96,18 @@ def test_pipeline_reads_sample_plates(pipeline, filename, plate):
     assert result.timings_ms["total"] < 5000
 
 
-def test_pipeline_flags_blurred_image(pipeline, db):
+def test_pipeline_flags_blurred_image(pipeline, seeded_db):
     from src.data_processing import load_image
 
     result = pipeline.recognize(load_image((SAMPLES / "garita3_PCD-5678_desenfocada.jpg").read_bytes()))
-    decision = decide_access(result.plate, result.ocr_confidence, db, confidence_threshold=0.85)
+    decision = decide_access(result.plate, result.ocr_confidence, seeded_db, confidence_threshold=0.85)
     assert decision.resultado == "VERIFICACION_MANUAL"
 
 
-def test_low_detector_confidence_goes_to_manual(db):
-    decision = decide_access("PBA-8901", 1.0, db, det_confidence=0.2, det_threshold=0.30)
+def test_low_detector_confidence_goes_to_manual(seeded_db):
+    decision = decide_access("PBA-8901", 1.0, seeded_db, det_confidence=0.2, det_threshold=0.30)
     assert decision.resultado == "VERIFICACION_MANUAL" and "DETECCIÓN" in decision.detalle
-    assert decide_access("PBA-8901", 1.0, db, det_confidence=0.8, det_threshold=0.30).resultado == "AUTORIZADO"
+    assert decide_access("PBA-8901", 1.0, seeded_db, det_confidence=0.8, det_threshold=0.30).resultado == "AUTORIZADO"
 
 
 def test_reader_falls_back_to_hub_model_without_finetuned_files(tmp_path):
