@@ -1,0 +1,38 @@
+{
+  "estudio": "SIRAP YOLO11-s validación multisemilla",
+  "data_yaml_sha256": "b739f25be49b484bbe926cc7c717cca0d6c96dc9531c56cc2e960308db1dcccc",
+  "pretrained": "yolo11s.pt",
+  "epochs": 40,
+  "patience": 10,
+  "optimizer": "AdamW",
+  "deterministic": true,
+  "seeds": [
+    0,
+    1,
+    2
+  ],
+  "configuraciones": {
+    "base": {
+      "lr0": 0.002,
+      "weight_decay": 0.0005,
+      "imgsz": 640,
+      "batch": 16,
+      "mosaic": 1,
+      "hsv_v": 0.4,
+      "cos_lr": false
+    },
+    "optimizada": {
+      "lr0": 0.0001632740155846879,
+      "weight_decay": 0.0009261572197929935,
+      "imgsz": 640,
+      "batch": 32,
+      "mosaic": 0.7789638557263426,
+      "hsv_v": 0.28861698681111003,
+      "cos_lr": true
+    }
+  },
+  "ultralytics": "8.4.177",
+  "pytorch": "2.11.0+cu130",
+  "gpu": "Tesla T4",
+  "modelo_deploy": "SIN CAMBIOS: models/best_model.onnx"
+}
