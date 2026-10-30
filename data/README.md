@@ -77,6 +77,6 @@ del almacenamiento operativo de la aplicación web.
 
 ## Umbral operativo OCR
 
-La aplicación usa **94 %** como umbral operativo, elegido para reducir verificaciones manuales y responder con mayor agilidad en el hosting documentado de Hugging Face, que usa 2 vCPU y no tiene GPU dedicada. En videos y cámaras, la misma placa debe alcanzar al menos 94 % en dos cuadros muestreados, separados por 1 segundo; si la lectura queda por debajo del umbral o los cuadros no coinciden, se solicita validación manual al terminar el análisis. En una imagen estática se evalúa el cuadro disponible.
+La aplicación usa **94 %** como umbral operativo. Se eligió considerando la capacidad de procesamiento limitada del hosting documentado de Hugging Face (2 vCPU y sin GPU dedicada): al aceptar antes una lectura estable, la interfaz puede terminar el análisis de video sin procesar cuadros adicionales. El umbral no acelera cada inferencia; el ahorro potencial proviene de analizar menos cuadros. También busca reducir verificaciones manuales. En videos y cámaras, la misma placa debe alcanzar al menos 94 % en dos cuadros muestreados, separados por 1 segundo; si la lectura queda por debajo del umbral o los cuadros no coinciden, se solicita validación manual al terminar el análisis. En una imagen estática se evalúa el cuadro disponible.
 
 Al alcanzar el 94 %, el servidor declara la placa autorizada solo si tiene una autorización vigente en la lista blanca y no está restringida. La barrera no se acciona solo por reconocer la placa: el operador debe solicitar la apertura.
