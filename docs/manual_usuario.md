@@ -500,12 +500,14 @@ En un estado Denegado utilice Registrar rechazo. Si el procedimiento permite dej
 
 **04** Confirme la operación y compruebe que el usuario y el motivo quedaron registrados.
 
+Después de que SIRAP confirme una acción exitosa de «Registrar y abrir barrera» o «Apertura manual», espera **3 segundos** y limpia automáticamente la lectura actual. La operación registrada permanece en el Historial.
+
 | **BARRERA SIMULADA** En la configuración documentada, una orden puede simularse. Un mensaje de registro exitoso no significa que una barrera física se haya abierto. La integración real requiere pruebas y autorización específicas. |
 |---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 
 ## 6.4. Lecturas recientes
 
-La franja inferior de la pantalla permite consultar las últimas lecturas de la sesión. «Ver todas» amplía el detalle; estas lecturas no equivalen a operaciones registradas hasta que se confirma una acción.
+La franja inferior permite consultar las últimas lecturas de la sesión. «Ver todas» amplía el detalle. Desde esa vista puede usar «Exportar CSV» para descargar las lecturas de la sesión; «Limpiar» borra esa lista de la sesión, pero no las operaciones del Historial. Una lectura solo cuenta como operación registrada cuando se confirma una acción.
 
 ![](img/manual_usuario_image12.jpg)
 
