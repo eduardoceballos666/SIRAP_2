@@ -9,9 +9,9 @@ from src.github_storage import GitHubStorageError, backup_missing_csvs, restore_
 from src.utils import now_local, resolve_path
 
 HEADERS = {
-    "vehiculos": ["placa","marca","modelo","color","tipo","propietario","transportista","fuente","actualizado_en"],
+    "vehiculos": ["placa","marca","modelo","color","tipo","propietario","transportista","fuente","actualizado_en","registrado_por"],
     "autorizaciones": ["id","placa","lista","motivo","vigente_desde","vigente_hasta","activa","creado_por"],
-    "operaciones": ["id","fecha_hora","garita","operador","tipo_movimiento","placa_leida","placa_final","confianza_ocr","resultado","lista","accion","motivo","origen","tiempo_ms"],
+    "operaciones": ["id","fecha_hora","garita","operador","tipo_movimiento","placa_leida","placa_final","confianza_ocr","resultado","lista","accion","motivo","origen","tiempo_ms","operacion_id","estado_barrera","actualizado_en"],
     "garitas": ["id","nombre","ubicacion","activa"],
     "usuarios": ["id","usuario","nombre","rol","activo"],
     "credenciales": ["usuario","password_hash"],
@@ -102,14 +102,38 @@ class CsvStore:
         row=d.sort_values("_rank").iloc[0].drop(labels=["_rank"]).to_dict()
         return {k:(v if v!="" else None) for k,v in row.items()}
     def registered_plates(self): return self._read("vehiculos").placa.tolist()
-    def log_operation(self,*,garita,operador,tipo_movimiento,resultado,accion,placa_leida=None,placa_final=None,confianza_ocr=None,lista=None,motivo=None,origen="DETECCION",tiempo_ms=None,fecha_hora=None):
+    def log_operation(self,*,garita,operador,tipo_movimiento,resultado,accion,placa_leida=None,placa_final=None,confianza_ocr=None,lista=None,motivo=None,origen="DETECCION",tiempo_ms=None,fecha_hora=None,operacion_id=None,estado_barrera="NO_APLICA"):
+        """Persiste la solicitud antes de abrir. Un UUID duplicado no crea otro intento."""
+        import uuid
         movement=tipo_movimiento.upper()
         if movement not in ("ENTRADA","SALIDA"): raise ValueError("tipo_movimiento debe ser ENTRADA o SALIDA")
         if accion=="APERTURA_MANUAL" and not(motivo and motivo.strip()): raise ValueError("La apertura manual exige un motivo.")
+        if estado_barrera not in ("SOLICITADA","CONFIRMADA","FALLIDA","INDETERMINADA","NO_APLICA"):
+            raise ValueError("Estado de barrera inválido.")
+        op_id=str(operacion_id or uuid.uuid4())
         with LOCK:
             d=self._read("operaciones")
-            d.loc[len(d)]=[self._next_id(d),(fecha_hora or now_local()).isoformat(sep=" ",timespec="seconds"),garita,operador,movement,placa_leida or "",placa_final or "",confianza_ocr if confianza_ocr is not None else "",resultado,lista or "",accion,motivo or "",origen,tiempo_ms if tiempo_ms is not None else ""]
+            if d.operacion_id.eq(op_id).any(): raise ValueError("Operación duplicada: ya se registró la solicitud. No reintente la apertura.")
+            now=(fecha_hora or now_local()).isoformat(sep=" ",timespec="seconds")
+            d.loc[len(d)]=[self._next_id(d),now,garita,operador,movement,placa_leida or "",placa_final or "",confianza_ocr if confianza_ocr is not None else "",resultado,lista or "",accion,motivo or "",origen,tiempo_ms if tiempo_ms is not None else "",op_id,estado_barrera,now]
             self._write("operaciones",d)
+        return op_id
+
+    def update_operation_state(self,operacion_id,estado):
+        """Actualiza la misma fila; SOLICITADA queda como evidencia si la escritura final falla."""
+        if estado not in ("CONFIRMADA","FALLIDA","INDETERMINADA"):
+            raise ValueError("Estado de barrera inválido.")
+        with LOCK:
+            d=self._read("operaciones")
+            mask=d.operacion_id.eq(str(operacion_id))
+            if mask.sum()!=1:
+                raise StorageError("No se encontró un registro único para la solicitud de apertura.")
+            if not (d.loc[mask,"estado_barrera"]=="SOLICITADA").all():
+                raise StorageError("La operación ya tiene un resultado; no se puede abrir nuevamente.")
+            d.loc[mask,"estado_barrera"]=estado
+            d.loc[mask,"actualizado_en"]=now_local().isoformat(sep=" ",timespec="seconds")
+            self._write("operaciones",d)
+
     def operations(self,desde=None,hasta=None,placa=None,garita=None,resultado=None,tipo_movimiento=None,limit=5000):
         d=self._read("operaciones")
         if desde:d=d[d.fecha_hora>=str(desde)+" 00:00:00"]
@@ -165,6 +189,22 @@ class CsvStore:
                 for k,v in row.items():d.at[i,k]=v
             else:d.loc[len(d)]=row
             self._write("vehiculos",d)
+    def create_vehicle_from_access(self,placa,marca,modelo,color,propietario,transportista,usuario):
+        """Solo crea vehículos nuevos, sin sobrescribir restricciones ni datos previos."""
+        plate=placa.strip().upper()
+        if not plate or not usuario: raise ValueError("Placa y usuario obligatorios.")
+        with LOCK:
+            d=self._read("vehiculos")
+            if d.placa.str.upper().eq(plate).any():
+                raise ValueError("La placa ya está registrada; no se puede sobrescribir desde Reconocimiento.")
+            d.loc[len(d)]={
+                "placa":plate, "marca":marca, "modelo":modelo, "color":color,
+                "tipo":"CAMION", "propietario":propietario, "transportista":transportista or "",
+                "fuente":"RECONOCIMIENTO", "actualizado_en":now_local().isoformat(sep=" ",timespec="seconds"),
+                "registrado_por":usuario,
+            }
+            self._write("vehiculos",d)
+
     def set_authorization(self,placa,lista,motivo="",hasta=None,usuario="admin"):
         if lista not in ("BLANCA","RESTRINGIDA"):raise ValueError("Lista inválida.")
         if self.get_vehicle(placa) is None:raise ValueError(f"La placa {placa} no está registrada.")
