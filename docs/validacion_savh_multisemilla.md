@@ -1,6 +1,6 @@
 # Validación pendiente: referencias SAVH y estabilidad multisemilla (30/10/2026)
 
-> **Estado: EN PROCESO. No atribuir al modelo publicado una mejora no desplegada.**
+> **Estado: entrenamiento multisemilla completado; revisión visual SAVH pendiente. No atribuir al modelo publicado una mejora no desplegada.**
 > Los archivos de este procedimiento no reemplazan `models/best_model.pt`, `models/best_model.onnx`,
 > `config/config.yaml` ni el Space en Hugging Face.
 
@@ -76,3 +76,18 @@ El script evita reemplazar una corrida existente y permite reutilizar métricas 
 - Conservar el modelo base de Hugging Face salvo una decisión posterior justificada por evaluación punta a punta, recalibración, exportación ONNX y pruebas integrales.
 
 **Riesgo de interpretación:** el entrenamiento base original de SIRAP y el ensayo base controlado de Optuna pueden diferir en detalles del optimizador; la nueva comparación emparejada compara dos protocolos experimentales con `AdamW` explícito. No se debe atribuir automáticamente su promedio a los pesos ONNX que están publicados.
+
+
+## Validación multisemilla terminada (30/10/2026)
+
+Se entrenaron independientemente las configuraciones **base** y **optimizada** con AdamW, 40 épocas previstas, paciencia 10 y semillas 0, 1 y 2 (seis corridas). Es un experimento controlado distinto de la comparación histórica de una sola semilla y de los pesos publicados.
+
+| Semilla | mAP50:95 base | mAP50:95 optimizada | Diferencia (pp) | Recall base | Recall optimizada | Diferencia recall (pp) |
+|---|---:|---:|---:|---:|---:|---:|
+| 0 | 69,3573 % | 70,0945 % | +0,7372 | 95,0693 % | 95,0230 % | −0,0463 |
+| 1 | 69,4552 % | 69,6736 % | +0,2184 | 95,1152 % | 96,0369 % | +0,9217 |
+| 2 | 69,5956 % | 69,7629 % | +0,1673 | 94,9309 % | 94,9607 % | +0,0298 |
+
+**Mejora media pareada en mAP50:95: +0,3743 puntos porcentuales**; desviación estándar **muestral: 0,3153 puntos porcentuales** (n=3). El recall medio pareado varía aproximadamente **+0,3017 puntos porcentuales**. Las tres semillas mejoran en mAP50:95, pero la magnitud varía y el recall baja levemente en la semilla 0. Esto describe estabilidad limitada, **no** significación estadística ni mejora punta a punta en video.
+
+Evidencia: [comparación CSV](../results/metrics/validacion_multisemilla_comparacion.csv), [resumen JSON](../results/metrics/validacion_multisemilla_resumen.json), [protocolo JSON](../results/metrics/validacion_multisemilla_protocolo.json). La comparación anterior de una semilla permanece como resultado histórico separado. **No se reemplazan** `models/best_model.pt`, `models/best_model.onnx` ni los pesos de Hugging Face. Las **69 referencias SAVH** continúan pendientes de verificación visual; tampoco está demostrada una mejora del OCR o del sistema completo.
