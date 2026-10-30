@@ -1,0 +1,30 @@
+{
+  "imagenes": 399,
+  "ocr": {
+    "fast-plate-ocr (cct-s-v2-global-model)": {
+      "EMR": 0.9373433583959899,
+      "aciertos": 374,
+      "CER": 0.01020408163265306,
+      "formato válido": 1.0,
+      "válidas pero equivocadas": 25,
+      "ms por recorte": 17.178947368421053,
+      "dónde corre": "CPU"
+    },
+    "GLM-OCR (hasta la v3.14)": {
+      "EMR": 0.9298245614035088,
+      "aciertos": 371,
+      "CER": 0.011994271392767633,
+      "formato válido": 0.9924812030075187,
+      "válidas pero equivocadas": 25,
+      "ms por recorte": 796.2776942355891,
+      "dónde corre": "GPU"
+    }
+  },
+  "solo_fast_plate_ocr": 16,
+  "solo_glm_ocr": 13,
+  "ninguno": 12,
+  "mcnemar_p": 0.711071103811264,
+  "coinciden": 0.9223057644110275,
+  "muestra": null,
+  "referencia": "/content/drive/MyDrive/proyecto_integrador_placas/ocr/savh_ground_truth_corregido.csv"
+}
