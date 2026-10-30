@@ -57,6 +57,9 @@ const detailsOpen = ref(false)
 const readingsOpen = ref(false)
 const registrationOpen = ref(false)
 const registrationPromptDismissed = ref(false)
+const plateConfirmedForRegistration = ref(false)
+const authorizeOnRegistration = ref(false)
+const operationAttemptId = ref(null)
 const vehicleDraft = reactive({ marca: '', modelo: '', color: '', propietario: '', transportista: '' })
 const showCapture = ref(false)
 const motivo = ref('')
@@ -271,6 +274,7 @@ function reset() {
   origin.value = 'DETECCION'
   done.value = false
   registrationPromptDismissed.value = false
+  operationAttemptId.value = null
   lecturaId.value = null
   currentReadingIds.value = []
 }
@@ -479,16 +483,23 @@ const needsVehicleRegistration = computed(() => decision.value?.resultado === 'N
 
 function startVehicleRegistration() {
   Object.assign(vehicleDraft, { marca: '', modelo: '', color: '', propietario: '', transportista: '' })
+  plateConfirmedForRegistration.value = false
+  authorizeOnRegistration.value = false
   registrationOpen.value = true
 }
 
 async function saveVehicle() {
   if (!plateShown.value) return
+  if (!plateConfirmedForRegistration.value) {
+    session.notify('Verifique visualmente la placa y confirme su lectura antes de registrar.', 'warn')
+    return
+  }
   busy.value = true
   try {
     const saved = await api('/api/plates/register', {
       method: 'POST',
-      body: { placa: plateShown.value, ...vehicleDraft, tipo: 'CAMION' },
+      body: { placa: plateShown.value, ...vehicleDraft, tipo: 'CAMION',
+        placa_confirmada: plateConfirmedForRegistration.value, autorizar: authorizeOnRegistration.value },
     })
     const checked = await api('/api/plates/verify', { method: 'POST', body: { placa: saved.placa } })
     manualPlate.value = checked.placa
@@ -497,7 +508,7 @@ async function saveVehicle() {
     void loadVehicleDetails(checked.placa)
     registrationOpen.value = false
     registrationPromptDismissed.value = true
-    session.notify(`${saved.mensaje} Puede continuar con la autorización automática.`, 'ok')
+    session.notify(saved.mensaje, 'ok')
   } catch (e) {
     session.notify(e.message, 'bad')
   } finally {
@@ -511,6 +522,7 @@ async function register(accion) {
     return
   }
   busy.value = true
+  if (!operationAttemptId.value) operationAttemptId.value = crypto.randomUUID()
   try {
     const out = await api('/api/operations', {
       method: 'POST',
@@ -518,6 +530,7 @@ async function register(accion) {
         garita: session.garita,
         tipo_movimiento: session.movimiento,
         accion,
+        operacion_id: operationAttemptId.value,
         placa_leida: recognition.value?.plate || recognition.value?.plate_raw || null,
         placa_final: plateShown.value || null,
         confianza_ocr: recognition.value?.ocr_confidence ?? null,
@@ -718,8 +731,10 @@ onMounted(async () => {
       <label class="field-label" for="vehicle-color">Color *</label><input id="vehicle-color" v-model.trim="vehicleDraft.color" class="field" required maxlength="40" placeholder="Ej.: Blanco" />
       <label class="field-label" for="vehicle-owner">Propietario *</label><input id="vehicle-owner" v-model.trim="vehicleDraft.propietario" class="field" required maxlength="120" placeholder="Nombre del propietario" />
       <label class="field-label" for="vehicle-carrier">Transportista</label><input id="vehicle-carrier" v-model.trim="vehicleDraft.transportista" class="field" maxlength="120" placeholder="Empresa transportista (opcional)" />
-      <p class="registration-note">Se guardará como camión y quedará autorizado en la lista blanca.</p>
-      <div class="mt-4 flex justify-end gap-2"><button type="button" class="btn-ghost" @click="registrationOpen = false">Cancelar</button><button type="submit" class="btn-primary" :disabled="busy">{{ busy ? 'Guardando…' : 'Guardar camión' }}</button></div>
+      <label class="registration-note"><input type="checkbox" v-model="plateConfirmedForRegistration" required /> Confirmo que comparé la placa con el vehículo y que sus datos son correctos.</label>
+      <label class="registration-note"><input type="checkbox" v-model="authorizeOnRegistration" /> Autorizar ahora este camión en la lista blanca (solo si comprobé que su ingreso está permitido).</label>
+      <p class="registration-note">Los tres perfiles pueden autorizar una placa nueva después de verificarla. Si no marca la autorización, el camión quedará registrado sin permiso de entrada. Una placa existente o restringida no puede modificarse aquí.</p>
+      <div class="mt-4 flex justify-end gap-2"><button type="button" class="btn-ghost" @click="registrationOpen = false">Cancelar</button><button type="submit" class="btn-primary" :disabled="busy || !plateConfirmedForRegistration">{{ busy ? 'Guardando…' : 'Guardar camión' }}</button></div>
     </form>
   </ModalDialog>
   <ModalDialog :open="detailsOpen" title="Detalle de la verificación" @close="detailsOpen = false"><ResultCard :decision="decision" :loading="loading" /><dl v-if="vehicle" class="mt-3 grid grid-cols-2 gap-2 text-sm"><div v-for="[k,v] in [['Marca', vehicle.marca], ['Modelo', vehicle.modelo], ['Año', vehicleDisplay.anio], ['Cia. de transporte', vehicleDisplay.transportista]]" :key="k"><dt class="font-bold">{{ k }}</dt><dd class="break-words">{{ v || '—' }}</dd></div></dl><button class="btn-ghost mt-4" @click="detailsOpen = false">Cerrar</button></ModalDialog>
