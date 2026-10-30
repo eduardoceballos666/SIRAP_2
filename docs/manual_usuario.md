@@ -899,6 +899,6 @@ Mantenga cerrada la barrera y siga el procedimiento de contingencia autorizado. 
 
 ## Referencia de acceso
 
-Aplicación SIRAP, versión 1.0 (manual revisado el 28 de octubre de 2026):
+Aplicación SIRAP, versión 1.0 (manual revisado el 30 de octubre de 2026):
 
 En caso de diferencias entre las pantallas, valores o permisos de esta guía y la aplicación desplegada, debe prevalecer la configuración vigente verificada por el administrador del sistema.
