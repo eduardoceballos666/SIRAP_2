@@ -32,6 +32,11 @@ def _token() -> str | None:
     return os.getenv("SIRAP_DATA_GITHUB_TOKEN") or None
 
 
+def durable_backup_configured() -> bool:
+    """Una barrera física requiere token para persistir antes de enviar la orden."""
+    return bool(_token())
+
+
 def _request(method: str, path: str, payload: dict | None = None) -> dict | None:
     token = _token()
     if not token:
