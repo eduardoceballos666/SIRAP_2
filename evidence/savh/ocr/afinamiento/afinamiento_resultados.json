@@ -1,0 +1,44 @@
+{
+  "particion": {
+    "train": 194,
+    "val": 50,
+    "test": 86
+  },
+  "placas_distintas": 297,
+  "incluye_sin_confirmar": false,
+  "original": {
+    "modelo": "original",
+    "n": 86,
+    "emr": 0.9418604651162791,
+    "emr_ic95": [
+      0.8710198527204016,
+      0.9749134343092147
+    ],
+    "cer": 0.013422818791946308,
+    "aceptadas": 0.9069767441860465,
+    "equivocadas_aceptadas": 1
+  },
+  "afinado": {
+    "modelo": "afinado",
+    "n": 86,
+    "emr": 0.9418604651162791,
+    "emr_ic95": [
+      0.8710198527204016,
+      0.9749134343092147
+    ],
+    "cer": 0.015100671140939598,
+    "aceptadas": 0.9186046511627907,
+    "equivocadas_aceptadas": 2
+  },
+  "solo_original": 0,
+  "solo_afinado": 0,
+  "mcnemar_p": 1.0,
+  "adoptar": false,
+  "hiperparametros": {
+    "epochs": 40,
+    "batch": 32,
+    "lr": 0.0003,
+    "weight_decay": 0.0005,
+    "seed": 0
+  }
+}
