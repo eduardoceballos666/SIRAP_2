@@ -146,20 +146,13 @@ function videoEnded() {
   }
   if (!videoEndGraceActive) {
     videoEndGraceActive = true
-    analysisMessage.value = 'El video terminó sin confirmar la placa. Se repetirá el video y continuará la detección durante 15 segundos antes de solicitar validación manual.'
+    analysisMessage.value = 'El video terminó sin confirmar la placa. La detección continuará durante 15 segundos sin repetir el video; luego se detendrá y solicitará validación manual.'
     videoEndGraceTimer = setTimeout(() => {
       videoEndGraceTimer = null
       finishVideoAnalysis()
     }, VIDEO_END_GRACE_MS)
   }
-  const media = mediaVideo.value
-  if (media && videoEndGraceActive) {
-    try {
-      media.currentTime = 0
-      const playback = media.play()
-      playback?.catch(() => {})
-    } catch {}
-  }
+  // El video ya se reprodujo una sola vez. Durante el plazo adicional no se reinicia.
 }
 function activeMediaElement() {
   if (source.value === 'camara') return video.value
@@ -188,7 +181,7 @@ function startAutomaticAnalysis() {
   continuousAnalysis.value = true
   captureFrame({ freeze: false })
   analysisTimer = setInterval(() => {
-    if (continuousAnalysis.value && mediaReady.value && !loading.value && !framePending) captureFrame({ freeze: false })
+    if (continuousAnalysis.value && mediaReady.value && !videoPlaybackEnded && !loading.value && !framePending) captureFrame({ freeze: false })
   }, 1000)
 }
 function mediaFailed() {
@@ -758,7 +751,7 @@ onMounted(async () => {
 
 
   </div>
-  <ModalDialog :open="helpOpen" :title="$t('Cómo registrar un acceso')" @close="helpOpen = false"><ol class="list-decimal space-y-3 pl-5"><li>{{ $t("Elija un ejemplo, suba una imagen o video, o conecte una cámara local o una URL compatible.") }}</li><li>{{ $t("Las imágenes se analizan al seleccionarlas. Los videos y cámaras se analizan automáticamente cada 1 segundo hasta leer una placa válida con al menos 94 % de confianza OCR; las lecturas inferiores no se muestran.") }}</li><li>{{ $t("Revise la placa, el vehículo y el resultado. Corrija la placa y pulse Verificar si es necesario.") }}</li><li>{{ $t("Autorice y abra solo cuando el resultado lo permita, o registre sin abrir. La apertura manual requiere un motivo.") }}</li><li>{{ $t("Las lecturas solo se guardan en el historial al registrar una acción.") }}</li></ol><button class="btn-primary mt-4" @click="helpOpen = false">{{ $t("Entendido") }}</button></ModalDialog>
+  <ModalDialog :open="helpOpen" :title="$t('Cómo registrar un acceso')" @close="helpOpen = false"><ol class="list-decimal space-y-3 pl-5"><li>{{ $t("Elija un ejemplo, suba una imagen o video, o conecte una cámara local o una URL compatible.") }}</li><li>{{ $t("Las imágenes se analizan al seleccionarlas. Los videos y cámaras se analizan cada segundo hasta confirmar una placa válida con al menos 94 % de confianza OCR. Si un video termina sin placa confirmada, no se repite: la detección espera 15 segundos adicionales y luego se detiene para validación manual.") }}</li><li>{{ $t("Revise la placa, el vehículo y el resultado. Corrija la placa y pulse Verificar si es necesario.") }}</li><li>{{ $t("Autorice y abra solo cuando el resultado lo permita, o registre sin abrir. La apertura manual requiere un motivo.") }}</li><li>{{ $t("Las lecturas solo se guardan en el historial al registrar una acción.") }}</li></ol><button class="btn-primary mt-4" @click="helpOpen = false">{{ $t("Entendido") }}</button></ModalDialog>
   <ModalDialog :open="registrationOpen" :title="$t('Registrar camión nuevo')" @close="registrationOpen = false">
     <form class="vehicle-registration-form" @submit.prevent="saveVehicle">
       <div class="registration-plate"><span>{{ $t("Placa detectada") }}</span><strong>{{ plateShown }}</strong></div>
