@@ -1,0 +1,9 @@
+{
+  "semilla": 0,
+  "modelo": "optimizada",
+  "map50": 0.9737788407302165,
+  "map50_95": 0.7009447323518706,
+  "precision": 0.9889818866705944,
+  "recall": 0.9502304147465438,
+  "weights": "/content/drive/MyDrive/proyecto_integrador_placas/optimizacion/validacion_multisemilla/runs/optimizada_semilla_0/weights/best.pt"
+}

@@ -144,8 +144,7 @@ optimizada no se midió. La corrida completa terminó las 40 épocas sin que act
   (0,972 frente a 0,973) y el recall baja levemente (−0,006, ≈7 de 1 085 placas). SIRAP recorta la placa con un
   margen antes del OCR, así que una caja algo más ajustada casi no cambia la lectura.
 - El criterio fijado de antemano pedía que la mejora superara la variación entre semillas. El notebook entrenó una
-  sola semilla por configuración, así que +0,011 no se puede separar de esa variación; queda pendiente repetir con 2–3
-  semillas.
+  sola semilla por configuración, así que +0,011 no se podía separar de esa variación en el experimento histórico. La validación multisemilla posterior ya se completó y se documenta más abajo; los pesos publicados no cambian.
 - Cambiar el modelo obligaría a volver a exportar el ONNX, recalibrar el umbral del detector y repetir las
   evaluaciones de la app.
 
@@ -259,3 +258,14 @@ Se entrenaron independientemente las configuraciones **base** y **optimizada** c
 **Mejora media pareada en mAP50:95: +0,3743 puntos porcentuales**; desviación estándar **muestral: 0,3153 puntos porcentuales** (n=3). El recall medio pareado varía aproximadamente **+0,3017 puntos porcentuales**. Las tres semillas mejoran en mAP50:95, pero la magnitud varía y el recall baja levemente en la semilla 0. Esto describe estabilidad limitada, **no** significación estadística ni mejora punta a punta en video.
 
 Evidencia: [comparación CSV](../results/metrics/validacion_multisemilla_comparacion.csv), [resumen JSON](../results/metrics/validacion_multisemilla_resumen.json), [protocolo JSON](../results/metrics/validacion_multisemilla_protocolo.json). La comparación anterior de una semilla permanece como resultado histórico separado. **No se reemplazan** `models/best_model.pt`, `models/best_model.onnx` ni los pesos de Hugging Face. Las **69 referencias SAVH** continúan pendientes de verificación visual; tampoco está demostrada una mejora del OCR o del sistema completo.
+
+
+### Métricas complementarias de la validación multisemilla: mAP50 y precisión
+
+| Semilla | mAP50 base | mAP50 optimizada | Δ mAP50 | Precisión base | Precisión optimizada | Δ precisión |
+|---:|---:|---:|---:|---:|---:|---:|
+| 0 | 0.973401 | 0.973779 | +0.000378 | 0.992304 | 0.988982 | -0.003322 |
+| 1 | 0.970963 | 0.973800 | +0.002838 | 0.983629 | 0.986651 | +0.003022 |
+| 2 | 0.970954 | 0.972518 | +0.001564 | 0.988563 | 0.993252 | +0.004689 |
+
+Las diferencias medias pareadas son **+0.001593** en mAP50 (DE muestral **0.001230**) y **+0.001463** en precisión (DE muestral **0.004227**). El valor de precisión también disminuye en la semilla 0; la evidencia de estabilidad de las tres semillas no garantiza una mejora uniforme en todas las métricas. Los seis JSON originales, con las cuatro métricas y rutas a pesos experimentales, se conservan en [resultados individuales](../results/metrics/validacion_multisemilla_individuales/base_semilla_0.json) y los otros cinco archivos del mismo directorio.
