@@ -83,6 +83,7 @@ const VIDEO_END_GRACE_MS = 15_000
 let videoEndGraceTimer = null
 let videoEndGraceActive = false
 let videoPlaybackEnded = false
+let videoAnalysisFinished = false
 
 async function toggleFullscreen() {
   try {
@@ -127,6 +128,8 @@ function clearPlateConfirmation() {
   confirmedFrames.value = 0
 }
 function finishVideoAnalysis() {
+  if (videoAnalysisFinished) return
+  videoAnalysisFinished = true
   stopContinuousAnalysis()
   mediaVideo.value?.pause()
   if (!recognition.value) {
@@ -179,6 +182,7 @@ function startAutomaticAnalysis() {
   clearPlateConfirmation()
   clearVideoEndGrace()
   videoPlaybackEnded = false
+  videoAnalysisFinished = false
   analysisMessage.value = ''
   showCapture.value = false
   continuousAnalysis.value = true
