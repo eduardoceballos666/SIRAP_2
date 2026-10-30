@@ -148,3 +148,12 @@ provincias: es una limitación declarada en `consideraciones_eticas.md`.
   ilegibles en SAVH, que se excluyen de la métrica de OCR y se cuentan aparte.
 - **Desbalance de tamaño:** se reporta mAP por tamaño en lugar de solo el global.
 - **Desbalance geográfico:** se mitiga con la evaluación local (SAVH + garita), no con re-muestreo.
+
+
+## 5. Actualización de auditoría asistida SAVH (30/10/2026)
+
+La revisión visual asistida de 69 fotografías representativas identificó 67 sugerencias compatibles con las imágenes y 2 grupos ambiguos (n=7, n=52). **Ninguno se presenta como aprobación humana** y las otras 330 referencias de cámara con formato válido no fueron inspeccionadas en esta fase. Se separaron los casos inciertos para evitar imponer una etiqueta por reglas de formato.
+
+Con 666 salidas OCR guardadas, la muestra histórica de 399 recortes legibles únicos tenía 374 aciertos exactos (**EMR 93,7343 %**). Al excluir las 2 imágenes únicas ambiguas, la evaluación offline quedó en **373 aciertos de 397 (EMR 93,9547 %)**. Con umbral offline de 94 %, hubo 362 recortes aceptados y 14 lecturas equivocadas entre ellas. **La diferencia no demuestra mejora del OCR**, porque el denominador cambia y el modelo no se reentrenó. No es evaluación de video ni confirma la regla de dos cuadros.
+
+La auditoría detallada, sus limitaciones y pendientes están en [validación SAVH](validacion_savh_multisemilla.md) y [métricas provisionales](../results/metrics/ocr_savh_revision_asistida_397.json). El recálculo definitivo requiere aprobación humana de las referencias.
