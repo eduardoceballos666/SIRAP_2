@@ -15,6 +15,8 @@ short_description: Reconocimiento de placas y control de acceso (YOLO11 + OCR)
 **Versión del producto: SIRAP 1.0.** La API identifica su versión técnica como 2.0.0 y el paquete npm del frontend como 2.0.0. El tag de GitHub `v2.0` identifica el corte del código que incorpora la arquitectura FastAPI + Vue 3; no representa la versión del producto. Código fuente y documentación:
 https://github.com/eduardoceballos666/SIRAP_2
 
+**Acceso e idioma:** abra la [aplicación SIRAP](https://eduardoceballos-sirap.hf.space). Español es el idioma inicial. Para usarla en inglés, seleccione **English** en el control **Idioma** de la pantalla de inicio de sesión; también puede cambiarlo desde el menú común una vez dentro. **Español** vuelve a la versión en español. Ambas opciones usan la misma dirección y la preferencia se recuerda en el mismo navegador.
+
 Usuarios de demostración: `operador`, `supervisor` y `admin`; contraseña actual común a los tres perfiles: `sirap2026`. El secreto `SIRAP_DEMO_PASSWORD` puede sustituirla en el Space. Los registros contienen
 **datos ficticios** y la barrera es **simulada**. Los secretos están configurados para respaldar tablas CSV en
 `SIRAP_datos_privados`. El workflow publica automáticamente al cambiar rutas de aplicación incluidas en sus filtros
