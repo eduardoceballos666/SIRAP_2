@@ -637,6 +637,11 @@ const en = {
   'Solo registro': 'Record only',
   'NO_APLICA': 'NOT APPLICABLE',
   'DETECCION': 'DETECTION',
+  'fuente': 'Source',
+  'registrado_por': 'Registered by',
+  'vigente_desde': 'Valid from',
+  'creado_por': 'Created by',
+  'Autorizado al registrar el camión': 'Authorized when the truck was registered',
 }
 
 const es = Object.fromEntries(Object.keys(en).map((key) => [key, key]))
