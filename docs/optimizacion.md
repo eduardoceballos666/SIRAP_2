@@ -211,7 +211,7 @@ El notebook 06 prueba si afinarlo mejora ese resultado sin sesgar la evaluación
 
 ### 8.1 Resultados (corrida del 24/10/2026, Colab)
 
-**Datos:** 330 recortes legibles de SAVH con referencia confirmada (las 69 sugerencias sin confirmar quedaron
+**Datos:** 330 recortes legibles de SAVH con referencia de cámara de formato válido (sin confirmación humana integral; las 69 sugerencias quedaron
 fuera), 297 placas distintas, repartidas por placa en 194 / 50 / 86 imágenes (*train* / *val* / *test*).
 
 **Entrenamiento:** partió de `cct_s_v2_global.keras`; la exactitud de placa en *val* subió de 0,969 (época 1) a
@@ -275,4 +275,9 @@ Las diferencias medias pareadas son **+0.001593** en mAP50 (DE muestral **0.0012
 
 Se inspeccionaron de forma **asistida**, sin aprobación humana definitiva, las 69 imágenes representativas de SAVH. Hubo 67 lecturas visualmente compatibles con las sugerencias y 2 grupos ambiguos (n=7 y n=52), que se dejaron pendientes. Al excluir únicamente esas 2 imágenes únicas de un conjunto de 399 legibles únicas, el EMR offline de las salidas OCR cacheadas fue **373/397 = 93,9547 %**; con confianza ≥94 % se aceptaron 362 lecturas, de las cuales **14 eran erróneas**. La comparación histórica era 374/399 = 93,7343 % y 14 errores aceptados entre 363. La variación de EMR obedece al cambio de subconjunto; **no es ganancia del modelo OCR ni prueba de robustez en video**.
 
-Las etiquetas aceptadas visualmente por el asistente no son confirmaciones humanas; las otras 330 referencias de cámara tampoco se han auditado aquí. La hoja original conserva vacía su columna de aprobación definitiva. Véase [validación SAVH](validacion_savh_multisemilla.md) y el [resumen de métricas preliminares](../results/metrics/ocr_savh_revision_asistida_397.json). La mejora multisemilla de mAP50:95 pertenece al detector experimental y **no se atribuye a los pesos desplegados**.
+Las valoraciones visuales del asistente no son confirmaciones humanas; las 330 referencias de cámara se cotejaron con predicciones OCR, encontrándose 18 desacuerdos inspeccionados visualmente (sección siguiente). La hoja original conserva vacía su columna de aprobación definitiva. Véase [validación SAVH](validacion_savh_multisemilla.md) y el [resumen de métricas preliminares](../results/metrics/ocr_savh_revision_asistida_397.json). La mejora multisemilla de mAP50:95 pertenece al detector experimental y **no se atribuye a los pesos desplegados**.
+
+
+### Auditoría adicional del origen de etiquetas SAVH (30/10/2026)
+
+Al comparar las 330 referencias basadas en lecturas de cámara (`camara_formato_valido`) con las salidas OCR cacheadas, se encontraron **18 desacuerdos** y 312 coincidencias. Las fotografías originales de las 18 discrepancias se examinaron de forma asistida: 14 sugieren provisionalmente OCR, 3 cámara y 1 sigue incierta. Ninguna valoración se registra como aprobación humana. **La coincidencia con el OCR no valida por sí sola una referencia**. Antes de concluir sobre robustez del OCR se deben confirmar las etiquetas de manera independiente y repetir el cómputo con ese ground truth. No se modifican el detector, los pesos ni el despliegue. Detalle en [auditoría SAVH](validacion_savh_multisemilla.md).
