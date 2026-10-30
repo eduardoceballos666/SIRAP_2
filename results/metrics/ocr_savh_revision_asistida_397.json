@@ -1,0 +1,47 @@
+{
+  "estado": "PROVISIONAL_NO_DEFINITIVO",
+  "fecha_utc": "2026-10-30",
+  "modelo_ocr": "fast-plate-ocr cct-s-v2-global-model",
+  "origen": "Salida OCR guardada en Drive privado; reevaluada sin nueva inferencia",
+  "revision_visual_asistida": {
+    "imagenes_representativas": 69,
+    "grupos_con_coincidencia": 67,
+    "grupos_ambiguos": 2,
+    "copias_de_grupos_revisados": 71,
+    "imagenes_ambiguas_excluidas": 4,
+    "referencias_camara_no_confirmadas_visualmente": 330
+  },
+  "previo": {
+    "n": 399,
+    "exactas": 374,
+    "emr": 0.9373433583959899,
+    "cer_medio": 0.01020408163265306
+  },
+  "despues_excluyendo_dos_grupos": {
+    "n": 397,
+    "exactas": 373,
+    "emr": 0.9395465994962217,
+    "cer_medio": 0.009895645915797049
+  },
+  "umbrales_offline": {
+    "0.94": {
+      "aceptadas": 362,
+      "exactas_aceptadas": 348,
+      "erroneas_aceptadas": 14,
+      "verificacion_manual": 35
+    },
+    "0.99": {
+      "aceptadas": 346,
+      "exactas_aceptadas": 334,
+      "erroneas_aceptadas": 12,
+      "verificacion_manual": 51
+    }
+  },
+  "limitaciones": [
+    "Dos grupos ambiguos todavía no tienen confirmación humana",
+    "Las otras 330 etiquetas válidas según cámara no fueron revisadas visualmente en esta auditoría",
+    "La diferencia de EMR se debe a excluir dos casos; no demuestra mejora de OCR",
+    "No es una prueba punta a punta en video ni valida la regla de dos cuadros",
+    "No se cambian los pesos publicados en Hugging Face ni el umbral operativo"
+  ]
+}
