@@ -32,6 +32,9 @@ const en = {
   'Cambiar a tema claro': 'Switch to light theme',
   'Cambiar a tema oscuro': 'Switch to dark theme',
   'Sistema de Detección y Reconocimiento Automático de Placas': 'Automatic License Plate Detection and Recognition System',
+  'Subir archivo': 'Upload file',
+  'Cámara Local': 'Local camera',
+  'Cámara URL': 'Camera URL',
   'Iniciar sesión': 'Sign in',
   'Usuario': 'Username',
   'Contraseña': 'Password',
@@ -627,6 +630,18 @@ const en = {
   'Dashboard de operaciones': 'Operations dashboard',
   'Historial de operaciones': 'Operations history',
   'Control de acceso': 'Access control',
+  'Alertas': 'Alerts',
+  'Rechazo': 'Rejection',
+  'Apertura automática': 'Automatic opening',
+  'Apertura manual': 'Manual opening',
+  'Solo registro': 'Record only',
+  'NO_APLICA': 'NOT APPLICABLE',
+  'DETECCION': 'DETECTION',
+  'fuente': 'Source',
+  'registrado_por': 'Registered by',
+  'vigente_desde': 'Valid from',
+  'creado_por': 'Created by',
+  'Autorizado al registrar el camión': 'Authorized when the truck was registered',
 }
 
 const es = Object.fromEntries(Object.keys(en).map((key) => [key, key]))
