@@ -1,0 +1,156 @@
+{
+  "blind_holdout": {
+    "sampled_images": 58,
+    "verified_ground_truth_n": 57,
+    "excluded": [
+      {
+        "blind_id": "C015",
+        "reason": "no record in approved ground truth"
+      }
+    ],
+    "selection_seed": 20261030,
+    "development_partition_overlap": 0,
+    "reference_file": "SAVH_ground_truth_cerrado_739.csv",
+    "reference_rule": "aplicable_evaluacion=SI and aprobacion_humana=ok",
+    "metrics": {
+      "base": {
+        "n": 57,
+        "exact": 42,
+        "exact_rate": 0.7368421052631579,
+        "valid_reads": 56,
+        "coverage": 0.9824561403508771,
+        "cer": 0.05357142857142857,
+        "mean_latency_ms": 170.44210526315788,
+        "mean_conf": 0.9150403508771929
+      },
+      "tuned": {
+        "n": 57,
+        "exact": 35,
+        "exact_rate": 0.6140350877192983,
+        "valid_reads": 56,
+        "coverage": 0.9824561403508771,
+        "cer": 0.07142857142857142,
+        "mean_latency_ms": 171.74736842105264,
+        "mean_conf": 0.8353245614035087
+      }
+    },
+    "models": {
+      "detector": "models/best_model.onnx",
+      "base_ocr": "fast-plate-ocr cct-s-v2-global-model",
+      "fine_tuned_ocr": "models/ocr_afinado.onnx",
+      "runtime": "ONNX Runtime CPU"
+    },
+    "model_sha256": {
+      "models/best_model.onnx": "5e54250fdcd7007ebd0102f8097ef8d90ebdb869933e8eee9624dfb0155a6199",
+      "models/ocr_afinado.onnx": "40b4aa8bfad222e322d978c2aa0333070fff4c32d9100bef2fc8dd546b3141b2"
+    },
+    "source_key": "blind_eval/holdout_answer_key_hidden.csv",
+    "scored_csv": "blind_eval/predictions/blind_holdout_verified_scored.csv",
+    "limitations": [
+      "single randomized image per filename group; 57 scored SAVH records and 1 excluded because absent from approved reference",
+      "independent of the 330-image train/validation/test partition; labels come from the user-provided closed human-approved SAVH reference"
+    ]
+  },
+  "video_e2e_sampled_1fps": [
+    {
+      "video": "IMG_2606.mp4",
+      "duration_sec": 50.95333333333333,
+      "sampled_frames": 51,
+      "valid_plate_reads": 46,
+      "visually_adjudicable_gt": null,
+      "exact_frames": null,
+      "exact_frame_rate": null,
+      "exact_of_valid_reads": null,
+      "consensus_top": "PAB-6510",
+      "top_count": 45
+    },
+    {
+      "video": "IMG_2609.mp4",
+      "duration_sec": 21.275000000000002,
+      "sampled_frames": 22,
+      "valid_plate_reads": 10,
+      "visually_adjudicable_gt": null,
+      "exact_frames": null,
+      "exact_frame_rate": null,
+      "exact_of_valid_reads": null,
+      "consensus_top": "GBO-5174",
+      "top_count": 4
+    },
+    {
+      "video": "IMG_2626.mp4",
+      "duration_sec": 19.365,
+      "sampled_frames": 20,
+      "valid_plate_reads": 12,
+      "visually_adjudicable_gt": "GRW-5172",
+      "exact_frames": 10,
+      "exact_frame_rate": 0.5,
+      "exact_of_valid_reads": 0.8333333333333334,
+      "consensus_top": "GRW-5172",
+      "top_count": 10
+    },
+    {
+      "video": "IMG_2632.mp4",
+      "duration_sec": 15.698333333333332,
+      "sampled_frames": 16,
+      "valid_plate_reads": 14,
+      "visually_adjudicable_gt": "PAB-6510",
+      "exact_frames": 12,
+      "exact_frame_rate": 0.75,
+      "exact_of_valid_reads": 0.8571428571428571,
+      "consensus_top": "PAB-6510",
+      "top_count": 12
+    }
+  ],
+  "models": {
+    "detector": "models/best_model.onnx",
+    "base_ocr": "fast-plate-ocr cct-s-v2-global-model",
+    "fine_tuned_ocr": "models/ocr_afinado.onnx",
+    "runtime": "ONNX Runtime CPU"
+  },
+  "limitations": [
+    "single visual annotator; not independently double-adjudicated",
+    "labels transcribed visually without OCR output or filenames; 9/58 held for review",
+    "video sample is four short clips, 1 frame/s; no temporal tracker, and only two clips have legible ground truth",
+    "not the full 10-minute video_camiones.mp4 described in the notebook"
+  ],
+  "input_video_sha256": {
+    "IMG_2606.mp4": "d587d2363c4e3f42dc0875e686bf58f496c47779269dd25a303d4e16d4b7ea24",
+    "IMG_2609.mp4": "4eb8c7203da78f6cf699982143bc1503c88fc60911dcb05ce54dd89ee92af4f5",
+    "IMG_2626.mp4": "67d4bb50a6543ec68284025c0a44e6e3dc72c76f6ba21dc581901528df00d784",
+    "IMG_2632.mp4": "4c14dff83242d518e06e2f57d417b4def2fdcdbcbe3707ae4eaf6c8538245452"
+  },
+  "model_sha256": {
+    "models/best_model.onnx": "5e54250fdcd7007ebd0102f8097ef8d90ebdb869933e8eee9624dfb0155a6199",
+    "models/ocr_afinado.onnx": "40b4aa8bfad222e322d978c2aa0333070fff4c32d9100bef2fc8dd546b3141b2"
+  },
+  "video_e2e_sampled_1fps_labeling_method": "single AI visual transcription; provisional pending human confirmation",
+  "primary_video_access": {
+    "file": "video_camiones.mp4",
+    "drive_id": "1coC-FcoUtMCmTtq6K3C2Y9z7W7SfC5XC",
+    "size_bytes": 459252859,
+    "status": "not downloaded",
+    "reason": "Drive connector limit is 268435456 bytes per file"
+  },
+  "video_full_oc_sort_20261030": {
+    "video": "video_camiones.mp4",
+    "frames_processed": 18115,
+    "confirmed_tracks": 52,
+    "ocr_reads": 52,
+    "tracks_without_read": 0,
+    "ecuadorian_format_reads": 25,
+    "ocr_calls": 225,
+    "mean_detection_ms_per_frame": 14.51,
+    "mean_tracking_ms_per_frame": 0.45,
+    "mean_detection_plus_ocr_ms_per_decision": 91.99,
+    "pipeline_fps": 61.77,
+    "ocr_calls_external_sri_or_owner_lookup": false,
+    "ground_truth": {
+      "status": "provisional_point_samples",
+      "readable_plate_observations": 18,
+      "full_temporal_intervals_annotated": false,
+      "second_human_review_completed": false,
+      "full_video_emr_or_recall_reported": false
+    },
+    "metrics_note": "Operational pipeline metrics only. The 18 manually inspected guide-frame labels do not provide exhaustive plate intervals or full-video recall."
+  }
+}
