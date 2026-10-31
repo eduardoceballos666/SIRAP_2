@@ -60,9 +60,7 @@
       "visually_adjudicable_gt": null,
       "exact_frames": null,
       "exact_frame_rate": null,
-      "exact_of_valid_reads": null,
-      "consensus_top": "PAB-6510",
-      "top_count": 45
+      "exact_of_valid_reads": null
     },
     {
       "video": "IMG_2609.mp4",
@@ -72,33 +70,27 @@
       "visually_adjudicable_gt": null,
       "exact_frames": null,
       "exact_frame_rate": null,
-      "exact_of_valid_reads": null,
-      "consensus_top": "GBO-5174",
-      "top_count": 4
+      "exact_of_valid_reads": null
     },
     {
       "video": "IMG_2626.mp4",
       "duration_sec": 19.365,
       "sampled_frames": 20,
       "valid_plate_reads": 12,
-      "visually_adjudicable_gt": "GRW-5172",
+      "visually_adjudicable_gt": "readable_plate_withheld",
       "exact_frames": 10,
       "exact_frame_rate": 0.5,
-      "exact_of_valid_reads": 0.8333333333333334,
-      "consensus_top": "GRW-5172",
-      "top_count": 10
+      "exact_of_valid_reads": 0.8333333333333334
     },
     {
       "video": "IMG_2632.mp4",
       "duration_sec": 15.698333333333332,
       "sampled_frames": 16,
       "valid_plate_reads": 14,
-      "visually_adjudicable_gt": "PAB-6510",
+      "visually_adjudicable_gt": "readable_plate_withheld",
       "exact_frames": 12,
       "exact_frame_rate": 0.75,
-      "exact_of_valid_reads": 0.8571428571428571,
-      "consensus_top": "PAB-6510",
-      "top_count": 12
+      "exact_of_valid_reads": 0.8571428571428571
     }
   ],
   "models": {
@@ -152,5 +144,6 @@
       "full_video_emr_or_recall_reported": false
     },
     "metrics_note": "Operational pipeline metrics only. The 18 manually inspected guide-frame labels do not provide exhaustive plate intervals or full-video recall."
-  }
+  },
+  "privacy_note": "Plate identifiers and row-level predictions are withheld from the public repository; detailed annotations remain in private Drive."
 }
