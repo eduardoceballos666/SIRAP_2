@@ -113,7 +113,6 @@ Arquitectura completa y diagramas: [`docs/arquitectura.md`](docs/arquitectura.md
 | Regla de decisión (SAVH, lista simulada) | Falsos autorizados / rechazos indebidos | 0 de 202 / 1 de 197 | — |
 | Sistema (video de la garita) | Tiempo por decisión (detección + OCR) | 99 ms | ≤ 1 s ✅ |
 | OCR SAVH (corte asistido más reciente, 398 imágenes únicas) | EMR offline | 388/398 (97,49 %), provisional y no independiente | — |
-| OCR SAVH (corte operativo histórico, 399 placas legibles) | EMR / CER sin filtrar por confianza | 93,7 % / 0,010 | EMR ≥ 80 % ✅ |
 | Sistema (cinco clips de prueba) | Coincidencia exacta de placa tras confirmar dos cuadros | 3/5; dos lecturas incorrectas aceptadas | — |
 | Sistema (video operativo de garita) | EMR punta a punta | Pendiente: no se dispone de etiquetas de referencia del video operativo | ≥ 80 % |
 
@@ -135,12 +134,9 @@ La hoja de revisión registra decisiones para 69 grupos SAVH y 330 referencias d
 
 En cinco clips de prueba, el sistema confirmó una lectura en dos cuadros para cada clip; **tres placas coincidieron exactamente y dos fueron lecturas incorrectas aceptadas**. La muestra es pequeña y no valida el funcionamiento en el video operativo de garita, la barrera física ni la persistencia de datos. La evaluación punta a punta del video operativo sigue pendiente hasta contar con etiquetas de referencia. [Métricas de la muestra](results/metrics/video_e2e_muestra.json) · [Protocolo y limitaciones](docs/validacion_savh_multisemilla.md#92-evaluacion-punta-a-punta-de-lectura-en-video).
 
-### Comparación con un *baseline*. En el mismo split de validación, YOLO11-s pasó de mAP@0.5 = 0,848 después de
-la época 1 a 0,971 en la época 40 (+0,123). En el *test* separado, el modelo final obtuvo 0,972; no se compara
-ese valor con la primera época porque corresponden a splits distintos. En el OCR, el *baseline* es el mismo
-fast-plate-ocr sin la normalización ecuatoriana: solo con limpieza de texto logra 93,5 % de EMR en SAVH y con
-`normalize_plate` 93,7 %, con todas las lecturas en formato válido; afinarlo con placas ecuatorianas no lo mejoró
-(94,2 % frente a 94,2 % en un *test* separado por placa, McNemar *p* = 1,0).
+### Comparación con un *baseline*
+
+En el mismo split de validación, YOLO11-s pasó de mAP@0.5 = 0,848 después de la época 1 a 0,971 en la época 40 (+0,123). En el *test* separado, el modelo final obtuvo 0,972; esos valores corresponden a *splits* distintos. En OCR, fast-plate-ocr logra 93,5 % de EMR con limpieza de texto y 93,7 % al aplicar `normalize_plate`, con todas las lecturas en formato válido. El ajuste con placas ecuatorianas no mejoró el resultado (94,2 % frente a 94,2 % en un *test* separado por placa; McNemar *p* = 1,0).
 
 <img src="results/figures/resumen_yolo11_completo.png" alt="Resultados de YOLO11-s" width="900">
 
