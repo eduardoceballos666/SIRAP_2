@@ -42,4 +42,4 @@ plate_gt,frame_start,frame_end
 
 ## Estado actual
 
-Se revisaron visualmente 44 cuadros guía y se guardó una anotación provisional de 18 placas legibles en `video_ground_truth.csv`. Cada fila es un cuadro puntual, no el intervalo completo de legibilidad ni un inventario exhaustivo de vehículos. La evaluación completa de 7.2 sigue pendiente de delimitar esos intervalos, buscar vehículos omitidos y obtener una segunda revisión humana. El detalle está en `video_ground_truth_review.md`.
+Se revisaron visualmente 44 cuadros guía y se guardó en Drive privado una anotación provisional de 18 placas legibles. Cada fila es un cuadro puntual, no el intervalo completo de legibilidad ni un inventario exhaustivo de vehículos. Por privacidad, el CSV con matrículas no se publica en el repositorio. La evaluación completa de 7.2 sigue pendiente de delimitar esos intervalos, buscar vehículos omitidos y obtener una segunda revisión humana. El detalle metodológico está en `video_ground_truth_review.md`.
