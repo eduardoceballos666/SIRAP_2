@@ -373,8 +373,7 @@ Las marcas, derechos y licencias de los componentes de terceros pertenecen a sus
 ## 12. Videos
 
 - 🎬 **Video pitch (5 min):** (https://www.youtube.com/watch?v=DBaeSUo64xE)
-- 🎤 **Video de respuestas a las preguntas:** _pendiente de grabación y publicación_
-
+- 🎤 **Video de respuestas a las preguntas:** https://youtu.be/TUrEQ9sEwYM
 
 ### Actualización: validación multisemilla (30/10/2026)
 
