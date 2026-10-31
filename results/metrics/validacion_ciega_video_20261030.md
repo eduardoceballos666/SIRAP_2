@@ -23,8 +23,8 @@ Se procesaron cuatro clips a 1 fotograma por segundo con el detector y el OCR ba
 |---|---:|---:|---:|---|---:|
 | IMG_2606.mp4 | 51.0 s | 51 | 46 | No legible | No evaluable |
 | IMG_2609.mp4 | 21.3 s | 22 | 10 | No legible | No evaluable |
-| IMG_2626.mp4 | 19.4 s | 20 | 12 | GRW-5172 | 10/20 |
-| IMG_2632.mp4 | 15.7 s | 16 | 14 | PAB-6510 | 12/16 |
+| IMG_2626.mp4 | 19.4 s | 20 | 12 | Legible; placa omitida | 10/20 |
+| IMG_2632.mp4 | 15.7 s | 16 | 14 | Legible; placa omitida | 12/16 |
 
 ### Video completo con YOLO11 y OC-SORT (31-10-2026)
 
@@ -46,8 +46,8 @@ Las consultas al SRI y al sitio de propietarios estuvieron desactivadas. `author
 
 Después se ejecutó la celda 7.2; en esa corrida confirmó que no existía `MyDrive/proyecto_integrador_placas/video_ground_truth.csv` y omitió la medición de coincidencia exacta y recall de placas. Los conteos y tiempos anteriores son métricas operativas, no precisión punta a punta.
 
-Para facilitar la revisión sin usar las salidas OCR como etiquetas, la celda 7.1 generó una hoja visual y 44 eventos candidatos. Después se inspeccionaron visualmente los cuadros guía y se creó `blind_eval/video_ground_truth.csv` con 18 transcripciones legibles de las placas físicas. Cada fila es un cuadro puntual (`frame_start == frame_end`); no es una anotación completa de intervalos ni de todos los vehículos. La copia Drive de `MyDrive/proyecto_integrador_placas/video_ground_truth.csv` fue actualizada y se añadió `video_ground_truth_review.md` con el alcance y las tareas pendientes.
+Para facilitar la revisión sin usar las salidas OCR como etiquetas, la celda 7.1 generó una hoja visual y 44 eventos candidatos. Después se inspeccionaron visualmente los cuadros guía y se creó una referencia privada con 18 transcripciones legibles de las placas físicas. Cada fila es un cuadro puntual (`frame_start == frame_end`); no es una anotación completa de intervalos ni de todos los vehículos. El CSV y las etiquetas por fila se conservan en Drive privado; no se publican en GitHub. Se añadió `video_ground_truth_review.md` con el alcance y las tareas pendientes.
 
 No se calculó EMR ni recall completo usando esta referencia puntual, porque esos resultados serían engañosos para el video entero. Para completar 7.2 aún hay que revisar el video original cuadro a cuadro, delimitar primer/último cuadro legible de cada pasada, añadir vehículos omitidos por los eventos detectados y solicitar una segunda revisión humana independiente. La guía operativa y la plantilla están en `blind_eval/GUIA_ANOTACION_VIDEO.md` y `blind_eval/video_ground_truth_template.csv`.
 
-Artefactos publicados: este informe, `results/metrics/blind_independent_video_eval_20261030.json` (métricas agregadas) y la referencia provisional de cuadros puntuales. Los CSV con predicciones y etiquetas fila por fila del holdout ciego no se publican para preservar la independencia del conjunto.
+Artefactos publicados: este informe y `results/metrics/blind_independent_video_eval_20261030.json` con métricas agregadas. No se publican las matrículas de la referencia de video, predicciones por fila ni claves del holdout ciego; los materiales detallados permanecen en Drive privado para preservar la privacidad y la independencia de las evaluaciones.
