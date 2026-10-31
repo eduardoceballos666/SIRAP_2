@@ -22,7 +22,7 @@ aplicación web profesional: **API REST en FastAPI** con autenticación por usua
 
 **Idiomas de la interfaz:** SIRAP está disponible en **Español** (idioma predeterminado) y **English**. Ambas versiones se abren desde la misma [aplicación en vivo](https://eduardoceballos-sirap.hf.space): en la pantalla de inicio de sesión, use el selector **Idioma** y elija **Español** o **English**. El selector también está en el menú común después de iniciar sesión. La preferencia se guarda en este navegador y se conserva al navegar o volver a abrir SIRAP.
 
-<img src="https://raw.githubusercontent.com/eduardoceballos666/SIRAP_2/396855f38f95c209d201768d6e31312dc7d41203/docs/img/vue_reconocimiento.png" alt="SIRAP – Reconocimiento y Acceso" width="900">
+<img src="docs/img/vue_reconocimiento.png" alt="SIRAP – Reconocimiento y Acceso" width="900">
 
 </div>
 
@@ -38,14 +38,14 @@ aplicación web profesional: **API REST en FastAPI** con autenticación por usua
 ## Tabla de contenidos
 
 1. [Problema](#1-problema)
-2. [Dataset](#2-dataset)
+2. [Datos](#2-datos)
 3. [Metodología](#3-metodología)
-4. [Resultados](#4-resultados)
-5. [Instalación y uso](#5-instalación-y-uso)
-6. [Interfaz de usuario](#6-interfaz-de-usuario)
+4. [Resultados y validaciones](#4-resultados-y-validaciones)
+5. [Instalación, configuración y despliegue](#5-instalación-configuración-y-despliegue)
+6. [Interfaz y API](#6-interfaz-y-api)
 7. [Estructura del proyecto](#7-estructura-del-proyecto)
-8. [Consideraciones éticas](#8-consideraciones-éticas)
-9. [Autores](#9-autores-y-contribuciones)
+8. [Consideraciones éticas y limitaciones](#8-consideraciones-éticas-y-limitaciones)
+9. [Autores y contribuciones](#9-autores-y-contribuciones)
 10. [Licencia](#10-licencia)
 11. [Agradecimientos y referencias](#11-agradecimientos-y-referencias)
 12. [Videos](#12-videos)
@@ -63,7 +63,7 @@ guardia lee la placa, la busca en una lista y la anota. Eso produce **colas**, *
 - **Usuarios:** operadores de garita (deciden y registran), supervisores (auditan) y administradores (gestionan
   vehículos, listas, garitas y usuarios).
 
-## 2. Dataset
+## 2. Datos
 
 | Dataset | Uso | Tamaño | Licencia / fuente |
 |---|---|---|---|
@@ -89,15 +89,15 @@ Detalles, EDA y decisiones de preprocesamiento: [`docs/analisis_datos.md`](docs/
 defecto de Ultralytics; recorte con margen antes del OCR.
 **Entrenamiento:** `yolo11s.pt` (COCO) → 40 épocas, imgsz 640, batch 16 (nbs 64), paciencia 10, semilla 0, AdamW.
 **Optimización:** los umbrales se calibraron en *val* (detector: precisión ≥ 95 %; OCR: estudio de confianza en SAVH); la inferencia de video se comparó a 640 y 1280 px. Los 24 *trials* de Optuna seleccionaron hiperparámetros según mAP@0.5:0.95 en *val*; `lr0` explicó el 62 % de la variación. El *test* se reservó para la comparación final del modelo base y el optimizado (1.020 imágenes, 1.085 placas): mAP@0.5:0.95 pasó de 0,693 a 0,704 (+0,011) y mAP@0.5 de 0,97223 a 0,97284 (+0,00061; redondeado a tres decimales: 0,972 y 0,973). Se mantiene el modelo entregado — ver [`notebooks/04_optimizacion.ipynb`](notebooks/04_optimizacion.ipynb) y [`docs/optimizacion.md`](docs/optimizacion.md).
-**Validación de calidad (actualizada 30/10/2026):** las 69 referencias SAVH tienen decisiones registradas en la hoja, y la única imagen ambigua de la auditoría de cámara (`fila_gt=398`) fue marcada `ilegible` y excluida. El recálculo OCR offline condicionado a esas aprobaciones abarca 398 imágenes únicas (97,49 % EMR); falta evaluación ciega independiente y validación punta a punta. La comparación multisemilla del detector está completa. Se prepararon los ejecutables `scripts/auditar_savh.py` y `scripts/validar_multisemilla_yolo11.py`; **las seis corridas multisemilla ya están registradas; la revisión humana de las 69 etiquetas SAVH sigue pendiente**. Procedimiento y condiciones de cierre: [`docs/validacion_savh_multisemilla.md`](docs/validacion_savh_multisemilla.md). El modelo base publicado no cambia.
+**Estado de validación:** el estudio multisemilla del detector está completo. La validación OCR SAVH tiene resultados offline con etiquetas revisadas de forma asistida, pero no constituye una evaluación independiente. La revisión ciega y la evaluación de cinco clips se informan en [Resultados y validaciones](#4-resultados-y-validaciones), junto con sus límites. Los modelos publicados no se modificaron. Procedimientos: [validación SAVH y multisemilla](docs/validacion_savh_multisemilla.md).
 **Métricas:** mAP@0.5 y mAP@0.5:0.95 (también por tamaño de placa), precisión, recall y F1 al umbral calibrado;
 EMR y CER para el OCR; falsos autorizados y tiempo por decisión para el sistema.
 
 Arquitectura completa y diagramas: [`docs/arquitectura.md`](docs/arquitectura.md).
 
-## 4. Resultados
+## 4. Resultados y validaciones
 
-Preset «completo». Para el detector, el conjunto *test* (1.020 imágenes, 1.085 placas) no se usó para seleccionar hiperparámetros: los 24 ensayos se compararon en *val* y *test* se reservó para la evaluación final (`results/metrics/`).
+**Preset:** «completo». Para el detector, el conjunto *test* (1.020 imágenes, 1.085 placas) no se usó para seleccionar hiperparámetros: los 24 ensayos se compararon en *val* y *test* se reservó para la evaluación final (`results/metrics/`). Las cifras de OCR indicadas como *offline* reutilizan predicciones guardadas; no miden una ejecución nueva del servicio ni demuestran una mejora del modelo.
 
 | Componente | Métrica | Resultado | Meta |
 |---|---|---|---|
@@ -112,11 +112,30 @@ Preset «completo». Para el detector, el conjunto *test* (1.020 imágenes, 1.08
 | OCR afinado con placas ecuatorianas (*test* separado por placa, n=86) | EMR original / afinado | 94,2 % / 94,2 % (McNemar *p* = 1,0): se mantiene el original | — |
 | Regla de decisión (SAVH, lista simulada) | Falsos autorizados / rechazos indebidos | 0 de 202 / 1 de 197 | — |
 | Sistema (video de la garita) | Tiempo por decisión (detección + OCR) | 99 ms | ≤ 1 s ✅ |
-| Sistema | EMR punta a punta en video | pendiente: faltan etiquetas de placa para los videos de prueba | ≥ 80 % |
+| OCR SAVH (corte asistido más reciente, 398 imágenes únicas) | EMR offline | 388/398 (97,49 %), provisional y no independiente | — |
+| OCR SAVH (corte operativo histórico, 399 placas legibles) | EMR / CER sin filtrar por confianza | 93,7 % / 0,010 | EMR ≥ 80 % ✅ |
+| Sistema (cinco clips de prueba) | Coincidencia exacta de placa tras confirmar dos cuadros | 3/5; dos lecturas incorrectas aceptadas | — |
+| Sistema (video operativo de garita) | EMR punta a punta | Pendiente: no se dispone de etiquetas de referencia del video operativo | ≥ 80 % |
 
 La aplicación usa **94 % como umbral operativo de confianza OCR**. Se eligió considerando los recursos de procesamiento limitados del hosting documentado de Hugging Face (2 vCPU y sin GPU dedicada): al aceptar antes una lectura estable, la interfaz puede terminar el análisis de video sin procesar cuadros adicionales. El umbral no acelera cada inferencia; el ahorro potencial proviene de analizar menos cuadros. También busca reducir verificaciones manuales. En videos y cámaras, la interfaz confirma la lectura cuando la misma placa alcanza al menos 94 % en dos cuadros muestreados, separados por 1 segundo; si la confianza es menor o las lecturas no coinciden, solicita validación manual al terminar el video. En una imagen estática se evalúa el cuadro disponible. Al superar el umbral, el servidor solo declara la placa autorizada si tiene una autorización vigente en la lista blanca y no está restringida; la apertura sigue requiriendo que el operador solicite la acción.
 
-**Comparación con un *baseline*.** En el mismo split de validación, YOLO11-s pasó de mAP@0.5 = 0,848 después de
+### Validación del detector
+
+Las seis corridas multisemilla (modelo base y optimizado, semillas 0, 1 y 2) se completaron. El mAP@0.5:0.95 mejoró en los tres pares, con un promedio de **+0,3743 puntos porcentuales** y desviación estándar muestral de **0,3153 puntos porcentuales**; el recall medio cambió aproximadamente **+0,3017 puntos porcentuales**. Son resultados descriptivos de tres semillas, no una prueba de significación estadística. El modelo entregado y el modelo publicado se mantienen sin cambios. [Comparación CSV](results/metrics/validacion_multisemilla_comparacion.csv) · [Método y límites](docs/validacion_savh_multisemilla.md).
+
+La comparación independiente de una semilla en el *test* separado reportó mAP@0.5 de 0,97223 a 0,97284 (+0,00061) y mAP@0.5:0.95 de 0,693 a 0,704 (+0,011). Esas cifras corresponden a una comparación distinta de la media multisemilla. Los 24 *trials* de Optuna se seleccionaron en *val*; el *test* se reservó para la evaluación final.
+
+### Validación del OCR en placas SAVH
+
+El resultado de referencia histórico sobre 399 placas legibles es EMR de **93,7 %** y CER de **0,010**. En un análisis offline posterior se excluyó la imagen `fila_gt=398`, marcada como ilegible, y el conjunto quedó en **398 imágenes únicas**: 388 coincidencias exactas (97,49 %). Al aplicar confianza offline ≥94 %, se aceptaron 362 lecturas y 359 fueron exactas. Este último cálculo es **provisional**, reutiliza salidas OCR almacenadas y algunas etiquetas se aprobaron tras ver sugerencias del OCR; por tanto, no demuestra una mejora ni sustituye una evaluación independiente. Los cortes anteriores de 397 imágenes (373/397; 93,95 %) y 399 placas se conservan como resultados históricos, no como el corte más reciente.
+
+La hoja de revisión registra decisiones para 69 grupos SAVH y 330 referencias de cámara; una imagen se marcó ilegible y se excluyó. El cotejo previo entre 330 referencias y salidas OCR halló 18 discrepancias; esa revisión asistida tampoco equivale a una validación independiente. La pasada ciega preliminar cubrió 84 de 86 imágenes del *test*: coincidieron 71 de las 84 referencias archivadas. Faltan adjudicar 13 diferencias y completar una segunda revisión humana, así que el piloto no cierra la validación ciega. [Resumen del piloto](results/metrics/ocr_savh_validacion_ciega_piloto.json) · [Auditoría OCR 398](results/metrics/ocr_savh_aprobaciones_398.json) · [Protocolo](docs/validacion_savh_multisemilla.md).
+
+### Evaluación de lectura en video
+
+En cinco clips de prueba, el sistema confirmó una lectura en dos cuadros para cada clip; **tres placas coincidieron exactamente y dos fueron lecturas incorrectas aceptadas**. La muestra es pequeña y no valida el funcionamiento en el video operativo de garita, la barrera física ni la persistencia de datos. La evaluación punta a punta del video operativo sigue pendiente hasta contar con etiquetas de referencia. [Métricas de la muestra](results/metrics/video_e2e_muestra.json) · [Protocolo y limitaciones](docs/validacion_savh_multisemilla.md#92-evaluacion-punta-a-punta-de-lectura-en-video).
+
+### Comparación con un *baseline*. En el mismo split de validación, YOLO11-s pasó de mAP@0.5 = 0,848 después de
 la época 1 a 0,971 en la época 40 (+0,123). En el *test* separado, el modelo final obtuvo 0,972; no se compara
 ese valor con la primera época porque corresponden a splits distintos. En el OCR, el *baseline* es el mismo
 fast-plate-ocr sin la normalización ecuatoriana: solo con limpieza de texto logra 93,5 % de EMR en SAVH y con
@@ -129,7 +148,7 @@ fast-plate-ocr sin la normalización ecuatoriana: solo con limpieza de texto log
 pequeñas (lejanas), de noche o deterioradas. Por eso el video se analiza a 1280 px y las lecturas dudosas van a
 verificación manual.
 
-## 5. Instalación y uso
+## 5. Instalación, configuración y despliegue
 
 **Requisitos:** Python 3.11+, Node.js 20.19+ (solo para compilar el frontend), 2 GB de RAM; GPU solo para entrenar
 (Colab). Alternativa sin instalar nada: Docker.
@@ -145,7 +164,7 @@ cd frontend && npm ci && npm run build && cd ..        # compila la interfaz Vue
 uvicorn api.main:app --port 8000                       # abre http://localhost:8000 (API + interfaz)
 ```
 
-Usuarios de demostración: `operador`, `supervisor` y `admin`; la contraseña actual para los tres perfiles es `sirap2026`. Puede cambiarse en el despliegue mediante el secreto `SIRAP_DEMO_PASSWORD`.
+Usuarios de demostración: `operador`, `supervisor` y `admin`. Configure la contraseña de demostración mediante la variable de entorno `SIRAP_DEMO_PASSWORD`; no se publica una contraseña en este README. Como una contraseña de demostración estuvo publicada anteriormente, cámbiela antes de usar el despliegue y no reutilice la expuesta.
 
 | Tarea | Comando |
 |---|---|
@@ -162,7 +181,7 @@ Usuarios de demostración: `operador`, `supervisor` y `admin`; la contraseña ac
 **Configuración:** parámetros en [`config/config.yaml`](config/config.yaml); secretos en variables de entorno
 (plantillas [`.env.example`](.env.example) y [`api/.env.example`](api/.env.example)): `SIRAP_JWT_SECRET`,
 `SIRAP_DEMO_PASSWORD`, `SIRAP_DATA_GITHUB_TOKEN` y, si se conecta una barrera física, `BARRERA_URL` y `BARRERA_TOKEN`.
-**Almacenamiento persistente principal:** todos los CSV operativos residen en el repositorio PRIVADO
+**Almacenamiento persistente principal:** todos los CSV operativos residen en el repositorio privado
 [`SIRAP_datos_privados`](https://github.com/eduardoceballos666/SIRAP_datos_privados), en
 `data/processed/`. Son siete CSV: `vehiculos`, `autorizaciones`, `operaciones`,
 `usuarios`, `garitas`, `credenciales` (hashes) y `detecciones`. La misma identidad
@@ -170,18 +189,46 @@ Usuarios de demostración: `operador`, `supervisor` y `admin`; la contraseña ac
 no datos propios: al arrancar recupera GitHub; cada lectura obtiene la versión remota más
 reciente y cada escritura se confirma contra el SHA previo para impedir sobrescrituras
 concurrentes. En Docker `SIRAP_GITHUB_REQUIRED=1` impide iniciar sin GitHub o sin alguno
-de los seis CSV históricos. La exportación enriquecida usa
+de los seis CSV históricos existentes antes de incorporar el CSV de detecciones. La exportación enriquecida usa
 `data/processed/detecciones.csv` en el MISMO repositorio privado.
 **No borrar ni reinicializar estos archivos:** se preservó un respaldo de los seis CSV
-anteriores a la migración en la rama privada
+históricos anteriores a la incorporación del CSV de detecciones en la rama privada
 `respaldo-pre-migracion-2026-10-30`.
 Véase [procedimiento de continuidad y recuperación](data/README.md).
+
+### Despliegue en Hugging Face
+
+El workflow [`.github/workflows/deploy-hf-space.yml`](.github/workflows/deploy-hf-space.yml) publica en el Space
+`eduardoceballos/sirap` cuando un push a `main` modifica alguna ruta incluida en sus filtros, o cuando se inicia
+manualmente desde *Actions → Run workflow*. No cualquier cambio en `main` inicia un despliegue: cambios solo en
+documentación, notebooks o pruebas no coinciden con esos filtros. Los cambios relevantes incluyen `api/**`,
+`src/**`, `frontend/**`, `config/**`, `data/**`, `models/**`, `results/metrics/**`, `requirements.txt`,
+`Dockerfile`, `deploy/huggingface/**` y el propio workflow. Hugging Face construye el [`Dockerfile`](Dockerfile)
+(frontend compilado + API, puerto 7860). Configuración en GitHub → *Settings → Secrets and variables → Actions*:
+
+| Nombre | Tipo | Valor |
+|---|---|---|
+| `HF_TOKEN` | Secret (obligatorio) | Token de Hugging Face con permiso **Write** |
+| `SIRAP_JWT_SECRET` | Secret (recomendado) | Cadena larga y aleatoria para firmar las sesiones |
+| `SIRAP_DEMO_PASSWORD` | Secret (obligatorio para cuentas demo) | Define la contraseña común de las cuentas de demostración. Configure una contraseña nueva y única; la anterior se publicó en el README. |
+| `SIRAP_DATA_GITHUB_TOKEN` | Secret (obligatorio) | Token fine-grained con Contents: Read and write únicamente en `SIRAP_datos_privados`; Actions comprueba los seis CSV históricos y lo guarda en el Space para que GitHub sea la fuente principal. |
+| `HF_SPACE` | Variable (opcional) | Otro Space, p. ej. `usuario/sirap` |
+
+**Despliegue actual:** SIRAP se aloja como una Space Docker en [Hugging Face Spaces](https://huggingface.co/spaces/eduardoceballos/SIRAP), en el puerto 7860. Hugging Face indica que ejecutar Spaces Docker requiere un plan de pago; el costo del hardware depende del recurso seleccionado ([detalle de hardware](https://huggingface.co/docs/hub/spaces-overview#hardware-resources)). La infraestructura de demostración documentada usa 2 vCPU y no tiene GPU dedicada. La API ocupa aproximadamente 410 MB de RAM con los modelos cargados. El despliegue automático requiere los secretos `HF_TOKEN` y `SIRAP_DATA_GITHUB_TOKEN`; también se recomienda configurar `SIRAP_JWT_SECRET`.
+
+> **Estado:** prototipo funcional. La barrera es **simulada** y la base de demostración contiene **datos ficticios**.
+> Los CSV se leen y escriben directamente en GitHub privado. El disco del Space es solo temporal.
+> El despliegue no debe sustituir los CSV históricos; rama privada de recuperación:
+> `respaldo-pre-migracion-2026-10-30`.
+> Para operar en una garita real faltan una cámara IP integrada y el controlador físico de la barrera.
+
 
 **Ejemplo de uso de la API:**
 
 ```bash
+DEMO_PASSWORD="${SIRAP_DEMO_PASSWORD:?Configure la contraseña de demostración}"
 TOKEN=$(curl -s -X POST localhost:8000/api/auth/login -H 'Content-Type: application/json' \
-        -d '{"usuario":"operador","password":"sirap2026"}' | python -c "import sys,json;print(json.load(sys.stdin)['access_token'])")
+        -d "{\"usuario\":\"operador\",\"password\":\"$DEMO_PASSWORD\"}" | python -c "import sys,json;print(json.load(sys.stdin)['access_token'])")
 curl -s -X POST localhost:8000/api/recognize -H "Authorization: Bearer $TOKEN" \
      -F file=@data/samples/garita3_PBA-8901.jpg
 # {"recognition": {"plate": "PBA-8901", "ocr_confidence": 0.9999, ...}, "decision": {"resultado": "AUTORIZADO", ...}}
@@ -201,7 +248,7 @@ print(rec.plate, f"{rec.ocr_confidence:.2%}")                       # PBA-8901 9
 print(decide_access(rec.plate, rec.ocr_confidence, store).titulo)   # ACCESO AUTORIZADO
 ```
 
-## 6. Interfaz de usuario
+## 6. Interfaz y API
 
 **Aplicación web:** SIRAP usa una API en FastAPI y un frontend en Vue 3 (Vite, Pinia, Vue Router, Tailwind CSS y ECharts). Está desplegada en Hugging Face Spaces mediante Docker. Consulte la [aplicación en vivo](https://eduardoceballos-sirap.hf.space), la captura del [dashboard](docs/img/vue_dashboard.png) y la [guía de usuario](docs/manual_usuario.md).
 
@@ -211,10 +258,10 @@ print(decide_access(rec.plate, rec.ocr_confidence, store).titulo)   # ACCESO AUT
 | **Reconocimiento y Acceso** | Botones «Probar con un ejemplo», subir foto o cámara → caja de la placa sobre la imagen, placa, confianza OCR, recorte, resultado de acceso y datos del vehículo; registrar y abrir, reprocesar, apertura manual con motivo, registrar rechazo; corrección manual de la placa; **lecturas de la sesión** para comparar y exportar a CSV; ayuda «¿Cómo se usa esta pantalla?» |
 | **Dashboard** | Ingresos, salidas, placas identificadas y alertas; gráficos interactivos (ECharts) por hora, resultado y garita |
 | **Historial** | Filtros por fecha, placa, garita, resultado y movimiento; exportación CSV (supervisor y administrador) |
+| **Administración** | Vehículos, listas blanca/restringida con vigencia, propietarios, garitas, usuarios y datos de demostración |
+| **Acerca del modelo** | Funcionamiento, métricas, entrenamiento, optimización y **limitaciones y advertencias** |
 
 > **Exportación de resultados:** el botón **Exportar CSV** descarga las operaciones del Historial que coinciden con los filtros aplicados. Está disponible para Supervisor y Administrador.
-| **Administración** | Vehículos, listas blanca/restringida con vigencia, propietarios, garitas, usuarios con contraseña; datos de demostración |
-| **Acerca del modelo** | Funcionamiento, métricas, entrenamiento, optimización y **limitaciones y advertencias** |
 
 La API consulta el servicio público del SRI para completar marca/modelo/año; también consulta EcuadorLegalOnline y
 puede recibir el nombre público asociado a la placa, aunque el panel actual no lo muestra. Ninguna consulta interviene
@@ -229,9 +276,9 @@ celular, **tema claro/oscuro** (botón sol/luna), historial y comparación de la
 
 | Reconocimiento (anotado en el manual) | Dashboard | Tema oscuro | Celular |
 |---|---|---|---|
-| <img src="https://raw.githubusercontent.com/eduardoceballos666/SIRAP_2/396855f38f95c209d201768d6e31312dc7d41203/docs/img/vue_reconocimiento.png" width="300"> | <img src="docs/img/vue_dashboard.png" width="300"> | <img src="docs/img/vue_verificacion.png" width="300"> | <img src="docs/img/vue_movil.png" width="110"> |
+| <img src="docs/img/vue_reconocimiento.png" width="300"> | <img src="docs/img/vue_dashboard.png" width="300"> | <img src="docs/img/vue_verificacion.png" width="300"> | <img src="docs/img/vue_movil.png" width="110"> |
 
-### 6.1 API REST
+### API REST
 
 Documentación interactiva (Swagger) en [`/docs`](https://eduardoceballos-sirap.hf.space/docs).
 
@@ -255,31 +302,6 @@ Documentación interactiva (Swagger) en [`/docs`](https://eduardoceballos-sirap.
 
 La API permite que cualquier usuario autenticado, incluido el Operador, consulte las tablas de Administración mediante `GET /api/admin/{table}`. La pantalla y la ruta de Administración en la interfaz están disponibles solo para Supervisor y Administrador. Consultar las tablas por API no concede permisos de modificación: las operaciones de escritura requieren el rol Administrador.
 
-### 6.2 Despliegue
-
-El workflow [`.github/workflows/deploy-hf-space.yml`](.github/workflows/deploy-hf-space.yml) publica en el Space
-`eduardoceballos/sirap` cuando un push a `main` modifica alguna ruta incluida en sus filtros, o cuando se inicia
-manualmente desde *Actions → Run workflow*. No cualquier cambio en `main` inicia un despliegue: cambios solo en
-documentación, notebooks o pruebas no coinciden con esos filtros. Los cambios relevantes incluyen `api/**`,
-`src/**`, `frontend/**`, `config/**`, `data/**`, `models/**`, `results/metrics/**`, `requirements.txt`,
-`Dockerfile`, `deploy/huggingface/**` y el propio workflow. Hugging Face construye el [`Dockerfile`](Dockerfile)
-(frontend compilado + API, puerto 7860). Configuración en GitHub → *Settings → Secrets and variables → Actions*:
-
-| Nombre | Tipo | Valor |
-|---|---|---|
-| `HF_TOKEN` | Secret (obligatorio) | Token de Hugging Face con permiso **Write** |
-| `SIRAP_JWT_SECRET` | Secret (recomendado) | Cadena larga y aleatoria para firmar las sesiones |
-| `SIRAP_DEMO_PASSWORD` | Secret (opcional) | Define la contraseña común de las cuentas de demostración; el despliegue actual usa `sirap2026` |
-| `SIRAP_DATA_GITHUB_TOKEN` | Secret (obligatorio) | Token fine-grained con Contents: Read and write únicamente en `SIRAP_datos_privados`; Actions comprueba los seis CSV históricos y lo guarda en el Space para que GitHub sea la fuente principal. |
-| `HF_SPACE` | Variable (opcional) | Otro Space, p. ej. `usuario/sirap` |
-
-**Despliegue actual:** SIRAP se aloja como una Space Docker en [Hugging Face Spaces](https://huggingface.co/spaces/eduardoceballos/SIRAP), en el puerto 7860. Hugging Face indica que ejecutar Spaces Docker requiere un plan de pago; el costo del hardware depende del recurso seleccionado ([detalle de hardware](https://huggingface.co/docs/hub/spaces-overview#hardware-resources)). La infraestructura de demostración documentada usa 2 vCPU y no tiene GPU dedicada. La API ocupa aproximadamente 410 MB de RAM con los modelos cargados. El despliegue automático requiere los secretos `HF_TOKEN` y `SIRAP_DATA_GITHUB_TOKEN`; también se recomienda configurar `SIRAP_JWT_SECRET`.
-
-> **Estado:** prototipo funcional. La barrera es **simulada** y la base de demostración contiene **datos ficticios**.
-> Los CSV se leen y escriben directamente en GitHub privado. El disco del Space es solo temporal.
-> El despliegue no debe sustituir los CSV históricos; rama privada de recuperación:
-> `respaldo-pre-migracion-2026-10-30`.
-> Para operar en una garita real faltan una cámara IP integrada y el controlador físico de la barrera.
 
 ## 7. Estructura del proyecto
 
@@ -313,7 +335,7 @@ SIRAP_2/
 └── requirements-dev.txt
 ```
 
-## 8. Consideraciones éticas
+## 8. Consideraciones éticas y limitaciones
 
 Resumen de [`docs/consideraciones_eticas.md`](docs/consideraciones_eticas.md):
 
@@ -332,15 +354,14 @@ Resumen de [`docs/consideraciones_eticas.md`](docs/consideraciones_eticas.md):
 
 | Integrante | Rol |
 |---|---|
-| **Eduardo Alejandro Ceballos Jijón** | Modelado y entrenamiento de YOLO11-s y OCR (fast-plate-ocr).  Desarrollo de la intefaz web Vue 3|
+| **Eduardo Alejandro Ceballos Jijón** | Modelado y entrenamiento de YOLO11-s y OCR (fast-plate-ocr); desarrollo de la interfaz web Vue 3. |
 | **Christian Xavier Valle Maridueña** | Datos (SAVH Guayaquil e imágenes de la garita) y desarrollo de la interfaz web Vue 3 |
 
 *Maestría en Inteligencia Artificial — Proyecto Integrador en IA (MIAR0545), 2026.*
 
 ## 10. Licencia
 
-Código bajo licencia [MIT](LICENSE). Los pesos entrenados con Ultralytics están sujetos a su licencia AGPL-3.0;
-el dataset de Roboflow es CC BY 4.0; OpenCV 4.x se distribuye bajo Apache 2.0. Consulta [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) para atribuciones y condiciones adicionales. Las atribuciones y condiciones de los demás componentes y recursos se detallan en [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+El código de SIRAP está bajo licencia [MIT](LICENSE). Los pesos entrenados con Ultralytics están sujetos a su licencia AGPL-3.0; el dataset de Roboflow, a CC BY 4.0; y OpenCV 4.x, a Apache 2.0. Las atribuciones y condiciones de otros componentes y recursos se detallan en [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 
 ## 11. Agradecimientos y referencias
 
@@ -372,35 +393,7 @@ Las marcas, derechos y licencias de los componentes de terceros pertenecen a sus
 
 ## 12. Videos
 
-- 🎬 **Video pitch (5 min):** (https://www.youtube.com/watch?v=DBaeSUo64xE)
-- 🎤 **Video de respuestas a las preguntas:** https://youtu.be/TUrEQ9sEwYM
+- 🎬 [Video pitch (5 minutos)](https://www.youtube.com/watch?v=DBaeSUo64xE)
+- 🎤 [Video de respuestas a las preguntas](https://youtu.be/TUrEQ9sEwYM)
 
-### Actualización: validación multisemilla (30/10/2026)
-
-Las seis corridas (base y optimizada, semillas 0, 1 y 2) se completaron. El mAP50:95 mejoró en los tres pares: **+0,3743 puntos porcentuales en promedio** (desviación estándar muestral **0,3153 pp**); el recall medio cambió aproximadamente **+0,3017 pp**. Es evidencia descriptiva de tres semillas, no significación estadística ni una evaluación punta a punta. Se conserva el modelo publicado y sigue pendiente verificar visualmente las 69 etiquetas SAVH. [Detalle y limitaciones](docs/validacion_savh_multisemilla.md) · [Métricas CSV](results/metrics/validacion_multisemilla_comparacion.csv).
-
-
-### Estado de revisión SAVH (30/10/2026; provisional)
-
-Se localizaron y examinaron de forma asistida las 69 imágenes SAVH representativas: 67 sugerencias visualmente compatibles y 2 grupos que siguen ambiguos (7 y 52). **La columna de confirmación humana continúa vacía**; las otras 330 etiquetas de cámara tampoco se consideran confirmadas por una persona, aunque luego se cotejaron con OCR y se inspeccionaron sus 18 desacuerdos. Tras excluir 2 imágenes únicas ambiguas, se recalculó con las salidas OCR cacheadas un **EMR offline de 373/397 = 93,95 %** (frente al histórico de 374/399 = 93,73 %); con un umbral offline del 94 % hubo **14 errores entre 362 lecturas aceptadas**. El cambio en EMR es consecuencia de la exclusión de casos, **no una mejora del OCR**. No se validó el funcionamiento punta a punta en video ni la regla de dos cuadros. Se mantuvieron sin cambios el modelo y el despliegue de Hugging Face. [Auditoría y pendientes](docs/validacion_savh_multisemilla.md) · [Resumen provisional](results/metrics/ocr_savh_revision_asistida_397.json).
-
-
-### Auditoría adicional de etiquetas de cámara (30/10/2026)
-
-El cotejo entre **330 etiquetas de cámara** y las predicciones OCR guardadas de SAVH identificó **18 discrepancias**, además de 312 coincidencias que **no equivalen a confirmaciones visuales**. La revisión asistida de los 18 recortes sugiere provisionalmente OCR en 14, cámara en 3 y deja 1 incierto; ninguna lectura ha recibido aprobación humana. La hoja de revisión incluye una nueva pestaña **Auditoria camara OCR**, con los 330 casos y los 18 discrepantes ordenados primero. El EMR de 373/397 (**93,95 %**) sigue siendo **provisional** y no debe corregirse escogiendo como referencia las propias predicciones del OCR. Las 69 sugerencias anteriores también siguen sin aprobación humana. Los archivos con placas y fotografías están en Drive privado, no en GitHub. [Detalle y protocolo de cierre](docs/validacion_savh_multisemilla.md) · [Resumen agregado](results/metrics/ocr_savh_revision_asistida_397.json). No se modifica ningún modelo publicado.
-
-
-### Último estado de SAVH: aprobaciones registradas y exclusión de imagen ilegible (30/10/2026)
-
-Las dos pestañas de la hoja SAVH contienen decisiones para los **69 grupos** de sugerencias y las **330 referencias de cámara** (329 `ok` y un `ilegible`). El grupo `n=20` se aprobó mediante sus copias idénticas 21 y 22. La imagen `fila_gt=398` se marcó `ilegible` y se **excluye**, sin asignar una placa inventada. El `ground truth` trazable corregido se conserva en Drive privado.
-
-El cálculo offline reutilizando las salidas OCR anteriores resulta en **388 coincidencias exactas de 398 imágenes únicas (EMR 97,49 %)**; con confianza offline ≥94 %, se aceptan 362 lecturas (359 aciertos, 3 errores). **No representa una mejora demostrada del OCR**, ya que algunas etiquetas se aprobaron viendo las propias propuestas OCR. Los resultados de 399 y 397 imágenes del historial siguen disponibles, pero no son el corte más reciente. Se conserva sin cambios el modelo publicado y el despliegue. El piloto ciego y la evaluación de clips de video se documentan debajo.
-
-[Detalle, metodología y advertencias](docs/validacion_savh_multisemilla.md) · [Métricas agregadas registradas](results/metrics/ocr_savh_aprobaciones_398.json).
-
-
-### Evaluación de seguimiento: ceguera y videos (30/10/2026)
-
-La pasada visual ciega preliminar del split test SAVH cubrió 84 de 86 imágenes; sus etiquetas coinciden con 71/84 referencias archivadas. **No cierra la validación independiente**: faltan adjudicar 13 diferencias y una segunda revisión humana. Sus métricas OCR se publican solo como piloto, sin placas: [resumen](results/metrics/ocr_savh_validacion_ciega_piloto.json).
-
-La evaluación E2E de cinco clips de prueba confirmó una lectura en dos cuadros para los cinco; **tres coincidieron exactamente (3/5)** y dos fueron lecturas incorrectas aceptadas. El video operativo con ground truth no estuvo disponible. Este resultado no valida la barrera, el almacenamiento ni el video operativo; véase el [protocolo y sus limitaciones](docs/validacion_savh_multisemilla.md#92-evaluacion-punta-a-punta-de-lectura-en-video) y el [resumen de métricas](results/metrics/video_e2e_muestra.json).
+Las métricas y el estado de validación del sistema se presentan en [Resultados y validaciones](#4-resultados-y-validaciones); los videos se mantienen aquí como material de demostración.
