@@ -152,7 +152,7 @@ provincias: es una limitación declarada en `consideraciones_eticas.md`.
 - **Desbalance geográfico:** se mitiga con la evaluación local (SAVH + garita), no con re-muestreo.
 
 
-## 5. Actualización de auditoría asistida SAVH (30/10/2026)
+## 5. Actualización de auditoría asistida SAVH
 
 La revisión visual asistida de 69 fotografías representativas identificó 67 sugerencias compatibles con las imágenes y 2 grupos ambiguos (n=7, n=52). **Ninguno se presenta como aprobación humana** y las otras 330 referencias de cámara con formato válido se cotejaron posteriormente con OCR, y se inspeccionaron visualmente las 18 discrepancias (sección 5.1); no hay aprobación humana. Se separaron los casos inciertos para evitar imponer una etiqueta por reglas de formato.
 
@@ -168,7 +168,7 @@ Se cruzaron **330 recortes legibles únicos con etiqueta de cámara `camara_form
 El EMR previo de 374/399 y el recálculo de 373/397 emplean referencias que todavía necesitan validación independiente. **No calcular un EMR más alto sustituyendo automáticamente la referencia por la lectura OCR:** cambiaría la verdad terreno en favor del modelo evaluado. La lista de 18 discrepancias, tres láminas de recortes y el informe se guardaron en Drive privado, y se añadió una pestaña `Auditoria camara OCR` a la hoja de revisión. Véase [protocolo de cierre](validacion_savh_multisemilla.md).
 
 
-## 6. Estado posterior a aprobaciones registradas (30/10/2026)
+## 6. Estado posterior a aprobaciones registradas
 
 La hoja de revisión SAVH contiene respuestas para **69 de 69 grupos**; la pestaña cámara–OCR tiene **329 `ok` y un `ilegible`** (`fila_gt=398`). Esta última referencia se excluye del cálculo y conserva la traza de revisión sin inventar matrícula. Tras aplicar las decisiones a las salidas OCR cacheadas, quedan **398 imágenes legibles únicas** con **388 aciertos exactos (EMR 97,49 %)** y CER medio **0,003649**. Con umbral offline de 94 %, 362 se aceptarían (359 correctas, 3 erróneas).
 
