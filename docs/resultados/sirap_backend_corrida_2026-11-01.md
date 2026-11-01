@@ -29,10 +29,17 @@ Corrida revisada en Colab el **1 de noviembre de 2026**. Se conservaron en el no
 
 ## Videos y archivos pesados
 
-Los videos se guardan por separado en Drive, y el notebook conserva solo resultados pequeños. Los enlaces pueden requerir acceso a la cuenta de Google del propietario.
+El video fuente de la garita (459,3 MB) está publicado como asset del Release [`datos-garita-v1`](https://github.com/eduardoceballos666/SIRAP_2/releases/tag/datos-garita-v1); el notebook lo descarga desde GitHub. Los videos de salida YOLO anotado y vista comprimida se conservan aparte en Drive, según los enlaces de revisión de abajo.
 
 - [Video anotado YOLO11 (65,2 MB)](https://drive.google.com/file/d/17Zn3Ceqx_nJ1lZJvQ8AxvBtd6qphjtzG/view)
 - [Vista comprimida YOLO11 (41,7 MB)](https://drive.google.com/file/d/1Z7LIIIgbh4pn3y2NTDqWq-qrdGBtzRra/view)
 - [Video original de la garita (459,3 MB)](https://drive.google.com/file/d/1coC-FcoUtMCmTtq6K3C2Y9z7W7SfC5XC/view)
 
 No se incrustan estos archivos en el `.ipynb`; así se evita que vuelva a superar los 90 MB.
+
+
+## Aplicación, repositorio y videos de presentación
+
+- [Aplicación desplegada](https://eduardoceballos-sirap.hf.space) · [Hugging Face Space](https://huggingface.co/spaces/eduardoceballos/SIRAP)
+- [Repositorio SIRAP_2](https://github.com/eduardoceballos666/SIRAP_2) · [API](https://eduardoceballos-sirap.hf.space/docs)
+- La interfaz publicada está disponible en español e inglés. Los videos de presentación y preguntas están enlazados al final del [README](../../README.md).
