@@ -274,5 +274,8 @@ Gracias a Gladys María Villegas Rugel por la asesoría académica, a la empresa
 - [Aplicación desplegada](https://eduardoceballos-sirap.hf.space)
 - [Repositorio GitHub](https://github.com/eduardoceballos666/SIRAP_2)
 - [Space de Hugging Face](https://huggingface.co/spaces/eduardoceballos/SIRAP)
-- [Video pitch](https://www.youtube.com/watch?v=DBaeSUo64xE)
-- [Video de respuestas](https://youtu.be/TUrEQ9sEwYM)
+
+## Videos de entrega
+
+- [Video pitch del proyecto (máximo 5 minutos)](https://www.youtube.com/watch?v=DBaeSUo64xE)
+- [Video de respuestas a las preguntas](https://youtu.be/TUrEQ9sEwYM)
