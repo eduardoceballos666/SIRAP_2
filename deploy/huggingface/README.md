@@ -1,3 +1,15 @@
+---
+title: SIRAP
+emoji: 🚗
+colorFrom: yellow
+colorTo: blue
+sdk: docker
+app_port: 7860
+pinned: false
+license: mit
+short_description: Reconocimiento de placas y control de acceso (YOLO11 + OCR)
+---
+
 # SIRAP · Sistema de Detección y Reconocimiento Automático de Placas
 
 **Reconocimiento de placas y control de acceso (YOLO11 + OCR)**
