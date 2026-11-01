@@ -39,3 +39,8 @@ YOLO11-s + fast-plate-ocr. Si se conservan pesos de esas versiones, guárdelos c
 ## Umbral operativo OCR
 
 La aplicación usa un umbral de confianza OCR de **99 %**. Las lecturas por debajo pasan a verificación manual.
+
+
+## Uso en la aplicación SIRAP
+
+Los pesos descritos aquí se integran con la aplicación web publicada en [Hugging Face](https://huggingface.co/spaces/eduardoceballos/SIRAP) ([abrir aplicación](https://eduardoceballos-sirap.hf.space)). El código de integración, las métricas y la documentación están en el [repositorio SIRAP_2](https://github.com/eduardoceballos666/SIRAP_2). La [API](https://eduardoceballos-sirap.hf.space/docs) ofrece documentación interactiva; la interfaz se puede usar en español e inglés.
