@@ -8,13 +8,14 @@ from fastapi import APIRouter, Depends, HTTPException, status
 
 from api import schemas
 from api.jsonsafe import plain
-from api.deps import current_user, get_store, require_roles
+from api.deps import get_store, require_roles
 from api.security import set_password
 from src.data_processing import normalize_plate
 from src.storage import StorageError
 
 router = APIRouter(prefix="/api/admin", tags=["Administración"])
 admin_only = require_roles("ADMINISTRADOR")
+admin_read = require_roles("SUPERVISOR", "ADMINISTRADOR")
 
 Table = Literal["vehiculos", "propietarios", "autorizaciones", "garitas", "usuarios"]
 
@@ -38,7 +39,7 @@ def _run(fn, *args, **kwargs):
 
 
 @router.get("/{table}", summary="Contenido de una tabla")
-def get_table(table: Table, _: dict = Depends(current_user)) -> list[dict[str, Any]]:
+def get_table(table: Table, _: dict = Depends(admin_read)) -> list[dict[str, Any]]:
     df = get_store().table(table)
     return plain(df.to_dict(orient="records"))
 
