@@ -188,10 +188,6 @@ Los archivos agregados y las figuras pequeñas están en [métricas](results/met
 
 ### Límites de evaluación
 
-- La evaluación del video operativo sigue siendo provisional: la referencia publicada contiene 18 cuadros puntuales, no intervalos completos ni todos los vehículos; falta una segunda revisión humana independiente. Sus métricas no deben presentarse como evaluación integral ni ciega.
-- La evaluación de garita 7.3 corresponde a 21 imágenes estáticas: EMR 8/21 (38,1 %), por debajo de la meta de 80 %. No evalúa el seguimiento temporal ni sustituye la evaluación del video.
-- El informe 7.3 registró cero falsas autorizaciones, pero reporta que la lista de autorizaciones estaba vacía durante esa corrida. Ese resultado no valida la regla con una lista poblada.
-- Parte de las referencias SAVH siguen siendo sugerencias sin confirmar y las métricas OCR son offline; no constituyen una evaluación ciega independiente ni rendimiento punta a punta del servicio.
 - El rendimiento puede bajar con placas pequeñas, lejanas, nocturnas, deterioradas, con reflejos o de provincias poco representadas.
 
 ## Instalación local
