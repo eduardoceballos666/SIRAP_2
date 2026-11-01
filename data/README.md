@@ -25,9 +25,9 @@
 
 ## 3. Imágenes de la garita (propias)
 
-Imágenes y video del punto de control tomados en una planta **con autorización escrita** de la empresa. Contienen
-placas reales, por eso **no se publican**: se guardan en el Drive del proyecto y se usan solo para la evaluación
-punta a punta (sección 7 del notebook).
+Las imágenes y el video del punto de control se tomaron en una planta **con autorización escrita** de la empresa. El repositorio publica 21 imágenes en `garita/imagenes/` y sus etiquetas en `garita/ground_truth.csv` para la evaluación por imagen de la sección 7.3. El video `video_camiones.mp4` se distribuye como asset del Release [`datos-garita-v1`](https://github.com/eduardoceballos666/SIRAP_2/releases/tag/datos-garita-v1), separado del historial Git por su tamaño.
+
+Estos archivos contienen placas reales y son materiales públicos del proyecto. Las 21 imágenes sirven para la evaluación por imagen; la referencia del video contiene 18 cuadros puntuales y es provisional. Ninguno de esos insumos constituye una referencia exhaustiva de todas las pasadas del video. Consulta [`blind_eval/`](../blind_eval/) y [`results/README.md`](../results/README.md) para conocer su alcance.
 
 ## 4. Autorizaciones y registros del pipeline
 
