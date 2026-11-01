@@ -12,3 +12,11 @@ El notebook no incrusta videos ni archivos grandes. El repositorio conserva el c
 | Dataset SAVH y modelo YOLO11-s | Versionados bajo `evidence/savh/` y `models/`. | Insumos del análisis y del detector. |
 
 La sección 0 clona el repositorio y descarga el video directamente desde el Release público; no monta Google Drive. Para descargar el dataset Roboflow, configura `ROBOFLOW_API_KEY` en Secrets de Colab. Las salidas nuevas permanecen en el espacio temporal de Colab hasta que las descargues. La evaluación 7.2 continúa siendo provisional hasta completar y revisar de forma independiente la referencia de intervalos del video.
+
+
+## Aplicación y repositorio
+
+- [Aplicación web SIRAP](https://eduardoceballos-sirap.hf.space) · [Hugging Face Space](https://huggingface.co/spaces/eduardoceballos/SIRAP)
+- [Código y notebooks en SIRAP_2](https://github.com/eduardoceballos666/SIRAP_2) · [API interactiva](https://eduardoceballos-sirap.hf.space/docs)
+
+La interfaz de la aplicación está disponible en español e inglés. Los videos de presentación están enlazados al final del [README principal](../README.md).
