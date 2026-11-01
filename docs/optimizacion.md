@@ -286,3 +286,12 @@ Al comparar las 330 referencias basadas en lecturas de cámara (`camara_formato_
 ### Estado actualizado de referencias SAVH (30/10/2026)
 
 La revisión humana consignó decisiones sobre **69 grupos de sugerencias** y **330 referencias de cámara** (329 `ok` y una exclusión `ilegible` en `fila_gt=398`). Con una única imagen legible única excluida, la evaluación **offline** del caché de OCR tiene **388/398 = 97,49 %** de coincidencias exactas y, con umbral 94 %, **3 errores de 362 lecturas aceptadas**. El aumento respecto a los cortes históricos **no prueba mejora del OCR**: hubo propuestas de etiquetas generadas por el mismo modelo y visibles al revisor (posible sesgo circular). No se evaluó el sistema completo en video, no se reentrenó el OCR y no se sustituyen los pesos del detector en producción. [Evidencia agregada](../results/metrics/ocr_savh_aprobaciones_398.json) · [protocolo y limitaciones](validacion_savh_multisemilla.md).
+
+
+## Relación con el producto publicado
+
+Los experimentos de optimización y sus métricas se documentan como evidencia del proceso de modelado; no representan por sí solos una garantía del comportamiento operativo para toda cámara o condición de iluminación.
+
+- [Aplicación SIRAP](https://eduardoceballos-sirap.hf.space) · [Hugging Face Space](https://huggingface.co/spaces/eduardoceballos/SIRAP)
+- [Repositorio, notebooks y resultados](https://github.com/eduardoceballos666/SIRAP_2) · [API interactiva](https://eduardoceballos-sirap.hf.space/docs)
+- La aplicación cuenta con interfaz en español e inglés. Videos de presentación: sección final del [README](../README.md).
