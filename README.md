@@ -69,7 +69,7 @@ SIRAP se publica en dos lugares con propósitos distintos:
 
 1. Abre SIRAP desde el Space o el enlace directo.
 2. En el inicio de sesión, elige Español o English. El selector también está en el menú y conserva la preferencia en el navegador.
-3. Inicia sesión con una cuenta habilitada. La pantalla del Space muestra las cuentas de demostración operador, supervisor y admin; la contraseña se define en el servidor mediante SIRAP_DEMO_PASSWORD y no se publica aquí.
+3. Inicia sesión con una cuenta habilitada. La pantalla del Space muestra las cuentas de demostración operador, supervisor y admin. La contraseña se configura mediante SIRAP_DEMO_PASSWORD; si el secreto no está definido, la API usa el valor predeterminado configurado en api/settings.py. En el Space público, configura explícitamente un valor propio.
 4. En Reconocimiento y Acceso, usa un ejemplo, una imagen, un video o una cámara disponible. Revisa la placa, la confianza, el recorte y la decisión.
 5. Confirma la información antes de registrar una operación o solicitar la apertura. Las lecturas inciertas requieren revisión humana; la barrera del Space es simulada.
 6. Consulta las operaciones en Historial. Supervisor y Administrador pueden exportar los resultados filtrados a CSV.
@@ -107,7 +107,7 @@ La interfaz es adaptable a celular y ofrece tema claro y oscuro. Valida el tipo,
 - **Supervisor:** consulta el historial y exporta sus resultados.
 - **Administrador:** gestiona los registros y la configuración desde Administración.
 
-Los cambios a registros existentes y la administración de listas están restringidos al Administrador. El acceso de lectura a algunas tablas de administración también está expuesto mediante la API a usuarios autenticados; la pantalla de Administración de la interfaz se limita a Supervisor y Administrador.
+Los cambios a registros existentes y la administración de listas están restringidos al Administrador. La lectura de tablas administrativas mediante la API y la pantalla de Administración están disponibles para Supervisor y Administrador.
 
 ### API REST
 
@@ -122,7 +122,7 @@ La API publica documentación interactiva en [Swagger](https://eduardoceballos-s
 | POST /api/operations | Todos los perfiles autenticados | Revalidar la decisión, registrar la solicitud y el estado de barrera |
 | GET /api/operations · /api/operations/export.csv | Historial / Supervisor y Administrador | Consultar y exportar operaciones |
 | GET /api/dashboard | Todos los perfiles autenticados | Indicadores y datos de los gráficos |
-| GET /api/admin/{table} | Usuarios autenticados | Consultar tablas administrativas |
+| GET /api/admin/{table} | Supervisor y Administrador | Consultar tablas administrativas |
 | POST/PUT/DELETE /api/admin/... | Administrador | Crear y modificar registros administrativos |
 | GET /api/system · /api/model/info · /api/samples | Usuarios autenticados | Estado, información del modelo y ejemplos |
 
@@ -155,7 +155,7 @@ La aplicación consulta servicios públicos para obtener datos complementarios d
 | Lista de placas para el notebook | data/authorized_plates.csv está versionada en este repositorio y se usa como dato de demostración/evaluación; no contiene credenciales |
 | Datos operativos de la aplicación | Vehículos, autorizaciones, operaciones, usuarios, garitas, hashes de credenciales y detecciones enriquecidas se almacenan en el repositorio privado |
 
-La lista de placas y las referencias incluidas aquí son datos públicos del proyecto. No se deben añadir a este repositorio datos personales, credenciales ni registros operativos privados. Los secretos de despliegue se configuran como variables de entorno o secretos del proveedor.
+La lista de placas de demostración/evaluación [`data/authorized_plates.csv`](data/authorized_plates.csv) y la referencia puntual de video [`blind_eval/video_ground_truth_points_provisional.csv`](blind_eval/video_ground_truth_points_provisional.csv) están publicadas intencionalmente como artefactos del proyecto. La referencia cubre 18 cuadros y es provisional: no representa intervalos completos ni todos los vehículos. No se deben añadir credenciales, datos operativos privados ni nuevas predicciones identificables sin revisión. Los secretos de despliegue se configuran como variables de entorno o secretos del proveedor.
 
 Más detalles: [análisis de datos](docs/analisis_datos.md), [descripción de los datos](data/README.md) y [consideraciones éticas](docs/consideraciones_eticas.md).
 
