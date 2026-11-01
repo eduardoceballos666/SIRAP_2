@@ -6,7 +6,6 @@ import base64
 import threading
 import time
 import uuid
-from concurrent.futures import ThreadPoolExecutor
 from dataclasses import asdict
 
 import cv2
@@ -20,7 +19,7 @@ from src.access_control import AccessDecision, decide_access
 from src.data_processing import ImageLimits, ImageValidationError, load_image, normalize_plate
 from src.storage import StorageError
 from src.github_storage import durable_backup_configured
-from src.detection_export import append_detection, enrich_detection, _query_owner, _query_sri
+from src.detection_export import append_detection, enrich_detection, _query_sri
 from src.utils import ROOT_DIR, get_logger, now_local
 
 logger = get_logger("sirap.api.recognition")
@@ -34,24 +33,18 @@ _VEHICLE_LOOKUPS: dict[str, dict] = {}
 
 
 def _load_vehicle_details(request_id: str, plate: str) -> None:
-    """Consulta SRI y EcuadorLegalOnline en paralelo y combina los datos del registro local."""
+    """Consulta datos vehiculares públicos del SRI y el registro local de SIRAP.
+
+    No consulta EcuadorLegalOnline, cuya información de propietario es de pago.
+    """
     sri: dict = {}
-    owner: dict = {}
     sri_error = ""
     try:
-        with ThreadPoolExecutor(max_workers=2, thread_name_prefix="sirap-vehicle-lookup") as pool:
-            sri_future = pool.submit(_query_sri, plate)
-            owner_future = pool.submit(_query_owner, plate)
-            try:
-                sri = sri_future.result()
-            except Exception as exc:
-                sri_error = f"{type(exc).__name__}: {exc}"
-                logger.exception("No se pudo consultar el SRI para %s", plate)
-            try:
-                owner = owner_future.result()
-            except Exception as exc:
-                owner = {"propietario_estado": "error", "propietario_detalle": f"{type(exc).__name__}: {exc}"}
-                logger.exception("No se pudo consultar EcuadorLegalOnline para %s", plate)
+        try:
+            sri = _query_sri(plate)
+        except Exception as exc:
+            sri_error = f"{type(exc).__name__}: {exc}"
+            logger.exception("No se pudo consultar el SRI para %s", plate)
 
         try:
             local = get_store().get_vehicle(plate) or {}
@@ -66,15 +59,18 @@ def _load_vehicle_details(request_id: str, plate: str) -> None:
                 "marca": sri.get("sri_marca") or local.get("marca") or "",
                 "modelo": sri.get("sri_modelo") or local.get("modelo") or "",
                 "anio": sri.get("sri_anio_modelo") or local.get("anio") or local.get("year") or "",
-                "propietario": owner.get("propietario_nombre") or local.get("propietario") or "",
+                "propietario": local.get("propietario") or "",
                 "transportista": local.get("transportista") or "",
             },
             "fuentes": {
                 "sri": "encontrado" if sri.get("sri_encontrado") else ("error" if sri_error else "sin_datos"),
-                "ecuadorlegalonline": owner.get("propietario_estado", "sin_datos"),
+                "ecuadorlegalonline": "no_usado_servicio_de_pago",
                 "registro": "encontrado" if local else "sin_registro",
             },
-            "detalle_propietario": owner.get("propietario_detalle", ""),
+            "detalle_propietario": (
+                "EcuadorLegalOnline no se consulta porque su información de propietario es de pago; "
+                "solo se muestra el dato del registro local, si existe."
+            ),
         }
     except Exception as exc:
         logger.exception("No se pudieron reunir los datos de %s", plate)
@@ -82,14 +78,19 @@ def _load_vehicle_details(request_id: str, plate: str) -> None:
             "estado": "completado",
             "placa": plate,
             "vehiculo": {"marca": "", "modelo": "", "anio": "", "propietario": "", "transportista": ""},
-            "fuentes": {"sri": "error", "ecuadorlegalonline": "error", "registro": "sin_registro"},
-            "detalle_propietario": f"{type(exc).__name__}: {exc}",
+            "fuentes": {
+                "sri": "error",
+                "ecuadorlegalonline": "no_usado_servicio_de_pago",
+                "registro": "sin_registro",
+            },
+            "detalle_propietario": (
+                "EcuadorLegalOnline no se consulta porque su información de propietario es de pago."
+            ),
             "error": f"{type(exc).__name__}: {exc}",
         }
     with _VEHICLE_LOOKUP_LOCK:
         result["_created_at"] = time.monotonic()
         _VEHICLE_LOOKUPS[request_id] = result
-
 
 SAMPLE_LABELS = {
     "garita3_PBA-8901.jpg": "Garita 3 · PBA-8901 (lista blanca)",
@@ -161,7 +162,7 @@ def recognize(file: UploadFile = File(..., description="JPG, PNG o WEBP; máx. 1
 @router.post("/plates/vehicle-data", status_code=202, summary="Iniciar consulta de datos del vehículo")
 def start_vehicle_data_lookup(body: schemas.VerifyIn, background_tasks: BackgroundTasks,
                               _: dict = Depends(current_user)) -> dict[str, str]:
-    """Consulta datos públicos del SRI y EcuadorLegalOnline y los combina con el registro local."""
+    """Consulta datos vehiculares del SRI y el registro local; omite la fuente de pago de propietario."""
     plate = normalize_plate(body.placa)
     if not plate:
         raise HTTPException(422, "Formato inválido: use 3 letras y 3 o 4 dígitos (ej.: PBA-8901).")
@@ -345,7 +346,7 @@ def register_operation(body: schemas.OperationIn, background_tasks: BackgroundTa
                 "RECHAZO": "Rechazo registrado; la barrera permanece cerrada.",
                 "SOLO_REGISTRO": "Operación registrada sin abrir la barrera."}
     if body.origen == "DETECCION" and final:
-        messages[body.accion] += (" Detección guardada en el CSV de GitHub; consultando SRI y propietario."
+        messages[body.accion] += (" Detección guardada en el CSV de GitHub; consultando los datos vehiculares del SRI."
                                   if export_saved else
                                   " No se guardó en GitHub; revise la configuración del repositorio y el token.")
     return schemas.OperationOut(registrada=True, resultado=decision.resultado, accion=body.accion,
