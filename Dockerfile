@@ -25,7 +25,7 @@ RUN chown user:user /home/user/app
 COPY --chown=user requirements.txt ./
 COPY --chown=user api/requirements.txt api/requirements.txt
 RUN pip install --require-hashes -r api/requirements.txt
-# Chromium solo consulta el nombre público visible en EcuadorLegalOnline. No automatiza CAPTCHA ni reportes de pago.
+# Chromium se incluye para satisfacer la dependencia de Playwright; SIRAP no lo usa para consultar EcuadorLegalOnline.
 RUN PLAYWRIGHT_BROWSERS_PATH=/ms-playwright python -m playwright install --with-deps chromium \
     && chmod -R a+rX /ms-playwright \
     && rm -rf /var/lib/apt/lists/*
