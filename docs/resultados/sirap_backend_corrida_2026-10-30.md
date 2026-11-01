@@ -12,7 +12,7 @@ Este informe organiza por tema las métricas de la corrida guardada y las evalua
 | Placas pequeñas | mAP@0.5:0.95: 0,481 | Es el tamaño más difícil en la evaluación del detector |
 | OCR SAVH, corrida guardada | EMR: 93,7 %; CER: 0,010 | 399 referencias; 69 eran sugerencias sin confirmar |
 | OCR SAVH, recálculo posterior | EMR: 388/398 (97,49 %); CER: 0,003649 | Offline, condicionado a respuestas no ciegas; no equivale a validación independiente |
-| Video, puntos de referencia corregidos | EMR: 11/18 (61,1 %); recall en puntos: 9/16 (56,25 %) | Muestra puntual, no cobertura completa de pasadas |
+| Video, puntos de referencia | Métricas históricas: EMR 11/18 (61,1 %); recall 9/16 (56,25 %), pendientes de recalcular con la referencia actual | Valores de una versión anterior de la muestra puntual; no cobertura completa de pasadas |
 | Imágenes completas de garita | EMR: 8/21 (38,1 %) | Sección 7.3 ejecutada en una evaluación posterior; por debajo de la meta de 80 % |
 | Entrenamiento de la corrida guardada | 40 épocas; 0,70 h; GPU NVIDIA L4 | Duración y equipo de esa corrida |
 | Video, rendimiento | 65,7 FPS reportados por el notebook | Medición de la corrida guardada; no mezclar con tiempos de otras ejecuciones |
@@ -51,11 +51,11 @@ En otro resumen operativo se informa un rendimiento de **61,77 FPS** y un tiempo
 
 ### Evaluación puntual más reciente
 
-La referencia corregida comprende **18 cuadros puntuales** y **16 placas distintas**. En esa reevaluación, 11 de 18 lecturas coincidieron exactamente (**61,1 %**) y se recuperaron 9 de 16 placas en los puntos (**56,25 %**). La evaluación puntual posterior reportó 7/52 falsas autorizaciones, pero ese cálculo se retira: la sección 7.2 comparó las 52 lecturas contra la referencia aunque 34 no tenían etiqueta, por lo que algunas lecturas sin ground truth pudieron contarse como falsas. La cifra de 7/52 no es una métrica válida y no debe interpretarse como proporción descriptiva.
+La corrida resumida en este informe usó una versión anterior de la referencia de 18 cuadros. Sus resultados fueron 11/18 lecturas exactas (**61,1 %**) y 9/16 placas recuperadas (**56,25 %**). Son cifras históricas: el cotejo visual posterior corrigió etiquetas, agregó P003 y retiró el punto 7842. El CSV actual conserva 18 puntos exactos corregidos, pero sus métricas están pendientes de recalcular. La cifra de 7/52 falsas autorizaciones está retirada: comparó 52 lecturas aunque 34 no tenían referencia, por lo que no es válida.
 
 La corrida anterior reportó cero falsas autorizaciones con otra corrida y referencia; tampoco es una estimación integral. El repositorio no conserva el registro por lectura necesario para recalcular el resultado. La métrica queda **no estimable** hasta volver a ejecutar 6.9 y 7.2 con la lógica corregida, la misma lista de autorizaciones y referencias correspondientes. Para una tasa integral hace falta además anotar todas las pasadas.
 
-Los 18 puntos no representan intervalos completos ni un censo de vehículos. No permiten afirmar la exactitud integral del video, medir el recall de todas las pasadas ni clasificar todas las lecturas fuera de referencia. La anotación completa por pasada y una segunda revisión humana independiente siguen pendientes.
+Los 18 puntos corregidos no representan intervalos completos ni un censo de vehículos. No permiten afirmar la exactitud integral del video, medir el recall de todas las pasadas ni clasificar todas las lecturas fuera de referencia. La anotación completa por pasada y una segunda revisión humana independiente siguen pendientes.
 
 Fuentes: [reporte de puntos provisionales](../../results/metrics/video_e2e_puntos_provisionales_20261101.md) y [revisión de la referencia](../../blind_eval/video_ground_truth_review.md).
 
