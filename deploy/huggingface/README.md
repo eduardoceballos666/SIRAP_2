@@ -22,9 +22,9 @@ Las cuentas de demostración son `operador`, `supervisor` y `admin`. La contrase
 
 ## Despliegue
 
-El Space ejecuta la API FastAPI y la interfaz Vue 3 en un contenedor Docker, en el puerto 7860. El workflow [deploy-hf-space.yml](../../.github/workflows/deploy-hf-space.yml) publica al Space cuando hay cambios en `main` que coinciden con las rutas configuradas, y también permite iniciar el despliegue manualmente desde GitHub Actions. Cambios solo en documentación, notebooks o pruebas no activan el despliegue automático.
+El Space ejecuta la API FastAPI y la interfaz Vue 3 en un contenedor Docker, en el puerto 7860. El workflow [deploy-hf-space.yml](https://github.com/eduardoceballos666/SIRAP_2/blob/main/.github/workflows/deploy-hf-space.yml) publica al Space cuando hay cambios en `main` que coinciden con las rutas configuradas, y también permite iniciar el despliegue manualmente desde GitHub Actions. Cambios solo en documentación, notebooks o pruebas no activan el despliegue automático.
 
-El workflow requiere los secretos `HF_TOKEN`, `SIRAP_JWT_SECRET`, `SIRAP_DEMO_PASSWORD` y `SIRAP_DATA_GITHUB_TOKEN), además de la variable de repositorio `HF_SPACE`. El repositorio de datos se configura en el workflow como `eduardoceballos666/SIRAP_datos_privados`.
+El workflow requiere los secretos `HF_TOKEN` y `SIRAP_DATA_GITHUB_TOKEN`. También puede recibir `SIRAP_JWT_SECRET` y `SIRAP_DEMO_PASSWORD` como secretos opcionales. La variable de repositorio `HF_SPACE` permite indicar el destino; si no se configura, el script de despliegue usa `eduardoceballos/sirap`. El repositorio privado de datos se establece como `eduardoceballos666/SIRAP_datos_privados`.
 
 ## Persistencia y datos consultados
 
@@ -34,20 +34,20 @@ El workflow requiere los secretos `HF_TOKEN`, `SIRAP_JWT_SECRET`, `SIRAP_DEMO_PA
 
 ### Exportación enriquecida de detecciones
 
-La exportación de detecciones usa la misma configuración privada: `SIRAP_DATA_GITHUB_TOKEN` y el repositorio indicado por `SIRAP_DATA_GITHUB_REPO`. Los eventos enriquecidos se guardan en `data/processed/detecciones.csv`; no se usan las variables antiguas `GITHUB_TOKEN`, `GITHUB_DATA_REPOSITORY`, `GITHUB_DATA_BRANCH` ni `GITHUB_DATA_PATH`.
+La exportación de detecciones usa la misma configuración privada: `SIRAP_DATA_GITHUB_TOKEN` y `SIRAP_DATA_GITHUB_REPO`. Los eventos enriquecidos se guardan en `data/processed/detecciones.csv`; no se usan las variables antiguas `GITHUB_TOKEN`, `GITHUB_DATA_REPOSITORY`, `GITHUB_DATA_BRANCH` ni `GITHUB_DATA_PATH`.
 
 El enriquecimiento consulta datos vehiculares públicos del SRI en segundo plano y guarda el resultado en el repositorio privado. El nombre del propietario, cuando aparece en la aplicación, procede del registro local. EcuadorLegalOnline ofrece información de propietario de pago y SIRAP no consulta ese servicio.
 
 | Dato | Uso |
 |---|---|
 | `SIRAP_DATA_GITHUB_TOKEN` | Secreto para leer y escribir los CSV en el repositorio privado |
-| `SIRAP_DATA_GITHUB_REPO` | Repositorio privado de persistencia; el workflow de despliegue establece `eduardoceballos666/SIRAP_datos_privados` |
+| `SIRAP_DATA_GITHUB_REPO` | Repositorio privado de persistencia; el despliegue configura `eduardoceballos666/SIRAP_datos_privados` |
 | `data/processed/*.csv` | Registros operativos de la aplicación |
 | `data/processed/detecciones.csv` | Eventos de detección con enriquecimiento del SRI |
 
 ## Umbral y revisión humana
 
-La configuración vigente en [config/config.yaml](../../config/config.yaml) establece una confianza OCR mínima de **94 %**. Las lecturas por debajo del umbral requieren verificación manual. En el modo continuo de video o cámara, la interfaz también confirma la misma placa en dos cuadros aceptados antes de mostrar y registrar la decisión. Estas medidas reducen decisiones basadas en una lectura aislada; no reemplazan la revisión del operador cuando hay dudas.
+La configuración vigente en [config/config.yaml](https://github.com/eduardoceballos666/SIRAP_2/blob/main/config/config.yaml) establece una confianza OCR mínima de **94 %**. Las lecturas por debajo del umbral requieren verificación manual. En modo continuo de video o cámara, la interfaz espera que la misma placa alcance al menos 94 % de confianza OCR en dos cuadros aceptados dentro de 7,5 segundos antes de mostrar y registrar la decisión. Estas medidas reducen decisiones basadas en una lectura aislada; no reemplazan la revisión del operador cuando hay dudas.
 
 La aplicación de demostración se ejecuta en CPU, sin GPU dedicada. Por eso, las mediciones de GPU del notebook no representan la latencia del Space.
 
@@ -57,7 +57,7 @@ La aplicación de demostración se ejecuta en CPU, sin GPU dedicada. Por eso, la
 - **Aplicación:** [eduardoceballos-sirap.hf.space](https://eduardoceballos-sirap.hf.space)
 - **API interactiva:** [Swagger](https://eduardoceballos-sirap.hf.space/docs)
 - **Código fuente:** [GitHub SIRAP_2](https://github.com/eduardoceballos666/SIRAP_2)
-- **Manual de usuario:** [docs/manual_usuario.md](../../docs/manual_usuario.md)
-- **Videos de presentación:** [README principal](../../README.md#videos-de-entrega)
+- **Manual de usuario:** [docs/manual_usuario.md](https://github.com/eduardoceballos666/SIRAP_2/blob/main/docs/manual_usuario.md)
+- **Videos de presentación:** [README principal](https://github.com/eduardoceballos666/SIRAP_2#videos-de-entrega)
 
 SIRAP 1.0 ofrece interfaz en español e inglés. La configuración del Space y su despliegue se administran desde este repositorio.
