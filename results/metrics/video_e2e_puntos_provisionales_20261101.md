@@ -12,15 +12,15 @@ Se volvió a ejecutar 7.2 con la referencia de 18 cuadros puntuales. Las etiquet
 | Lecturas comparadas en los cuadros anotados | 18 |
 | Coincidencia exacta (EMR por lectura) | 11/18 (61,1 %) |
 | Recall de placas únicas en los puntos | 9/16 (56,25 %) |
-| Casos señalados como posibles falsas autorizaciones | 7 |
-| Proporción descriptiva de casos señalados entre las lecturas | 7/52 (13,46 %); provisional, no es una tasa integral confirmada |
+| Falsas autorizaciones válidas | No estimables con el registro publicado |
+| Cálculo anterior retirado | 7/52; inválido porque incluyó lecturas sin referencia |
 | Lecturas fuera de los cuadros de referencia | 34 |
 | Cuadros procesados | 18.115 |
 
 ## Alcance y límites
 
 - Las 18 referencias son puntos (`frame_start == frame_end`), no intervalos completos ni un censo de pasadas. Estos valores no son una evaluación integral del video ni recall de todos los vehículos.
-- Las 34 lecturas restantes no coinciden con una fila de referencia en esos cuadros; no se clasifican como falsos positivos porque la referencia es dispersa.
+- Las 34 lecturas restantes no coinciden con una fila de referencia y no se pueden clasificar. El cálculo anterior de 7 falsas autorizaciones se retiró porque la función de 7.2 comparaba también esas filas sin etiqueta contra ground truth; no se conserva el registro por lectura para recalcular el numerador. La métrica queda no estimable hasta regenerar el registro con la lógica corregida y la misma lista autorizada.
 - Los resultados son métricas condicionadas a los puntos revisados. La revisión humana independiente y la anotación completa por pasada siguen pendientes.
 - El archivo CSV publicado contiene las etiquetas de esos 18 puntos y puede consultarse para reproducir la evaluación puntual. No debe tratarse como respuesta final para futuras pruebas ciegas.
 - Para completar la evaluación, hay que anotar intervalos inclusivos para cada pasada, incluir vehículos omitidos por el detector, validar independientemente las placas/límites y volver a ejecutar la sección 7.2 con el mismo video.
