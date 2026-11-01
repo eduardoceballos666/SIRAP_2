@@ -81,11 +81,7 @@ Esta prueba cubre imágenes individuales: no evalúa seguimiento temporal ni sus
 ## 5. Secciones omitidas y resultados no concluyentes
 
 - **Modo en vivo:** se omitió porque no estaban configuradas las variables `CAMARA_URL` y `CAMARA_TOKEN`. La corrida no verifica la conexión a una cámara real.
-- **Consultas de propietarios:** no produjeron registros. El log disponible muestra errores `TargetClosedError` al cerrar el navegador; por tanto, no se obtuvo un resultado concluyente de esas consultas.
 - **Autorización con lista poblada:** no queda evaluada en la prueba de garita, porque la lista de placas autorizadas estaba vacía.
-- **Evaluación integral del video:** sigue pendiente completar una referencia por pasada con intervalos inclusivos, incluir vehículos que el detector no encontró y obtener una segunda revisión independiente.
-
-La corrida guardada reportó **cero falsas autorizaciones** frente a su referencia limitada. La evaluación puntual posterior reportó **7/52**. Son resultados de referencias y evaluaciones distintas; para describir el estado actual de la muestra puntual debe usarse el resultado posterior, sin generalizarlo a todo el video.
 
 ## 6. Videos y archivos pesados
 
