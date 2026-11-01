@@ -56,3 +56,14 @@ privado de destino.
 ## Umbral operativo OCR
 
 La aplicación usa un umbral de confianza OCR de **99 %**. Las lecturas por debajo pasan a verificación manual.
+
+
+## Enlaces del despliegue
+
+- **Hugging Face Space:** https://huggingface.co/spaces/eduardoceballos/SIRAP
+- **Aplicación:** https://eduardoceballos-sirap.hf.space
+- **Código fuente:** https://github.com/eduardoceballos666/SIRAP_2
+- **API interactiva:** https://eduardoceballos-sirap.hf.space/docs
+- **Manual y videos de presentación:** [README del repositorio](../../README.md) y [manual de usuario](../../docs/manual_usuario.md)
+
+SIRAP 1.0 ofrece interfaz en español e inglés. La configuración del Space y su despliegue se administran desde este repositorio.
