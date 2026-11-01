@@ -79,9 +79,9 @@ un operador de garita, que lea placas ecuatorianas y registre cada operación.
 | 5 (10–16/10) | Optimización y evaluación | Lista de autorizaciones CSV, verificación SRI, registros CSV, pipeline de video y modo en vivo |
 | 6 (17–24/10) | Interfaz, documentación y videos | 23/10: detector final YOLO11-s y OCR fast-plate-ocr; versión inicial de SIRAP; repositorio y documentación. 24/10: afinamiento del OCR, estudio de hiperparámetros (Optuna, 24 *trials*) y **SIRAP 1.0 (arquitectura FastAPI + Vue 3)** publicada en Hugging Face Spaces |
 
-**Desviaciones.** El detector cambió cuatro veces (YOLOv8 → RF-DETR → YOLOv8n → YOLO11-s) y el OCR también
-cambió hasta llegar a fast-plate-ocr. Los cambios se debieron al costo de cómputo en Colab (RF-DETR es pesado) y a la
-necesidad de correr en CPU dentro de la app. Esto desplazó la optimización de
+**Desviaciones.** El detector cambió de YOLOv8 → YOLOv8n → YOLO11-s y el OCR también
+cambió hasta llegar a fast-plate-ocr. Los cambios se debieron al costo de cómputo en Colab y a la
+necesidad de correr en CPU dentro de la app debido a las limitaciones en el hosting Hugging Face. Esto desplazó la optimización de
 hiperparámetros al último día (ver `optimizacion.md`). La versión web FastAPI + Vue no estaba en el plan original:
 se agregó al final para tener una arquitectura cliente-servidor con autenticación por usuario.
 
