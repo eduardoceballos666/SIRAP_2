@@ -1,88 +1,83 @@
-# Optimización de hiperparámetros – SIRAP (Workshop S5)
+# Optimización de modelos y umbrales – SIRAP
 
-Notebook: `notebooks/04_optimizacion.ipynb` · Resultados: `results/metrics/optimizacion_*.csv|json` ·
-Figuras: `results/figures/opt_*.png`
+Este documento reúne la búsqueda de hiperparámetros del detector, la comparación de configuraciones completas, la validación con varias semillas, la calibración de umbrales y el experimento independiente de afinamiento del OCR. Cada resultado se identifica por su conjunto y protocolo para no confundir experimentos distintos.
 
-> **Estado (24/10/2026).** Estudio ejecutado en Colab (GPU T4): 24 corridas cortas (≈3,2 h) y el reentrenamiento
-> de la mejor configuración con el protocolo completo (40 épocas, 1,19 h). Todas las cifras de este documento salen
-> de esa corrida (`results/metrics/optimizacion_*.csv|json`). **Resultado:** `lr0` explica la mayor parte de la
-> variación; la configuración optimizada sube el mAP@0.5:0.95 de *test* de 0,693 a 0,704 con el mismo mAP@0.5.
-> El modelo entregado **se mantiene** (sección 5).
+- Notebook de optimización: [04_optimizacion.ipynb](../notebooks/04_optimizacion.ipynb)
+- Notebook de afinamiento OCR: [06_afinamiento_ocr.ipynb](../notebooks/06_afinamiento_ocr.ipynb)
+- Métricas: `results/metrics/optimizacion_*.csv|json`
+- Figuras: `results/figures/opt_*.png`
 
----
+## Contenido
 
-## 1. Qué se optimiza y con qué métrica
+1. [Objetivo y protocolo](#1-objetivo-y-protocolo)
+2. [Configuración base y espacio de búsqueda](#2-configuración-base-y-espacio-de-búsqueda)
+3. [Resultados y sensibilidad](#3-resultados-y-sensibilidad)
+4. [Comparación completa y decisión sobre el detector](#4-comparación-completa-y-decisión-sobre-el-detector)
+5. [Validación multisemilla](#5-validación-multisemilla)
+6. [Umbrales y decisión operativa](#6-umbrales-y-decisión-operativa)
+7. [Afinamiento del OCR](#7-afinamiento-del-ocr)
+8. [Conclusiones y límites](#8-conclusiones-y-límites)
+9. [Relación con la aplicación y el repositorio](#9-relación-con-la-aplicación-y-el-repositorio)
 
-- **Modelo:** detector YOLO11-s (el OCR es un modelo preentrenado; su único «hiperparámetro» operativo es el
-  umbral de confianza, que se trata en la sección 6).
-- **Métrica objetivo:** mAP@0.5:0.95 en *val* (más exigente que mAP@0.5 con la localización, lo que importa para
-  recortar bien la placa antes del OCR). Se reporta también mAP@0.5.
-- **Presupuesto:** 24 corridas cortas (10 épocas, 30 % de *train*, validación con el *val* completo, semilla 0,
-  `deterministic=True`), ≈3,2 h en una T4 (≈8 min por *trial*). La mejor configuración se reentrena luego con el protocolo
-  completo (40 épocas, 100 % de los datos) y se compara con la base **en *test***.
+## 1. Objetivo y protocolo
 
-## 2. Configuración base (antes de optimizar)
+El estudio principal optimiza el detector **YOLO11-s**. La métrica objetivo es mAP@0.5:0.95 en validación, porque evalúa con mayor exigencia la localización de la placa que mAP@0.5. También se registra mAP@0.5.
 
-| Hiperparámetro | Valor base |
-|---|---|
-| `lr0` (tasa de aprendizaje inicial) | 0,002 (AdamW automático de Ultralytics) |
+La búsqueda utilizó **Optuna con TPE bayesiano**, 24 trials y 6 inicializaciones aleatorias. Cada trial corto se ejecutó durante 10 épocas, con 30 % del conjunto de entrenamiento, validación completa, semilla 0 y `deterministic=True` (aprox. 3,2 horas en GPU T4 para toda la búsqueda). La configuración mejor clasificada se volvió a entrenar con 40 épocas y 100 % del conjunto de entrenamiento.
+
+Se fijó `optimizer="AdamW"` explícitamente: con `optimizer="auto"`, Ultralytics puede seleccionar la tasa de aprendizaje automáticamente e ignorar el `lr0` propuesto, lo que impediría comparar correctamente ese hiperparámetro.
+
+## 2. Configuración base y espacio de búsqueda
+
+### Configuración base
+
+| Hiperparámetro | Valor |
+|---|---:|
+| `lr0` | 0,002 |
 | `weight_decay` | 0,0005 |
 | `imgsz` | 640 |
 | `batch` | 16 |
 | `mosaic` | 1,0 |
-| `hsv_v` (brillo) | 0,4 |
+| `hsv_v` | 0,4 |
 | `cos_lr` | False |
-| `epochs` / `patience` | 40 / 10 |
+| Épocas / paciencia | 40 / 10 |
 
-## 3. Espacio de búsqueda
+### Espacio explorado
 
-| Hiperparámetro | Rango / valores | Escala | Por qué |
+| Hiperparámetro | Rango / valores | Escala | Motivo |
 |---|---|---|---|
-| `lr0` | 1e-4 – 1e-2 | logarítmica | Es el hiperparámetro que más suele mover la convergencia |
-| `weight_decay` | 1e-5 – 1e-3 | logarítmica | Regularización; dataset de una clase propenso a sobreajuste |
-| `imgsz` | 512, 640, 768 | categórica | Placas pequeñas (17,6 % del *test*) necesitan resolución |
-| `batch` | 8, 16, 32 | categórica | Ruido del gradiente (con `nbs=64` el lote efectivo es fijo) |
-| `mosaic` | 0 – 1 | lineal | Aumento que crea objetos pequeños y contextos variados |
-| `hsv_v` | 0 – 0,8 | lineal | Robustez a iluminación (día, noche, sombra de la garita) |
-| `cos_lr` | True / False | categórica | Forma del *scheduler* |
+| `lr0` | 1e-4–1e-2 | Logarítmica | Controla la convergencia al ajustar el detector preentrenado |
+| `weight_decay` | 1e-5–1e-3 | Logarítmica | Regularización |
+| `imgsz` | 512, 640, 768 | Categórica | Evaluar el efecto del tamaño de las placas |
+| `batch` | 8, 16, 32 | Categórica | Evaluar el ruido del gradiente |
+| `mosaic` | 0–1 | Lineal | Variar el aumento de datos y los contextos |
+| `hsv_v` | 0–0,8 | Lineal | Variar la robustez a cambios de iluminación |
+| `cos_lr` | True / False | Categórica | Comparar el scheduler de tasa de aprendizaje |
 
-**Método:** búsqueda **bayesiana TPE** (Optuna, 24 *trials*, 6 aleatorios iniciales). El optimizador se fija en
-`AdamW` de forma explícita: con `optimizer="auto"` Ultralytics ignora `lr0` y lo recalcula, y el estudio no mediría nada. Se eligió TPE frente a *grid search* porque 7 dimensiones × 3 valores serían 2 187
-combinaciones.
+Con `nbs=64`, Ultralytics acumula gradientes para mantener un lote efectivo de 64; por ello, distintos valores de `batch` pueden producir un efecto reducido.
 
-## 4. Análisis de sensibilidad
+## 3. Resultados y sensibilidad
 
-El notebook produce, a partir de la tabla de *trials*:
+### Trials principales
 
-1. **Ranking de importancia** con **fANOVA** (`optuna.importance.FanovaImportanceEvaluator`): qué fracción de la
-   varianza del mAP explica cada hiperparámetro. Se contrasta con la importancia por permutación de un
-   *random forest* sustituto (para no depender de un solo método).
-2. **Partial dependence plots (PDP)** 1D: efecto promedio de cada hiperparámetro sobre el mAP predicho por el
-   sustituto, manteniendo los demás en su distribución observada.
-3. **Interacciones**: PDP 2D de los dos pares formados por los tres hiperparámetros más importantes.
-4. **Historial de la búsqueda y sensibilidad a `lr0`**: mAP de cada *trial* y su relación con el hiperparámetro
-   dominante (figura generada a partir de `optimizacion_trials.csv`).
-
-### 4.0 Resultados de la búsqueda
-
-| | Trial | `lr0` | `weight_decay` | `imgsz` | `batch` | `mosaic` | `hsv_v` | `cos_lr` | mAP@0.5:0.95 *val* | mAP@0.5 *val* |
-|---|---|---|---|---|---|---|---|---|---|---|
+| Configuración | Trial | `lr0` | `weight_decay` | `imgsz` | `batch` | `mosaic` | `hsv_v` | `cos_lr` | mAP@0.5:0.95 val | mAP@0.5 val |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
 | Base | 0 | 0,002 | 5,0e-4 | 640 | 16 | 1,00 | 0,40 | False | 0,534 | 0,923 |
 | **Mejor** | **12** | **1,6e-4** | **9,3e-4** | **640** | **32** | **0,78** | **0,29** | **True** | **0,565** | 0,945 |
-| 2.º | 23 | 1,2e-4 | 4,9e-4 | 640 | 32 | 0,88 | 0,32 | True | 0,564 | 0,951 |
-| 3.º | 15 | 1,2e-4 | 1,3e-4 | 640 | 32 | 0,21 | 0,16 | True | 0,563 | 0,948 |
+| Segundo | 23 | 1,2e-4 | 4,9e-4 | 640 | 32 | 0,88 | 0,32 | True | 0,564 | 0,951 |
+| Tercero | 15 | 1,2e-4 | 1,3e-4 | 640 | 32 | 0,21 | 0,16 | True | 0,563 | 0,948 |
 | Peor | 10 | 6,0e-3 | 4,9e-5 | 640 | 32 | 0,25 | 0,28 | True | 0,486 | 0,862 |
 
-Con el protocolo corto, la mejor configuración supera a la base en **+0,031** de mAP@0.5:0.95 (+5,9 % relativo).
-Los 10 *trials* con `lr0` ≤ 2e-4 promedian 0,558 (rango 0,549–0,565); los 6 con `lr0` > 1e-3, 0,521 (0,486–0,534).
-Tabla completa: `results/metrics/optimizacion_trials.csv`.
+En los trials cortos, la mejor configuración superó a la base en **0,031 mAP@0.5:0.95** (5,9 % relativo). Los 10 trials con `lr0` ≤ 2e-4 promediaron 0,558 (rango 0,549–0,565); los 6 con `lr0` > 1e-3 promediaron 0,521 (rango 0,486–0,534). El archivo con todos los trials está en [optimizacion_trials.csv](../results/metrics/optimizacion_trials.csv).
 
-![Historial y sensibilidad a lr0](../results/figures/opt_historial.png)
+![Historial de búsqueda y sensibilidad a lr0](../results/figures/opt_historial.png)
 
-### 4.1 Ranking de importancia
+### Importancia de los hiperparámetros
 
-| # | Hiperparámetro | Importancia fANOVA | Importancia por permutación (RF) |
-|---|---|---|---|
+La importancia se estimó con fANOVA y se contrastó con permutación de un Random Forest sustituto.
+
+| Orden fANOVA | Hiperparámetro | fANOVA | Permutación (RF) |
+|---:|---|---:|---:|
 | 1 | `lr0` | **0,616** | **1,538** |
 | 2 | `imgsz` | 0,183 | 0,005 |
 | 3 | `mosaic` | 0,074 | 0,023 |
@@ -91,207 +86,152 @@ Tabla completa: `results/metrics/optimizacion_trials.csv`.
 | 6 | `hsv_v` | 0,031 | 0,005 |
 | 7 | `batch` | 0,005 | ≈0 |
 
-fANOVA reparte la varianza del mAP (suma 1). La importancia por permutación es la caída del R² del *random forest*
-sustituto al desordenar cada columna, por eso puede pasar de 1.
+fANOVA distribuye la varianza explicada (la suma es 1). La importancia por permutación mide la caída del R² del modelo sustituto al desordenar una variable y puede superar 1.
 
-![Importancia](../results/figures/opt_importancia.png)
+![Importancia de hiperparámetros](../results/figures/opt_importancia.png)
 
-**Lectura.**
-- **`lr0` domina en los dos métodos** (62 % de la varianza; correlación entre log10 `lr0` y mAP = −0,91). La base usa
-  `lr0` = 0,002, el valor que elige el optimizador automático de Ultralytics; para afinar YOLO11-s preentrenado en
-  COCO funciona mejor una tasa **≈10 veces menor** (1–2e-4).
-- **`imgsz` no es confiable como 2.º lugar:** fANOVA le da 0,18, pero la permutación casi 0 y el PDP es plano. Solo
-  2 *trials* usaron 512 px y los dos tenían `lr0` alto, así que fANOVA le atribuye parte del efecto de `lr0`
-  (variables confundidas). 768 px no mejoró a 640 px en las corridas cortas.
-- **`mosaic`, `weight_decay`, `hsv_v`, `cos_lr` y `batch` mueven poco el mAP** (< 0,01 en el PDP). Con `nbs=64`
-  Ultralytics acumula gradientes hasta un lote efectivo de 64, lo que explica que `batch` casi no importe.
-- **Limitación:** TPE concentró la búsqueda en la zona buena (20 de 24 *trials* con `batch` 32, 19 con 640 px y 19
-  con `cos_lr`), así que esos hiperparámetros quedaron poco explorados; sus importancias son orientativas.
+**Hallazgos principales:**
 
-### 4.2 Partial dependence plots
+- `lr0` domina en ambos métodos. En esta búsqueda, la correlación entre log10(`lr0`) y mAP fue −0,91. La tasa base de 0,002 fue demasiado alta para este ajuste; los mejores trials se ubicaron cerca de 1–2e-4.
+- El segundo lugar de `imgsz` en fANOVA no es concluyente: la permutación lo estima casi en cero y su PDP es plano. Solo dos trials usaron 512 px, ambos con `lr0` alto, por lo que las variables están confundidas. 768 px no superó a 640 px en los trials cortos.
+- `mosaic`, `weight_decay`, `hsv_v`, `cos_lr` y `batch` muestran efectos pequeños en los PDP (menos de 0,01 mAP en la región explorada).
+- TPE concentró la búsqueda: 20 de 24 trials usaron batch 32; 19 usaron 640 px y 19 usaron `cos_lr`. Por ello, las importancias de esos parámetros son orientativas.
 
-![PDP](../results/figures/opt_pdp.png)
+### Partial dependence e interacciones
 
-- `lr0` (eje en log10): el mAP predicho cae de forma casi monótona de ≈0,558 en 1e-4 a ≈0,519 desde 2e-3. El
-  óptimo está en el **borde inferior del rango** buscado (1e-4), así que valores aún menores podrían rendir igual o
-  mejor; queda para un estudio futuro.
-- `mosaic`: leve mejora por encima de ≈0,6 (+0,002). Las demás curvas son planas.
+![Partial dependence plots](../results/figures/opt_pdp.png)
 
-### 4.3 Interacciones
+El PDP de `lr0` cae casi monótonamente de aproximadamente 0,558 en 1e-4 a 0,519 desde 2e-3. El mejor valor se acerca al límite inferior del rango explorado; valores inferiores requerirían otro estudio. `mosaic` presenta una mejora leve por encima de aproximadamente 0,6; las demás curvas son relativamente planas.
 
-![Interacciones](../results/figures/opt_interacciones.png)
+![Interacciones entre hiperparámetros](../results/figures/opt_interacciones.png)
 
-Pares analizados: `lr0 × imgsz` y `lr0 × mosaic`. Las curvas de nivel son casi verticales: el mAP depende de `lr0`
-y prácticamente no de la otra variable, es decir, **no hay interacciones relevantes**. Basta con fijar bien `lr0`.
+Se analizaron `lr0 × imgsz` y `lr0 × mosaic`. Las curvas son casi verticales: el mAP cambia principalmente con `lr0`, sin interacciones relevantes visibles con la otra variable en la región observada.
 
-## 5. Configuración final y comparación antes / después
+## 4. Comparación completa y decisión sobre el detector
 
-La mejor configuración (trial 12) se reentrenó con el protocolo completo: 40 épocas, 100 % de *train*, paciencia 10,
-semilla 0. La base se evaluó con sus pesos ya entregados (no se reentrenó). Ambas en el mismo *test* (1 020 imágenes,
-1 085 placas).
+La configuración del trial 12 se reentrenó con el protocolo completo: 40 épocas, todo el conjunto de entrenamiento, paciencia 10 y semilla 0. Se comparó con los pesos base entregados en el mismo test (1.020 imágenes y 1.085 placas).
 
-| Configuración | mAP@0.5 *test* | mAP@0.5:0.95 *test* | Precisión | Recall | mAP@0.5:0.95 *val* | Tiempo/época |
-|---|---|---|---|---|---|---|
-| Base (preset «completo», entregada) | 0,972 | 0,693 | 0,987 | 0,952 | 0,691 | ≈63 s (GPU L4) |
-| Optimizada (trial 12) | 0,973 | **0,704** | 0,988 | 0,946 | 0,699 | ≈107 s (GPU T4) |
-| Diferencia | +0,001 | **+0,011** (+1,6 %) | +0,002 | −0,006 | +0,008 | GPU distinta, no comparable |
-
-Precisión y recall son los de Ultralytics (umbral de máximo F1). El mAP de placas pequeñas de la configuración
-optimizada no se midió. La corrida completa terminó las 40 épocas sin que actuara el *early stopping*.
-
-**Decisión: se mantiene el modelo entregado.**
-- La mejora está en **mAP@0.5:0.95** (cajas más ajustadas), no en **encontrar** placas: el mAP@0.5 es el mismo
-  (0,972 frente a 0,973) y el recall baja levemente (−0,006, ≈7 de 1 085 placas). SIRAP recorta la placa con un
-  margen antes del OCR, así que una caja algo más ajustada casi no cambia la lectura.
-- El criterio fijado de antemano pedía que la mejora superara la variación entre semillas. El notebook entrenó una
-  sola semilla por configuración, así que +0,011 no se podía separar de esa variación en el experimento histórico. La validación multisemilla posterior ya se completó y se documenta más abajo; los pesos publicados no cambian.
-- Cambiar el modelo obligaría a volver a exportar el ONNX, recalibrar el umbral del detector y repetir las
-  evaluaciones de la app.
-
-**Recomendación** para el próximo reentrenamiento: usar la configuración del trial 12, en especial `lr0` ≈ 1,6e-4
-con `optimizer="AdamW"` y `cos_lr=True` (`results/metrics/optimizacion_resumen.json`).
-
-## 6. Optimización de umbrales (ya aplicada)
-
-Además de los hiperparámetros de entrenamiento, el sistema tiene dos umbrales de operación:
-
-| Umbral | Cómo se fija | Valor |
-|---|---|---|
-| Confianza del detector | Calibrado **en *val*** (sección 4.1 del notebook): máx. F1 para seguir (`conf_track`) y menor umbral con precisión ≥ 95 % para decidir (`conf_decision`), con piso 0,10 | **0,30** y **0,30** (F1 máx. en val = 0,967) |
-| Confianza OCR para decidir sin verificación manual | Estudio de confianza en SAVH (sección 4.3): se compararon umbrales 0,5–0,99 | **0,94** como umbral operativo elegido ante la capacidad CPU limitada del hosting: en video/cámara permite confirmar antes la misma placa en dos cuadros y potencialmente evitar inferencias adicionales; busca reducir verificaciones manuales, pero no reduce el costo de cada inferencia |
-| Tamaño de inferencia en video | Comparación 640 vs 1280 px en el video de la garita (sección 6.8 del notebook) | 1280 px en video, 640 px en imágenes |
-
-### 6.1 Efecto de la regla de decisión optimizada (SAVH, lista simulada, 399 imágenes)
-
-| Configuración | Falsos autorizados | Rechazos indebidos | A verificación manual |
-|---|---|---|---|---|
-| Sin umbral OCR | 0 de 202 | 1 de 197 | 4,0 % |
-| Umbral OCR 0,99 (escenario de estudio) | 0 de 202 | 1 de 197 | 15,5 % |
-| Umbral OCR 0,94 (evaluación offline por recorte) | 0 de 202 | 1 de 197 | 12,0 % |
-
-La matriz de 0,94 se calculó offline con las predicciones OCR SAVH, referencias revisadas y la misma lista simulada:
-no se observó falso autorizado y hubo 1 rechazo indebido entre 197 autorizadas; 48/399 (12,0 %) quedaron para revisión
-manual.Las referencias incluyen 69 sugerencias aún no confirmadas. La comparación histórica base/optimizada se basó en una semilla por configuración; la nueva validación multisemilla se documenta al final de este archivo.
-
-### 6.2 Curvas del entrenamiento base
-
-![Entrenamiento YOLO11-s](../results/figures/entrenamiento_yolo11_completo.png)
-
-El mAP@0.5 de validación supera la meta (0,85) desde la época 2 y el mAP@0.5:0.95 sigue subiendo hasta la época 40
-(0,691): el *early stopping* (paciencia 10) no se activó, lo que sugiere que más épocas podrían aportar algo en la
-métrica estricta. Lo mismo ocurrió con la configuración optimizada (sección 5), así que `epochs` sigue siendo un
-candidato para un estudio futuro.
-
-## 7. Lecciones
-
-- Los cambios de arquitectura (YOLOv8 → RF-DETR → YOLOv8n → YOLO11-s) y la elección de fast-plate-ocr, un OCR de
-  5 MB hecho para placas que corre en CPU con 93,7 % de EMR en SAVH, tuvieron más impacto en el sistema que cualquier
-  hiperparámetro.
-- La resolución de inferencia (`imgsz`) fue decisiva para las placas pequeñas del video real.
-- Entre los hiperparámetros de entrenamiento, **solo `lr0` importó de verdad**: el valor automático (0,002) era
-  ≈10 veces alto para afinar un modelo preentrenado. Con el protocolo completo, corregirlo sube el mAP@0.5:0.95 en
-  ≈0,01 y no cambia el mAP@0.5; los demás hiperparámetros mueven el mAP menos de 0,01.
-- Las corridas cortas (10 épocas, 30 % de los datos) exageran las diferencias: +0,031 en la búsqueda frente a
-  +0,011 con el protocolo completo.
-
-## 8. Afinamiento del OCR con placas ecuatorianas (`notebooks/06_afinamiento_ocr.ipynb`)
-
-`cct-s-v2-global-model` no incluye Ecuador entre sus regiones, aunque ya logra 93,7 % de EMR en SAVH Guayaquil.
-El notebook 06 prueba si afinarlo mejora ese resultado sin sesgar la evaluación:
-
-| Decisión | Por qué |
-|---|---|
-| Separación **por placa** (60 / 15 / 25 %) | Una placa repetida en *train* y *test* inflaría el EMR |
-| Solo referencias confirmadas (`INCLUDE_UNCONFIRMED = False`) | Una etiqueta sin confirmar podría enseñar un error y además premiarlo en la evaluación |
-| Partir de `cct_s_v2_global.keras` (pesos publicados por el autor) | Afinar, no entrenar desde cero: pocos cientos de ejemplos |
-| *lr* 3e-4, *weight decay* 5e-4, sin *label smoothing*, 40 épocas con *early stopping* (10) | Cambios pequeños sobre un modelo que ya funciona |
-| Aumentos suaves (±8°, brillo, desenfoque, ruido, compresión) | La garita varía más en luz y foco que en geometría |
-| Misma métrica de OCR (EMR tras normalizar y CER); análisis de confianza con umbral 0,99 | Comparar el OCR y documentar el escenario evaluado |
-| Se adopta solo si mejora el EMR con **McNemar p < 0,05** y no aumenta las lecturas equivocadas aceptadas | Con ≈100 imágenes de *test*, cada acierto vale ≈1 punto de EMR |
-
-### 8.1 Resultados (corrida del 24/10/2026, Colab)
-
-**Datos:** 330 recortes legibles de SAVH con referencia de cámara de formato válido (sin confirmación humana integral; las 69 sugerencias quedaron
-fuera), 297 placas distintas, repartidas por placa en 194 / 50 / 86 imágenes (*train* / *val* / *test*).
-
-**Entrenamiento:** partió de `cct_s_v2_global.keras`; la exactitud de placa en *val* subió de 0,969 (época 1) a
-**0,984** en la época 4 y el *early stopping* lo detuvo en la época 14. El modelo original obtiene 0,960 en el mismo
-*val*.
-
-![Curvas del afinamiento](../results/figures/ocr_afinamiento_curvas.png)
-
-**Comparación en *test* (86 imágenes de placas que el modelo no vio):**
-
-| Modelo | EMR | IC 95 % (Wilson) | CER | Aceptadas con confianza ≥ 0,99 | Equivocadas aceptadas |
-|---|---|---|---|---|---|
-| Original (`cct-s-v2-global-model`) | **94,2 %** | 87,1 % – 97,5 % | 0,013 | 90,7 % | 1 |
-| Afinado con placas ecuatorianas | **94,2 %** | 87,1 % – 97,5 % | 0,013 | 89,5 % | 1 |
-
-Los dos modelos aciertan y fallan **exactamente en las mismas imágenes** (0 placas que solo uno lee bien;
-McNemar *p* = 1,0).
-
-**Decisión: se mantiene el modelo original.** La mejora que se ve en *val* (0,960 → 0,984, una o dos imágenes) no se
-repite en *test*: era ajuste al conjunto usado para elegir la época. El afinado además acepta un poco menos de
-lecturas sin verificación manual (89,5 % frente a 90,7 %) sin reducir los errores aceptados.
-
-**Interpretación.**
-- El modelo general ya generaliza bien a placas ecuatorianas de una fila: los errores que quedan (≈5 de 86) son
-  difíciles para ambos modelos (placas borrosas o con caracteres ambiguos como O/Q), no un problema de «región».
-- Con 194 imágenes de entrenamiento no hay señal suficiente para mover un modelo entrenado con más de 85 000 placas.
-- Vale la pena repetir el experimento cuando haya **más y mejores datos**: la hoja de revisión confirmada
-  (`INCLUDE_UNCONFIRMED = True`, +69 imágenes difíciles) y recortes reales de la garita hechos por YOLO11-s
-  (sección 7 del notebook de backend), que además permitirían medir el EMR punta a punta.
-
-Resultados completos en `results/metrics/ocr_afinamiento.json`.
-
-
-## Validación multisemilla terminada (30/10/2026)
-
-Se entrenaron independientemente las configuraciones **base** y **optimizada** con AdamW, 40 épocas previstas, paciencia 10 y semillas 0, 1 y 2 (seis corridas). Es un experimento controlado distinto de la comparación histórica de una sola semilla y de los pesos publicados.
-
-| Semilla | mAP50:95 base | mAP50:95 optimizada | Diferencia (pp) | Recall base | Recall optimizada | Diferencia recall (pp) |
+| Configuración | mAP@0.5 test | mAP@0.5:0.95 test | Precisión | Recall | mAP@0.5:0.95 val | Tiempo por época |
 |---|---:|---:|---:|---:|---:|---:|
+| Base, pesos entregados | 0,972 | 0,693 | 0,987 | 0,952 | 0,691 | ≈63 s (L4) |
+| Optimizada, trial 12 | 0,973 | **0,704** | 0,988 | 0,946 | 0,699 | ≈107 s (T4) |
+| Diferencia | +0,001 | **+0,011** (+1,6 %) | +0,002 | −0,006 | +0,008 | GPU distinta |
+
+La precisión y el recall usan el umbral de máximo F1 de Ultralytics. El mAP de placas pequeñas no se midió para la configuración optimizada. El entrenamiento completo llegó a las 40 épocas sin activar *early stopping*.
+
+**Decisión:** se mantienen los pesos entregados (`models/best_model.pt` y `models/best_model.onnx`). La configuración optimizada mejora mAP@0.5:0.95, pero apenas cambia mAP@0.5 y reduce ligeramente el recall. Como SIRAP recorta la placa antes del OCR, una caja más ajustada no implica necesariamente una mejora práctica de lectura. Cambiar los pesos también requeriría exportar ONNX, recalibrar el umbral del detector y repetir las evaluaciones de la aplicación.
+
+Para un próximo reentrenamiento se recomienda probar la configuración del trial 12, en especial `lr0≈1,6e-4`, `optimizer="AdamW"` y `cos_lr=True`; los valores están en [optimizacion_resumen.json](../results/metrics/optimizacion_resumen.json).
+
+## 5. Validación multisemilla
+
+Para medir la variación entre corridas, las configuraciones base y optimizada se entrenaron independientemente con AdamW, 40 épocas previstas, paciencia 10 y semillas 0, 1 y 2.
+
+| Semilla | mAP@0.5:0.95 base | Optimizada | Diferencia (pp) | Recall base | Optimizada | Diferencia (pp) |
+|---:|---:|---:|---:|---:|---:|---:|
 | 0 | 69,3573 % | 70,0945 % | +0,7372 | 95,0693 % | 95,0230 % | −0,0463 |
 | 1 | 69,4552 % | 69,6736 % | +0,2184 | 95,1152 % | 96,0369 % | +0,9217 |
 | 2 | 69,5956 % | 69,7629 % | +0,1673 | 94,9309 % | 94,9607 % | +0,0298 |
 
-**Mejora media pareada en mAP50:95: +0,3743 puntos porcentuales**; desviación estándar **muestral: 0,3153 puntos porcentuales** (n=3). El recall medio pareado varía aproximadamente **+0,3017 puntos porcentuales**. Las tres semillas mejoran en mAP50:95, pero la magnitud varía y el recall baja levemente en la semilla 0. Esto describe estabilidad limitada, **no** significación estadística ni mejora punta a punta en video.
+La mejora media pareada de mAP@0.5:0.95 fue **+0,3743 puntos porcentuales**, con desviación estándar muestral de **0,3153 puntos** (n=3). El recall medio pareado cambió aproximadamente **+0,3017 puntos**. Las tres semillas mejoraron mAP@0.5:0.95; el tamaño de la mejora varía y el recall baja levemente en una semilla. Es evidencia descriptiva de estabilidad limitada, no una prueba de significación estadística ni de mejora punta a punta en video.
 
-Evidencia: [comparación CSV](../results/metrics/validacion_multisemilla_comparacion.csv), [resumen JSON](../results/metrics/validacion_multisemilla_resumen.json), [protocolo JSON](../results/metrics/validacion_multisemilla_protocolo.json). La comparación anterior de una semilla permanece como resultado histórico separado. **No se reemplazan** `models/best_model.pt`, `models/best_model.onnx` ni los pesos de Hugging Face. Las **69 referencias SAVH** continúan pendientes de verificación visual; tampoco está demostrada una mejora del OCR o del sistema completo.
+### Métricas complementarias
 
-
-### Métricas complementarias de la validación multisemilla: mAP50 y precisión
-
-| Semilla | mAP50 base | mAP50 optimizada | Δ mAP50 | Precisión base | Precisión optimizada | Δ precisión |
+| Semilla | mAP@0.5 base | Optimizada | Diferencia (pp) | Precisión base | Optimizada | Diferencia (pp) |
 |---:|---:|---:|---:|---:|---:|---:|
-| 0 | 0.973401 | 0.973779 | +0.000378 | 0.992304 | 0.988982 | -0.003322 |
-| 1 | 0.970963 | 0.973800 | +0.002838 | 0.983629 | 0.986651 | +0.003022 |
-| 2 | 0.970954 | 0.972518 | +0.001564 | 0.988563 | 0.993252 | +0.004689 |
+| 0 | 97,3401 % | 97,3779 % | +0,0378 | 99,2304 % | 98,8982 % | −0,3322 |
+| 1 | 97,0963 % | 97,3800 % | +0,2838 | 98,3629 % | 98,6651 % | +0,3022 |
+| 2 | 97,0954 % | 97,2518 % | +0,1564 | 98,8563 % | 99,3252 % | +0,4689 |
 
-Las diferencias medias pareadas son **+0.001593** en mAP50 (DE muestral **0.001230**) y **+0.001463** en precisión (DE muestral **0.004227**). El valor de precisión también disminuye en la semilla 0; la evidencia de estabilidad de las tres semillas no garantiza una mejora uniforme en todas las métricas. Los seis JSON originales, con las cuatro métricas y rutas a pesos experimentales, se conservan en [resultados individuales](../results/metrics/validacion_multisemilla_individuales/base_semilla_0.json) y los otros cinco archivos del mismo directorio.
+La diferencia media pareada fue **+0,1593 pp** en mAP@0.5 (DE muestral 0,1230 pp) y **+0,1463 pp** en precisión (DE 0,4227 pp). La precisión disminuyó en una semilla; la mejora no es uniforme en todas las métricas.
 
+La evidencia completa está en [comparación CSV](../results/metrics/validacion_multisemilla_comparacion.csv), [resumen JSON](../results/metrics/validacion_multisemilla_resumen.json), [protocolo JSON](../results/metrics/validacion_multisemilla_protocolo.json) y los archivos individuales de [semillas](../results/metrics/validacion_multisemilla_individuales/base_semilla_0.json). Esta validación no cambia los pesos publicados ni demuestra por sí sola mejoras del OCR o de la aplicación completa.
 
-### Nota de trazabilidad: auditoría OCR SAVH provisional (30/10/2026)
+## 6. Umbrales y decisión operativa
 
-Se inspeccionaron de forma **asistida**, sin aprobación humana definitiva, las 69 imágenes representativas de SAVH. Hubo 67 lecturas visualmente compatibles con las sugerencias y 2 grupos ambiguos (n=7 y n=52), que se dejaron pendientes. Al excluir únicamente esas 2 imágenes únicas de un conjunto de 399 legibles únicas, el EMR offline de las salidas OCR cacheadas fue **373/397 = 93,9547 %**; con confianza ≥94 % se aceptaron 362 lecturas, de las cuales **14 eran erróneas**. La comparación histórica era 374/399 = 93,7343 % y 14 errores aceptados entre 363. La variación de EMR obedece al cambio de subconjunto; **no es ganancia del modelo OCR ni prueba de robustez en video**.
+La búsqueda de hiperparámetros se complementa con la calibración de umbrales y tamaño de inferencia.
 
-Las valoraciones visuales del asistente no son confirmaciones humanas; las 330 referencias de cámara se cotejaron con predicciones OCR, encontrándose 18 desacuerdos inspeccionados visualmente (sección siguiente). La hoja original conserva vacía su columna de aprobación definitiva. Véase [validación SAVH](validacion_savh_multisemilla.md) y el [resumen de métricas preliminares](../results/metrics/ocr_savh_revision_asistida_397.json). La mejora multisemilla de mAP50:95 pertenece al detector experimental y **no se atribuye a los pesos desplegados**.
+| Parámetro | Método documentado | Valor / resultado |
+|---|---|---|
+| Umbral de seguimiento del detector (`conf_track`) | Calibrado en validación para maximizar F1 | 0,30 |
+| Umbral de decisión del detector (`conf_decision`) | Menor umbral con precisión ≥95 %, con piso 0,10 | 0,30; F1 máximo en validación 0,967 |
+| Confianza OCR para el flujo de video | Comparación offline; se solicita revisión si la lectura no cumple el criterio | 0,94 en el flujo documentado del notebook |
+| Resolución de inferencia | Comparación para conservar placas pequeñas | 1.280 px en video de garita; 640 px en imagen estática |
 
+La aplicación y el notebook tienen flujos distintos; esta tabla describe los valores de la evaluación documentada, no garantiza que cada componente desplegado use idéntica regla.
 
-### Auditoría adicional del origen de etiquetas SAVH (30/10/2026)
+### Evaluación offline de umbrales OCR en SAVH
 
-Al comparar las 330 referencias basadas en lecturas de cámara (`camara_formato_valido`) con las salidas OCR cacheadas, se encontraron **18 desacuerdos** y 312 coincidencias. Las fotografías originales de las 18 discrepancias se examinaron de forma asistida: 14 sugieren provisionalmente OCR, 3 cámara y 1 sigue incierta. Ninguna valoración se registra como aprobación humana. **La coincidencia con el OCR no valida por sí sola una referencia**. Antes de concluir sobre robustez del OCR se deben confirmar las etiquetas de manera independiente y repetir el cómputo con ese ground truth. No se modifican el detector, los pesos ni el despliegue. Detalle en [auditoría SAVH](validacion_savh_multisemilla.md).
+El recálculo más reciente usa salidas OCR guardadas y 398 recortes únicos evaluables, condicionados a las respuestas de revisión:
 
+| Umbral | Aceptadas | Exactas entre aceptadas | Erróneas aceptadas | Para revisión manual |
+|---:|---:|---:|---:|---:|
+| 0,94 | 362 | 359 | 3 | 36 |
+| 0,99 | 346 | 343 | 3 | 52 |
 
-### Estado actualizado de referencias SAVH (30/10/2026)
+El EMR global de ese conjunto fue **388/398 = 97,49 %** y el CER medio **0,00365**. Algunas sugerencias OCR estuvieron visibles durante la revisión; por eso estos resultados no constituyen evaluación ciega independiente ni prueban que el modelo haya mejorado. No hubo reentrenamiento OCR ni nueva inferencia. Véase el [resumen de métricas condicionadas](../results/metrics/ocr_savh_aprobaciones_398.json) y el [protocolo de validación SAVH](validacion_savh_multisemilla.md).
 
-La revisión humana consignó decisiones sobre **69 grupos de sugerencias** y **330 referencias de cámara** (329 `ok` y una exclusión `ilegible` en `fila_gt=398`). Con una única imagen legible única excluida, la evaluación **offline** del caché de OCR tiene **388/398 = 97,49 %** de coincidencias exactas y, con umbral 94 %, **3 errores de 362 lecturas aceptadas**. El aumento respecto a los cortes históricos **no prueba mejora del OCR**: hubo propuestas de etiquetas generadas por el mismo modelo y visibles al revisor (posible sesgo circular). No se evaluó el sistema completo en video, no se reentrenó el OCR y no se sustituyen los pesos del detector en producción. [Evidencia agregada](../results/metrics/ocr_savh_aprobaciones_398.json) · [protocolo y limitaciones](validacion_savh_multisemilla.md).
+### Escenario de regla de autorización con lista simulada
 
+Un análisis anterior sobre una muestra de 399 recortes y una lista simulada reportó 0 falsas autorizaciones entre 202 lecturas, 1 rechazo indebido entre 197 autorizadas y distintos porcentajes de revisión manual:
 
-## Relación con el producto publicado
+| Escenario offline | Falsas autorizaciones | Rechazos indebidos | A revisión manual |
+|---|---:|---:|---:|
+| Sin umbral OCR | 0/202 | 1/197 | 4,0 % |
+| Umbral 0,99 | 0/202 | 1/197 | 15,5 % |
+| Umbral 0,94 | 0/202 | 1/197 | 12,0 % |
 
-Los experimentos de optimización y sus métricas se documentan como evidencia del proceso de modelado; no representan por sí solos una garantía del comportamiento operativo para toda cámara o condición de iluminación.
+Es una simulación condicionada a una lista ficticia y a un corte anterior de las referencias; no representa el rendimiento actual de la aplicación ni una evaluación completa de video. No se debe combinar con las cifras de 398 recortes de la tabla previa.
+
+![Curvas de entrenamiento YOLO11-s](../results/figures/entrenamiento_yolo11_completo.png)
+
+El modelo base superó mAP@0.5=0,85 en validación desde la segunda época y mAP@0.5:0.95 continuó subiendo hasta 0,691 en la época 40; no se activó *early stopping*. La configuración optimizada tampoco activó la paciencia. Más épocas podrían mejorar la métrica estricta, pero requieren un experimento separado.
+
+## 7. Afinamiento del OCR
+
+El experimento de [06_afinamiento_ocr.ipynb](../notebooks/06_afinamiento_ocr.ipynb) evaluó si adaptar `cct-s-v2-global-model` a placas ecuatorianas mejoraba la lectura. Se partió de los pesos del modelo y se separaron los datos **por placa** para evitar que una misma placa apareciera en entrenamiento y prueba.
+
+| Decisión | Motivo |
+|---|---|
+| División 60/15/25 % por placa | Evitar filtración de matrículas entre train y test |
+| `INCLUDE_UNCONFIRMED=False` | Evitar entrenar o evaluar con etiquetas sin confirmar |
+| Tasa de aprendizaje 3e-4, weight decay 5e-4, sin label smoothing | Ajustes pequeños a un OCR preentrenado |
+| 40 épocas con early stopping (paciencia 10) | Controlar el sobreajuste |
+| Aumentos suaves de rotación, brillo, desenfoque, ruido y compresión | Representar variaciones de cámara |
+| EMR, CER y confianza OCR | Medir lectura exacta, errores por carácter y efecto del umbral |
+| Adopción condicionada a McNemar p<0,05 y sin más errores aceptados | Evitar reemplazar el modelo por una diferencia casual |
+
+El subconjunto usado tenía 330 recortes con referencia de cámara de formato válido, 297 placas distintas y 194/50/86 imágenes en train/val/test. Estas etiquetas no equivalen a una verificación humana independiente completa.
+
+El entrenamiento elevó la exactitud por placa en validación de 0,969 a 0,984 en la mejor época; el early stopping detuvo la corrida en la época 14. El modelo original tuvo 0,960 en esa partición de validación.
+
+![Curvas del afinamiento OCR](../results/figures/ocr_afinamiento_curvas.png)
+
+### Comparación en test separado por placa
+
+| Modelo | EMR | IC 95 % Wilson | CER | Aceptadas con confianza ≥0,99 | Equivocadas aceptadas |
+|---|---:|---:|---:|---:|---:|
+| Original | **94,2 %** | 87,1–97,5 % | 0,013 | 90,7 % | 1 |
+| Afinado | **94,2 %** | 87,1–97,5 % | 0,013 | 89,5 % | 1 |
+
+Ambos modelos tuvieron aciertos y errores en exactamente las mismas imágenes; no hubo placas leídas correctamente por uno solo de los modelos (McNemar p=1,0). La mejora de validación no se repitió en test.
+
+**Decisión:** se conserva el OCR original. Con 194 imágenes de entrenamiento no hubo evidencia de que el afinamiento mejore la generalización. Para repetir el experimento se requieren más datos con etiquetas revisadas independientemente. Las métricas completas están en [ocr_afinamiento.json](../results/metrics/ocr_afinamiento.json).
+
+## 8. Conclusiones y límites
+
+- `lr0` fue el hiperparámetro más influyente en la búsqueda; la tasa automática base resultó alta para el ajuste del detector preentrenado.
+- La búsqueda corta indicó una diferencia mayor que el reentrenamiento completo; se debe usar la comparación completa y la multisemilla para valorar el cambio.
+- Las tres semillas mejoraron mAP@0.5:0.95, pero la magnitud varió y las métricas complementarias no subieron todas de manera uniforme.
+- El detector optimizado y el OCR afinado no sustituyen los pesos publicados: la decisión fue conservar el detector y el OCR originales.
+- La evaluación OCR de SAVH es offline y está condicionada a una revisión en la que algunas sugerencias del modelo fueron visibles. No es una evaluación ciega.
+- Estos experimentos no acreditan la evaluación integral del video, la regla temporal de dos cuadros ni el funcionamiento de la barrera.
+- No se deben presentar las métricas de una lista simulada como prueba de autorización real.
+
+## 9. Relación con la aplicación y el repositorio
+
+Los experimentos documentan partes del modelo; sus resultados no garantizan el comportamiento de la aplicación para toda cámara o condición de iluminación.
 
 - [Aplicación SIRAP](https://eduardoceballos-sirap.hf.space) · [Hugging Face Space](https://huggingface.co/spaces/eduardoceballos/SIRAP)
-- [Repositorio, notebooks y resultados](https://github.com/eduardoceballos666/SIRAP_2) · [API interactiva](https://eduardoceballos-sirap.hf.space/docs)
-- La aplicación cuenta con interfaz en español e inglés. Videos de presentación: sección final del [README](../README.md).
+- [Repositorio SIRAP_2](https://github.com/eduardoceballos666/SIRAP_2) · [API interactiva](https://eduardoceballos-sirap.hf.space/docs)
+- La interfaz de la aplicación está disponible en español e inglés.
