@@ -182,7 +182,7 @@ El CSV permite comparar por época las pérdidas de entrenamiento y validación,
 | Velocidad del detector | Promedio **23,3 ms** por imagen (aprox. 43 FPS) | GPU NVIDIA L4, lote 1, FP16; no es una medición del hosting de producción |
 | OCR en SAVH | EMR **93,7 %**, CER **0,010** | Resultado offline en 399 recortes legibles; 69 referencias se marcaron como sugerencias sin confirmar |
 | Garita, evaluación por imagen 7.3 | Detección **19/21**; EMR **8/21**; formato válido **16/21**; latencia media **37,69 ms** | Muestra de 21 imágenes, no evalúa seguimiento en video |
-| Video de garita, evaluación 7.2 | **18** puntos con referencia; EMR por lectura **61,1 %**; recall de placas **56,25 %** | Referencia puntual y provisional. La cifra anterior de falsas autorizaciones (7/52) se retiró porque el cálculo incluyó 34 lecturas sin referencia; no hay una estimación válida hasta recalcular |
+| Video de garita, evaluación 7.2 | **18 puntos corregidos**; métricas de esta referencia: pendientes de recalcular | Las cifras anteriores (11/18 exactas y 9/16 placas recuperadas) corresponden a una versión previa de la referencia y son históricas. Los 18 puntos actuales siguen siendo provisionales; no representan intervalos completos ni todos los vehículos. La cifra 7/52 de falsas autorizaciones está retirada por error de cálculo |
 
 Los archivos agregados y las figuras pequeñas están en [métricas](results/metrics/) y [figuras](results/figures/). El resumen detallado de la [evaluación por imágenes de garita](results/metrics/garita_imagenes_e2e_20261101.md) y el informe de la [evaluación puntual de video](results/metrics/video_e2e_puntos_provisionales_20261101.md) describen las muestras y sus límites.
 
