@@ -26,7 +26,6 @@ muestra un error y no procesa la imagen.
 | Entrenamiento | 40 épocas (mejor: 40), imgsz 640, batch 16 (nbs 64), paciencia 10, semilla 0, AdamW (elegido por Ultralytics); 0,70 h y 6,9 GB de GPU pico en NVIDIA L4 |
 | Postproceso | NMS con IoU 0,7 (por defecto de Ultralytics) |
 | Umbral | calibrado en *val*: 0,30 (`results/metrics/umbrales.json`) |
-
 | Métricas en *test* | mAP@0.5 0,972 · mAP@0.5:0.95 0,693 · P 0,986 · R 0,956 · F1 0,971 (`results/metrics/detector_test.json`) |
 | Velocidad | 23,3 ms por imagen (lote 1, FP16, L4) · 9,41 M parámetros · 21,4 GFLOPs |
 
