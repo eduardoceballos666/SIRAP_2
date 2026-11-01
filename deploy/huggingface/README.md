@@ -1,6 +1,6 @@
 ---
 title: SIRAP
-emoji: 🚧
+emoji: 🚗
 colorFrom: yellow
 colorTo: blue
 sdk: docker
@@ -12,58 +12,52 @@ short_description: Reconocimiento de placas y control de acceso (YOLO11 + OCR)
 
 # SIRAP · Sistema de Detección y Reconocimiento Automático de Placas
 
-**Versión del producto: SIRAP 1.0.** La API identifica su versión técnica como 2.0.0 y el paquete npm del frontend como 2.0.0. El tag de GitHub `v2.0` identifica el corte del código que incorpora la arquitectura FastAPI + Vue 3; no representa la versión del producto. Código fuente y documentación:
-https://github.com/eduardoceballos666/SIRAP_2
+**Versión del producto: SIRAP 1.0.** La API y el paquete npm del frontend usan el identificador técnico 2.0.0. El tag de GitHub `v2.0` identifica el corte del código con arquitectura FastAPI + Vue 3; no es la versión del producto. El [código fuente y la documentación](https://github.com/eduardoceballos666/SIRAP_2) se mantienen en GitHub.
 
-**Acceso e idioma:** abra la [aplicación SIRAP](https://eduardoceballos-sirap.hf.space). Español es el idioma inicial. Para usarla en inglés, seleccione **English** en el control **Idioma** de la pantalla de inicio de sesión; también puede cambiarlo desde el menú común una vez dentro. **Español** vuelve a la versión en español. Ambas opciones usan la misma dirección y la preferencia se recuerda en el mismo navegador.
+## Acceso e idioma
 
-Usuarios de demostración: `operador`, `supervisor` y `admin`; contraseña actual común a los tres perfiles: `sirap2026`. El secreto `SIRAP_DEMO_PASSWORD` puede sustituirla en el Space. Los registros contienen
-**datos ficticios** y la barrera es **simulada**. Los secretos están configurados para respaldar tablas CSV en
-`SIRAP_datos_privados`. El workflow publica automáticamente al cambiar rutas de aplicación incluidas en sus filtros
-de `main`; cambios solo en documentación, notebooks o pruebas no activan el despliegue. También se puede iniciar
-manualmente desde GitHub Actions.
+Abre la [aplicación SIRAP](https://eduardoceballos-sirap.hf.space). Español es el idioma inicial. Para cambiar a inglés, selecciona **English** en el control **Idioma** de la pantalla de inicio de sesión o en el menú común una vez dentro. Selecciona **Español** para volver. Ambas opciones usan la misma dirección y la preferencia se conserva en ese navegador.
 
-## Persistencia y consultas de datos
+Las cuentas de demostración son `operador`, `supervisor` y `admin`. La contraseña se configura mediante el secreto `SIRAP_DEMO_PASSWORD`; no se publica en este repositorio. Los registros de demostración son ficticios y la barrera está simulada.
 
-### A. Respaldo de las tablas CSV de la aplicación
+## Despliegue
 
-`SIRAP_DATA_GITHUB_TOKEN` es el secreto que la API usa para **restaurar y guardar** vehículos, listas, usuarios,
-garitas e historial en `eduardoceballos666/SIRAP_datos_privados`. `SIRAP_DATA_GITHUB_REPO` indica ese repositorio;
-si no se define, el código usa ese repositorio por defecto. En el despliegue actual, el flujo de GitHub Actions
-valida el token y configura ambos valores como secretos del Space. Esta es la integración que mantiene los datos
-principales después de reiniciar el contenedor.
+El Space ejecuta la API FastAPI y la interfaz Vue 3 en un contenedor Docker, en el puerto 7860. El workflow [deploy-hf-space.yml](../../.github/workflows/deploy-hf-space.yml) publica al Space cuando hay cambios en `main` que coinciden con las rutas configuradas, y también permite iniciar el despliegue manualmente desde GitHub Actions. Cambios solo en documentación, notebooks o pruebas no activan el despliegue automático.
 
-La ficha de la aplicación consulta el servicio público del SRI para completar marca, modelo y año. EcuadorLegalOnline
-ofrece información de propietario de pago; por esa razón, SIRAP no consulta ese servicio ni muestra información
-obtenida de él. El propietario que puede aparecer procede del registro local de la aplicación. La consulta al SRI se
-mantiene temporalmente en memoria durante la solicitud y no interviene en la decisión de acceso. La exportación
-enriquecida independiente puede guardar los datos vehiculares del SRI en `data/detecciones.csv` si se configura.
-No se consultan cédula, domicilio ni teléfono; no se eluden CAPTCHA ni controles de acceso.
+El workflow requiere los secretos `HF_TOKEN`, `SIRAP_JWT_SECRET`, `SIRAP_DEMO_PASSWORD` y `SIRAP_DATA_GITHUB_TOKEN), además de la variable de repositorio `HF_SPACE`. El repositorio de datos se configura en el workflow como `eduardoceballos666/SIRAP_datos_privados`.
 
-### B. Exportación enriquecida de detecciones
+## Persistencia y datos consultados
 
-`GITHUB_TOKEN` y `GITHUB_DATA_REPOSITORY` pertenecen a otro módulo: escriben eventos de detección enriquecidos
-en `data/detecciones.csv` (con variables opcionales `GITHUB_DATA_BRANCH` y `GITHUB_DATA_PATH`). No restauran ni
-respaldan las tablas principales de la aplicación y no sustituyen `SIRAP_DATA_GITHUB_TOKEN`. No configures un token
-de una integración como si fuera el de la otra: cada una requiere permiso de escritura en su propio repositorio
-privado de destino.
+### Registros de la aplicación
 
-| Integración | Variables | Qué guarda |
-|---|---|---|
-| Persistencia de la aplicación | `SIRAP_DATA_GITHUB_TOKEN`, `SIRAP_DATA_GITHUB_REPO` | CSV operativos en `SIRAP_datos_privados`; restaura al iniciar y sincroniza cambios |
-| Exportación enriquecida | `GITHUB_TOKEN`, `GITHUB_DATA_REPOSITORY` (opcionales: `GITHUB_DATA_BRANCH`, `GITHUB_DATA_PATH`) | Eventos de detección enriquecidos en `data/detecciones.csv` |
+`SIRAP_DATA_GITHUB_TOKEN` permite a la aplicación restaurar y guardar vehículos, autorizaciones, operaciones, garitas, usuarios y credenciales en el repositorio privado `eduardoceballos666/SIRAP_datos_privados`. El almacenamiento local del Space es temporal; los CSV privados permiten conservar los registros entre reinicios. Si falta el acceso requerido al repositorio privado, el sistema no debe tratar una copia local vacía como respaldo persistente.
 
-## Umbral operativo OCR
+### Exportación enriquecida de detecciones
 
-La aplicación usa un umbral de confianza OCR de **99 %**. Las lecturas por debajo pasan a verificación manual.
+La exportación de detecciones usa la misma configuración privada: `SIRAP_DATA_GITHUB_TOKEN` y el repositorio indicado por `SIRAP_DATA_GITHUB_REPO`. Los eventos enriquecidos se guardan en `data/processed/detecciones.csv`; no se usan las variables antiguas `GITHUB_TOKEN`, `GITHUB_DATA_REPOSITORY`, `GITHUB_DATA_BRANCH` ni `GITHUB_DATA_PATH`.
 
+El enriquecimiento consulta datos vehiculares públicos del SRI en segundo plano y guarda el resultado en el repositorio privado. El nombre del propietario, cuando aparece en la aplicación, procede del registro local. EcuadorLegalOnline ofrece información de propietario de pago y SIRAP no consulta ese servicio.
 
-## Enlaces del despliegue
+| Dato | Uso |
+|---|---|
+| `SIRAP_DATA_GITHUB_TOKEN` | Secreto para leer y escribir los CSV en el repositorio privado |
+| `SIRAP_DATA_GITHUB_REPO` | Repositorio privado de persistencia; el workflow de despliegue establece `eduardoceballos666/SIRAP_datos_privados` |
+| `data/processed/*.csv` | Registros operativos de la aplicación |
+| `data/processed/detecciones.csv` | Eventos de detección con enriquecimiento del SRI |
 
-- **Hugging Face Space:** https://huggingface.co/spaces/eduardoceballos/SIRAP
-- **Aplicación:** https://eduardoceballos-sirap.hf.space
-- **Código fuente:** https://github.com/eduardoceballos666/SIRAP_2
-- **API interactiva:** https://eduardoceballos-sirap.hf.space/docs
-- **Manual y videos de presentación:** [README del repositorio](../../README.md) y [manual de usuario](../../docs/manual_usuario.md)
+## Umbral y revisión humana
+
+La configuración vigente en [config/config.yaml](../../config/config.yaml) establece una confianza OCR mínima de **94 %**. Las lecturas por debajo del umbral requieren verificación manual. En el modo continuo de video o cámara, la interfaz también confirma la misma placa en dos cuadros aceptados antes de mostrar y registrar la decisión. Estas medidas reducen decisiones basadas en una lectura aislada; no reemplazan la revisión del operador cuando hay dudas.
+
+La aplicación de demostración se ejecuta en CPU, sin GPU dedicada. Por eso, las mediciones de GPU del notebook no representan la latencia del Space.
+
+## Enlaces
+
+- **Hugging Face Space:** [SIRAP](https://huggingface.co/spaces/eduardoceballos/SIRAP)
+- **Aplicación:** [eduardoceballos-sirap.hf.space](https://eduardoceballos-sirap.hf.space)
+- **API interactiva:** [Swagger](https://eduardoceballos-sirap.hf.space/docs)
+- **Código fuente:** [GitHub SIRAP_2](https://github.com/eduardoceballos666/SIRAP_2)
+- **Manual de usuario:** [docs/manual_usuario.md](../../docs/manual_usuario.md)
+- **Videos de presentación:** [README principal](../../README.md#videos-de-entrega)
 
 SIRAP 1.0 ofrece interfaz en español e inglés. La configuración del Space y su despliegue se administran desde este repositorio.
