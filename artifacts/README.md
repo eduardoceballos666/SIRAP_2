@@ -1,13 +1,14 @@
 # Artefactos pesados de SIRAP
 
-El notebook no incrusta videos ni archivos grandes. El repositorio conserva código, CSV/JSON de resultados agregados y gráficos livianos; los medios se publican como artefactos independientes.
+El notebook no incrusta videos ni archivos grandes. El repositorio conserva el código, las referencias necesarias, las métricas agregadas y los gráficos pequeños; los medios pesados se publican como artefactos independientes.
 
 ## Inventario
 
-| Artefacto | Estado en esta actualización | Uso |
+| Artefacto | Estado | Uso |
 |---|---|---|
-| `video_camiones.mp4` (video fuente completo, aprox. 459 MB) | No cargado en el repositorio ni como Release asset: la copia accesible sigue en Google Drive y la descarga directa disponible aquí rechazó el archivo por exceder el límite de transferencia. | Entrada de las secciones 6.9 y 7.2. Para una corrida sin este archivo, 6.1 usa el video público de demostración; no produce métricas de garita. |
-| Videos anotados que genere la sección 6.9 | Se guardan en la carpeta temporal de Colab y no se incrustan en el notebook. | Publicar como asset de un GitHub Release cuando estén disponibles localmente. |
-| Dataset SAVH y modelo YOLO11-s | Ya están versionados bajo `evidence/savh/` y `models/`. | Entradas reutilizadas desde GitHub. |
+| `video_camiones.mp4` (459.3 MB) | Publicado como asset del Release [`datos-garita-v1`](https://github.com/eduardoceballos666/SIRAP_2/releases/tag/datos-garita-v1). La sección 0 lo descarga a `artifacts/video_camiones.mp4` y comprueba el tamaño y el SHA-256. | Video fuente de las secciones 6.1, 6.9 y 7.2. |
+| Videos anotados que genere la sección 6.9 | Se guardan en `/content/SIRAP_workspace` durante la sesión de Colab; no se incrustan ni se publican automáticamente. | Descarga el resultado desde el panel Files de Colab. Si necesitas compartirlo, publícalo como asset de un Release aparte. |
+| Imágenes y referencia de garita | Las 21 imágenes y `garita/ground_truth.csv` están versionadas en `garita/`. | Entradas de la evaluación por imagen 7.3; describen esta muestra, no la evaluación completa del video. |
+| Dataset SAVH y modelo YOLO11-s | Versionados bajo `evidence/savh/` y `models/`. | Insumos del análisis y del detector. |
 
-La sección 0 del notebook clona el repositorio y no monta Google Drive. Para usar la evaluación completa de garita, copia el video original a `artifacts/video_camiones.mp4` en Colab y coloca allí también las imágenes y la referencia revisada, si corresponde. No confundas el video público de demostración con el video fuente del proyecto.
+La sección 0 clona el repositorio y descarga el video directamente desde el Release público; no monta Google Drive. Para descargar el dataset Roboflow, configura `ROBOFLOW_API_KEY` en Secrets de Colab. Las salidas nuevas permanecen en el espacio temporal de Colab hasta que las descargues. La evaluación 7.2 continúa siendo provisional hasta completar y revisar de forma independiente la referencia de intervalos del video.
