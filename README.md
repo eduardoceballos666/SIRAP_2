@@ -20,6 +20,27 @@
 
 </div>
 
+## Contenido
+
+1. [Estado del proyecto](#estado-del-proyecto)
+2. [Plataformas de acceso](#plataformas-de-acceso)
+3. [Qué hace SIRAP](#qué-hace-sirap)
+4. [Interfaz y módulos](#interfaz-y-módulos)
+5. [Roles](#roles)
+6. [API REST](#api-rest)
+7. [Arquitectura y tecnología](#arquitectura-y-tecnología)
+8. [Datos y recursos](#datos-y-recursos)
+9. [Modelo y resultados](#modelo-y-resultados)
+10. [Instalación local](#instalación-local)
+11. [Notebook y reproducibilidad](#notebook-y-reproducibilidad)
+12. [Privacidad, seguridad y uso responsable](#privacidad-seguridad-y-uso-responsable)
+13. [Estructura del repositorio](#estructura-del-repositorio)
+14. [Documentación del proyecto](#documentación-del-proyecto)
+15. [Autores](#autores)
+16. [Licencia y atribuciones](#licencia-y-atribuciones)
+17. [Agradecimientos y recursos](#agradecimientos-y-recursos)
+18. [Videos de entrega](#videos-de-entrega)
+
 ## Estado del proyecto
 
 | Dato | Estado |
@@ -32,6 +53,28 @@
 | Barrera | Simulada; la aplicación no acciona una barrera física |
 
 El tag de GitHub v2.0 identifica una versión técnica del repositorio con arquitectura FastAPI y Vue 3. No representa la versión del producto, que es SIRAP 1.0.
+
+## Plataformas de acceso
+
+SIRAP se publica en dos lugares con propósitos distintos:
+
+| Plataforma | Contenido |
+|---|---|
+| [GitHub: SIRAP_2](https://github.com/eduardoceballos666/SIRAP_2) | Código fuente, notebooks, modelos, datos de evaluación, métricas, documentación, manual y configuración de despliegue |
+| [Hugging Face Space: SIRAP](https://huggingface.co/spaces/eduardoceballos/SIRAP) | Aplicación web desplegada para probar la interfaz |
+| [Abrir SIRAP](https://eduardoceballos-sirap.hf.space) | Acceso directo a la aplicación |
+| [Documentación interactiva de la API](https://eduardoceballos-sirap.hf.space/docs) | Esquema Swagger de la API FastAPI |
+
+### Uso de la aplicación desplegada
+
+1. Abre SIRAP desde el Space o el enlace directo.
+2. En el inicio de sesión, elige Español o English. El selector también está en el menú y conserva la preferencia en el navegador.
+3. Inicia sesión con una cuenta habilitada para la instancia; las contraseñas no se publican en este README.
+4. En Reconocimiento y Acceso, usa un ejemplo, una imagen, un video o una cámara disponible. Revisa la placa, la confianza, el recorte y la decisión.
+5. Confirma la información antes de registrar una operación o solicitar la apertura. Las lecturas inciertas requieren revisión humana; la barrera del Space es simulada.
+6. Consulta las operaciones en Historial. Supervisor y Administrador pueden exportar los resultados filtrados a CSV.
+
+El Space se construye con Docker y sirve la API y la interfaz Vue. El hardware de demostración documentado es CPU, sin GPU dedicada; por eso las mediciones de GPU del notebook no representan la latencia del Space. El almacenamiento local del Space es temporal: los registros operativos persistentes se guardan en el repositorio privado configurado para la aplicación. La configuración de despliegue, secretos y flujo de publicación está en [Despliegue](#variables-y-despliegue) y en el workflow [deploy-hf-space.yml](.github/workflows/deploy-hf-space.yml).
 
 ## Qué hace SIRAP
 
@@ -145,6 +188,10 @@ Los archivos agregados y las figuras pequeñas están en [métricas](results/met
 
 ### Límites de evaluación
 
+- La evaluación del video operativo sigue siendo provisional: la referencia publicada contiene 18 cuadros puntuales, no intervalos completos ni todos los vehículos; falta una segunda revisión humana independiente. Sus métricas no deben presentarse como evaluación integral ni ciega.
+- La evaluación de garita 7.3 corresponde a 21 imágenes estáticas: EMR 8/21 (38,1 %), por debajo de la meta de 80 %. No evalúa el seguimiento temporal ni sustituye la evaluación del video.
+- El informe 7.3 registró cero falsas autorizaciones, pero reporta que la lista de autorizaciones estaba vacía durante esa corrida. Ese resultado no valida la regla con una lista poblada.
+- Parte de las referencias SAVH siguen siendo sugerencias sin confirmar y las métricas OCR son offline; no constituyen una evaluación ciega independiente ni rendimiento punta a punta del servicio.
 - El rendimiento puede bajar con placas pequeñas, lejanas, nocturnas, deterioradas, con reflejos o de provincias poco representadas.
 
 ## Instalación local
