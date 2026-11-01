@@ -1,5 +1,5 @@
 """Exporta operaciones confirmadas a un CSV de un repositorio GitHub privado
-y completa cada fila con datos públicos del vehículo y del propietario.
+y enriquece cada fila únicamente con datos vehiculares públicos del SRI.
 """
 
 from __future__ import annotations
@@ -247,112 +247,6 @@ def _query_sri(plate: str) -> dict:
     return result
 
 
-_OWNER_URL = (
-    "https://www.ecuadorlegalonline.com/consultas/agencia-nacional-de-transito/"
-    "consultar-a-quien-pertenece-un-vehiculo-por-placa-ant/"
-)
-_OWNER_LOCK = threading.Lock()
-_OWNER_LAST_CALL = 0.0
-
-
-def _visible_name(value: str | None) -> str | None:
-    if not value:
-        return None
-    value = re.sub(r"\s+", " ", str(value)).strip()
-    if (not value or len(value) > 250 or not re.search(r"[A-Za-zÁÉÍÓÚÜÑáéíóúüñ]", value)
-            or re.fullmatch(r"[xX*\- .]+", value)
-            or re.match(r"^(?:c[eé]dula|ruc|direcci[oó]n|tel[eé]fono|due[nñ]o anterior|disponible|no disponible|oculto|ninguno|nombre$)", value, re.I)):
-        return None
-    return value
-
-
-def _query_owner(plate: str) -> dict:
-    global _OWNER_LAST_CALL
-    compact = re.sub(r"[^A-Z0-9]", "", plate.upper())
-    if not re.fullmatch(r"[A-Z]{3}[0-9]{3,4}", compact):
-        return {"propietario_estado": "placa_invalida"}
-    normalized = compact[:3] + "-" + compact[3:].zfill(4)
-    with _OWNER_LOCK:
-        wait = 12.0 - (time.monotonic() - _OWNER_LAST_CALL)
-        if wait > 0:
-            time.sleep(wait)
-        _OWNER_LAST_CALL = time.monotonic()
-        try:
-            from playwright.sync_api import sync_playwright
-
-            with sync_playwright() as pw:
-                browser = pw.chromium.launch(headless=True)
-                try:
-                    page = browser.new_page(locale="es-EC", viewport={"width": 1360, "height": 900})
-                    page.goto(_OWNER_URL, wait_until="domcontentloaded", timeout=30000)
-                    initial_text = page.locator("body").inner_text(timeout=8000)
-                    if re.search(r"VER ANUNCIO Y CONTINUAR|PARA ACCEDER AL CONTENIDO", initial_text, re.I):
-                        return {
-                            "propietario_estado": "anuncio_requerido",
-                            "propietario_detalle": "La fuente de consulta solicita una acción adicional antes de habilitar el formulario.",
-                        }
-                    entry = page.locator('input[name*="placa" i], input[placeholder*="placa" i]')
-                    if entry.count() == 0:
-                        entry = page.get_by_label("Placa", exact=True)
-                    if entry.count() == 0:
-                        return {"propietario_estado": "interfaz_no_reconocida",
-                                "propietario_detalle": "No se localizó el campo Placa."}
-                    entry.first.fill(compact)
-                    submit = page.get_by_role("button", name=re.compile(r"^Consultar$", re.I))
-                    if submit.count() == 0:
-                        return {"propietario_estado": "interfaz_no_reconocida",
-                                "propietario_detalle": "No se localizó el botón Consultar."}
-                    submit.first.click(timeout=30000)
-                    deadline = time.monotonic() + 45
-                    while time.monotonic() < deadline:
-                        text = page.locator("body").inner_text(timeout=8000)
-                        if re.search(r"captcha|acceso denegado|verifica que (eres|no eres)", text, re.I):
-                            return {"propietario_estado": "acceso_restringido",
-                                    "propietario_detalle": "El sitio requiere verificación humana."}
-                        match = re.search(r"Placa consultada\s*[:：]?\s*([A-Z]{3}[-\s]?[0-9]{3,4})\b", text, re.I)
-                        if match:
-                            result_plate = re.sub(r"[^A-Z0-9]", "", match.group(1).upper())
-                            if result_plate != compact:
-                                return {"propietario_estado": "placa_no_coincide",
-                                        "propietario_detalle": "La placa de la respuesta no coincide."}
-                            section = re.search(
-                                r"DATOS DEL PROPIETARIO DEL VEH[IÍ]CULO(.*?)(?:VER REPORTE COMPLETO|¿No encuentra datos|$)",
-                                text, re.I | re.S)
-                            if section:
-                                lines = [line.strip() for line in section.group(1).splitlines() if line.strip()]
-                                for index, line in enumerate(lines):
-                                    # El resultado puede aparecer como "Nombre | VALOR", "Nombre: VALOR"
-                                    # o en dos líneas separadas; normaliza el separador antes de validar.
-                                    name_match = re.match(r"^Nombre\s*(?:[:：|]\s*)?(.*)$", line, re.I)
-                                    if name_match:
-                                        candidate = (name_match.group(1) or "").strip().lstrip("|:： \t").strip()
-                                        if not candidate and index + 1 < len(lines):
-                                            candidate = lines[index + 1].strip().lstrip("|:： \t").strip()
-                                        name = _visible_name(candidate)
-                                        if name:
-                                            return {
-                                                "propietario_nombre": name,
-                                                "propietario_fuente": "consulta_publica",
-                                                "propietario_consultado_en": now_local().isoformat(sep=" ", timespec="seconds"),
-                                                "propietario_estado": "encontrado",
-                                                "propietario_detalle": "",
-                                            }
-                            if re.search(r"no se encontr[oó]|sin resultados|veh[ií]culo no existe", text, re.I):
-                                return {"propietario_estado": "sin_datos",
-                                        "propietario_detalle": "El sitio no devolvió propietario."}
-                        time.sleep(0.75)
-                    return {"propietario_estado": "sin_respuesta_verificable",
-                            "propietario_detalle": "No se confirmó que el resultado corresponda a la placa."}
-                finally:
-                    browser.close()
-        except Exception as exc:
-            return {"propietario_estado": "error",
-                    "propietario_detalle": f"{type(exc).__name__}: {exc}"[:300]}
-        finally:
-            # No se accede a reportes completos, CAPTCHAs, datos ocultos, ni servicios de pago.
-            pass
-
-
 _ENRICHMENT_POOL = ThreadPoolExecutor(max_workers=2, thread_name_prefix="sirap-enrichment")
 
 
@@ -362,11 +256,15 @@ def _normalized_brand(value: str | None) -> str:
 
 
 def _enrich(event_id: str, plate: str, plant_brand: str | None) -> None:
+    """Completa el evento solo con datos vehiculares públicos del SRI."""
     try:
         sri = _query_sri(plate)
         sri_brand = sri.get("sri_marca")
         if plant_brand and sri_brand and sri.get("sri_encontrado"):
             sri["marca_coincide_sri"] = _normalized_brand(plant_brand) == _normalized_brand(sri_brand)
+        # La fuente de propietario EcuadorLegalOnline es de pago y no se consulta.
+        sri["propietario_estado"] = "no_usado_servicio_de_pago"
+        sri["propietario_detalle"] = "No se consulta EcuadorLegalOnline; sus datos de propietario son de pago."
         update_detection(event_id, sri)
     except Exception as exc:
         logger.exception("No se pudo consultar/guardar SRI para %s: %s", plate, exc)
@@ -375,26 +273,14 @@ def _enrich(event_id: str, plate: str, plant_brand: str | None) -> None:
                 "sri_consultado_en": now_local().isoformat(sep=" ", timespec="seconds"),
                 "sri_encontrado": "",
                 "sri_error": f"{type(exc).__name__}: {exc}"[:500],
+                "propietario_estado": "no_usado_servicio_de_pago",
+                "propietario_detalle": "No se consulta EcuadorLegalOnline; sus datos de propietario son de pago.",
             })
         except Exception:
             logger.exception("No se pudo registrar el error SRI para %s", plate)
-    try:
-        owner = _query_owner(plate)
-        owner.setdefault("propietario_fuente", "consulta_publica")
-        owner.setdefault("propietario_consultado_en", now_local().isoformat(sep=" ", timespec="seconds"))
-        update_detection(event_id, owner)
-    except Exception as exc:
-        logger.exception("No se pudo completar propietario para %s: %s", plate, exc)
-        try:
-            update_detection(event_id, {
-                "propietario_consultado_en": now_local().isoformat(sep=" ", timespec="seconds"),
-                "propietario_estado": "error",
-                "propietario_detalle": f"{type(exc).__name__}: {exc}"[:300],
-            })
-        except Exception:
-            logger.exception("No se pudo registrar el error del propietario para %s", plate)
+
 
 
 def enrich_detection(event_id: str, plate: str, plant_brand: str | None = None) -> None:
-    """Encola las consultas externas para que no retrasen la respuesta del operador."""
+    """Encola la consulta al SRI para que no retrase la respuesta del operador."""
     _ENRICHMENT_POOL.submit(_enrich, event_id, plate, plant_brand)
