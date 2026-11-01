@@ -22,7 +22,7 @@ El frontend ofrece **Español** (predeterminado) e **English**. Se accede a ambo
 
 ## Umbral operativo OCR
 
-La aplicación usa un umbral de confianza OCR de **99 %**. Las lecturas por debajo pasan a verificación manual.
+La aplicación usa un umbral de confianza OCR de **94 %**, según [`config/config.yaml`](../config/config.yaml). Las lecturas por debajo pasan a verificación manual. En video o cámara continua, la misma placa debe alcanzar el umbral en dos cuadros aceptados dentro de 7,5 segundos; las lecturas inciertas requieren revisión humana.
 
 
 ## Aplicación y repositorio
