@@ -47,7 +47,7 @@ Fuente agregada: [ocr_savh_aprobaciones_398.json](../../results/metrics/ocr_savh
 
 La corrida guardada procesó **18.115 cuadros** y reportó **52 placas leídas** y **65,7 FPS de pipeline**. Esos conteos y la velocidad describen procesamiento; sin una referencia exhaustiva e independiente no permiten calcular exactitud o recall para todos los vehículos.
 
-En otro resumen operativo se informa un rendimiento de **61,77 FPS** y un tiempo total de **409,6 segundos** que incluye la escritura de salida. Como las salidas publicadas no especifican de forma suficiente el alcance temporal de ambas mediciones ni permiten reconciliar directamente 65,7 con 61,77 FPS, se conservan como mediciones separadas. No deben promediarse ni compararse como si provinieran del mismo cronómetro. Los valores internos registrados fueron 14,51 ms por cuadro para el detector, 0,45 ms para seguimiento, 225 llamadas OCR y 91,99 ms de detección más OCR por decisión.
+En otro resumen operativo se informa un rendimiento de **61,77 FPS** y un tiempo total de **409,6 segundos** que incluye la escritura de salida. Si los 18.115 cuadros corresponden a esos 409,6 segundos, el cociente da aproximadamente **44,22 FPS de extremo a extremo**. Por tanto, 61,77 FPS no representa ese tiempo total; y las fuentes disponibles tampoco especifican lo suficiente para reconciliarlo con los 65,7 FPS del notebook. Se conservan como mediciones separadas y no se promedian ni se comparan como si provinieran del mismo cronómetro. Los valores internos registrados fueron 14,51 ms por cuadro para el detector, 0,45 ms para seguimiento, 225 llamadas OCR y 91,99 ms de detección más OCR por decisión.
 
 ### Evaluación puntual más reciente
 
