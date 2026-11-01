@@ -30,6 +30,13 @@ La anotadora señaló una inconsistencia propia: no había marcado como dudoso e
 
 El archivo `video_ground_truth_points_provisional.csv` contiene 18 puntos exactos. Se corrigieron las lecturas 660, 5197, 8408 y 14817; se agregó P003 en el cuadro 1312; se confirmó PZF en 4817 y 16506; y se retiró el punto 7842. Esas 18 etiquetas ya no son las mismas que las usadas para las métricas históricas publicadas, que deben recalcularse.
 
+
+## Borrador de intervalos por pasada
+
+Se publicó `video_ground_truth_intervals_provisional.csv` con 21 pasadas legibles transcritas de la hoja de anotación ciega. Incluye las lecturas visuales ya resueltas de P003 (`POD-0350`) y PZF (`PZF-0329`). Se excluyeron P015, donde no se ve la placa, y P018, cuyos caracteres siguen ambiguos.
+
+Los límites se copiaron de la hoja de anotación. Aunque están expresados en números de cuadro, todavía no se han confirmado cuadro a cuadro. Tampoco se ha demostrado que la lista cubra todos los vehículos omitidos por el detector. Este borrador no sustituye `video_ground_truth.csv` ni permite publicar métricas integrales. Falta verificar límites y cobertura con una revisión humana independiente.
+
 ## Pendiente para evaluar el video completo
 
 - Revisar los puntos en que las lecturas anteriores y la anotación coinciden, para detectar errores compartidos.
