@@ -24,7 +24,7 @@ Las cuentas de demostración son `operador`, `supervisor` y `admin`. La contrase
 
 ## Despliegue
 
-El Space ejecuta la API FastAPI y la interfaz Vue 3 en un contenedor Docker, en el puerto 7860. El workflow [deploy-hf-space.yml](https://github.com/eduardoceballos666/SIRAP_2/blob/main/.github/workflows/deploy-hf-space.yml) publica al Space cuando hay cambios en `main` que coinciden con las rutas configuradas, y también permite iniciar el despliegue manualmente desde GitHub Actions. Cambios solo en documentación, notebooks o pruebas no activan el despliegue automático.
+El Space ejecuta la API FastAPI y la interfaz Vue 3 en un contenedor Docker, en el puerto 7860. El workflow [deploy-hf-space.yml](https://github.com/eduardoceballos666/SIRAP_2/blob/main/.github/workflows/deploy-hf-space.yml) publica al Space cuando hay cambios en `main` que coinciden con las rutas configuradas, y también permite iniciar el despliegue manualmente desde GitHub Actions. Los cambios solo en documentación fuera de `deploy/huggingface/`, notebooks o pruebas no activan el despliegue automático. El propio README de `deploy/huggingface/` sí coincide con una ruta incluida en el filtro del workflow, por lo que sus cambios en `main` pueden activar la publicación.
 
 El workflow requiere los secretos `HF_TOKEN` y `SIRAP_DATA_GITHUB_TOKEN`. También puede recibir `SIRAP_JWT_SECRET` y `SIRAP_DEMO_PASSWORD` como secretos opcionales. La variable de repositorio `HF_SPACE` permite indicar el destino; si no se configura, el script de despliegue usa `eduardoceballos/sirap`. El repositorio privado de datos se establece como `eduardoceballos666/SIRAP_datos_privados`.
 
