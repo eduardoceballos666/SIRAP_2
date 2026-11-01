@@ -163,6 +163,16 @@ Más detalles: [análisis de datos](docs/analisis_datos.md), [descripción de lo
 
 El detector se entrenó con YOLO11-s durante 40 épocas y se exportó para la aplicación. En video se usa OC-SORT para asociar detecciones de un mismo vehículo y seleccionar lecturas. El umbral de detección se calibró con el conjunto de validación. En modo continuo de video o cámara, la interfaz espera que la misma placa alcance al menos 94 % de confianza OCR en dos cuadros aceptados dentro de 7,5 segundos antes de mostrar y registrar la decisión. Esto ayuda a evitar basarla en una sola lectura.
 
+### Entrenamiento YOLO11
+
+La corrida de referencia usa el preset vigente `TRAINING_PRESET = "completo"`: 40 de 40 épocas, `train_fraction = 1`, `val_fraction = 1`, lote 16 e imágenes de 640 px. Su mejor mAP@0.5:0.95 de validación fue **0,69082** en la época 40. El resumen registra aproximadamente **0,70 horas** de entrenamiento y **6,90 GB** de memoria GPU máxima.
+
+- Historial completo por época: [entrenamiento_yolo11_results.csv](results/metrics/entrenamiento_yolo11_results.csv).
+- Resumen de la corrida completa: [entrenamiento_yolo11_completo.json](results/metrics/entrenamiento_yolo11_completo.json).
+- Historial y resumen de la corrida rápida: [CSV](results/metrics/entrenamiento_yolo11_rapido_results.csv) · [JSON](results/metrics/entrenamiento_yolo11_rapido.json).
+
+El CSV permite comparar por época las pérdidas de entrenamiento y validación, además de precisión, recall y mAP. Esa comparación ayuda a evaluar posible sobreajuste; un puntaje final aislado no demuestra su ausencia. La corrida rápida duró 15 épocas y usó solo 30 % del entrenamiento y 25 % de la validación, por lo que es una ejecución reducida y sus métricas no son directamente comparables con las de la corrida completa. El mAP de **0,69082** corresponde a la validación durante entrenamiento; la tabla siguiente informa métricas del conjunto de prueba, que es una evaluación distinta.
+
 ### Resultados publicados
 
 | Evaluación | Resultado | Alcance |
@@ -246,11 +256,11 @@ El notebook principal [notebooks/SIRAP_backend.ipynb](notebooks/SIRAP_backend.ip
 1. Abre el notebook desde GitHub en Google Colab y ejecuta la sección 0; clona el repositorio y prepara el entorno sin montar Google Drive.
 2. Para descargar el dataset de Roboflow, guarda ROBOFLOW_API_KEY en Secrets de Colab. Si se usa una fuente local, coloca el ZIP en data/raw/dataset_placas_yolo.zip y configura DATASET_SOURCE = local.
 3. La sección 0 descarga video_camiones.mp4 desde el Release datos-garita-v1 a artifacts/video_camiones.mp4 y comprueba su integridad. El video fuente se usa por defecto; el video de muestra es opcional.
-4. Ejecuta en el mismo runtime las secciones previas requeridas por el pipeline. La sección 0 usa el checkpoint y los umbrales versionados cuando inicia una sesión nueva; si reentrenas, vuelve a correr la calibración antes de evaluar.
+4. Ejecuta en el mismo runtime las secciones previas requeridas por el pipeline. La sección 0 usa el checkpoint y los umbrales versionados cuando inicia una sesión nueva; no necesitas reentrenar para evaluar. Si vas a entrenar, selecciona `TRAINING_PRESET = "completo"`; después de reentrenar, vuelve a correr la calibración antes de evaluar. Los historiales por época y sus resúmenes están versionados en [resultados de entrenamiento](#entrenamiento-yolo11).
 5. La evaluación 7.3 usa las 21 imágenes y garita/ground_truth.csv versionadas en el repositorio.
 6. Las salidas nuevas se escriben en el espacio temporal de Colab. Descarga desde Colab los videos anotados u otros resultados grandes que quieras conservar.
 
-El notebook no incrusta el video fuente ni publica automáticamente los videos anotados. El [README de artefactos](artifacts/README.md) describe los medios grandes y cómo se distribuyen. La guía del resto de notebooks está en [notebooks/README.md](notebooks/README.md).
+El notebook no incrusta el video fuente ni publica automáticamente los videos anotados. El workflow [deploy-hf-space.yml](.github/workflows/deploy-hf-space.yml) también sincroniza `notebooks/SIRAP_backend.ipynb` con el Space cuando el notebook cambia en `main`. El [README de artefactos](artifacts/README.md) describe los medios grandes y cómo se distribuyen. La guía del resto de notebooks está en [notebooks/README.md](notebooks/README.md).
 
 ## Privacidad, seguridad y uso responsable
 
