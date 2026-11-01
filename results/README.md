@@ -39,7 +39,7 @@ Estos archivos usan subconjuntos, referencias y protocolos distintos. Sus porcen
 | [`metrics/blind_independent_video_eval_20261030.json`](metrics/blind_independent_video_eval_20261030.json) y [reporte detallado](metrics/validacion_ciega_video_20261030.md) | Holdout ciego de OCR: 57 imágenes puntuadas; OCR base 42/57 (73,7 %) y afinado 35/57 (61,4 %). | Es una evaluación de imágenes OCR, no de video. Un caso sin referencia aprobada se excluyó; la revisión no tuvo doble adjudicación. |
 | [`metrics/ocr_afinamiento.json`](metrics/ocr_afinamiento.json) | Compara OCR base y afinado en 86 imágenes de test. | El EMR fue 94,2 % para ambos; el archivo indica `adoptar: false`. No presentar el modelo afinado como mejora comprobada. |
 
-Los resúmenes agregados se publican sin matrículas ni imágenes. Las referencias detalladas y las imágenes de auditoría se conservan fuera de estos archivos públicos.
+La mayoría de los reportes agregados no incluye matrículas ni imágenes. Hay dos excepciones publicadas intencionalmente como materiales del proyecto: la lista de demostración/evaluación [`data/authorized_plates.csv`](../data/authorized_plates.csv) y la referencia provisional de 18 cuadros [`blind_eval/video_ground_truth_points_provisional.csv`](../blind_eval/video_ground_truth_points_provisional.csv). Esta referencia no es exhaustiva ni representa todos los vehículos del video. Los archivos operativos privados y las predicciones adicionales identificables no deben agregarse a los reportes públicos sin revisión.
 
 ## Evaluaciones de video e imágenes de garita
 
@@ -65,7 +65,7 @@ Los pesos de experimentos y optimización no reemplazan automáticamente el mode
 
 ## Ejecución y conservación de resultados
 
-El notebook actualizado lee los insumos versionados desde GitHub y no requiere Google Drive para iniciar. Las salidas nuevas de Colab se guardan en `/content/SIRAP_workspace`; no se publican automáticamente. Conserva en el repositorio métricas agregadas, tablas y gráficos pequeños. No incrustes videos ni publiques predicciones individuales o referencias con matrículas. Los videos grandes se distribuyen como artefactos separados.
+El notebook actualizado lee los insumos versionados desde GitHub y no requiere Google Drive para iniciar. Las salidas nuevas de Colab se guardan en `/content/SIRAP_workspace`; no se publican automáticamente. Conserva en el repositorio métricas agregadas, tablas y gráficos pequeños. No incrustes videos en el notebook. El video fuente se distribuye como artefacto separado; el archivo de 18 puntos mencionado arriba permanece como referencia puntual provisional. Antes de publicar nuevas predicciones, anotaciones detalladas o registros operativos, confirma su alcance, procedencia y autorización. Conserva en el repositorio las métricas agregadas y los gráficos pequeños.
 
 Si un resultado está pendiente o su referencia es incompleta, indícalo como tal; no extrapoles métricas ni completes etiquetas por intuición.
 
