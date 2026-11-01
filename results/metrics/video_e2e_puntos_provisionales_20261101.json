@@ -3,7 +3,7 @@
   "notebook": "notebooks/SIRAP_backend.ipynb",
   "seccion": "7.2",
   "referencia": "blind_eval/video_ground_truth_points_provisional.csv",
-  "tipo_referencia": "18 cuadros puntuales de la versión anterior, previo al cotejo manual; la referencia exacta actual tiene 15 puntos provisionales",
+  "tipo_referencia": "18 puntos exactos de la versión anterior, previo al cotejo; la referencia exacta actual tiene 18 puntos corregidos",
   "lecturas": 52,
   "lecturas_con_referencia": 18,
   "emr_por_lectura": 0.611111,
@@ -24,9 +24,13 @@
   },
   "referencia_actual": {
     "archivo": "blind_eval/video_ground_truth_points_provisional.csv",
-    "puntos_exactos": 15,
-    "estado": "provisional; cotejo manual posterior, no ciego",
-    "metricas": "pendientes de recalcular con registros por lectura de una nueva corrida"
+    "puntos_exactos": 18,
+    "estado": "provisional; cotejo visual posterior, no ciego ni independiente",
+    "metricas": "pendientes de recalcular con registros por lectura de una nueva corrida",
+    "resoluciones": {
+      "P003": "POD-350 observado en el cuadro 1312; normalizado como POD-0350 según la regla de placa antigua de tres dígitos",
+      "PZF": "PZF-0329 observado en los cuadros 4817 y 16506; el primer dígito después del guion se compara visualmente con el 0 de GPQ-0783"
+    }
   },
   "limitacion_recalculo": "El repositorio no contiene el registro por lectura de la corrida anterior; no se pueden recalcular métricas para los 15 puntos a partir de este resumen agregado."
 }
