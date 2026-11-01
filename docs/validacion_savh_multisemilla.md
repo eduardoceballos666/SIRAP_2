@@ -120,15 +120,13 @@ La comparación multisemilla se puede reproducir con [`validar_multisemilla_yolo
 
 Los resúmenes públicos enlazados en este documento omiten matrículas e imágenes personales. Las referencias detalladas y fotografías de auditoría se mantienen en el almacenamiento privado de trabajo.
 
-## 6. Conclusiones y próximos pasos
+## 6. Conclusiones
 
 - La comparación multisemilla muestra una mejora media pequeña en mAP50:95, con tres semillas; no justifica por sí sola cambiar el modelo publicado.
 - El EMR SAVH de 97,49 % está condicionado a respuestas de revisión no ciega y no debe presentarse como independiente.
 - El piloto visual SAVH necesita adjudicación humana independiente de las 13 discrepancias.
 - Los cinco clips y las 18 observaciones puntuales son muestras; la segunda no cubre intervalos ni todos los vehículos.
 - La muestra de imágenes completas de garita obtuvo 38,10 % de coincidencia exacta, por debajo de la meta del 80 %.
-- Para afirmar exactitud integral de video hacen falta intervalos de referencia completos por pasada y revisión independiente de etiquetas.
-- Para afirmar funcionamiento de barrera hace falta verificar, además, la respuesta física del dispositivo.
 - Las cifras del detector, OCR, video y garita deben conservarse separadas y publicarse con su alcance y limitaciones.
 
 ## Acceso al producto y al código
