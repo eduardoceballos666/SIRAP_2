@@ -145,10 +145,6 @@ Los archivos agregados y las figuras pequeñas están en [métricas](results/met
 
 ### Límites de evaluación
 
-- La evaluación del video completo aún está pendiente. La referencia publicada contiene 18 cuadros puntuales, no intervalos completos de legibilidad y no todos los vehículos; tampoco tiene una segunda revisión humana independiente. No se deben presentar sus métricas como evaluación integral del video.
-- La evaluación 7.3 corresponde a 21 imágenes estáticas; no mide seguimiento temporal ni sustituye la referencia por pasadas del video.
-- El reporte 7.3 registró cero falsas autorizaciones, pero durante esa corrida la lista de autorizaciones estaba vacía. Esa cifra no demuestra por sí sola el comportamiento con una lista poblada.
-- En el conjunto SAVH, parte de las referencias OCR siguen sin confirmación independiente. Las cifras offline no equivalen a una evaluación ciega ni al rendimiento punta a punta de la aplicación.
 - El rendimiento puede bajar con placas pequeñas, lejanas, nocturnas, deterioradas, con reflejos o de provincias poco representadas.
 
 ## Instalación local
