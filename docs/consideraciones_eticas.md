@@ -98,18 +98,30 @@ Para un despliegue real la instalación (responsable del tratamiento) debe:
 4. Atender **derechos** de acceso, rectificación y eliminación de los titulares.
 5. No ceder los datos a terceros sin base legal.
 
-La aplicación consulta el servicio público del **SRI** para complementar la marca, el modelo y el año mostrados en
-la ficha. También consulta **EcuadorLegalOnline** con la placa y la respuesta de la API puede incluir el nombre visible
-asociado públicamente a ella; el panel web actual no presenta ese nombre. Las respuestas se mantienen de forma
-temporal en la memoria del proceso para completar la solicitud; la exportación enriquecida independiente puede
-guardar el resultado en `data/detecciones.csv` si se configura su integración de GitHub.
+#### Consulta pública del SRI y privacidad
 
-Estas consultas programadas no intervienen en la regla de autorización, no consultan cédula, domicilio ni teléfono y
-no intentan eludir CAPTCHA o controles de acceso. El uso de información pública para esta finalidad no constituye
-por sí solo una infracción ética. Aun así, placas y nombres pueden identificar personas: se informa este tratamiento,
-se minimizan los campos y no se presentan resultados como verificación oficial de identidad o titularidad. Las fuentes
-pueden cambiar, devolver datos incompletos o no responder; la interfaz conserva los datos locales disponibles y
-muestra que la consulta externa no pudo completarse.
+La aplicación consulta información **pública del vehículo** en los servicios del SRI y muestra marca, modelo y año en
+la ficha. El propio SRI ofrece consultas vehiculares por placa y publica los datos del vehículo que resultan de esas
+consultas ([servicios de impuestos vehiculares del SRI](https://www.sri.gob.ec/impuestos-vehiculares)). En el alcance
+descrito aquí, la app descarga y presenta esos campos vehiculares; no obtiene del SRI el nombre, la cédula, el
+domicilio ni el teléfono del propietario. Consultar y descargar esos datos públicos del vehículo, por sí solo, no
+significa acceder a información privada ni vulnera la privacidad de una persona.
+
+Esta consulta debe distinguirse de la integración con **EcuadorLegalOnline**: al enviar una placa, su respuesta puede
+incluir un nombre asociado públicamente; el panel de SIRAP no lo muestra. Las respuestas se mantienen temporalmente
+en la memoria del proceso; una integración de exportación independiente podría guardar el resultado en
+`data/detecciones.csv` si se configura.
+
+Que una fuente sea pública no autoriza cualquier uso posterior. Una placa, un nombre o su combinación con imágenes
+e historial pueden hacer identificable a una persona. Por eso SIRAP limita la consulta a su finalidad de apoyo al
+control de acceso, minimiza los campos y no presenta el resultado como verificación oficial de identidad o titularidad.
+La LOPDP regula el tratamiento de datos personales y la SPDP aclara que la disponibilidad pública no elimina por sí
+sola las obligaciones de finalidad, proporcionalidad, minimización y seguridad ([LOPDP](https://spdp.gob.ec/wp-content/uploads/2024/12/03.pdf.pdf);
+[criterio de la SPDP sobre fuentes públicas](https://www.spdp.gob.ec/docs/consultas-absueltas/2026-2/oficio-n-spdp-ird-2026-0242-o/)).
+
+Estas consultas no intervienen en la regla de autorización ni intentan eludir CAPTCHA o controles de acceso. Las
+fuentes pueden cambiar, devolver datos incompletos o no responder; la interfaz conserva los datos locales disponibles
+y muestra que la consulta externa no pudo completarse.
 
 ## 4. Transparencia y explicabilidad
 
