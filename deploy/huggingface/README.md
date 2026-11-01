@@ -18,7 +18,7 @@ short_description: Reconocimiento de placas y control de acceso (YOLO11 + OCR)
 
 Abre la [aplicación SIRAP](https://eduardoceballos-sirap.hf.space). Español es el idioma inicial. Para cambiar a inglés, selecciona **English** en el control **Idioma** de la pantalla de inicio de sesión o en el menú común una vez dentro. Selecciona **Español** para volver. Ambas opciones usan la misma dirección y la preferencia se conserva en ese navegador.
 
-Las cuentas de demostración son `operador`, `supervisor` y `admin`. La contraseña se configura mediante el secreto `SIRAP_DEMO_PASSWORD`; no se publica en este repositorio. Los registros de demostración son ficticios y la barrera está simulada.
+Las cuentas de demostración son `operador`, `supervisor` y `admin`. La contraseña se puede configurar mediante el secreto `SIRAP_DEMO_PASSWORD`. Si no se define, la API usa el valor predeterminado configurado en `api/settings.py`; para el Space público, configura explícitamente un valor propio y no publiques el valor del secreto. Los registros de demostración son ficticios y la barrera está simulada.
 
 ## Despliegue
 
@@ -36,7 +36,7 @@ El workflow requiere los secretos `HF_TOKEN` y `SIRAP_DATA_GITHUB_TOKEN`. Tambi�
 
 La exportación de detecciones usa la misma configuración privada: `SIRAP_DATA_GITHUB_TOKEN` y `SIRAP_DATA_GITHUB_REPO`. Los eventos enriquecidos se guardan en `data/processed/detecciones.csv`; no se usan las variables antiguas `GITHUB_TOKEN`, `GITHUB_DATA_REPOSITORY`, `GITHUB_DATA_BRANCH` ni `GITHUB_DATA_PATH`.
 
-El enriquecimiento consulta datos vehiculares públicos del SRI en segundo plano y guarda el resultado en el repositorio privado. El nombre del propietario, cuando aparece en la aplicación, procede del registro local. EcuadorLegalOnline ofrece información de propietario de pago y SIRAP no consulta ese servicio.
+El enriquecimiento consulta datos vehiculares públicos del SRI en segundo plano y guarda el resultado en el repositorio privado. SIRAP no consulta EcuadorLegalOnline porque la información de propietario que ofrece ese servicio es de pago. El nombre del propietario, cuando aparece en la aplicación, procede del registro local.
 
 | Dato | Uso |
 |---|---|
