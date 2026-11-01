@@ -21,9 +21,6 @@ runs/
 *.mp4
 *.zip
 
-# --- Lista privada de autorizaciones: una placa por línea ---
-authorized_plates.csv
-**/authorized_plates.csv
 
 # --- Pesos: solo se versionan los de models/ (best_model.pt ≈ 19 MB, best_model.onnx ≈ 37 MB) ---
 *.pt
