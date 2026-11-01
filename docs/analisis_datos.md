@@ -1,184 +1,158 @@
 # Análisis exploratorio de datos – SIRAP
 
-SIRAP usa dos tipos de datos con propósitos distintos: un dataset **de detección** (¿dónde está la placa?) y uno
-**de lectura** (¿qué dice la placa?). El análisis completo está en `notebooks/01_exploracion.ipynb` (sección 1 del
-notebook de backend, «Datos y análisis exploratorio») y sus gráficos en `results/figures/`.
+## Propósito y alcance
 
-> Todas las cifras salen de las salidas del notebook (`dataset_resumen.json`, sección 1, y secciones 1.3, 2.2 y 5.4 para SAVH);
-> las figuras están en `results/figures/`.
+SIRAP trabaja con dos conjuntos de datos que responden a preguntas distintas:
 
----
+- **Detección:** ¿en qué parte de la imagen está la placa?
+- **OCR:** ¿qué caracteres aparecen en la placa?
 
-## 1. Dataset de detección – License Plate Recognition v11 (Roboflow Universe)
+Este documento describe la composición, calidad, patrones y preparación de ambos conjuntos. Las métricas del detector y del OCR corresponden a protocolos diferentes; no son una sola métrica de desempeño de la aplicación ni una garantía para cada cámara o condición de uso.
 
-| Característica | Valor |
+El análisis reproducible está en [01_exploracion.ipynb](../notebooks/01_exploracion.ipynb) y en la sección 1 del [notebook de backend](../notebooks/SIRAP_backend.ipynb). Las cifras de composición del detector están resumidas en [dataset_resumen.json](../results/metrics/dataset_resumen.json); las métricas OCR más recientes están en [ocr_savh_aprobaciones_398.json](../results/metrics/ocr_savh_aprobaciones_398.json). Las figuras citadas abajo se conservan en `results/figures/`.
+
+## 1. Datos para detectar placas
+
+### 1.1 Fuente y composición
+
+El detector se desarrolló con la versión 11 del dataset [License Plate Recognition de Roboflow Universe](https://universe.roboflow.com/roboflow-universe-projects/license-plate-recognition-rxg4e), publicado bajo licencia **CC BY 4.0**.
+
+| Característica | Descripción |
 |---|---|
-| Fuente | `roboflow-universe-projects/license-plate-recognition-rxg4e`, versión 11 |
-| Licencia | CC BY 4.0 |
-| Imágenes | 10 125 (7 057 *train* · 2 048 *val* · 1 020 *test*) |
-| Clases | 1 (`License_Plate`) |
-| Formato | YOLO: `class cx cy w h` normalizados |
-| Origen de las imágenes | Mixto (varios países, autos y camiones, calle y estacionamientos) |
-
-### 1.1 Composición por split
-
-La partición 70 / 20 / 10 (aprox.) viene del dataset y se respeta para que los resultados sean comparables. El
-notebook cuenta, por split, imágenes, placas e imágenes **sin** placa (negativos), y guarda el resumen en
-`resultados/dataset_resumen.json` (copia en `results/metrics/dataset_resumen.json`).
+| Imágenes | 10.125 |
+| Clases | Una: `License_Plate` |
+| Etiquetas | Formato YOLO: clase y centro/ancho/alto de la caja normalizados |
+| Escenas | Autos y camiones en calles y estacionamientos; varios países y encuadres |
+| División | Se conservan los splits originales de entrenamiento, validación y prueba |
 
 | Split | Imágenes | Placas | Placas por imagen | Imágenes sin placa |
-|---|---|---|---|---|
-| train | 7 057 | 7 357 | 1,04 | 5 |
-| val | 2 048 | 2 195 | 1,07 | 3 |
-| test | 1 020 | 1 085 | 1,06 | 1 |
+|---|---:|---:|---:|---:|
+| Entrenamiento | 7.057 | 7.357 | 1,04 | 5 |
+| Validación | 2.048 | 2.195 | 1,07 | 3 |
+| Prueba | 1.020 | 1.085 | 1,06 | 1 |
+| **Total** | **10.125** | **10.637** | **1,05** | **9** |
 
-Casi todas las imágenes tienen exactamente una placa y solo 9 de 10 125 son negativos (0,09 %): el dataset casi no
-enseña qué **no** es una placa, por lo que conviene vigilar falsos positivos en escenas con letreros.
+Solo 9 de 10.125 imágenes (0,09 %) no contienen una placa. Por eso el dataset ofrece pocos ejemplos negativos y conviene vigilar falsos positivos ante letreros, rejillas y formas parecidas a una placa.
 
 ![Proporción de imágenes sin placa por split](../results/figures/dataset_negativos_por_split.svg)
 
-![Composición del dataset y tamaño de las placas](../results/figures/dataset_composicion_tamanos.png)
+![Composición del dataset y distribución de tamaños de placa](../results/figures/dataset_composicion_tamanos.png)
 
-El primer panel compara imágenes y placas por split; el segundo distribuye las placas de *test* por tamaño. Junto con
-las gráficas de imágenes negativas y de legibilidad de SAVH que siguen, y la gráfica de confianza OCR de la sección
-2.2, el análisis incluye seis visualizaciones cuantitativas, además de ejemplos visuales de etiquetas.
+La primera figura separa imágenes sin placa por split. La segunda compara la composición de los splits y el tamaño de las placas de prueba.
 
-### 1.2 Tamaño de las placas (criterio COCO)
+### 1.2 Tamaño de las placas
 
-| Tamaño en *test* | Criterio | Placas | % |
-|---|---|---|---|
-| Pequeñas | área < 32² px | 191 | 17,6 % |
-| Medianas | 32² ≤ área < 96² px | 756 | 69,7 % |
-| Grandes | área ≥ 96² px | 138 | 12,7 % |
-| **Total** | | **1 085** | 100 % |
+Para el análisis se usan las categorías de tamaño COCO calculadas sobre las cajas de referencia.
 
-**Hallazgo.** Casi una de cada cinco placas de *test* es pequeña. Son las más difíciles para cualquier detector
-y, en la garita, corresponden a vehículos lejos de la cámara. Por eso:
+| Tamaño en prueba | Criterio de área | Placas | Porcentaje |
+|---|---:|---:|---:|
+| Pequeñas | < 32² px | 191 | 17,6 % |
+| Medianas | 32² a < 96² px | 756 | 69,7 % |
+| Grandes | ≥ 96² px | 138 | 12,7 % |
+| **Total** | | **1.085** | **100 %** |
 
-- el mAP se desglosa por tamaño (sección 5.1 del notebook);
-- en el video de la garita el detector analiza cada cuadro a **1280 px** (la resolución de la cámara): a 640 px,
-  el tamaño de entrenamiento, no detectaba las placas más chicas;
-- el OCR solo lee placas que ocupan al menos 0,2 % del cuadro (`OCR_PLATE_AREA_RATIO`); las de camiones
-  detenidos en el video real miden 0,3–0,5 %.
+Casi una de cada cinco placas de prueba es pequeña. En la garita, suelen corresponder a vehículos lejanos. La evaluación del detector confirma la dificultad: el mAP@0.5:0.95 es **0,481** para placas pequeñas, **0,729** para medianas y **0,744** para grandes.
 
-**Efecto medido en el modelo** (sección 5.1 del notebook): el mAP@0.5:0.95 de YOLO11-s en *test* es 0,481 en
-placas pequeñas, 0,729 en medianas y 0,744 en grandes. La dificultad de las placas pequeñas predicha por el EDA se
-confirma.
+En el video de garita, el detector procesa los cuadros a 1.280 px para conservar detalle de placas pequeñas; el entrenamiento del detector usa 640 px. El OCR filtra recortes cuya placa ocupa menos de 0,2 % del cuadro (`OCR_PLATE_AREA_RATIO`). En el video revisado, las placas de camiones detenidos ocupan aproximadamente 0,3–0,5 % del cuadro.
 
-### 1.3 Ejemplos con sus etiquetas
+### 1.3 Inspección visual y patrones
 
-Seis imágenes de *train* elegidas al azar con semilla fija, con las cajas de referencia dibujadas, para
-comprobar que las etiquetas están bien alineadas.
+Se revisaron seis imágenes de entrenamiento seleccionadas con una semilla fija y sus cajas de referencia. Los ejemplos incluyen autos, motos con placas de dos filas, sobreimpresiones de estacionamiento y distintos encuadres.
 
-![Ejemplos de train](../results/figures/dataset_ejemplos.png)
+![Ejemplos de imágenes y etiquetas de entrenamiento](../results/figures/dataset_ejemplos.png)
 
-Los ejemplos muestran que el dataset incluye autos y **motos** (placas de dos filas), cámaras de estacionamiento con
-sobreimpresión de fecha y escenas de distinto encuadre: variedad útil para generalizar, pero distinta de las placas
-ecuatorianas de una fila.
+Los patrones y límites observados son:
 
-### 1.4 Patrones, sesgos y valores atípicos
+- **Diferencia geográfica:** el dataset de detección no representa exclusivamente placas ecuatorianas. Cambian formatos, colores y tipografías; por eso se complementa con datos locales de Guayaquil y de la garita.
+- **Tamaño:** hay desbalance entre tamaños, aunque solo existe una clase. Se reporta el rendimiento por tamaño además del resultado global.
+- **Negativos escasos:** las imágenes sin placa son útiles, pero representan solo 0,09 % del total.
+- **Casos atípicos:** las cajas muy pequeñas y las placas parcialmente cubiertas se conservan porque reflejan casos posibles en operación.
+- **Correlaciones:** no se calcula Pearson o Spearman sobre los píxeles. Para este dataset visual, una matriz de correlación tabular no describiría adecuadamente el contenido de las imágenes. Se comparan grupos relevantes para la tarea, como tamaño de caja y mAP; estas comparaciones muestran tendencias, no causalidad.
 
-- **Desbalance geográfico:** el dataset no es ecuatoriano. Las placas tienen formatos, colores y tipografías de
-  otros países. Se compensa evaluando el OCR con placas reales de Guayaquil (sección 2) y con imágenes de la garita.
-- **Una sola clase:** no hay desbalance entre clases; el desbalance relevante es de **tamaño** (sección 1.2).
-- **Negativos:** las imágenes sin placa ayudan a reducir falsos positivos (letreros, rejillas).
-- **Atípicos:** cajas muy pequeñas o placas parcialmente tapadas; se conservan porque representan casos reales
-  (el *early stopping* y la calibración del umbral en *val* controlan el sobreajuste a ellos).
+## 2. Datos para evaluar la lectura OCR
 
-- **Correlaciones:** no se calcula una matriz de Pearson/Spearman sobre píxeles de imágenes, porque no son variables tabulares comparables y una correlación agregada no describiría de forma válida el contenido visual. En su lugar se reportan comparaciones por grupos pertinentes para la tarea: tamaño de la placa frente a mAP, y legibilidad/confianza frente a resultados de OCR. Estas comparaciones describen tendencias del conjunto, no una relación causal.
+### 2.1 Fuente y composición
 
-## 2. Dataset de lectura – SAVH Guayaquil (Zenodo)
+El conjunto de lectura procede de [SAVH Guayaquil ANPR Plate Images Dataset en Zenodo](https://zenodo.org/records/21120307). La página consultada no indica una licencia para el archivo específico empleado; se debe verificar el permiso aplicable antes de redistribuir el dataset.
 
 | Característica | Valor |
-|---|---|
-| Fuente | [SAVH Guayaquil ANPR Plate Images Dataset (Zenodo)](https://zenodo.org/records/21120307); el registro no muestra licencia para este archivo específico |
-| Imágenes totales | 2 000 |
-| Subconjunto usado | 739 recortes de placa con la lectura de la cámara (`ground_truth.csv`) |
-| Legibles / no legibles | 472 / 267 |
-| Imágenes únicas | 666 (73 copias idénticas); 399 legibles únicas |
-| Referencia | 330 conservan la lectura de la cámara (formato válido); 69 sugerencias de revisión aún sin confirmar |
+|---|---:|
+| Imágenes del dataset de origen | 2.000 |
+| Recortes incluidos en la referencia trabajada | 739 |
+| Recortes legibles / no legibles | 472 / 267 |
+| Recortes únicos tras identificar duplicados | 666 |
+| Recortes legibles únicos antes de excluir casos ilegibles | 399 |
 
-![Recortes legibles y no legibles del subconjunto SAVH](../results/figures/savh_estado_legibilidad.svg)
+La gráfica siguiente resume la legibilidad de los recortes. Las imágenes ilegibles no se usan como si tuvieran una transcripción confiable.
 
-### 2.1 Calidad de la referencia
+![Estado de legibilidad de los recortes SAVH](../results/figures/savh_estado_legibilidad.svg)
 
-La lectura de la cámara de SAVH **no es una verdad absoluta**: confunde caracteres parecidos (por ejemplo
-`GB01825` cuando la placa es `GBO-1825`). Aceptar patrones de 2 letras + 4 o 5 dígitos, que en realidad son
-estos errores, haría que la normalización diera por buenas lecturas incorrectas. Con la revisión
-manual se confirmó que las 472 placas legibles siguen solo dos formatos. La comparación de EMR por estado de la
-referencia se interpreta con cautela: las 69 sugerencias aún no están confirmadas.
+### 2.2 Formatos y calidad de las referencias
 
-![EMR según el estado de la referencia](../results/figures/savh_emr_estado_referencia.svg)
+En las referencias revisadas aparecen dos formatos ecuatorianos:
 
-| Formato | Ejemplo | Normalización |
+| Formato | Ejemplo sin separador | Normalización |
 |---|---|---|
-| 3 letras + 4 dígitos (actual) | `GBA1234` | `GBA-1234` |
-| 3 letras + 3 dígitos (antigua) | `GMS429` | `GMS-0429` (se antepone un 0) |
+| Tres letras y cuatro dígitos | `GBA1234` | `GBA-1234` |
+| Tres letras y tres dígitos | `GMS429` | `GMS-0429` (se añade un cero inicial) |
 
-### 2.2 Confianza del OCR
+La lectura original de cámara no es automáticamente una verdad terreno: puede confundir caracteres parecidos, por ejemplo, `GB01825` por `GBO-1825`. Validar solo la forma de la cadena no confirma que los caracteres coincidan con la imagen.
 
-La confianza del OCR (menor probabilidad entre los caracteres) separa lecturas correctas de equivocadas con un
-**AUROC de 0,76**. El umbral que consta en el repositorio, en `config/config.yaml`, es **0,94**. La evaluación offline
-SAVH descrita a continuación utiliza **0,94**; **0,99** es otro umbral de estudio offline, no se acredita aquí como configuración operativa del despliegue.
-SAVH con predicciones guardadas, 363 de 399 recortes se aceptan (91,0 % de cobertura) y 36 pasan a revisión manual;
-entre las aceptadas, 349/363 son exactas (96,1 %) y 14 contienen una lectura equivocada. El EMR sin filtrar por
-confianza sigue siendo 374/399 (93,7 %). De las 399 referencias, 330 provienen de lecturas de cámara de formato válido (no necesariamente confirmadas visualmente) y 69 son sugerencias aún no
-confirmadas; por ello estos resultados se informan como una evaluación offline y no como rendimiento punta a punta
-en video. El umbral configurado en `config/config.yaml` del repositorio es 0,94; esta comparación offline usa predicciones y resultados del estudio y no constituye una nueva medición en producción ni verifica posibles modificaciones por entorno.
+La hoja de revisión registra respuestas para los 69 grupos SAVH y para 141 de 142 filas de revisión. En el cruce con las referencias de cámara se registraron 329 referencias como aceptadas y una como ilegible; la fila `fila_gt=398` se excluye. De los 18 desacuerdos entre OCR y cámara que se revisaron con apoyo visual, 14 quedaron con la propuesta OCR, 3 con la lectura de cámara y 1 se marcó ilegible.
 
-![Confianza del OCR en SAVH](../results/figures/ocr_confianza_savh.png)
+**Esta revisión no constituye una evaluación ciega independiente:** algunas propuestas del OCR estuvieron visibles para quien revisó las etiquetas. Además, la concordancia entre OCR y cámara no equivale por sí sola a una confirmación visual. Por ello, las métricas condicionadas a estas respuestas se reportan como offline y sujetas a sesgo de anotación.
 
-La primera letra de una placa ecuatoriana indica la provincia (`G` = Guayas), así que en un subconjunto capturado
-en Guayaquil se espera que predominen las placas que empiezan con `G` (el gráfico lo cuantifica). El OCR podría rendir distinto con placas de otras
-provincias: es una limitación declarada en `consideraciones_eticas.md`.
+### 2.3 Confianza y métricas OCR
+
+La confianza se calcula a partir de las probabilidades de los caracteres. Un análisis anterior reportó un AUROC de **0,76** para separar lecturas correctas e incorrectas; esta cifra describe ese análisis y no debe confundirse con la evaluación actual condicionada a las respuestas de revisión.
+
+El recálculo más reciente usa salidas OCR guardadas, sin ejecutar inferencia nueva. Excluye una referencia ilegible y evalúa **398 recortes únicos**:
+
+| Medida offline | Resultado | Interpretación |
+|---|---:|---|
+| Coincidencia exacta (EMR) | 388/398 = **97,49 %** | Condicionada a las etiquetas revisadas; no es una evaluación ciega |
+| CER medio | **0,00365** | Error de caracteres por imagen, en el mismo conjunto condicionado |
+| Umbral 0,94: aceptadas | 362/398 = **91,0 %** | Cobertura; 36 pasarían a revisión manual |
+| Umbral 0,94: exactas entre aceptadas | 359/362 | Tres lecturas aceptadas no coinciden exactamente |
+| Umbral 0,99: aceptadas | 346/398 = **86,9 %** | Cobertura; 52 pasarían a revisión manual |
+| Umbral 0,99: exactas entre aceptadas | 343/346 | Tres lecturas aceptadas no coinciden exactamente |
+
+El umbral **0,94** está configurado en `config/config.yaml` y se usa como referencia para el flujo descrito en el proyecto. El umbral **0,99** de la tabla es una comparación offline, no una afirmación de que la aplicación desplegada opere con ese valor.
+
+Los cortes anteriores de **374/399** y **373/397** corresponden a referencias y filtros previos. Se conservan en los archivos históricos, pero no son directamente comparables con **388/398** porque cambió el conjunto de etiquetas evaluables. El aumento de EMR no demuestra una mejora del modelo: no se reentrenó el OCR y la revisión no fue ciega.
+
+![EMR por estado de la referencia en un corte anterior](../results/figures/savh_emr_estado_referencia.svg)
+
+La figura corresponde a un corte anterior de la auditoría; para el resultado vigente se debe usar la tabla de arriba y el archivo [de métricas ajustadas](../results/metrics/ocr_savh_aprobaciones_398.json).
+
+![Distribución de confianza OCR en SAVH](../results/figures/ocr_confianza_savh.png)
+
+La confianza ayuda a decidir qué lecturas enviar a revisión, pero no reemplaza la inspección humana ni garantiza que una lectura autorizada sea correcta. El resultado se limita a recortes estáticos: **no mide detección en video, seguimiento entre cuadros, apertura de barrera ni desempeño en producción**.
 
 ## 3. Decisiones de preprocesamiento
 
 | Decisión | Motivo |
 |---|---|
-| Copiar el dataset al disco local de Colab | Leer miles de imágenes desde Drive en cada época es mucho más lento |
-| Reescribir `data.yaml` con rutas absolutas | Las rutas relativas de Roboflow (`../train/images`) no siempre se resuelven |
-| Mismo split y semilla para todo | Resultados reproducibles |
-| Letterbox a 640 px (gris 114) | Mantener la proporción de la placa, como Ultralytics |
-| Aumentos por defecto de Ultralytics (mosaic, HSV, flip horizontal…) | Robustez a iluminación y posición. *Nota:* el volteo horizontal no afecta al detector (solo localiza la caja) |
-| Recorte con 6 % de margen antes del OCR | Evitar cortar el primer o último carácter |
-| Normalización por posición (`0↔O`, `1↔I`, `8↔B`, …) | El formato fija qué posiciones son letras y cuáles dígitos |
+| Copiar el dataset al disco local de Colab | Evitar lecturas repetidas y lentas desde almacenamiento remoto durante cada época |
+| Reescribir `data.yaml` con rutas del entorno de ejecución | Resolver correctamente las rutas de imágenes y etiquetas al correr el entrenamiento |
+| Conservar los splits y la semilla definidos para el experimento | Hacer comparables y reproducibles las corridas |
+| Redimensionar con letterbox a 640 px y relleno gris 114 | Mantener la proporción de las placas, de acuerdo con el flujo de Ultralytics |
+| Usar aumentos de datos del entrenamiento | Mejorar robustez a variaciones de iluminación y posición; el volteo horizontal afecta la caja, no la lectura de caracteres |
+| Añadir 6 % de margen al recorte antes del OCR | Reducir el riesgo de cortar el primer o último carácter |
+| Normalizar caracteres según su posición | Aplicar reglas como `0↔O`, `1↔I` u `8↔B` solo cuando el formato de placa lo permite |
 
-## 4. Datos faltantes y desbalance
+## 4. Datos faltantes, desbalance y alcance
 
-- **Faltantes:** no hay atributos tabulares; los «faltantes» son imágenes sin placa (negativos válidos) o placas
-  ilegibles en SAVH, que se excluyen de la métrica de OCR y se cuentan aparte.
-- **Desbalance de tamaño:** se reporta mAP por tamaño en lugar de solo el global.
-- **Desbalance geográfico:** se mitiga con la evaluación local (SAVH + garita), no con re-muestreo.
+- En el dataset de detección no hay atributos tabulares faltantes. Las imágenes sin placa son negativos válidos.
+- En SAVH, los recortes ilegibles se contabilizan aparte y se excluyen de las métricas de transcripción.
+- El desbalance por tamaño se aborda reportando mAP separado para placas pequeñas, medianas y grandes; no se oculta dentro del promedio global.
+- El dominio geográfico de entrenamiento no representa por sí solo las placas de Ecuador. La evaluación local aporta contexto, pero no elimina el sesgo ni sustituye una muestra independiente.
+- Las cifras OCR de SAVH son offline y están condicionadas a una revisión con propuestas visibles. No se deben presentar como evaluación independiente ni como desempeño integral de video.
 
+## 5. Relación con la aplicación y el repositorio
 
-## 5. Actualización de auditoría asistida SAVH
-
-La revisión visual asistida de 69 fotografías representativas identificó 67 sugerencias compatibles con las imágenes y 2 grupos ambiguos (n=7, n=52). **Ninguno se presenta como aprobación humana** y las otras 330 referencias de cámara con formato válido se cotejaron posteriormente con OCR, y se inspeccionaron visualmente las 18 discrepancias (sección 5.1); no hay aprobación humana. Se separaron los casos inciertos para evitar imponer una etiqueta por reglas de formato.
-
-Con 666 salidas OCR guardadas, la muestra histórica de 399 recortes legibles únicos tenía 374 aciertos exactos (**EMR 93,7343 %**). Al excluir las 2 imágenes únicas ambiguas, la evaluación offline quedó en **373 aciertos de 397 (EMR 93,9547 %)**. Con umbral offline de 94 %, hubo 362 recortes aceptados y 14 lecturas equivocadas entre ellas. **La diferencia no demuestra mejora del OCR**, porque el denominador cambia y el modelo no se reentrenó. No es evaluación de video ni confirma la regla de dos cuadros.
-
-La auditoría detallada, sus limitaciones y pendientes están en [validación SAVH](validacion_savh_multisemilla.md) y [métricas provisionales](../results/metrics/ocr_savh_revision_asistida_397.json). El recálculo definitivo requiere aprobación humana de las referencias.
-
-
-### 5.1 Comprobación cruzada adicional: cámara frente a OCR
-
-Se cruzaron **330 recortes legibles únicos con etiqueta de cámara `camara_formato_valido`** y las predicciones OCR originales: 312 coincidencias y **18 discrepancias**. Se inspeccionaron los 18 recortes; la evaluación visual asistida favorece provisionalmente la lectura OCR en 14, la de cámara en 3 y considera 1 incierto. No hay aprobaciones humanas. Por tanto, llamar «confirmadas» a las 330 referencias de cámara es incorrecto: la validez del formato no equivale a verificación de su contenido.
-
-El EMR previo de 374/399 y el recálculo de 373/397 emplean referencias que todavía necesitan validación independiente. **No calcular un EMR más alto sustituyendo automáticamente la referencia por la lectura OCR:** cambiaría la verdad terreno en favor del modelo evaluado. La lista de 18 discrepancias, tres láminas de recortes y el informe se guardaron en Drive privado, y se añadió una pestaña `Auditoria camara OCR` a la hoja de revisión. Véase [protocolo de cierre](validacion_savh_multisemilla.md).
-
-
-## 6. Estado posterior a aprobaciones registradas
-
-La hoja de revisión SAVH contiene respuestas para **69 de 69 grupos**; la pestaña cámara–OCR tiene **329 `ok` y un `ilegible`** (`fila_gt=398`). Esta última referencia se excluye del cálculo y conserva la traza de revisión sin inventar matrícula. Tras aplicar las decisiones a las salidas OCR cacheadas, quedan **398 imágenes legibles únicas** con **388 aciertos exactos (EMR 97,49 %)** y CER medio **0,003649**. Con umbral offline de 94 %, 362 se aceptarían (359 correctas, 3 erróneas).
-
-Esto **actualiza el corte de 397 imágenes de la sección 5**, pero la evaluación **no es independiente ni ciega**: algunas etiquetas se aprobaron tras mostrar al revisor la lectura del mismo OCR que se evalúa. Por ello, el incremento de EMR no demuestra que el modelo haya mejorado. Los datos individuales se almacenan solo en Drive privado. [Protocolo y advertencias](validacion_savh_multisemilla.md) · [resumen agregado](../results/metrics/ocr_savh_aprobaciones_398.json).
-
-
-## Relación con la aplicación y el repositorio
-
-Este análisis documenta los datos de entrenamiento y evaluación; sus métricas describen esos conjuntos y no deben interpretarse como una garantía de desempeño en cada sesión de la aplicación publicada.
+Este análisis describe los datos de entrenamiento y evaluación; sus resultados no garantizan el desempeño de cada sesión de la aplicación publicada.
 
 - [Aplicación SIRAP](https://eduardoceballos-sirap.hf.space) · [Hugging Face Space](https://huggingface.co/spaces/eduardoceballos/SIRAP)
 - [Repositorio GitHub SIRAP_2](https://github.com/eduardoceballos666/SIRAP_2) · [API interactiva](https://eduardoceballos-sirap.hf.space/docs)
-- La interfaz de la aplicación está disponible en español e inglés. Los videos de presentación se encuentran al final del [README](../README.md).
+- La interfaz está disponible en español e inglés. Los videos de presentación están enlazados al final del [README principal](../README.md).
