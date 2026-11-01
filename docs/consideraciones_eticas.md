@@ -191,3 +191,15 @@ contraluz fuerte.
 
 **Advertencias a los usuarios** (también en la app): la confianza OCR no es una garantía; ante cualquier duda el
 operador debe verificar visualmente; la versión publicada usa una barrera simulada y datos ficticios.
+
+
+## Aplicación publicada y documentación
+
+La aplicación y el repositorio permiten revisar el sistema y sus límites de uso:
+
+- [Aplicación desplegada en Hugging Face](https://eduardoceballos-sirap.hf.space)
+- [Hugging Face Space y despliegue](https://huggingface.co/spaces/eduardoceballos/SIRAP)
+- [Código fuente y documentos de SIRAP_2](https://github.com/eduardoceballos666/SIRAP_2)
+- [API interactiva](https://eduardoceballos-sirap.hf.space/docs) · [Manual de usuario](manual_usuario.md)
+
+La interfaz puede consultarse en español e inglés. Las lecturas de placas requieren verificación humana cuando existe duda; la demostración no autoriza decisiones automáticas reales ni sustituye las medidas de privacidad descritas arriba. Los videos de presentación están enlazados al final del [README](../README.md).
