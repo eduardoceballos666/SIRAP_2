@@ -251,3 +251,13 @@ frontend (`npm ci && npm run build`); (2) `python:3.11-slim` instala `requiremen
 | echarts / vue-echarts | 6.1.0 / 8.3.2 | Gráficos interactivos del Dashboard |
 | pandas / numpy / pillow / pyyaml | ver `requirements.txt` | Datos e imágenes |
 | roboflow | 1.7.1 | Descarga del dataset |
+
+
+## Aplicación publicada y código fuente
+
+- **Aplicación:** https://eduardoceballos-sirap.hf.space
+- **Hugging Face Space:** https://huggingface.co/spaces/eduardoceballos/SIRAP
+- **Código y despliegue:** https://github.com/eduardoceballos666/SIRAP_2 (configuración en `deploy/huggingface/`)
+- **API interactiva:** https://eduardoceballos-sirap.hf.space/docs
+
+La aplicación SIRAP 1.0 presenta el flujo descrito en esta arquitectura mediante una interfaz bilingüe (español e inglés), roles y módulos de operación. Los videos de presentación están enlazados al final del [README del repositorio](../README.md).
