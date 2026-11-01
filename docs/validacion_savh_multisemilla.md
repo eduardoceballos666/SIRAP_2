@@ -102,7 +102,7 @@ Evidencia: [revisión de referencia puntual](../blind_eval/video_ground_truth_re
 
 ### 3.4 Regla temporal y barrera
 
-La regla de dos cuadros dentro de la ventana temporal se aplicó en la muestra de cinco clips como parte del criterio de confirmación de lectura. Los resultados de esa muestra indican que hubo dos confirmaciones incorrectas; por sí solos no prueban el desempeño en todos los escenarios.
+En modo continuo de video o cámara, la interfaz espera que la misma placa alcance al menos 94 % de confianza OCR en dos cuadros aceptados dentro de 7,5 segundos antes de mostrar y registrar la decisión. Esto ayuda a evitar basarla en una sola lectura. La prueba de cinco clips aplicó la regla y obtuvo 3/5 coincidencias exactas, pero no la comparó con una alternativa de un solo cuadro; por ello, los resultados disponibles no miden por separado cuánto mejora la regla. La evaluación puntual de la sección 7.2 tampoco mide su efecto aislado.
 
 Las pruebas documentadas no demuestran la operación de una barrera física. La confirmación lógica de una placa no debe presentarse como evidencia de que una barrera se abrió correctamente. Se requiere una prueba integral instrumentada que registre la decisión del sistema y la respuesta del dispositivo.
 
