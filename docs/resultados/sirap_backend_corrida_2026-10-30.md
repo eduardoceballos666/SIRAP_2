@@ -51,9 +51,9 @@ En otro resumen operativo se informa un rendimiento de **61,77 FPS** y un tiempo
 
 ### Evaluación puntual más reciente
 
-La referencia corregida comprende **18 cuadros puntuales** y **16 placas distintas**. En esa reevaluación, 11 de 18 lecturas coincidieron exactamente (**61,1 %**) y se recuperaron 9 de 16 placas en los puntos (**56,25 %**). Se reportaron 7 falsas autorizaciones entre 52 lecturas (**13,46 %**); las 34 lecturas fuera de los cuadros anotados no se clasifican automáticamente como falsas, porque la referencia es dispersa.
+La referencia corregida comprende **18 cuadros puntuales** y **16 placas distintas**. En esa reevaluación, 11 de 18 lecturas coincidieron exactamente (**61,1 %**) y se recuperaron 9 de 16 placas en los puntos (**56,25 %**). En la evaluación puntual posterior se señalaron 7 casos entre 52 lecturas (**13,46 % como proporción descriptiva**). Como 34 lecturas no tienen una referencia que permita clasificarlas y la muestra cubre solo 18 cuadros, el porcentaje es provisional y no representa la tasa integral del video.
 
-La corrida guardada había reportado **55,6 %** de EMR y cero falsas autorizaciones en la referencia disponible. Ese resultado pertenece a la corrida y referencias anteriores. La reevaluación posterior corrigió las lecturas de los cuadros 208 y 660 y debe usarse al describir la referencia puntual actual.
+La corrida anterior reportó cero falsas autorizaciones, pero ese resultado corresponde a otra corrida y referencia. En la evaluación puntual posterior se corrigieron las etiquetas de dos cuadros y se señalaron 7 casos. Para determinar cuáles fueron falsas autorizaciones hace falta contrastar cada decisión con la lista de autorizaciones usada en esa corrida; para estimar una tasa integral, también se requiere una referencia exhaustiva por pasada.
 
 Los 18 puntos no representan intervalos completos ni un censo de vehículos. No permiten afirmar la exactitud integral del video, medir el recall de todas las pasadas ni clasificar todas las lecturas fuera de referencia. La anotación completa por pasada y una segunda revisión humana independiente siguen pendientes.
 
