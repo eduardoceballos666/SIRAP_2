@@ -1,4 +1,4 @@
-# Publica la versión FastAPI + Vue en Hugging Face Spaces en cada push a main que toque la app web.
+# Publica FastAPI + Vue y sincroniza el notebook SIRAP_backend en cada push relevante a main.
 # Requiere HF_TOKEN y SIRAP_DATA_GITHUB_TOKEN (token con acceso de lectura/escritura al repo privado de datos).
 name: Deploy a Hugging Face Spaces
 
@@ -6,7 +6,7 @@ on:
   push:
     branches: [main]
     paths: ["api/**", "src/**", "frontend/**", "config/**", "data/**", "models/**", "results/metrics/**",
-            "data/samples/**", "requirements.txt", "Dockerfile", "deploy/huggingface/**",
+            "data/samples/**", "notebooks/SIRAP_backend.ipynb", "requirements.txt", "Dockerfile", "deploy/huggingface/**",
             ".github/workflows/deploy-hf-space.yml"]
   workflow_dispatch:
 

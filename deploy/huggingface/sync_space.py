@@ -1,7 +1,7 @@
 """Publica la versión FastAPI + Vue de SIRAP en un Space Docker de Hugging Face.
 
-Lo ejecuta el workflow ``.github/workflows/deploy-hf-space.yml``. Copia solo lo que la imagen necesita (sin notebooks,
-documentación ni pesos .pt) y sube la carpeta al Space; Hugging Face construye el ``Dockerfile`` y publica la app.
+Lo ejecuta el workflow ``.github/workflows/deploy-hf-space.yml``. Copia los archivos de la app y el notebook
+``notebooks/SIRAP_backend.ipynb`` solicitado para mantenerlo disponible en el Space; excluye documentación y pesos .pt.
 
 Variables: ``HF_TOKEN`` (obligatoria, con permiso de escritura), ``HF_SPACE`` (``usuario/nombre``),
 ``SIRAP_DATA_GITHUB_TOKEN`` (obligatoria para validar el respaldo privado antes de desplegar),
@@ -25,6 +25,7 @@ ROOT = Path(__file__).resolve().parents[2]
 INCLUDE = [
     "Dockerfile", ".dockerignore", "requirements.txt", "LICENSE",
     "api", "src", "config", "sql", "frontend", "data/samples", "results/metrics",
+    "notebooks/SIRAP_backend.ipynb",
     "models/best_model.onnx", "models/README.md",
 ]
 IGNORE = shutil.ignore_patterns("node_modules", "dist", "__pycache__", "*.pyc")
