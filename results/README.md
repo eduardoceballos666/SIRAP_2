@@ -2,24 +2,26 @@
 
 | Carpeta | Contenido |
 |---|---|
-| `figures/` | Gráficos del notebook para el informe y los documentos (`docs/`) |
-| `metrics/` | Métricas en JSON/CSV que lee la app («Acerca del modelo») y el README |
-| `reports/` | Logs de la app (`sirap.log`, ignorado por git) y reportes generados |
+| `figures/` | Gráficos pequeños del notebook para el informe y los documentos (`docs/`). |
+| `metrics/` | Métricas JSON/CSV y resúmenes agregados del proyecto. |
+| `reports/` | Reportes generados; los logs locales se ignoran con Git. |
 
-## Archivos de métricas esperados
+## Resultados publicados
 
-| Archivo | Generado por | Campos |
+| Archivo | Origen | Alcance |
 |---|---|---|
-| `metrics/detector_test.json` | Notebook, sección 5.1 · `python -m src.evaluate detector` | `map50`, `map50_95`, `precision`, `recall`, `f1` |
-| `metrics/umbrales.json` | Notebook, sección 4.1 (calibración en *val*) | `{"YOLO11": {"conf": …}}` |
-| `metrics/ocr_savh.json` | Notebook, secciones 4.3 y 5.4 | `emr`, `cer`, `n` |
-| `metrics/e2e.json` | Notebook, sección 7 · `python -m src.evaluate e2e` | `emr`, `cer`, `tiempo_ms_promedio` |\n| `metrics/video_e2e_puntos_provisionales_20261101.md` y `.json` | Sección 7.2, referencia provisional de 18 cuadros puntuales | Métricas agregadas: no equivalen a evaluación completa del video |\n| `metrics/garita_imagenes_e2e_20261101.md` | Sección 7.3 de Colab, 21 imágenes de garita | Detección, EMR, formato válido y latencia agregados; sin filas de placas/predicciones |
-| `metrics/velocidad.json` | Notebook, sección 5.3 | latencia, FPS, parámetros, GFLOPs |
-| `metrics/optimizacion_trials.csv` | `notebooks/04_optimizacion.ipynb` | Hiperparámetros, mAP@0.5:0.95 y mAP@0.5 (*val*) de los 24 *trials* |
-| `metrics/optimizacion_importancia.csv` | `notebooks/04_optimizacion.ipynb` | Importancia fANOVA y por permutación |
-| `metrics/optimizacion_antes_despues.csv`, `optimizacion_resumen.json` | `notebooks/04_optimizacion.ipynb` | Mejor configuración y comparación en *test* |
+| `metrics/detector_test.json` | Sección 5.1 | mAP, precisión, recall y F1 del detector. |
+| `metrics/umbrales.json` | Sección 4.1 | Umbrales calibrados en validación. |
+| `metrics/ocr_savh.json` | Secciones 4.3 y 5.4 | EMR, CER y tamaño de muestra OCR SAVH. |
+| `metrics/e2e.json` | Sección 7 | Evaluación puntual de imagen; no sustituye la evaluación de video. |
+| `metrics/video_e2e_puntos_provisionales_20261101.md` y `.json` | Sección 7.2 | Resultados agregados de 18 cuadros puntuales corregidos; provisionales, no cubren todos los intervalos ni vehículos. |
+| `metrics/garita_imagenes_e2e_20261101.md` | Sección 7.3 | Métricas agregadas de 21 imágenes de garita. |
+| `metrics/velocidad.json` | Sección 5.3 | Latencia, FPS, parámetros y GFLOPs. |
+| `metrics/optimizacion_trials.csv` | `notebooks/04_optimizacion.ipynb` | Hiperparámetros y métricas de validación de 24 trials. |
+| `metrics/optimizacion_importancia.csv` | `notebooks/04_optimizacion.ipynb` | Importancia fANOVA y permutación. |
+| `metrics/optimizacion_antes_despues.csv`, `optimizacion_resumen.json` | `notebooks/04_optimizacion.ipynb` | Mejor configuración y comparación en test. |
 
-Los resultados compactos verificados se versionan en este repositorio bajo `results/metrics/` y `results/figures/`. Las corridas nuevas del notebook sin Drive se guardan primero en `/content/SIRAP_workspace`; publica solo tablas, métricas agregadas y gráficos pequeños. Si un archivo no está, la app muestra «pendiente» en lugar de inventar un número.
+El notebook actualizado lee insumos versionados desde GitHub y no necesita Google Drive. Sus nuevas corridas guardan primero los resultados en `/content/SIRAP_workspace` de Colab. Publica únicamente tablas, métricas agregadas y gráficos pequeños; no incrustes videos ni subas predicciones individuales. Si un resultado no está, se documenta como pendiente en vez de estimarlo.
 
 ## Umbral operativo OCR
 
