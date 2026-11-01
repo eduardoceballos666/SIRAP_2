@@ -94,7 +94,7 @@ Evidencia: [evaluador reproducible](../scripts/evaluate_video_e2e.py) y [resumen
 
 ### 3.3 Observaciones puntuales del video operativo
 
-La referencia puntual disponible contiene 18 observaciones y 16 placas únicas. Se contabilizaron 52 lecturas del pipeline; 11/18 observaciones fueron exactas (61,11 %), y 9/16 placas únicas se recuperaron (56,25 %). Se registraron 7 autorizaciones incorrectas entre 52 lecturas (13,46 %). Otras 34 lecturas quedaron fuera de la referencia puntual; al ser una muestra dispersa, no se pueden clasificar automáticamente como falsos positivos.
+La referencia puntual disponible contiene 18 observaciones y 16 placas únicas. Se contabilizaron 52 lecturas del pipeline; 11/18 observaciones fueron exactas (61,11 %), y 9/16 placas únicas se recuperaron (56,25 %). En la evaluación puntual posterior se señalaron 7 casos entre 52 lecturas (13,46 % como proporción descriptiva). Como 34 lecturas no tienen una referencia que permita clasificarlas y la muestra cubre solo 18 cuadros, el porcentaje es provisional y no representa la tasa integral del video. La corrida anterior reportó cero falsas autorizaciones, pero corresponde a otra corrida y referencia. Para estimar falsas autorizaciones hace falta contrastar las decisiones con la lista de autorizaciones utilizada y completar una referencia exhaustiva por pasada.
 
 Esta referencia no contiene intervalos completos ni garantiza que incluya todos los vehículos. Sus métricas son provisionales y no equivalen a una evaluación integral del video. Para cerrar la evaluación se necesita anotar cada pasada, con primer y último cuadro legibles, revisar las etiquetas de forma independiente y resolver discrepancias sin consultar las predicciones.
 
