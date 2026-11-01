@@ -110,7 +110,7 @@ se agregó al final para tener una arquitectura cliente-servidor con autenticaci
 
 ## Umbral operativo OCR
 
-La aplicación usa un umbral de confianza OCR de **99 %**. Las lecturas por debajo pasan a verificación manual.
+El umbral operativo de confianza OCR configurado para la aplicación es **94 %** (`config/config.yaml`). La API aplica ese valor al decidir si una lectura requiere verificación manual. El valor de **99 %** se exploró en el análisis de umbrales del notebook; no es el umbral vigente. En modo continuo de video o cámara, la interfaz añade un filtro temporal: la misma placa debe alcanzar al menos **94 %** en **dos cuadros aceptados dentro de 7,5 segundos** antes de confirmar y registrar la decisión. Esta regla complementa el umbral del backend, pero no lo sustituye.
 
 
 ## Aplicación y entregables publicados
