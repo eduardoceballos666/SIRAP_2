@@ -12,7 +12,7 @@ Cada fila identifica un cuadro guía en el que la placa se pudo leer visualmente
 
 - Revisar el video original cuadro a cuadro para determinar el primer y último cuadro legible de cada pasada y buscar vehículos no incluidos en los 44 eventos del detector.
 - Solicitar una segunda revisión humana independiente de las 18 transcripciones y de los límites de cada intervalo.
-- Cargar la anotación completa en `MyDrive/proyecto_integrador_placas/video_ground_truth.csv` y luego ejecutar la sección 7.2. Las métricas del conjunto puntual serían métricas condicionadas a estos cuadros, no una evaluación completa del video ni del recall de vehículos.
+- Completar la anotación de intervalos fuera del conjunto puntual y luego ejecutar la sección 7.2. Las métricas del conjunto puntual son condicionales a estos cuadros, no una evaluación completa del video ni del recall de vehículos.
 
 Placas dudosas que no se incorporaron incluyen la del camión amarillo del cuadro 1312 y lecturas nocturnas con reflejo/oclusiones. También se descartaron recuadros OCR que apuntaban a texto lateral del camión en vez de a una placa.
 
