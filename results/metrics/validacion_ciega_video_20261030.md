@@ -53,12 +53,11 @@ No se calculó EMR ni recall completo usando esta referencia puntual, porque eso
 Artefactos publicados: este informe y `results/metrics/blind_independent_video_eval_20261030.json` con métricas agregadas. No se publican las matrículas de la referencia de video, predicciones por fila ni claves del holdout ciego; los materiales detallados permanecen en Drive privado para preservar la privacidad y la independencia de las evaluaciones.
 
 
-## Actualización provisional (2026-11-01)
+## Evaluación puntual del video
 
-Una nueva ejecución de la sección 7.2 en Colab cargó la referencia privada de 18 puntos que no estaba disponible en la corrida del 2026-10-30. Frente a esos puntos, se registraron 10/18 coincidencias exactas (55.6%) y 8/16 etiquetas únicas de placa detectadas (50.0%). El pipeline emitió 52 lecturas; 34 no tenían una fila de referencia en el mismo cuadro.
+La referencia pública vigente contiene 18 cuadros puntuales corregidos. Los resultados guardados de las corridas previas, incluidos los conteos de lecturas y coincidencias, corresponden a referencias anteriores y no describen la referencia corregida. El repositorio no conserva el registro por lectura necesario para recalcularlos. Las métricas de la referencia actual están pendientes de una nueva ejecución de la sección 7.2.
 
-Estos valores son condicionales a cuadros puntuales. Las 34 lecturas sin fila coincidente no se clasifican como falsos positivos, y el recall por placa única no es recall por pasada/vehículo. No se calculó EMR/CER del video completo. La referencia completa por intervalos, los vehículos que el detector pudo omitir y la revisión humana independiente siguen pendientes. El detalle agregado y sus límites están en results/metrics/video_e2e_puntos_provisionales_20261101.md. La plantilla de intervalos ya está publicada, sin etiquetas.
-
+El borrador de intervalos publicado aparte se basa en la hoja de anotación ciega, pero sus límites aún no se han validado cuadro a cuadro ni se ha confirmado la cobertura de todas las pasadas. No debe presentarse como evaluación integral.
 
 ## Actualización: evaluación de 21 imágenes y fuente de video (2026-11-01)
 
