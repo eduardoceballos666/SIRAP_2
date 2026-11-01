@@ -1,211 +1,138 @@
-# Validación: referencias SAVH pendientes y experimento multisemilla completado (30/10/2026)
+# Validación del detector, el OCR y el sistema de video de SIRAP
 
-**Actualización de cierre de etiquetas (30/10/2026):** se registraron respuestas para los 69 grupos SAVH y las 330 referencias de cámara; `fila_gt=398` está **marcada `ilegible`** y excluida. El EMR offline condicionado a estas respuestas es **388/398 = 97,49 %**. Los apartados 1–7 documentan etapas anteriores y sus estados pendientes son históricos. Véase el apartado 8 y [las métricas registradas](../results/metrics/ocr_savh_aprobaciones_398.json). **No equivale a una evaluación ciega ni punta a punta.**
+## Resumen
 
-> **Estado: validación multisemilla completada; piloto visual ciego ejecutado pero no suficiente para cierre; evaluación E2E en cinco clips completada (3/5 exactas). La revisión humana independiente y la evaluación del video operativo con referencia siguen pendientes. No atribuir al modelo publicado una mejora no desplegada.**
-> Los archivos de este procedimiento no reemplazan `models/best_model.pt`, `models/best_model.onnx`,
-> `config/config.yaml` ni el Space en Hugging Face.
+Este documento reúne los resultados de validación por tipo de prueba y distingue entre métricas calculadas, revisiones humanas y pilotos. Las evaluaciones no son intercambiables: una métrica del detector no demuestra la precisión del OCR, y una lectura correcta en imágenes aisladas no demuestra el funcionamiento integral del video o de una barrera física.
 
-## 1. Evidencia revisada
+| Área | Resultado disponible | Alcance y limitación |
+|---|---|---|
+| Detector YOLO11-s, comparación multisemilla | 6 entrenamientos, 3 pares de semillas | Mejora media descriptiva en mAP50:95; no es una prueba punta a punta ni cambia el modelo desplegado |
+| OCR SAVH | 388/398 de coincidencia exacta (97,49 %) | Métrica offline condicionada a respuestas registradas; no es ciega y puede tener sesgo de confirmación |
+| Piloto visual SAVH | 73/84 de coincidencia exacta (86,90 %) | Revisión piloto no independiente; 13 discrepancias pendientes de adjudicación |
+| Video, cinco clips | 3/5 lecturas exactas (60 %) | Muestra de clips; no es evaluación del video operativo completo |
+| Video, observaciones puntuales | 11/18 exactas (61,11 %) | Referencia puntual y dispersa; no cubre todos los vehículos ni intervalos completos |
+| Imágenes completas de garita | 8/21 exactas (38,10 %) | Muestra pequeña; por debajo de la meta de EMR del 80 % |
 
-- Hoja conectada: **Revisión placas SAVH (142 legibles)**, accesible en Google Drive.
-- La columna `revision: ok o placa correcta` tenía **142/142 celdas vacías** al leerla el 30/10/2026.
-- La hoja contiene **69 grupos representativos**, con **73 copias** señaladas por `igual_a`.
-- `results/metrics/ocr_savh.json` registra **399 imágenes legibles únicas** y **69 referencias sugeridas sin confirmar**. Las otras 330 no son necesariamente todas etiquetas revisadas por una persona: el estado `camara_formato_valido` es distinto de `confirmada`.
-- `results/metrics/optimizacion_resumen.json` registra mAP@0.5:0.95 test **0,692586 (base)** y **0,703834 (trial 12)** con **una sola semilla**. Diferencia preliminar **+0,011248**. Los pesos optimizados NO están desplegados.
+## 1. Validación multisemilla del detector
 
-Los conteos de la hoja deben revisarse de nuevo antes del informe final. Se localizó `savh_ground_truth_subset.zip` en la carpeta privada principal `proyecto_integrador_placas` de Drive. Para la auditoría asistida más reciente se emplearon las fotografías de `revision_visual_savh/placa_legible` y las predicciones OCR ya guardadas; no debe sustituirse automáticamente un subconjunto o sus índices por imágenes distintas.
+Se compararon las configuraciones base y optimizada con YOLO11-s, usando AdamW, 40 épocas previstas, paciencia 10 y semillas emparejadas 0, 1 y 2. Se completaron seis entrenamientos. La prueba se mantuvo fija y se usó para reportar resultados, no para elegir parámetros.
 
-## 2. Auditar las etiquetas SAVH, sin inventar ninguna
-
-En Google Colab con Drive montado:
-
-```python
-from google.colab import drive
-drive.mount("/content/drive")
-```
-
-Con el repositorio disponible en `/content/SIRAP_2`, ejecutar en una celda de Colab:
-
-```python
-%run /content/SIRAP_2/scripts/auditar_savh.py --output-dir /content/drive/MyDrive/proyecto_integrador_placas/auditoria_savh
-```
-
-El script lee la hoja por Google Sheets y guarda **solo en Drive privado**:
-
-- `auditoria_savh/savh_auditoria.json`: recuentos y conflictos;
-- `auditoria_savh/savh_pendientes_revision.csv`: una fila por grupo que requiere inspección.
-
-No publica placas en el repositorio abierto.
-
-**La validación es visual.** En la última columna de la hoja escribir `ok` si la sugerencia coincide con la imagen, la placa corregida si difiere o `ilegible` si no puede saberse. Revisar especialmente grupos marcados `dudosa` y las confusiones O/Q/0. Una respuesta en una imagen duplicada se propaga al grupo por el notebook original. No rellenar `ok` a partir del texto sugerido, del nombre de archivo ni del resultado del OCR.
-
-Una vez revisadas las imágenes, en `notebooks/SIRAP_backend.ipynb` ejecutar secciones **0, 1.3, 2.1 y 2.2**, y confirmar que la guía de imágenes pendientes no presente respuestas faltantes. A continuación recalcular **4.3 y 5.4**, exportar las métricas actualizadas a `results/metrics/ocr_savh.json` y actualizar la documentación. Si hay imágenes irresolubles, excluirlas de las métricas con el estado correspondiente y documentar su número.
-
-`notebooks/06_afinamiento_ocr.ipynb` puede reutilizar las referencias corregidas con `INCLUDE_UNCONFIRMED = False`, porque el filtrado ya admite los estados confirmados. **No activar `True` para incluir sugerencias no verificadas.**
-
-## 3. Validar la estabilidad del detector con semillas emparejadas
-
-**Protocolo ejecutado el 30/10/2026.** No se repitieron los 24 trials de Optuna: el trabajo consistió en reentrenar de forma independiente la configuración base y el trial 12 con semillas **0, 1 y 2**, manteniendo protocolo y dataset, para totalizar **seis entrenamientos completos**.
-
-**Ejecución verificada el 30/10/2026:** seis corridas de YOLO11-s finalizadas en Colab con Tesla T4 y tres pares documentados. Se conservan los pasos siguientes como procedimiento reproducible. La revisión visual de las 69 referencias SAVH sigue pendiente.
-
-1. Abrir `notebooks/04_optimizacion.ipynb` en Colab y ejecutar solo las celdas iniciales de instalación, Drive y preparación del **dataset Roboflow v11** (antes de lanzar Optuna).
-2. Verificar que existe `/content/datasets/license-plate-recognition-rxg4e-v11/data_abs.yaml` y que `MyDrive/proyecto_integrador_placas/optimizacion/optimizacion_resumen.json` sigue accesible.
-3. Con el repositorio disponible en `/content/SIRAP_2`, ejecutar **en el runtime GPU**:
-
-```python
-%run /content/SIRAP_2/scripts/validar_multisemilla_yolo11.py --data-yaml /content/datasets/license-plate-recognition-rxg4e-v11/data_abs.yaml --opt-summary /content/drive/MyDrive/proyecto_integrador_placas/optimizacion/optimizacion_resumen.json --output-dir /content/drive/MyDrive/proyecto_integrador_placas/optimizacion/validacion_multisemilla --seeds 0 1 2
-```
-
-**Se generan** en la carpeta de salida privada:
-
-- `protocolo.json`: parámetros, hash de `data_abs.yaml`, versiones y GPU;
-- `runs/base_semilla_*/weights/best.pt` y `runs/optimizada_semilla_*/weights/best.pt` (solo experimentales);
-- `metricas_individuales/*.json`;
-- `comparacion_multisemilla.csv`;
-- `resumen_multisemilla.json`: mejoras emparejadas, media, desviación y cantidad de semillas con ventaja.
-
-El script evita reemplazar una corrida existente y permite reutilizar métricas ya terminadas. Si existe una corrida **incompleta**, no intenta reanudarla automáticamente ni borrar archivos: revisar manualmente checkpoints y coherencia del protocolo. El conjunto de prueba es fijo y **no se usa para seleccionar nuevos parámetros**. Tres semillas son una evaluación descriptiva, no demostración de significancia estadística.
-
-## 4. Criterios de cierre
-
-- Confirmación visual documentada de las 69 referencias únicas; sin respuestas incompletas/conflictivas en la hoja, o exclusión motivada de imágenes ilegibles.
-- `savh_ground_truth_corregido.csv` regenerado y `ocr_savh.json` recalculado con etiquetas fiables; revisar cuántas imágenes válidas quedan después de excluir.
-- **Completado (30/10/2026):** seis entrenamientos terminados, resultados de los tres pares y variabilidad documentada.
-- Medir cambios en **recall** además de mAP; no adoptar una mejora de cajas que comprometa el número de placas detectadas.
-- Actualizar `docs/optimizacion.md`, `docs/analisis_datos.md` y `README.md` **solo con resultados efectivos y verificables**; no copiar resultados hipotéticos.
-- Conservar el modelo base de Hugging Face salvo una decisión posterior justificada por evaluación punta a punta, recalibración, exportación ONNX y pruebas integrales.
-
-**Riesgo de interpretación:** el entrenamiento base original de SIRAP y el ensayo base controlado de Optuna pueden diferir en detalles del optimizador; la nueva comparación emparejada compara dos protocolos experimentales con `AdamW` explícito. No se debe atribuir automáticamente su promedio a los pesos ONNX que están publicados.
-
-
-## Validación multisemilla terminada (30/10/2026)
-
-Se entrenaron independientemente las configuraciones **base** y **optimizada** con AdamW, 40 épocas previstas, paciencia 10 y semillas 0, 1 y 2 (seis corridas). Es un experimento controlado distinto de la comparación histórica de una sola semilla y de los pesos publicados.
-
-| Semilla | mAP50:95 base | mAP50:95 optimizada | Diferencia (pp) | Recall base | Recall optimizada | Diferencia recall (pp) |
-|---|---:|---:|---:|---:|---:|---:|
+| Semilla | mAP50:95 base | mAP50:95 optimizada | Diferencia (puntos porcentuales) | Recall base | Recall optimizada | Diferencia de recall (puntos porcentuales) |
+|---:|---:|---:|---:|---:|---:|---:|
 | 0 | 69,3573 % | 70,0945 % | +0,7372 | 95,0693 % | 95,0230 % | −0,0463 |
 | 1 | 69,4552 % | 69,6736 % | +0,2184 | 95,1152 % | 96,0369 % | +0,9217 |
 | 2 | 69,5956 % | 69,7629 % | +0,1673 | 94,9309 % | 94,9607 % | +0,0298 |
 
-**Mejora media pareada en mAP50:95: +0,3743 puntos porcentuales**; desviación estándar **muestral: 0,3153 puntos porcentuales** (n=3). El recall medio pareado varía aproximadamente **+0,3017 puntos porcentuales**. Las tres semillas mejoran en mAP50:95, pero la magnitud varía y el recall baja levemente en la semilla 0. Esto describe estabilidad limitada, **no** significación estadística ni mejora punta a punta en video.
+La diferencia media pareada en mAP50:95 es **+0,3743 puntos porcentuales**, con desviación estándar muestral de **0,3153 puntos porcentuales**. Las tres semillas mejoraron en mAP50:95. El cambio medio de recall es aproximadamente **+0,3017 puntos porcentuales**, aunque el recall disminuyó levemente en la semilla 0.
 
-Evidencia: [comparación CSV](../results/metrics/validacion_multisemilla_comparacion.csv), [resumen JSON](../results/metrics/validacion_multisemilla_resumen.json), [protocolo JSON](../results/metrics/validacion_multisemilla_protocolo.json). La comparación anterior de una semilla permanece como resultado histórico separado. **No se reemplazan** `models/best_model.pt`, `models/best_model.onnx` ni los pesos de Hugging Face. Las **69 referencias SAVH** continúan pendientes de verificación visual; tampoco está demostrada una mejora del OCR o del sistema completo.
+Las diferencias medias adicionales son +0,001593 en mAP50 (desviación estándar muestral 0,001230) y +0,001463 en precisión (desviación estándar muestral 0,004227). La precisión disminuyó en la semilla 0. Con tres semillas, estos datos describen la variación observada y no demuestran significación estadística ni una mejora uniforme en todas las métricas.
 
+Los pesos de estas corridas son experimentales. No sustituyen `models/best_model.pt`, `models/best_model.onnx` ni el modelo desplegado en Hugging Face. La comparación histórica de una sola semilla es un experimento distinto y no debe mezclarse con este promedio.
 
-### Métricas complementarias de la validación multisemilla: mAP50 y precisión
+Evidencia: [comparación por semilla](../results/metrics/validacion_multisemilla_comparacion.csv), [resumen](../results/metrics/validacion_multisemilla_resumen.json), [protocolo](../results/metrics/validacion_multisemilla_protocolo.json) y [métricas individuales](../results/metrics/validacion_multisemilla_individuales/).
 
-| Semilla | mAP50 base | mAP50 optimizada | Δ mAP50 | Precisión base | Precisión optimizada | Δ precisión |
-|---:|---:|---:|---:|---:|---:|---:|
-| 0 | 0.973401 | 0.973779 | +0.000378 | 0.992304 | 0.988982 | -0.003322 |
-| 1 | 0.970963 | 0.973800 | +0.002838 | 0.983629 | 0.986651 | +0.003022 |
-| 2 | 0.970954 | 0.972518 | +0.001564 | 0.988563 | 0.993252 | +0.004689 |
+## 2. Revisión de referencias y evaluación OCR SAVH
 
-Las diferencias medias pareadas son **+0.001593** en mAP50 (DE muestral **0.001230**) y **+0.001463** en precisión (DE muestral **0.004227**). El valor de precisión también disminuye en la semilla 0; la evidencia de estabilidad de las tres semillas no garantiza una mejora uniforme en todas las métricas. Los seis JSON originales, con las cuatro métricas y rutas a pesos experimentales, se conservan en [resultados individuales](../results/metrics/validacion_multisemilla_individuales/base_semilla_0.json) y los otros cinco archivos del mismo directorio.
+### 2.1 Estado de las referencias
 
+La referencia original contiene 739 registros: 472 recortes legibles y 267 no legibles. La hoja de revisión agrupa 69 placas representativas y sus copias. Se registraron respuestas para los 69 grupos; una imagen, `fila_gt=398`, se excluyó por ilegibilidad. El conjunto evaluable quedó en 398 recortes legibles únicos.
 
-## 6. Auditoría visual asistida de SAVH y recálculo OCR provisional (30/10/2026)
+También se cotejaron 330 referencias de cámara con las predicciones OCR guardadas: 312 coincidieron y 18 difirieron. En la revisión de los desacuerdos, 14 se resolvieron a favor de la sugerencia OCR, 3 a favor de la lectura de cámara y 1 se marcó ilegible. En dos grupos representativos se habían observado ambigüedades visuales (confusiones O/U y H/M).
 
-**Estado: NO es validación definitiva de las 69 etiquetas.** Se localizaron las fotografías originales de la carpeta privada `MyDrive/proyecto_integrador_placas/revision_visual_savh/placa_legible` y se inspeccionaron las 69 imágenes representativas de la hoja **Revisión placas SAVH (142 legibles)**. La auditoría asistida encontró 67 grupos cuyas sugerencias son visualmente compatibles con los recortes, y **2 grupos ambiguos**: `n=7` (O/U; 3 recortes idénticos) y `n=52` (H/M; 1 recorte). La hoja contiene 73 filas marcadas como copias: 71 asociadas a grupos visualmente consistentes y 2 asociadas al grupo ambiguo 7. **No se rellenó la columna `revision: ok o placa correcta`**, que sigue sin aprobaciones humanas. Las columnas auxiliares K:M documentan la evaluación asistida y los grupos; no constituyen validación humana.
+### 2.2 Métricas offline condicionadas
 
-La referencia original contiene 739 registros (472 recortes legibles, 267 no legibles). Los 142 registros de la hoja se cruzaron con el CSV de referencia y las fotografías. La referencia corregida original en Drive se preservó sin sobrescribir. Para la reevaluación provisional se generó una copia trazable de las 739 filas y otra de **397 imágenes legibles únicas**, excluyendo únicamente las **2 imágenes únicas ambiguas** (que en la hoja corresponden a 4 filas), sin imputar ninguna letra incierta. Las otras **330 referencias** proceden de etiquetas de la cámara con formato válido; posteriormente se cotejaron las 330 con predicciones OCR y se inspeccionaron visualmente sus 18 discrepancias (sección 7), pero las 312 coincidencias y el conjunto completo no cuentan con aprobación humana.
+Se reutilizaron predicciones OCR previamente guardadas; no se hizo una inferencia nueva ni se entrenó el modelo.
 
-### Cálculo reproducido con salidas OCR existentes
+| Indicador | Resultado |
+|---|---:|
+| Recortes evaluables | 398 |
+| Coincidencias exactas | 388/398 |
+| EMR | 97,49 % |
+| CER medio por imagen | 0,003649 |
+| Aceptadas con umbral offline 0,94 | 362 |
+| Correctas / erróneas entre las aceptadas con 0,94 | 359 / 3 |
+| Enviadas a revisión con 0,94 | 36 |
+| Aceptadas con umbral offline 0,99 | 346 |
+| Correctas / erróneas entre las aceptadas con 0,99 | 343 / 3 |
+| Enviadas a revisión con 0,99 | 52 |
 
-Se reutilizaron las 666 predicciones conservadas de `fast-plate-ocr cct-s-v2-global-model`, sin una nueva inferencia. El cálculo offline aplica la normalización del notebook y comparación exacta con las referencias de cada recorte único.
+**Interpretación:** el resultado de 388/398 depende de referencias cuya revisión incluyó, en algunos desacuerdos, sugerencias que ya mostraban la predicción OCR. Puede existir sesgo de confirmación; por eso la cifra no se debe describir como evaluación ciega o independiente. Los umbrales se aplicaron offline a las salidas disponibles y no prueban el funcionamiento integral del umbral del backend, la regla temporal, el seguimiento en video o una barrera física.
 
-| Indicador | Histórico (399) | Revisión asistida excluyendo ambigüedades (397) |
-|---|---:|---:|
-| Imágenes legibles únicas | 399 | 397 |
-| Lecturas exactamente correctas | 374 | 373 |
-| EMR | 93,7343 % | **93,9547 %** |
-| CER medio por imagen | 0,010204 | 0,009896 |
-| Aceptadas con umbral offline 94 % | 363 | 362 |
-| Correctas entre aceptadas con 94 % | 349 | 348 |
-| Erróneas entre aceptadas con 94 % | 14 | **14** |
-| Enviadas a verificación con 94 % | 36 | 35 |
-| Aceptadas con umbral offline 99 % | 347 | 346 |
-| Erróneas entre aceptadas con 99 % | 12 | 12 |
+El archivo agregado sin matrículas está en [métricas SAVH aprobadas](../results/metrics/ocr_savh_aprobaciones_398.json). Las referencias individuales e imágenes de revisión permanecen en el material de trabajo privado.
 
-**Interpretación obligatoria:** el cambio de 399 a 397 modifica el denominador; no es una mejora del modelo OCR, ni constituye validación punta a punta. Un umbral de confianza offline no verifica el umbral realmente aplicado por el backend, la regla de dos cuadros, el seguimiento en video o la apertura de barrera. Tampoco confirma todas las referencias originales de la cámara.
+### 2.3 Piloto visual del split de prueba
 
-**Archivos de evidencia privados**, sin publicar números de matrícula en GitHub:
-`ocr/SIRAP2_auditoria_visual_OCR_397.xlsx`,
-`ocr/SAVH_ground_truth_revision_asistida_739.csv`,
-`ocr/SAVH_ground_truth_evaluable_397.csv`,
-`ocr/SAVH_metricas_OCR_revision_asistida_397.json` y
-`ocr/SAVH_dos_placas_por_confirmar.png` y
-`ocr/SAVH_pendientes_revision_4_imagenes.csv`.
-Los archivos se encuentran en el Drive privado de `proyecto_integrador_placas`; el resumen público agregado y su trazabilidad se guardan en [resultados OCR de la revisión asistida](../results/metrics/ocr_savh_revision_asistida_397.json). Se preservan los resultados históricos y las seis corridas multisemilla sin cambios.
+Se releyeron visualmente 84 imágenes del split de prueba, excluyendo dos identificadores que quedaron expuestos durante la preparación. El piloto obtuvo 73/84 coincidencias exactas por imagen (86,90 %), 63/74 por placa única (85,14 %) y CER medio de 2,04 %. Con confianza mínima 0,94 se aceptaron 80/84 resultados; 9 de esas 80 lecturas diferían de la referencia visual.
 
-**Para cerrar SAVH:** confirmar visualmente las 69 referencias con aprobación humana explícita (especialmente 7 y 52), registrar `ok`, placa corregida o `ilegible` en la columna J; después ejecutar nuevamente las secciones 2.2, 4.3 y 5.4 de `SIRAP_backend.ipynb`, verificar los conteos, recalcular las métricas definitivas y actualizar los resultados publicados con su nuevo estado y evidencia. Hasta ese momento, **SAVH sigue pendiente de cierre**.
+La relectura visual coincide con 71/84 referencias archivadas. Las 13 discrepancias requieren adjudicación. Además, no hubo una segunda persona independiente que realizara y verificara esta relectura. Se considera un piloto de control de etiquetas, no una evaluación ciega independiente cerrada. No se cambiaron las etiquetas originales ni se escogió automáticamente la salida OCR para resolver diferencias.
 
+Evidencia agregada: [piloto visual SAVH](../results/metrics/ocr_savh_validacion_ciega_piloto.json).
 
-## 7. Contraste adicional de referencias de cámara frente al OCR (30/10/2026)
+## 3. Evaluaciones de video
 
-La auditoría anterior se amplió a las **330 imágenes legibles únicas** etiquetadas originalmente como `camara_formato_valido`. Se compararon sus textos de cámara con las 330 predicciones guardadas de `fast-plate-ocr cct-s-v2-global-model`, aplicando normalización por posición. **312 coinciden y 18 difieren**. La concordancia entre cámara y OCR **no demuestra verdad terreno**, pues pueden compartir errores o confusiones sistemáticas.
+### 3.1 Métricas operativas del video completo
 
-Se abrieron y examinaron los 18 recortes originales discrepantes. La valoración **visual preliminar asistida** sugiere OCR en 14 casos, cámara en 3 y es incierta en 1. Estos números son clasificaciones de revisión para priorizar la comprobación y **no son confirmaciones humanas**. También siguen pendientes los dos grupos ambiguos anteriores (`n=7`, `n=52`) y la aprobación de las otras 67 sugerencias representativas. El archivo original de 739 referencias y los resultados publicados `ocr_savh.json` permanecen intactos.
+La corrida operativa registró 18.115 cuadros a 1280×720. El procesamiento, incluyendo escritura de salida, tomó 409,6 segundos (61,77 cuadros por segundo). Se registraron 52 seguimientos y lecturas; no hubo seguimientos sin lectura. Se reportaron 25 placas con formato válido, 225 llamadas OCR, un promedio de 14,51 ms por cuadro para el detector y 0,45 ms para seguimiento. El tiempo promedio de detección más OCR por decisión fue 91,99 ms.
 
-Se añadió una pestaña **Auditoria camara OCR** a la misma hoja de Google Sheets: registra los 330 casos (18 discrepancias primero), comparaciones, confianza, observaciones y una columna de **aprobación humana vacía**. La pestaña **Untitled** conserva la columna J de aprobación humana sin modificar. Se guardaron de forma privada en `MyDrive/proyecto_integrador_placas/ocr/`: `SAVH_revision_330_ocr_vs_camara.csv`, `SAVH_18_desacuerdos_por_confirmar.csv`, `SAVH_auditoria_330_resumen_privado.json`, y tres láminas `SAVH_desacuerdos_{1,2,3}.png`. No se publican matrículas ni imágenes en GitHub.
+Estos son conteos y tiempos de operación, no métricas de exactitud. Sin una referencia completa e independiente por vehículo o pasada, no permiten calcular recall integral, falsos positivos integrales ni exactitud de extremo a extremo.
 
-El **EMR 373/397 = 93,95 % permanece provisional** y ahora tiene un riesgo adicional de etiquetas de cámara potencialmente incorrectas. No se recalcula ni se publica una nueva puntuación «corregida» escogiendo automáticamente las coincidencias con el OCR: eso produciría un sesgo circular a favor del modelo evaluado. Primero hay que aprobar o descartar visualmente los 18 desacuerdos y los grupos 7 y 52, y después revisar las referencias de cámara restantes con un protocolo independiente del OCR.
+### 3.2 Muestra de cinco clips
 
-**Estado de cierre:** 0 aprobaciones humanas en las dos pestañas. Se requiere una revisión humana documentada y luego regenerar un ground truth independiente y evaluar de nuevo. El informe de detector multisemilla y los pesos de producción no cambiaron.
-
-
-## 8. Cierre de respuestas registradas en SAVH y recalculo offline (30/10/2026)
-
-**Verificación de la hoja conectada:** la pestaña `Untitled` tiene 141 respuestas `ok` entre 142 filas, pero **69/69 grupos** están cubiertos porque el grupo `n=20` tiene respuestas en las copias `n=21` y `n=22`. La pestaña `Auditoria camara OCR` tiene **329 respuestas `ok` y 1 `ilegible`**, correspondiente a `fila_gt=398`. No hay casos restantes sin una decisión de grupo o exclusión.
-
-La fotografía `fila_gt=398` no permite leer con seguridad su último carácter. Su respuesta anterior `ok` era ambigua; el revisor cambió explícitamente el valor a **`ilegible`**, y se verificó la actualización en la fuente. La referencia queda **`excluida_por_revisor`**, sin placa imputada. La pestaña de cámara actualizó su estado a «EXCLUIDA POR ILEGIBILIDAD»; el resto indica «APROBACIÓN REGISTRADA (OK)». La pestaña SAVH incluye el estado del grupo, sin modificar las respuestas originales.
-
-### Resultado condicionado a las aprobaciones
-
-Con el caché OCR original se reproducen los resultados históricos `374/399 = 93,73 %`. La referencia elaborada con las respuestas registradas deja **398 recortes legibles únicos evaluables** y una exclusión. La evaluación recalculada produce **388/398 = 97,49 % de coincidencia exacta** y CER medio por imagen **0,003649**. Con umbral offline **0,94** se aceptaron 362 resultados: **359 correctos y 3 erróneos**, y 36 pasarían a revisión. Con umbral offline **0,99** se aceptarían 346: **343 correctos y 3 erróneos**, y 52 pasarían a revisión.
-
-**Advertencia fundamental sobre las métricas:** en parte de las 18 discrepancias cámara/OCR, el revisor confirmó sugerencias que ya incluían la predicción del OCR. Por ello, el aumento numérico del EMR puede contener **sesgo de confirmación** y no es prueba de mejora real del OCR. Se trata de una **validación condicionada a aprobaciones registradas, no ciega**, sin nueva inferencia ni entrenamiento. No mide detección, seguimiento, estabilidad entre dos cuadros, latencia final ni apertura de barrera.
-
-**Evidencia privada en Drive:** `ocr/SAVH_ground_truth_cerrado_739.csv` (las 739 filas y estados, una excluida), `ocr/SAVH_ground_truth_evaluable_398.csv`, `ocr/SAVH_resultado_ocr_398_referencias_aprobadas.csv` y `ocr/SAVH_metricas_aprobaciones_398_cerrado.json`. El resumen **agregado**, sin placas ni fotos, está en [`results/metrics/ocr_savh_aprobaciones_398.json`](../results/metrics/ocr_savh_aprobaciones_398.json). Los archivos históricos `ocr_savh.json` y `ocr_savh_revision_asistida_397.json` no se sobrescriben. El despliegue y los pesos publicados permanecen sin cambios.
-
-**Estado actual:** decisiones de etiquetas **registradas y aplicadas**, una imagen **excluida por ilegibilidad**, recálculo offline terminado; **validación ciega independiente y evaluación real punta a punta en video todavía pendientes**.
-
-
-## 9. Piloto ciego SAVH y evaluación E2E con clips de prueba (30/10/2026)
-
-### 9.1 Relectura visual ciega del split test de OCR
-
-Se preparó una pasada visual sin mostrar al anotador las predicciones del OCR. De las 86 imágenes del split `test` de `evidence/savh/ocr/afinamiento/particion.csv`, se releyeron 84; se excluyeron antes de anotar dos cuyos identificadores con placa quedaron visibles durante la preparación. Las referencias visuales se congelaron antes de ejecutar el modelo `cct-s-v2-global-model` de la aplicación. No se modificó el ground truth original.
-
-Resultados **provisionales** de las 84 imágenes: EMR por imagen **73/84 = 86,90 %**, EMR por placa única **63/74 = 85,14 %**, CER medio **2,04 %**; con confianza mínima 0,94 se aceptaron 80/84 (**95,24 % de cobertura**) y 9 de esas 80 lecturas fueron distintas de la referencia visual.
-
-La relectura visual coincide con 71/84 (**84,52 %**) de las referencias archivadas. Las 13 diferencias requieren adjudicación. Además, esta pasada la realizó el asistente visual y no una segunda persona independiente. Por estas dos razones, se registra como **piloto de control de etiquetas**, no como validación ciega independiente cerrada. No se sustituyen las métricas publicadas ni se actualizan las etiquetas por escoger la salida del OCR. Hace falta que una persona independiente revise, sin ver las predicciones, las 13 discrepancias y confirme las etiquetas antes de recalcular. El resumen agregado, sin placas, está en [métricas del piloto ciego](../results/metrics/ocr_savh_validacion_ciega_piloto.json); las anotaciones individuales se conservan fuera del repositorio público.
-
-### 9.2 Evaluación punta a punta de lectura en video
-
-Se procesaron cinco MP4 disponibles en `Videos_Imagenes_Prueba/` con los pesos `models/best_model.onnx` y el OCR activo `cct-s-v2-global-model` (CPU). Se anotó visualmente el vehículo principal de cada clip antes de inferir. El evaluador reproduce la lógica de la interfaz: muestreo cada 1 s, confianza OCR ≥0,94, dos cuadros con la misma placa dentro de 7,5 s y repetición del video durante 15 s después del final si todavía no hay confirmación.
+Se evaluaron cinco clips con el ONNX publicado y el OCR `cct-s-v2-global-model` en CPU. El protocolo reprodujo el muestreo cada segundo, confianza OCR mínima de 0,94, confirmación de la misma placa en dos cuadros dentro de 7,5 segundos y continuación del video por 15 segundos cuando aún no había confirmación.
 
 | Resultado | Valor |
 |---|---:|
 | Clips / eventos anotados | 5 |
-| Lecturas confirmadas en dos cuadros | 5/5 |
-| Coincidencias exactas con la referencia visual | **3/5 (60 %)** |
-| Tiempo hasta la confirmación, mediana de la línea de tiempo del video | 8 s |
-| Tiempo hasta la confirmación, promedio | 10,6 s |
+| Lecturas confirmadas | 5/5 |
+| Coincidencias exactas con la referencia visual | 3/5 (60 %) |
+| Tiempo hasta confirmación, mediana | 8 s |
+| Tiempo hasta confirmación, promedio | 10,6 s |
 
-En dos clips el sistema confirmó una lectura incorrecta; ambas superaron el umbral operativo. No se publican las placas. El tercer archivo `video_03.z03` es solo una parte de un archivo dividido, no un video reproducible, y se excluyó. Estos cinco clips no sustituyen el video operativo `video_camiones.mp4`: este último y una referencia anotada por evento no estaban disponibles en el repositorio ni en Drive al ejecutar la evaluación. Por ello, el resultado es una medición reproducible de clips de prueba, no una validación del video operativo. Tampoco mide el registro en almacenamiento ni el accionamiento de una barrera física.
+Dos clips produjeron confirmaciones incorrectas que superaron el umbral operativo. Esta muestra no reemplaza la evaluación del video operativo completo ni evalúa almacenamiento, apertura de barrera u otros componentes físicos. El archivo `video_03.z03` era solo una parte de un archivo dividido y no se pudo reproducir, por lo que se excluyó.
 
-El script reproducible es [`scripts/evaluate_video_e2e.py`](../scripts/evaluate_video_e2e.py); el resumen sin placas y los hashes de los archivos probados están en [video_e2e_muestra.json](../results/metrics/video_e2e_muestra.json). La tabla privada de referencias `video_path,plate_gt` no se publica.
+Evidencia: [evaluador reproducible](../scripts/evaluate_video_e2e.py) y [resumen de la muestra](../results/metrics/video_e2e_muestra.json).
 
-**Estado de las dos tareas:** la lectura de video ya tiene una evaluación de cinco clips, con dos errores de aceptación que deben corregirse antes de adoptar cambios; falta evaluar el video operativo con su ground truth. La validación ciega independiente queda pendiente hasta adjudicar las 13 discrepancias mediante un revisor humano independiente.
+### 3.3 Observaciones puntuales del video operativo
 
+La referencia puntual disponible contiene 18 observaciones y 16 placas únicas. Se contabilizaron 52 lecturas del pipeline; 11/18 observaciones fueron exactas (61,11 %), y 9/16 placas únicas se recuperaron (56,25 %). Se registraron 7 autorizaciones incorrectas entre 52 lecturas (13,46 %). Otras 34 lecturas quedaron fuera de la referencia puntual; al ser una muestra dispersa, no se pueden clasificar automáticamente como falsos positivos.
 
-## Acceso al producto y código
+Esta referencia no contiene intervalos completos ni garantiza que incluya todos los vehículos. Sus métricas son provisionales y no equivalen a una evaluación integral del video. Para cerrar la evaluación se necesita anotar cada pasada, con primer y último cuadro legibles, revisar las etiquetas de forma independiente y resolver discrepancias sin consultar las predicciones.
 
-La validación descrita aquí corresponde a los datos y protocolos detallados en este documento; no debe confundirse con una evaluación ciega completa de todos los escenarios de uso de la aplicación.
+Evidencia: [revisión de referencia puntual](../blind_eval/video_ground_truth_review.md) y [resumen de la evaluación puntual](../results/metrics/video_e2e_puntos_provisionales_20261101.md).
 
-- [Aplicación SIRAP](https://eduardoceballos-sirap.hf.space) · [Space de Hugging Face](https://huggingface.co/spaces/eduardoceballos/SIRAP)
+### 3.4 Regla temporal y barrera
+
+La regla de dos cuadros dentro de la ventana temporal se aplicó en la muestra de cinco clips como parte del criterio de confirmación de lectura. Los resultados de esa muestra indican que hubo dos confirmaciones incorrectas; por sí solos no prueban el desempeño en todos los escenarios.
+
+Las pruebas documentadas no demuestran la operación de una barrera física. La confirmación lógica de una placa no debe presentarse como evidencia de que una barrera se abrió correctamente. Se requiere una prueba integral instrumentada que registre la decisión del sistema y la respuesta del dispositivo.
+
+## 4. Evaluación con imágenes completas de garita
+
+En 21 imágenes se obtuvo detección en 19/21 (90,48 %), coincidencia exacta en 8/21 (38,10 %), formato válido en 16/21 (76,19 %), latencia promedio de 37,69 ms y percentil 95 de 37,78 ms. La coincidencia exacta está por debajo de la meta documentada de 80 %.
+
+El resultado de cero falsas autorizaciones con una lista de placas autorizadas vacía no demuestra el desempeño con una lista real poblada. Esta prueba se limita a las 21 imágenes evaluadas.
+
+Evidencia agregada: [evaluación E2E de imágenes de garita](../results/metrics/garita_imagenes_e2e_20261101.md).
+
+## 5. Reproducibilidad y artefactos
+
+La comparación multisemilla se puede reproducir con [`validar_multisemilla_yolo11.py`](../scripts/validar_multisemilla_yolo11.py). Requiere GPU CUDA, Ultralytics, el archivo `data_abs.yaml` del dataset Roboflow v11 y el resumen de la configuración optimizada del trial 12. El script guarda protocolo, métricas individuales, comparación CSV, resumen JSON y pesos experimentales en la carpeta de salida; evita sobrescribir resultados y avisa si encuentra una corrida incompleta.
+
+Los resúmenes públicos enlazados en este documento omiten matrículas e imágenes personales. Las referencias detalladas y fotografías de auditoría se mantienen en el almacenamiento privado de trabajo.
+
+## 6. Conclusiones y próximos pasos
+
+- La comparación multisemilla muestra una mejora media pequeña en mAP50:95, con tres semillas; no justifica por sí sola cambiar el modelo publicado.
+- El EMR SAVH de 97,49 % está condicionado a respuestas de revisión no ciega y no debe presentarse como independiente.
+- El piloto visual SAVH necesita adjudicación humana independiente de las 13 discrepancias.
+- Los cinco clips y las 18 observaciones puntuales son muestras; la segunda no cubre intervalos ni todos los vehículos.
+- La muestra de imágenes completas de garita obtuvo 38,10 % de coincidencia exacta, por debajo de la meta del 80 %.
+- Para afirmar exactitud integral de video hacen falta intervalos de referencia completos por pasada y revisión independiente de etiquetas.
+- Para afirmar funcionamiento de barrera hace falta verificar, además, la respuesta física del dispositivo.
+- Las cifras del detector, OCR, video y garita deben conservarse separadas y publicarse con su alcance y limitaciones.
+
+## Acceso al producto y al código
+
+- [Aplicación SIRAP](https://eduardoceballos-sirap.hf.space) · [Space en Hugging Face](https://huggingface.co/spaces/eduardoceballos/SIRAP)
 - [Repositorio SIRAP_2](https://github.com/eduardoceballos666/SIRAP_2) · [API](https://eduardoceballos-sirap.hf.space/docs)
-- La interfaz de la aplicación está disponible en español e inglés. Los videos de presentación se enlazan en el [README](../README.md).
+- La interfaz está disponible en español e inglés. Los videos de presentación están enlazados en el [README principal](../README.md).
