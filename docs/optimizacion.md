@@ -225,7 +225,7 @@ Ambos modelos tuvieron aciertos y errores en exactamente las mismas imágenes; n
 - Las tres semillas mejoraron mAP@0.5:0.95, pero la magnitud varió y las métricas complementarias no subieron todas de manera uniforme.
 - El detector optimizado y el OCR afinado no sustituyen los pesos publicados: la decisión fue conservar el detector y el OCR originales.
 - La evaluación OCR de SAVH es offline y está condicionada a una revisión en la que algunas sugerencias del modelo fueron visibles. No es una evaluación ciega.
-- Estos experimentos no acreditan la evaluación integral del video, la regla temporal de dos cuadros ni el funcionamiento de la barrera.
+- Estos experimentos no acreditan la evaluación integral del video ni el funcionamiento de la barrera. La prueba de cinco clips sí aplicó la regla de dos cuadros (3/5 coincidencias exactas), pero no la comparó con una alternativa de un solo cuadro; no mide por separado cuánto mejora la regla.
 - No se deben presentar las métricas de una lista simulada como prueba de autorización real.
 
 ## 9. Relación con la aplicación y el repositorio
