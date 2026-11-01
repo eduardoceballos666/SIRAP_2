@@ -58,3 +58,12 @@ Artefactos publicados: este informe y `results/metrics/blind_independent_video_e
 Una nueva ejecución de la sección 7.2 en Colab cargó la referencia privada de 18 puntos que no estaba disponible en la corrida del 2026-10-30. Frente a esos puntos, se registraron 10/18 coincidencias exactas (55.6%) y 8/16 etiquetas únicas de placa detectadas (50.0%). El pipeline emitió 52 lecturas; 34 no tenían una fila de referencia en el mismo cuadro.
 
 Estos valores son condicionales a cuadros puntuales. Las 34 lecturas sin fila coincidente no se clasifican como falsos positivos, y el recall por placa única no es recall por pasada/vehículo. No se calculó EMR/CER del video completo. La referencia completa por intervalos, los vehículos que el detector pudo omitir y la revisión humana independiente siguen pendientes. El detalle agregado y sus límites están en results/metrics/video_e2e_puntos_provisionales_20261101.md. La plantilla de intervalos ya está publicada, sin etiquetas.
+
+
+## Actualización: evaluación de 21 imágenes y fuente de video (2026-11-01)
+
+La sección 7.3 de Colab se ejecutó con las 21 imágenes actuales de garita y su referencia privada. Resultado agregado: detección 19/21 (90.5%), EMR 8/21 (38.1%), formato válido 16/21 (76.2%), latencia media 37.69 ms/imagen y p95 37.78 ms. La salida fila por fila permanece privada. Esta prueba es por imagen y no mide OC-SORT ni el video completo. El informe separado es results/metrics/garita_imagenes_e2e_20261101.md.
+
+El video adjunto tiene 1280×720, 30 fps y 18,115 cuadros (603.83 s), coherentes con las dimensiones y el conteo de cuadros de la corrida de video documentada. Esto confirma compatibilidad de metadatos; no sustituye una comparación de hash del archivo con la fuente exacta usada en esa corrida.
+
+La evaluación del video completo continúa pendiente: las 18 referencias puntuales no forman intervalos exhaustivos; faltan pasadas/vehículos omitidos y la revisión humana independiente.
