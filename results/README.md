@@ -26,3 +26,8 @@ El notebook actualizado lee insumos versionados desde GitHub y no necesita Googl
 ## Umbral operativo OCR
 
 La aplicación usa un umbral de confianza OCR de **99 %**. Las lecturas por debajo pasan a verificación manual.
+
+
+## Relación con la aplicación y el repositorio
+
+Los resultados de modelado deben leerse dentro del alcance de cada protocolo y conjunto de datos. La aplicación SIRAP 1.0 está desplegada en [Hugging Face](https://huggingface.co/spaces/eduardoceballos/SIRAP) ([abrir aplicación](https://eduardoceballos-sirap.hf.space)); el código, notebooks, métricas y documentación se mantienen en [GitHub SIRAP_2](https://github.com/eduardoceballos666/SIRAP_2). También está disponible la [API interactiva](https://eduardoceballos-sirap.hf.space/docs). La interfaz ofrece español e inglés; los videos requeridos están al final del [README principal](../README.md).
