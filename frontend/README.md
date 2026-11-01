@@ -23,3 +23,8 @@ El frontend ofrece **Español** (predeterminado) e **English**. Se accede a ambo
 ## Umbral operativo OCR
 
 La aplicación usa un umbral de confianza OCR de **99 %**. Las lecturas por debajo pasan a verificación manual.
+
+
+## Aplicación y repositorio
+
+La versión desplegada de la interfaz se encuentra en [SIRAP en Hugging Face](https://huggingface.co/spaces/eduardoceballos/SIRAP) y en https://eduardoceballos-sirap.hf.space. El [repositorio SIRAP_2](https://github.com/eduardoceballos666/SIRAP_2) contiene el frontend, la API y la configuración del despliegue. Consulta la [API interactiva](https://eduardoceballos-sirap.hf.space/docs), el [manual](../docs/manual_usuario.md) y los videos del [README principal](../README.md).
