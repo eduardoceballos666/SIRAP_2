@@ -1,0 +1,18 @@
+{
+  "fecha": "2026-11-01",
+  "notebook": "notebooks/SIRAP_backend.ipynb",
+  "seccion": "7.2",
+  "referencia": "blind_eval/video_ground_truth_points_provisional.csv",
+  "tipo_referencia": "18 cuadros puntuales; no intervalos completos",
+  "lecturas": 52,
+  "lecturas_con_referencia": 18,
+  "emr_por_lectura": 0.611111,
+  "recall_placas": 0.5625,
+  "falsos_autorizados": 7,
+  "tasa_falsos_autorizados": 0.134615,
+  "lecturas_sin_placa_real": 34,
+  "placas_en_referencia": 16,
+  "placas_fuera_del_tramo": 0,
+  "cuadros_procesados": 18115,
+  "estado": "provisional; evaluación integral y revisión humana independiente pendientes"
+}
