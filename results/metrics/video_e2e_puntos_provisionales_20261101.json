@@ -3,7 +3,7 @@
   "notebook": "notebooks/SIRAP_backend.ipynb",
   "seccion": "7.2",
   "referencia": "blind_eval/video_ground_truth_points_provisional.csv",
-  "tipo_referencia": "18 cuadros puntuales; no intervalos completos",
+  "tipo_referencia": "18 cuadros puntuales de la versión anterior, previo al cotejo manual; la referencia exacta actual tiene 15 puntos provisionales",
   "lecturas": 52,
   "lecturas_con_referencia": 18,
   "emr_por_lectura": 0.611111,
@@ -14,12 +14,19 @@
   "placas_en_referencia": 16,
   "placas_fuera_del_tramo": 0,
   "cuadros_procesados": 18115,
-  "estado": "provisional; evaluación integral y revisión humana independiente pendientes",
+  "estado": "resultado histórico de la referencia anterior a la revisión manual; métricas actuales pendientes de recalcular",
   "estado_falsas_autorizaciones": "NO_ESTIMABLE; resultado previo retirado por error de cálculo",
   "resultado_previo_retirado": {
     "falsos_autorizados_reportados": 7,
     "tasa_reportada": 0.134615,
     "estado": "INVALIDO",
     "motivo": "El cálculo comparó las 52 lecturas con el ground truth aunque 34 no tenían referencia."
-  }
+  },
+  "referencia_actual": {
+    "archivo": "blind_eval/video_ground_truth_points_provisional.csv",
+    "puntos_exactos": 15,
+    "estado": "provisional; cotejo manual posterior, no ciego",
+    "metricas": "pendientes de recalcular con registros por lectura de una nueva corrida"
+  },
+  "limitacion_recalculo": "El repositorio no contiene el registro por lectura de la corrida anterior; no se pueden recalcular métricas para los 15 puntos a partir de este resumen agregado."
 }
