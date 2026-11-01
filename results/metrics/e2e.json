@@ -3,7 +3,7 @@
   "cer": null,
   "tiempo_ms_promedio": 99.21,
   "detector": "YOLO11-s",
-  "nota": "Tiempo por decisión (detección + OCR) en el video de la garita. EMR punta a punta pendiente de video_ground_truth.csv (sección 7).",
+  "nota": "EMR y CER del video completo pendientes: la referencia disponible contiene 18 cuadros puntuales, no intervalos completos ni todos los vehículos. Ver video_e2e_puntos_provisionales_20261101.md para métricas exploratorias condicionadas a esos puntos.",
   "meta_emr": 0.8,
-  "meta_tiempo_s": 1.0
+  "meta_tiempo_s": 1
 }
