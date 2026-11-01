@@ -65,7 +65,7 @@ Los pesos de experimentos y optimización no reemplazan automáticamente el mode
 
 ## Ejecución y conservación de resultados
 
-El notebook actualizado lee los insumos versionados desde GitHub y no requiere Google Drive para iniciar. Las salidas nuevas de Colab se guardan en `/content/SIRAP_workspace`; no se publican automáticamente. Conserva en el repositorio métricas agregadas, tablas y gráficos pequeños. No incrustes videos en el notebook. El video fuente se distribuye como artefacto separado; el archivo de 18 puntos mencionado arriba permanece como referencia puntual provisional. Antes de publicar nuevas predicciones, anotaciones detalladas o registros operativos, confirma su alcance, procedencia y autorización. Conserva en el repositorio las métricas agregadas y los gráficos pequeños.
+El notebook actualizado lee los insumos versionados desde GitHub y no requiere Google Drive para iniciar. Las salidas nuevas de Colab se guardan en `/content/SIRAP_workspace` y no se publican automáticamente. Conserva en el repositorio métricas agregadas, tablas y gráficos pequeños; distribuye el video fuente como artefacto separado y no lo incrustes en el notebook. El archivo de 18 puntos mencionado arriba permanece como referencia puntual provisional. Antes de publicar nuevas predicciones, anotaciones detalladas o registros operativos, confirma su alcance, procedencia y autorización.
 
 Si un resultado está pendiente o su referencia es incompleta, indícalo como tal; no extrapoles métricas ni completes etiquetas por intuición.
 
