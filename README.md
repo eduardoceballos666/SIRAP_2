@@ -161,7 +161,7 @@ Más detalles: [análisis de datos](docs/analisis_datos.md), [descripción de lo
 
 ## Modelo y resultados
 
-El detector se entrenó con YOLO11-s durante 40 épocas y se exportó para la aplicación. En video se usa OC-SORT para asociar detecciones de un mismo vehículo y seleccionar lecturas. El umbral de detección se calibró con el conjunto de validación. La interfaz usa un umbral de confianza OCR de 94 % y solicita confirmación cuando la lectura no alcanza el criterio operativo.
+El detector se entrenó con YOLO11-s durante 40 épocas y se exportó para la aplicación. En video se usa OC-SORT para asociar detecciones de un mismo vehículo y seleccionar lecturas. El umbral de detección se calibró con el conjunto de validación. En modo continuo de video o cámara, la interfaz espera que la misma placa alcance al menos 94 % de confianza OCR en dos cuadros aceptados dentro de 7,5 segundos antes de mostrar y registrar la decisión. Esto ayuda a evitar basarla en una sola lectura.
 
 ### Resultados publicados
 
@@ -183,7 +183,7 @@ Los archivos agregados y las figuras pequeñas están en [métricas](results/met
 - Se compararon el modelo base y una configuración seleccionada por Optuna en el conjunto de prueba reservado: mAP@0.5:0.95 pasó de 0,693 a 0,704 y mAP@0.5 de 0,97223 a 0,97284 en esa comparación de una semilla. El modelo entregado se mantiene.
 - El estudio multisemilla del detector comparó tres pares de corridas. La mejora media descriptiva de mAP@0.5:0.95 fue de 0,3743 puntos porcentuales, con desviación estándar muestral de 0,3153 puntos; no es una prueba de significación estadística.
 - El afinamiento OCR con placas ecuatorianas no mejoró la exactitud en el conjunto de prueba separado por placa: EMR de 94,2 % antes y después (86 placas; McNemar p = 1,0), por lo que se conserva el OCR original.
-- En una muestra distinta de cinco clips de prueba, tres placas coincidieron exactamente y dos lecturas incorrectas fueron aceptadas. Es una muestra pequeña y no sustituye la evaluación integral del video operativo.
+- En una muestra de cinco clips se aplicó la regla de dos cuadros: hubo 3/5 coincidencias exactas y dos confirmaciones incorrectas. La prueba no comparó con una alternativa de un solo cuadro, así que no mide por separado cuánto mejora la regla; tampoco sustituye la evaluación integral del video operativo.
 - En la validación offline SAVH al umbral 0,94 se aceptaron 363 de 399 lecturas; 349/363 fueron exactas. La muestra incluye 69 referencias sugeridas sin confirmar y no es una evaluación ciega independiente.
 
 ### Límites de evaluación
