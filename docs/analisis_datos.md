@@ -85,6 +85,8 @@ ecuatorianas de una fila.
 - **Atípicos:** cajas muy pequeñas o placas parcialmente tapadas; se conservan porque representan casos reales
   (el *early stopping* y la calibración del umbral en *val* controlan el sobreajuste a ellos).
 
+- **Correlaciones:** no se calcula una matriz de Pearson/Spearman sobre píxeles de imágenes, porque no son variables tabulares comparables y una correlación agregada no describiría de forma válida el contenido visual. En su lugar se reportan comparaciones por grupos pertinentes para la tarea: tamaño de la placa frente a mAP, y legibilidad/confianza frente a resultados de OCR. Estas comparaciones describen tendencias del conjunto, no una relación causal.
+
 ## 2. Dataset de lectura – SAVH Guayaquil (Zenodo)
 
 | Característica | Valor |
