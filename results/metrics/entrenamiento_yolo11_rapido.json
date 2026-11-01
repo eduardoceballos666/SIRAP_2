@@ -1,0 +1,15 @@
+{
+  "modelo": "YOLO11",
+  "pesos_iniciales": "yolo11s.pt",
+  "preset": "rapido",
+  "epocas_config": 15,
+  "epocas_corridas": 15,
+  "mejor_epoca": 15,
+  "val_mAP50-95_mejor": 0.66085,
+  "horas_entrenamiento": 0.08049861111111112,
+  "gpu_mem_pico_gb": 5.825888256,
+  "batch": 16,
+  "imgsz": 640,
+  "train_fraction": 0.3,
+  "val_fraction": 0.25
+}

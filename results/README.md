@@ -14,6 +14,8 @@ Esta carpeta reúne métricas agregadas, tablas, gráficos compactos y reportes.
 |---|---|
 | [`metrics/dataset_resumen.json`](metrics/dataset_resumen.json) | Cantidad de imágenes e instancias por partición y distribución de tamaños del test. |
 | [`metrics/entrenamiento.json`](metrics/entrenamiento.json) y [`metrics/entrenamiento_yolo11_results.csv`](metrics/entrenamiento_yolo11_results.csv) | Configuración, duración y resultados por época del entrenamiento YOLO11-s. |
+| [`metrics/entrenamiento_yolo11_rapido.json`](metrics/entrenamiento_yolo11_rapido.json) y [`metrics/entrenamiento_yolo11_rapido_results.csv`](metrics/entrenamiento_yolo11_rapido_results.csv) | Corrida exploratoria de 15 épocas: 30 % de entrenamiento y 25 % de validación; mAP@0.5:0.95 de 0,66085. No reemplaza ni se compara como equivalente al entrenamiento completo de 40 épocas. |
+| [`figures/entrenamiento_yolo11_rapido.png`](figures/entrenamiento_yolo11_rapido.png) y [`figures/yolo11_*_test_*.png`](figures/) | Curvas de la corrida rápida y gráficos de evaluación de las corridas YOLO11 completa y rápida. Las imágenes de lotes de entrenamiento/validación no se publican aquí. |
 | [`metrics/detector_test.json`](metrics/detector_test.json) | mAP, precisión, recall y F1 del detector en test; P, recall y F1 usan el umbral de decisión calibrado en validación. |
 | [`metrics/umbrales.json`](metrics/umbrales.json) | Umbral de confianza de detección YOLO11 calibrado con validación. No contiene el umbral OCR. |
 | [`metrics/velocidad.json`](metrics/velocidad.json) | Latencias, FPS, parámetros y GFLOPs medidos para inferencia del detector en GPU. |
