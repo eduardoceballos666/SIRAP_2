@@ -171,3 +171,12 @@ El EMR previo de 374/399 y el recálculo de 373/397 emplean referencias que toda
 La hoja de revisión SAVH contiene respuestas para **69 de 69 grupos**; la pestaña cámara–OCR tiene **329 `ok` y un `ilegible`** (`fila_gt=398`). Esta última referencia se excluye del cálculo y conserva la traza de revisión sin inventar matrícula. Tras aplicar las decisiones a las salidas OCR cacheadas, quedan **398 imágenes legibles únicas** con **388 aciertos exactos (EMR 97,49 %)** y CER medio **0,003649**. Con umbral offline de 94 %, 362 se aceptarían (359 correctas, 3 erróneas).
 
 Esto **actualiza el corte de 397 imágenes de la sección 5**, pero la evaluación **no es independiente ni ciega**: algunas etiquetas se aprobaron tras mostrar al revisor la lectura del mismo OCR que se evalúa. Por ello, el incremento de EMR no demuestra que el modelo haya mejorado. Los datos individuales se almacenan solo en Drive privado. [Protocolo y advertencias](validacion_savh_multisemilla.md) · [resumen agregado](../results/metrics/ocr_savh_aprobaciones_398.json).
+
+
+## Relación con la aplicación y el repositorio
+
+Este análisis documenta los datos de entrenamiento y evaluación; sus métricas describen esos conjuntos y no deben interpretarse como una garantía de desempeño en cada sesión de la aplicación publicada.
+
+- [Aplicación SIRAP](https://eduardoceballos-sirap.hf.space) · [Hugging Face Space](https://huggingface.co/spaces/eduardoceballos/SIRAP)
+- [Repositorio GitHub SIRAP_2](https://github.com/eduardoceballos666/SIRAP_2) · [API interactiva](https://eduardoceballos-sirap.hf.space/docs)
+- La interfaz de la aplicación está disponible en español e inglés. Los videos de presentación se encuentran al final del [README](../README.md).
