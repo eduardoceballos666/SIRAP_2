@@ -23,3 +23,10 @@
 ## Resultados y límites
 
 Los resultados agregados y gráficos pequeños están en [`results/metrics/`](../results/metrics/) y [`results/figures/`](../results/figures/). La evaluación de video de la sección 7.2 sigue siendo provisional: usa 18 cuadros puntuales y no cubre intervalos completos ni todos los vehículos. Consulta la [revisión de la referencia de video](../blind_eval/video_ground_truth_review.md) y el archivo de [puntos provisionales](../blind_eval/video_ground_truth_points_provisional.csv). No presentes esas métricas como evaluación integral del video.
+
+
+## Aplicación y código fuente
+
+El notebook forma parte del proyecto SIRAP_2 y produce evidencia del detector/OCR; la aplicación web desplegada se encuentra en [Hugging Face](https://huggingface.co/spaces/eduardoceballos/SIRAP) y puede abrirse en https://eduardoceballos-sirap.hf.space. La interfaz ofrece español e inglés y la [API interactiva](https://eduardoceballos-sirap.hf.space/docs) está disponible para consulta.
+
+Consulta el [repositorio GitHub](https://github.com/eduardoceballos666/SIRAP_2) para el código y los artefactos; los videos de presentación están al final de su [README](../README.md).
