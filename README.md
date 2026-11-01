@@ -1,395 +1,252 @@
 <div align="center">
 
 # SIRAP
-### Sistema de Detección y Reconocimiento Automático de Placas · versión del producto 1.0 · FastAPI + Vue 3
+### Sistema de Detección y Reconocimiento Automático de Placas
+
+**Aplicación web para apoyar el control de acceso vehicular en garitas.**
+
+[Aplicación en vivo](https://eduardoceballos-sirap.hf.space) · [Manual de usuario](docs/manual_usuario.md) · [API interactiva](https://eduardoceballos-sirap.hf.space/docs) · [Notebook principal](notebooks/SIRAP_backend.ipynb)
 
 ![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?logo=python&logoColor=white)
-![FastAPI](https://img.shields.io/badge/API-FastAPI%200.162-009688?logo=fastapi&logoColor=white)
-![Vue](https://img.shields.io/badge/Frontend-Vue%203.5-42b883?logo=vuedotjs&logoColor=white)
-![Tailwind](https://img.shields.io/badge/Tailwind%20CSS-4-06b6d4?logo=tailwindcss&logoColor=white)
-![YOLO11](https://img.shields.io/badge/Detector-YOLO11--s-0b2a6b)
+![FastAPI](https://img.shields.io/badge/API-FastAPI-009688?logo=fastapi&logoColor=white)
+![Vue](https://img.shields.io/badge/Frontend-Vue%203-42b883?logo=vuedotjs&logoColor=white)
+![Detector](https://img.shields.io/badge/Detector-YOLO11--s-0b2a6b)
 ![OCR](https://img.shields.io/badge/OCR-fast--plate--ocr-2156e8)
-![Tests](https://img.shields.io/badge/tests-pytest-0f8a3c)
-![Deploy](https://img.shields.io/badge/Hugging%20Face-Space-ffcc4d?logo=huggingface&logoColor=black)
 ![License](https://img.shields.io/badge/License-MIT-yellow)
 
-**SIRAP** reconoce la placa del vehículo que llega a una garita, la busca en el registro CSV y propone una
-decisión de acceso (autorizado, denegado, no registrado o verificación manual). El operador inicia el registro y solicita la apertura desde SIRAP. El servidor vuelve a validar la autorización: solo permite la apertura automática si el acceso está autorizado; la apertura manual de contingencia requiere un motivo. La aplicación ejecuta la orden solicitada y, en la demostración, la barrera es simulada. La versión 1.0 de **SIRAP** ofrece el sistema como una
-aplicación web profesional: **API REST en FastAPI** con autenticación por usuario y **frontend en Vue 3**.
+**Interfaz disponible en español e inglés.**
 
-[**Aplicación en vivo**](https://eduardoceballos-sirap.hf.space) · [Manual de usuario](docs/manual_usuario.md) ·
-[Documentación de la API](https://eduardoceballos-sirap.hf.space/docs) · [Notebook de backend](notebooks/SIRAP_backend.ipynb)
-
-**Idiomas de la interfaz:** SIRAP está disponible en **Español** (idioma predeterminado) y **English**. Ambas versiones se abren desde la misma [aplicación en vivo](https://eduardoceballos-sirap.hf.space): en la pantalla de inicio de sesión, use el selector **Idioma** y elija **Español** o **English**. El selector también está en el menú común después de iniciar sesión. La preferencia se guarda en este navegador y se conserva al navegar o volver a abrir SIRAP.
-
-<img src="docs/img/vue_reconocimiento.png" alt="SIRAP – Reconocimiento y Acceso" width="900">
+<img src="docs/img/vue_reconocimiento.png" alt="Pantalla de reconocimiento de SIRAP" width="900">
 
 </div>
 
----
+## Estado del proyecto
 
-## Versiones del proyecto
+| Dato | Estado |
+|---|---|
+| Versión del producto | SIRAP 1.0 |
+| Fecha de terminación de la aplicación | **30 de octubre de 2026** |
+| API | FastAPI; identificador técnico 2.0.0 |
+| Interfaz web | Vue 3; el paquete npm usa el identificador técnico 2.0.0 |
+| Despliegue | Hugging Face Spaces con Docker |
+| Barrera | Simulada; la aplicación no acciona una barrera física |
 
-- **Versión del producto SIRAP:** 1.0.
-- **API:** 2.0.0, identificador técnico expuesto por FastAPI/OpenAPI y el endpoint de salud.
-- **Frontend:** 2.0.0 es la versión del paquete npm en `frontend/package.json`; no es la versión del producto.
-- **Tag de GitHub `v2.0`:** identifica el corte del repositorio publicado con la arquitectura FastAPI + Vue 3 (release titulada «SIRAP 2.0 – FastAPI + Vue 3»). Es un identificador técnico e histórico del código; el producto SIRAP continúa en la versión 1.0.
+El tag de GitHub v2.0 identifica una versión técnica del repositorio con arquitectura FastAPI y Vue 3. No representa la versión del producto, que es SIRAP 1.0.
 
-## Tabla de contenidos
+## Qué hace SIRAP
 
-1. [Problema](#1-problema)
-2. [Datos](#2-datos)
-3. [Metodología](#3-metodología)
-4. [Resultados y validaciones](#4-resultados-y-validaciones)
-5. [Instalación, configuración y despliegue](#5-instalación-configuración-y-despliegue)
-6. [Interfaz y API](#6-interfaz-y-api)
-7. [Estructura del proyecto](#7-estructura-del-proyecto)
-8. [Consideraciones éticas y limitaciones](#8-consideraciones-éticas-y-limitaciones)
-9. [Autores y contribuciones](#9-autores-y-contribuciones)
-10. [Licencia](#10-licencia)
-11. [Agradecimientos y referencias](#11-agradecimientos-y-referencias)
-12. [Videos](#12-videos)
+SIRAP ayuda al operador a revisar el ingreso de un vehículo mediante el flujo:
 
-## 1. Problema
+**Captura de imagen o video → detección de placa → lectura OCR → consulta de autorización → decisión → registro de la operación.**
 
-En urbanizaciones, edificios, empresas, plantas y estacionamientos el control vehicular de la garita es manual: el
-guardia lee la placa, la busca en una lista y la anota. Eso produce **colas**, **errores de transcripción**,
-**listas desactualizadas** y un historial difícil de auditar.
+El sistema consulta listas de autorización y restricción, muestra la confianza y los datos disponibles, y pide revisión humana cuando la lectura es dudosa. El servidor vuelve a comprobar la autorización al registrar una operación. La aplicación propone y registra una solicitud de apertura; en la demostración, la barrera es simulada.
 
-**SIRAP** automatiza el flujo: **captura → detección de la placa (IA) → lectura (OCR) → consulta en la base
-(CSV locales) → evaluación de listas blancas y restringidas → registro y apertura controlada**.
+### Interfaz y módulos
 
-- **Por qué importa:** menos espera, menos errores, seguridad basada en listas vigentes y trazabilidad completa.
-- **Usuarios:** operadores de garita (deciden y registran), supervisores (auditan) y administradores (gestionan
-  vehículos, listas, garitas y usuarios).
+La aplicación ofrece Español e English desde el selector de idioma de la pantalla de inicio de sesión y del menú. La preferencia se conserva en el navegador.
 
-## 2. Datos
+| Módulo | Funciones |
+|---|---|
+| Inicio de sesión | Acceso autenticado y operaciones vinculadas al usuario y su rol |
+| Reconocimiento y Acceso | Probar un ejemplo, cargar una imagen o usar la cámara; ver placa, recorte, caja, confianza OCR y decisión; corregir o verificar una lectura; registrar el resultado y solicitar apertura; apertura manual con motivo; lecturas de la sesión y exportación |
+| Dashboard | Indicadores de entradas, salidas, placas y alertas, con gráficos por hora, resultado y garita |
+| Historial | Consulta filtrada de operaciones y exportación CSV para Supervisor y Administrador |
+| Administración | Gestión de vehículos, autorizaciones, restricciones, garitas, usuarios y datos de demostración |
+| Acerca del modelo | Explicación del modelo, resultados, entrenamiento y limitaciones |
 
-| Dataset | Uso | Tamaño | Licencia / fuente |
-|---|---|---|---|
-| [License Plate Recognition v11](https://universe.roboflow.com/roboflow-universe-projects/license-plate-recognition-rxg4e) (Roboflow Universe) | Entrenar y evaluar el detector | 10 125 imágenes (7 057 / 2 048 / 1 020), 1 clase, 10 637 placas | CC BY 4.0 |
-| [SAVH Guayaquil ANPR Plate Images](https://zenodo.org/records/21120307) | Evaluar el OCR con placas **ecuatorianas** reales | 739 recortes (472 legibles; 399 legibles únicas) | Zenodo; el registro no muestra licencia para este archivo específico |
-| Video e imágenes de la garita | Pipeline de video y prueba punta a punta | 1 video de 10 min (18 115 cuadros) | Propio, con autorización escrita; **no se publica** |
+Capturas: [Reconocimiento](docs/img/vue_reconocimiento.png), [Dashboard](docs/img/vue_dashboard.png), [Verificación](docs/img/vue_verificacion.png) y [vista móvil](docs/img/vue_movil.png).
 
-Detalles, EDA y decisiones de preprocesamiento: [`docs/analisis_datos.md`](docs/analisis_datos.md) y
-[`data/README.md`](data/README.md).
+### Roles
 
-## 3. Metodología
+- **Operador:** reconoce placas, verifica o corrige lecturas y registra operaciones. Los perfiles autenticados pueden proponer el registro de una placa nueva; autorizarla requiere una confirmación explícita.
+- **Supervisor:** consulta el historial y exporta sus resultados.
+- **Administrador:** gestiona los registros y la configuración desde Administración.
 
-| Etapa | Elección | Justificación |
+Los cambios a registros existentes y la administración de listas están restringidos al Administrador. El acceso de lectura a algunas tablas de administración también está expuesto mediante la API a usuarios autenticados; la pantalla de Administración de la interfaz se limita a Supervisor y Administrador.
+
+## Arquitectura y tecnología
+
+| Componente | Tecnología y función |
+|---|---|
+| API | FastAPI y Uvicorn; autenticación JWT y endpoints REST |
+| Interfaz | Vue 3, Vite, Pinia, Vue Router, Tailwind CSS y ECharts |
+| Detección | YOLO11-s; ejecución en la aplicación mediante ONNX Runtime |
+| OCR | fast-plate-ocr, modelo cct-s-v2-global-model |
+| Seguimiento en video | OC-SORT y componentes de seguimiento de Roboflow |
+| Procesamiento | OpenCV, Pillow, NumPy y Pandas |
+| Persistencia operativa | CSV en el repositorio privado SIRAP_datos_privados; el disco de Hugging Face es temporal |
+| Despliegue | Imagen Docker publicada en Hugging Face Spaces |
+
+La aplicación consulta servicios públicos para obtener datos complementarios del vehículo. Esos datos no participan en la decisión de acceso. Los eventos enriquecidos se escriben en el repositorio privado de datos, no en este repositorio público.
+
+## Datos y recursos
+
+| Recurso | Uso y estado |
+|---|---|
+| [License Plate Recognition v11](https://universe.roboflow.com/roboflow-universe-projects/license-plate-recognition-rxg4e) | Dataset de detección con 10.125 imágenes: 7.057 de entrenamiento, 2.048 de validación y 1.020 de prueba; licencia CC BY 4.0 |
+| [SAVH Guayaquil ANPR Plate Images](https://zenodo.org/records/21120307) | Recortes de placas ecuatorianas para revisar OCR. El registro consultado no muestra una licencia para el archivo específico usado; revisar sus condiciones antes de redistribuirlo |
+| Imágenes de garita | 21 imágenes y ground_truth.csv incluidos en garita/ para la evaluación por imagen 7.3 |
+| Video video_camiones.mp4 | Video fuente publicado como asset del Release [datos-garita-v1](https://github.com/eduardoceballos666/SIRAP_2/releases/tag/datos-garita-v1); tamaño aproximado 459,3 MB |
+| Lista de placas para el notebook | data/authorized_plates.csv está versionada en este repositorio y se usa como dato de demostración/evaluación; no contiene credenciales |
+| Datos operativos de la aplicación | Vehículos, autorizaciones, operaciones, usuarios, garitas, hashes de credenciales y detecciones enriquecidas se almacenan en el repositorio privado |
+
+La lista de placas y las referencias incluidas aquí son datos públicos del proyecto. No se deben añadir a este repositorio datos personales, credenciales ni registros operativos privados. Los secretos de despliegue se configuran como variables de entorno o secretos del proveedor.
+
+Más detalles: [análisis de datos](docs/analisis_datos.md), [descripción de los datos](data/README.md) y [consideraciones éticas](docs/consideraciones_eticas.md).
+
+## Modelo y resultados
+
+El detector se entrenó con YOLO11-s durante 40 épocas y se exportó para la aplicación. En video se usa OC-SORT para asociar detecciones de un mismo vehículo y seleccionar lecturas. El umbral de detección se calibró con el conjunto de validación. La interfaz usa un umbral de confianza OCR de 94 % y solicita confirmación cuando la lectura no alcanza el criterio operativo.
+
+### Resultados publicados
+
+| Evaluación | Resultado | Alcance |
 |---|---|---|
-| Detección | **YOLO11-s** (Ultralytics 8.4.177), 9,41 M parámetros | Una sola clase; rápido; se exporta a ONNX y corre en CPU en la app |
-| Seguimiento (video) | OC-SORT | Leer cada vehículo una sola vez, con su mejor recorte |
-| OCR | **fast-plate-ocr** `cct-s-v2-global-model` (5 MB) | Hecho para placas, 16 ms por recorte en CPU, 93,7 % de EMR en placas reales de Guayaquil |
-| Normalización | Formato `XXX-0000`, correcciones letra/dígito por posición (máx. 2) | Validada con placas reales de Guayaquil |
-| Decisión | Listas blanca/restringida + umbrales + «¿quiso decir…?» | Nunca decide a ciegas: lo dudoso va a verificación manual |
-| Datos | CSV persistentes en GitHub privado (caché local temporal) | Vehículos, autorizaciones, detecciones, garitas, usuarios e historial |
+| Detector YOLO11-s | mAP@0.5 **0,972**; mAP@0.5:0.95 **0,693**; precisión **0,986**; recall **0,956**; F1 **0,971** | Conjunto de prueba: 1.020 imágenes y 1.085 placas |
+| Detector por tamaño | mAP@0.5:0.95: pequeñas **0,481**, medianas **0,729**, grandes **0,744** | Las placas pequeñas y lejanas son más difíciles |
+| Velocidad del detector | Promedio **23,3 ms** por imagen (aprox. 43 FPS) | GPU NVIDIA L4, lote 1, FP16; no es una medición del hosting de producción |
+| OCR en SAVH | EMR **93,7 %**, CER **0,010** | Resultado offline en 399 recortes legibles; 69 referencias se marcaron como sugerencias sin confirmar |
+| Garita, evaluación por imagen 7.3 | Detección **19/21**; EMR **8/21**; formato válido **16/21**; latencia media **37,69 ms** | Muestra de 21 imágenes, no evalúa seguimiento en video |
+| Video de garita, evaluación 7.2 | **18** puntos con referencia; EMR por lectura **61,1 %**; recall de placas **56,25 %**; **7** falsas autorizaciones reportadas entre 52 lecturas | Resultado provisional condicionado a cuadros puntuales; no es cobertura de todos los vehículos ni de intervalos completos |
 
-**Preprocesamiento:** copia local del dataset, `data.yaml` con rutas absolutas, *letterbox* a 640 px, aumentos por
-defecto de Ultralytics; recorte con margen antes del OCR.
-**Entrenamiento:** `yolo11s.pt` (COCO) → 40 épocas, imgsz 640, batch 16 (nbs 64), paciencia 10, semilla 0, AdamW.
-**Optimización:** los umbrales se calibraron en *val* (detector: precisión ≥ 95 %; OCR: estudio de confianza en SAVH); la inferencia de video se comparó a 640 y 1280 px. Los 24 *trials* de Optuna seleccionaron hiperparámetros según mAP@0.5:0.95 en *val*; `lr0` explicó el 62 % de la variación. El *test* se reservó para la comparación final del modelo base y el optimizado (1.020 imágenes, 1.085 placas): mAP@0.5:0.95 pasó de 0,693 a 0,704 (+0,011) y mAP@0.5 de 0,97223 a 0,97284 (+0,00061; redondeado a tres decimales: 0,972 y 0,973). Se mantiene el modelo entregado — ver [`notebooks/04_optimizacion.ipynb`](notebooks/04_optimizacion.ipynb) y [`docs/optimizacion.md`](docs/optimizacion.md).
-**Estado de validación:** el estudio multisemilla del detector está completo. La validación OCR SAVH tiene resultados offline con etiquetas revisadas de forma asistida, pero no constituye una evaluación independiente. La revisión ciega y la evaluación de cinco clips se informan en [Resultados y validaciones](#4-resultados-y-validaciones), junto con sus límites. Los modelos publicados no se modificaron. Procedimientos: [validación SAVH y multisemilla](docs/validacion_savh_multisemilla.md).
-**Métricas:** mAP@0.5 y mAP@0.5:0.95 (también por tamaño de placa), precisión, recall y F1 al umbral calibrado;
-EMR y CER para el OCR; falsos autorizados y tiempo por decisión para el sistema.
+Los archivos agregados y las figuras pequeñas están en [métricas](results/metrics/) y [figuras](results/figures/). El resumen detallado de la [evaluación por imágenes de garita](results/metrics/garita_imagenes_e2e_20261101.md) y el informe de la [evaluación puntual de video](results/metrics/video_e2e_puntos_provisionales_20261101.md) describen las muestras y sus límites.
 
-Arquitectura completa y diagramas: [`docs/arquitectura.md`](docs/arquitectura.md).
+<img src="results/figures/resumen_yolo11_completo.png" alt="Resumen de resultados del detector YOLO11-s" width="900">
 
-## 4. Resultados y validaciones
+### Límites de evaluación
 
-**Preset:** «completo». Para el detector, el conjunto *test* (1.020 imágenes, 1.085 placas) no se usó para seleccionar hiperparámetros: los 24 ensayos se compararon en *val* y *test* se reservó para la evaluación final (`results/metrics/`). Las cifras de OCR indicadas como *offline* reutilizan predicciones guardadas; no miden una ejecución nueva del servicio ni demuestran una mejora del modelo.
+- La evaluación del video completo aún está pendiente. La referencia publicada contiene 18 cuadros puntuales, no intervalos completos de legibilidad y no todos los vehículos; tampoco tiene una segunda revisión humana independiente. No se deben presentar sus métricas como evaluación integral del video.
+- La evaluación 7.3 corresponde a 21 imágenes estáticas; no mide seguimiento temporal ni sustituye la referencia por pasadas del video.
+- El reporte 7.3 registró cero falsas autorizaciones, pero durante esa corrida la lista de autorizaciones estaba vacía. Esa cifra no demuestra por sí sola el comportamiento con una lista poblada.
+- En el conjunto SAVH, parte de las referencias OCR siguen sin confirmación independiente. Las cifras offline no equivalen a una evaluación ciega ni al rendimiento punta a punta de la aplicación.
+- El rendimiento puede bajar con placas pequeñas, lejanas, nocturnas, deterioradas, con reflejos o de provincias poco representadas.
 
-| Componente | Métrica | Resultado | Meta |
-|---|---|---|---|
-| Detector YOLO11-s | mAP@0.5 | **0,972** | ≥ 0,85 ✅ |
-| | mAP@0.5:0.95 | 0,693 | — |
-| | Precisión / Recall / F1 (umbral 0,30) | 0,986 / 0,956 / 0,971 | — |
-| | mAP@0.5:0.95 placas pequeñas / medianas / grandes | 0,481 / 0,729 / 0,744 | — |
-| | Latencia (lote 1, FP16, GPU L4) | 23,3 ms (43 FPS) | — |
-| Detector con hiperparámetros optimizados (Optuna, 24 *trials*) | mAP@0.5 / mAP@0.5:0.95 *test* | 0,973 / 0,704 (+0,001 / +0,011; una semilla): se mantiene el entregado | — |
-| OCR (SAVH Guayaquil, 399 legibles) | EMR / CER sin filtrar por confianza | **93,7 %** / 0,010 | EMR ≥ 80 % ✅ |
-| OCR (SAVH, evaluación offline al umbral 0,94) | Cobertura / EMR entre aceptadas | 363/399 (91,0 %) / 349/363 (96,1 %) | — |
-| OCR afinado con placas ecuatorianas (*test* separado por placa, n=86) | EMR original / afinado | 94,2 % / 94,2 % (McNemar *p* = 1,0): se mantiene el original | — |
-| Regla de decisión (SAVH, lista simulada) | Falsos autorizados / rechazos indebidos | 0 de 202 / 1 de 197 | — |
-| Sistema (video de la garita) | Tiempo por decisión (detección + OCR) | 99 ms | ≤ 1 s ✅ |
-| OCR SAVH (corte asistido más reciente, 398 imágenes únicas) | EMR offline | 388/398 (97,49 %), provisional y no independiente | — |
-| Sistema (cinco clips de prueba) | Coincidencia exacta de placa tras confirmar dos cuadros | 3/5; dos lecturas incorrectas aceptadas | — |
-| Sistema (video operativo de garita) | EMR punta a punta | Pendiente: no se dispone de etiquetas de referencia del video operativo | ≥ 80 % |
+## Instalación local
 
-La aplicación usa **94 % como umbral operativo de confianza OCR**. Se eligió considerando los recursos de procesamiento limitados del hosting documentado de Hugging Face (2 vCPU y sin GPU dedicada): al aceptar antes una lectura estable, la interfaz puede terminar el análisis de video sin procesar cuadros adicionales. El umbral no acelera cada inferencia; el ahorro potencial proviene de analizar menos cuadros. También busca reducir verificaciones manuales. En videos y cámaras, la interfaz confirma la lectura cuando la misma placa alcanza al menos 94 % en dos cuadros muestreados, separados por 1 segundo; si la confianza es menor o las lecturas no coinciden, solicita validación manual al terminar el video. En una imagen estática se evalúa el cuadro disponible. Al superar el umbral, el servidor solo declara la placa autorizada si tiene una autorización vigente en la lista blanca y no está restringida; la apertura sigue requiriendo que el operador solicite la acción.
+### Requisitos
 
-### Validación del detector
+- Python 3.11 o superior.
+- Node.js 20.19 o superior para compilar o desarrollar la interfaz.
+- Docker es una alternativa para construir y ejecutar el conjunto.
+- GPU recomendada para entrenar; no es necesaria para usar el servicio con los modelos disponibles.
 
-Las seis corridas multisemilla (modelo base y optimizado, semillas 0, 1 y 2) se completaron. El mAP@0.5:0.95 mejoró en los tres pares, con un promedio de **+0,3743 puntos porcentuales** y desviación estándar muestral de **0,3153 puntos porcentuales**; el recall medio cambió aproximadamente **+0,3017 puntos porcentuales**. Son resultados descriptivos de tres semillas, no una prueba de significación estadística. El modelo entregado y el modelo publicado se mantienen sin cambios. [Comparación CSV](results/metrics/validacion_multisemilla_comparacion.csv) · [Método y límites](docs/validacion_savh_multisemilla.md).
-
-La comparación independiente de una semilla en el *test* separado reportó mAP@0.5 de 0,97223 a 0,97284 (+0,00061) y mAP@0.5:0.95 de 0,693 a 0,704 (+0,011). Esas cifras corresponden a una comparación distinta de la media multisemilla. Los 24 *trials* de Optuna se seleccionaron en *val*; el *test* se reservó para la evaluación final.
-
-### Validación del OCR en placas SAVH
-
-El resultado de referencia histórico sobre 399 placas legibles es EMR de **93,7 %** y CER de **0,010**. En un análisis offline posterior se excluyó la imagen `fila_gt=398`, marcada como ilegible, y el conjunto quedó en **398 imágenes únicas**: 388 coincidencias exactas (97,49 %). Al aplicar confianza offline ≥94 %, se aceptaron 362 lecturas y 359 fueron exactas. Este último cálculo es **provisional**, reutiliza salidas OCR almacenadas y algunas etiquetas se aprobaron tras ver sugerencias del OCR; por tanto, no demuestra una mejora ni sustituye una evaluación independiente. Los cortes anteriores de 397 imágenes (373/397; 93,95 %) y 399 placas se conservan como resultados históricos, no como el corte más reciente.
-
-La hoja de revisión registra decisiones para 69 grupos SAVH y 330 referencias de cámara; una imagen se marcó ilegible y se excluyó. El cotejo previo entre 330 referencias y salidas OCR halló 18 discrepancias; esa revisión asistida tampoco equivale a una validación independiente. La pasada ciega preliminar cubrió 84 de 86 imágenes del *test*: coincidieron 71 de las 84 referencias archivadas. Faltan adjudicar 13 diferencias y completar una segunda revisión humana, así que el piloto no cierra la validación ciega. [Resumen del piloto](results/metrics/ocr_savh_validacion_ciega_piloto.json) · [Auditoría OCR 398](results/metrics/ocr_savh_aprobaciones_398.json) · [Protocolo](docs/validacion_savh_multisemilla.md).
-
-### Evaluación de lectura en video
-
-En cinco clips de prueba, el sistema confirmó una lectura en dos cuadros para cada clip; **tres placas coincidieron exactamente y dos fueron lecturas incorrectas aceptadas**. La muestra es pequeña y no valida el funcionamiento en el video operativo de garita, la barrera física ni la persistencia de datos. La evaluación punta a punta del video operativo sigue pendiente hasta contar con etiquetas de referencia. [Métricas de la muestra](results/metrics/video_e2e_muestra.json) · [Protocolo y limitaciones](docs/validacion_savh_multisemilla.md#92-evaluacion-punta-a-punta-de-lectura-en-video).
-
-### Comparación con un *baseline*
-
-En el mismo split de validación, YOLO11-s pasó de mAP@0.5 = 0,848 después de la época 1 a 0,971 en la época 40 (+0,123). En el *test* separado, el modelo final obtuvo 0,972; esos valores corresponden a *splits* distintos. En OCR, fast-plate-ocr logra 93,5 % de EMR con limpieza de texto y 93,7 % al aplicar `normalize_plate`, con todas las lecturas en formato válido. El ajuste con placas ecuatorianas no mejoró el resultado (94,2 % frente a 94,2 % en un *test* separado por placa; McNemar *p* = 1,0).
-
-<img src="results/figures/resumen_yolo11_completo.png" alt="Resultados de YOLO11-s" width="900">
-
-**Dónde funciona bien y dónde no:** muy bien con placas medianas y grandes de frente y de día; peor con placas
-pequeñas (lejanas), de noche o deterioradas. Por eso el video se analiza a 1280 px y las lecturas dudosas van a
-verificación manual.
-
-## 5. Instalación, configuración y despliegue
-
-**Requisitos:** Python 3.11+, Node.js 20.19+ (solo para compilar el frontend), 2 GB de RAM; GPU solo para entrenar
-(Colab). Alternativa sin instalar nada: Docker.
+### Ejecución
 
 ```bash
 git clone https://github.com/eduardoceballos666/SIRAP_2.git
 cd SIRAP_2
-python -m venv .venv && source .venv/bin/activate      # Windows: .venv\Scripts\activate
+
+python -m venv .venv
+source .venv/bin/activate                 # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
-cp .env.example .env                                   # defina SIRAP_JWT_SECRET (cadena larga y aleatoria)
 
-cd frontend && npm ci && npm run build && cd ..        # compila la interfaz Vue en frontend/dist
-uvicorn api.main:app --port 8000                       # abre http://localhost:8000 (API + interfaz)
+cp .env.example .env
+# Configure SIRAP_JWT_SECRET y las variables necesarias en .env
+
+cd frontend
+npm ci
+npm run build
+cd ..
+
+uvicorn api.main:app --port 8000
 ```
 
-Usuarios de demostración: `operador`, `supervisor` y `admin`. Configure la contraseña de demostración mediante la variable de entorno `SIRAP_DEMO_PASSWORD`; no se publica una contraseña en este README. Como una contraseña de demostración estuvo publicada anteriormente, cámbiela antes de usar el despliegue y no reutilice la expuesta.
+La aplicación y la API estarán disponibles en http://localhost:8000; Swagger, en http://localhost:8000/docs.
 
-| Tarea | Comando |
-|---|---|
-| Desarrollo con recarga en caliente | `uvicorn api.main:app --reload` y, en otra terminal, `cd frontend && npm run dev` (http://localhost:5173) |
-| Docker (API + interfaz) | `docker build -t sirap:1.0 . && docker run -p 7860:7860 -e SIRAP_JWT_SECRET=... sirap:1.0` → http://localhost:7860 |
-| Documentación interactiva de la API | http://localhost:8000/docs (Swagger) |
-| Pruebas (unitarias, integración y API) | `pip install -r requirements-dev.txt && pytest` |
-| Pruebas del frontend Vue | `cd frontend && npm ci && npm test` |
-| Integración continua | GitHub Actions ejecuta `pytest`, `npm test` y la compilación de Vue en cada push y pull request |
-| Exportar los pesos entrenados a ONNX | `python -m src.train --export-only models/best_model.pt` |
-| Reentrenar (no hace falta) | `ROBOFLOW_API_KEY=... python -m src.train --roboflow --force` |
-| Evaluar el detector en *test* | `python -m src.evaluate detector --data <data.yaml>` |
+Para desarrollo de la interfaz, ejecuta npm run dev dentro de frontend/ y uvicorn api.main:app --reload en otra terminal.
 
-**Configuración:** parámetros en [`config/config.yaml`](config/config.yaml); secretos en variables de entorno
-(plantillas [`.env.example`](.env.example) y [`api/.env.example`](api/.env.example)): `SIRAP_JWT_SECRET`,
-`SIRAP_DEMO_PASSWORD`, `SIRAP_DATA_GITHUB_TOKEN` y, si se conecta una barrera física, `BARRERA_URL` y `BARRERA_TOKEN`.
-**Almacenamiento persistente principal:** todos los CSV operativos residen en el repositorio privado
-[`SIRAP_datos_privados`](https://github.com/eduardoceballos666/SIRAP_datos_privados), en
-`data/processed/`. Son siete CSV: `vehiculos`, `autorizaciones`, `operaciones`,
-`usuarios`, `garitas`, `credenciales` (hashes) y `detecciones`. La misma identidad
-`SIRAP_DATA_GITHUB_TOKEN` se usa para todo. Hugging Face usa copias de trabajo temporales,
-no datos propios: al arrancar recupera GitHub; cada lectura obtiene la versión remota más
-reciente y cada escritura se confirma contra el SHA previo para impedir sobrescrituras
-concurrentes. En Docker `SIRAP_GITHUB_REQUIRED=1` impide iniciar sin GitHub o sin alguno
-de los seis CSV históricos existentes antes de incorporar el CSV de detecciones. La exportación enriquecida usa
-`data/processed/detecciones.csv` en el MISMO repositorio privado.
-**No borrar ni reinicializar estos archivos:** se preservó un respaldo de los seis CSV
-históricos anteriores a la incorporación del CSV de detecciones en la rama privada
-`respaldo-pre-migracion-2026-10-30`.
-Véase [procedimiento de continuidad y recuperación](data/README.md).
+### Variables y despliegue
 
-### Despliegue en Hugging Face
+Los secretos se configuran fuera del código. Según el modo de ejecución, pueden incluir:
 
-El workflow [`.github/workflows/deploy-hf-space.yml`](.github/workflows/deploy-hf-space.yml) publica en el Space
-`eduardoceballos/sirap` cuando un push a `main` modifica alguna ruta incluida en sus filtros, o cuando se inicia
-manualmente desde *Actions → Run workflow*. No cualquier cambio en `main` inicia un despliegue: cambios solo en
-documentación, notebooks o pruebas no coinciden con esos filtros. Los cambios relevantes incluyen `api/**`,
-`src/**`, `frontend/**`, `config/**`, `data/**`, `models/**`, `results/metrics/**`, `requirements.txt`,
-`Dockerfile`, `deploy/huggingface/**` y el propio workflow. Hugging Face construye el [`Dockerfile`](Dockerfile)
-(frontend compilado + API, puerto 7860). Configuración en GitHub → *Settings → Secrets and variables → Actions*:
+- SIRAP_JWT_SECRET para firmar sesiones.
+- SIRAP_DEMO_PASSWORD para las cuentas de demostración.
+- SIRAP_DATA_GITHUB_TOKEN para leer y escribir en el repositorio privado de datos.
+- HF_TOKEN para el despliegue automático en Hugging Face.
+- ROBOFLOW_API_KEY para descargar el dataset de Roboflow desde el notebook.
+- BARRERA_URL y BARRERA_TOKEN solo para una integración futura con un controlador compatible.
 
-| Nombre | Tipo | Valor |
-|---|---|---|
-| `HF_TOKEN` | Secret (obligatorio) | Token de Hugging Face con permiso **Write** |
-| `SIRAP_JWT_SECRET` | Secret (recomendado) | Cadena larga y aleatoria para firmar las sesiones |
-| `SIRAP_DEMO_PASSWORD` | Secret (obligatorio para cuentas demo) | Define la contraseña común de las cuentas de demostración. Configure una contraseña nueva y única; la anterior se publicó en el README. |
-| `SIRAP_DATA_GITHUB_TOKEN` | Secret (obligatorio) | Token fine-grained con Contents: Read and write únicamente en `SIRAP_datos_privados`; Actions comprueba los seis CSV históricos y lo guarda en el Space para que GitHub sea la fuente principal. |
-| `HF_SPACE` | Variable (opcional) | Otro Space, p. ej. `usuario/sirap` |
+El workflow [deploy-hf-space.yml](.github/workflows/deploy-hf-space.yml) publica los cambios de la aplicación en Hugging Face Spaces cuando se modifican las rutas configuradas o se inicia manualmente. El token de Roboflow se requiere para descargar ese dataset; no está incrustado en el notebook.
 
-**Despliegue actual:** SIRAP se aloja como una Space Docker en [Hugging Face Spaces](https://huggingface.co/spaces/eduardoceballos/SIRAP), en el puerto 7860. Hugging Face indica que ejecutar Spaces Docker requiere un plan de pago; el costo del hardware depende del recurso seleccionado ([detalle de hardware](https://huggingface.co/docs/hub/spaces-overview#hardware-resources)). La infraestructura de demostración documentada usa 2 vCPU y no tiene GPU dedicada. La API ocupa aproximadamente 410 MB de RAM con los modelos cargados. El despliegue automático requiere los secretos `HF_TOKEN` y `SIRAP_DATA_GITHUB_TOKEN`; también se recomienda configurar `SIRAP_JWT_SECRET`.
+En producción, los CSV operativos se leen y actualizan desde el repositorio privado SIRAP_datos_privados. Hugging Face usa copias temporales y no debe usarse como almacenamiento persistente. El respaldo y la recuperación de esos datos se describen en [data/README.md](data/README.md).
 
-> **Estado:** prototipo funcional. La barrera es **simulada** y la base de demostración contiene **datos ficticios**.
-> Los CSV se leen y escriben directamente en GitHub privado. El disco del Space es solo temporal.
-> El despliegue no debe sustituir los CSV históricos; rama privada de recuperación:
-> `respaldo-pre-migracion-2026-10-30`.
-> Para operar en una garita real faltan una cámara IP integrada y el controlador físico de la barrera.
+## Notebook y reproducibilidad
 
+El notebook principal [notebooks/SIRAP_backend.ipynb](notebooks/SIRAP_backend.ipynb) contiene preparación de entorno, análisis de datos, preprocesamiento, entrenamiento, calibración, evaluación del detector y OCR, análisis de video y evaluación de las imágenes de garita.
 
-**Ejemplo de uso de la API:**
+1. Abre el notebook desde GitHub en Google Colab y ejecuta la sección 0; clona el repositorio y prepara el entorno sin montar Google Drive.
+2. Para descargar el dataset de Roboflow, guarda ROBOFLOW_API_KEY en Secrets de Colab. Si se usa una fuente local, coloca el ZIP en data/raw/dataset_placas_yolo.zip y configura DATASET_SOURCE = local.
+3. La sección 0 descarga video_camiones.mp4 desde el Release datos-garita-v1 a artifacts/video_camiones.mp4 y comprueba su integridad. El video fuente se usa por defecto; el video de muestra es opcional.
+4. Ejecuta en el mismo runtime las secciones previas requeridas por el pipeline. Una sesión nueva de Colab es temporal: si no tiene el checkpoint de entrenamiento, corre la sección de entrenamiento y luego la calibración de umbrales.
+5. La evaluación 7.3 usa las 21 imágenes y garita/ground_truth.csv versionadas en el repositorio.
+6. Las salidas nuevas se escriben en el espacio temporal de Colab. Descarga desde Colab los videos anotados u otros resultados grandes que quieras conservar.
 
-```bash
-DEMO_PASSWORD="${SIRAP_DEMO_PASSWORD:?Configure la contraseña de demostración}"
-TOKEN=$(curl -s -X POST localhost:8000/api/auth/login -H 'Content-Type: application/json' \
-        -d "{\"usuario\":\"operador\",\"password\":\"$DEMO_PASSWORD\"}" | python -c "import sys,json;print(json.load(sys.stdin)['access_token'])")
-curl -s -X POST localhost:8000/api/recognize -H "Authorization: Bearer $TOKEN" \
-     -F file=@data/samples/garita3_PBA-8901.jpg
-# {"recognition": {"plate": "PBA-8901", "ocr_confidence": 0.9999, ...}, "decision": {"resultado": "AUTORIZADO", ...}}
-```
+El notebook no incrusta el video fuente ni publica automáticamente los videos anotados. El [README de artefactos](artifacts/README.md) describe los medios grandes y cómo se distribuyen. La guía del resto de notebooks está en [notebooks/README.md](notebooks/README.md).
 
-**Desde Python:**
+## Privacidad, seguridad y uso responsable
 
-```python
-from src.model import ALPRPipeline
-from src.storage import CsvStore
-from src.access_control import decide_access
-from src.data_processing import load_image
+- Una placa puede identificar indirectamente a una persona y revelar patrones de movimiento.
+- La aplicación de demostración usa datos ficticios; los datos operativos residen en un repositorio privado.
+- Las contraseñas se almacenan como hashes en el sistema de datos; los tokens y claves deben guardarse en secretos, no en archivos públicos.
+- Las lecturas inciertas requieren revisión humana. La aplicación registra el usuario y el resultado de las operaciones.
+- La apertura manual de contingencia exige un motivo. La barrera de esta demostración es simulada y el sistema no reemplaza la supervisión del operador.
+- El detector y el OCR tienen sesgos por región, condiciones de captura y tamaño de placa. Revise [consideraciones éticas y limitaciones](docs/consideraciones_eticas.md) antes de usar los resultados.
 
-pipeline, store = ALPRPipeline.from_config(), CsvStore.from_environment()
-rec = pipeline.recognize(load_image(open("data/samples/garita3_PBA-8901.jpg", "rb").read()))
-print(rec.plate, f"{rec.ocr_confidence:.2%}")                       # PBA-8901 99.99%
-print(decide_access(rec.plate, rec.ocr_confidence, store).titulo)   # ACCESO AUTORIZADO
-```
+## Estructura del repositorio
 
-## 6. Interfaz y API
-
-**Aplicación web:** SIRAP usa una API en FastAPI y un frontend en Vue 3 (Vite, Pinia, Vue Router, Tailwind CSS y ECharts). Está desplegada en Hugging Face Spaces mediante Docker. Consulte la [aplicación en vivo](https://eduardoceballos-sirap.hf.space), la captura del [dashboard](docs/img/vue_dashboard.png) y la [guía de usuario](docs/manual_usuario.md).
-
-| Módulo | Qué hace |
-|---|---|
-| **Inicio de sesión** | Usuario y contraseña; cada operación queda firmada por el usuario y su rol (operador, supervisor, administrador) |
-| **Reconocimiento y Acceso** | Botones «Probar con un ejemplo», subir foto o cámara → caja de la placa sobre la imagen, placa, confianza OCR, recorte, resultado de acceso y datos del vehículo; registrar y abrir, reprocesar, apertura manual con motivo, registrar rechazo; corrección manual de la placa; **lecturas de la sesión** para comparar y exportar a CSV; ayuda «¿Cómo se usa esta pantalla?» |
-| **Dashboard** | Ingresos, salidas, placas identificadas y alertas; gráficos interactivos (ECharts) por hora, resultado y garita |
-| **Historial** | Filtros por fecha, placa, garita, resultado y movimiento; exportación CSV (supervisor y administrador) |
-| **Administración** | Vehículos, listas blanca/restringida con vigencia, propietarios, garitas, usuarios y datos de demostración |
-| **Acerca del modelo** | Funcionamiento, métricas, entrenamiento, optimización y **limitaciones y advertencias** |
-
-> **Exportación de resultados:** el botón **Exportar CSV** descarga las operaciones del Historial que coinciden con los filtros aplicados. Está disponible para Supervisor y Administrador.
-
-La API consulta el servicio público del SRI para completar marca/modelo/año; también consulta EcuadorLegalOnline y
-puede recibir el nombre público asociado a la placa, aunque el panel actual no lo muestra. Ninguna consulta interviene
-en la decisión de acceso. La exportación enriquecida guarda eventos en
-`data/processed/detecciones.csv` del repositorio privado de datos mediante el mismo token
-que utiliza el historial; nunca publica registros en SIRAP_2.
-
-**Requisitos de la interfaz cubiertos:** validación de entradas (tipo, tamaño y resolución de imagen en el servidor;
-formato de placa), indicador de carga, mensajes de error comprensibles (sin trazas técnicas), confianza OCR y de
-detección, visualizaciones (caja sobre la imagen, recorte, gráficos), ejemplos precargados, diseño adaptable a
-celular, **tema claro/oscuro** (botón sol/luna), historial y comparación de las lecturas de la sesión y exportación CSV.
-
-| Reconocimiento (anotado en el manual) | Dashboard | Tema oscuro | Celular |
-|---|---|---|---|
-| <img src="docs/img/vue_reconocimiento.png" width="300"> | <img src="docs/img/vue_dashboard.png" width="300"> | <img src="docs/img/vue_verificacion.png" width="300"> | <img src="docs/img/vue_movil.png" width="110"> |
-
-### API REST
-
-Documentación interactiva (Swagger) en [`/docs`](https://eduardoceballos-sirap.hf.space/docs).
-
-| Endpoint | Rol | Uso |
-|---|---|---|
-| `POST /api/auth/login` · `GET /api/auth/me` | — | Inicio de sesión (JWT con rol, 12 h) |
-| `POST /api/recognize` | todos | Imagen → placa, confianza, caja, recorte y decisión (no registra) |
-| `POST /api/plates/verify` | todos | Verificar una placa escrita o corregida a mano |
-| `POST /api/plates/register` | todos los perfiles autenticados | Crear un camión NUEVO tras confirmar visualmente la placa; la autorización en lista blanca requiere marcarla expresamente. Registra el usuario autorizador y no sobrescribe placas existentes o restringidas. |
-| `POST /api/plates/vehicle-data` · `GET /api/plates/vehicle-data/{request_id}` | todos | Consulta asíncrona al SRI y EcuadorLegalOnline; entrega datos complementarios de la placa, sin cambiar la decisión de acceso |
-| `POST /api/operations` | todos | Recalcula la autorización y persiste una solicitud identificada por UUID antes de abrir; después guarda el estado de barrera. Bloquea aperturas si falla el CSV y evita repetir una operación con el mismo UUID. La apertura manual requiere motivo. |
-| `GET /api/operations` · `/api/operations/export.csv` | todos · supervisor/admin | Historial filtrado y exportación CSV |
-| `GET /api/dashboard` | todos | Indicadores y datos de los gráficos |
-| `GET /api/admin/{table}` | todos los usuarios autenticados | Consultar las tablas de vehículos, propietarios, autorizaciones, garitas y usuarios |
-| `POST/PUT/DELETE /api/admin/...` | administrador | Crear o modificar vehículos, autorizaciones, garitas, usuarios y datos de demostración |
-| `GET /api/system` · `/api/model/info` · `/api/samples` | todos | Estado, métricas del modelo e imágenes de ejemplo |
-
-**Política de registro en Reconocimiento:** Operador, Supervisor y Administrador pueden crear y autorizar una placa nueva si la verifican visualmente y marcan explícitamente la autorización. Sin aprobación, permanece registrada sin permiso. Si la placa ya existe, el endpoint rechaza la modificación para proteger su registro y cualquier restricción. En cambio, la gestión de datos existentes y listas desde Administración sigue reservada al Administrador.
-
-**Trazabilidad de apertura:** `operaciones.csv` guarda `operacion_id`, `estado_barrera` y `actualizado_en`. Las aperturas registran primero `SOLICITADA`, y después `CONFIRMADA`, `FALLIDA` o `INDETERMINADA` según la respuesta. Si falla el guardado inicial, no se abre. Si falla el guardado final, se conserva la solicitud y es necesaria conciliación manual; no debe repetirse automáticamente la orden. El modo físico requiere respaldo CSV privado configurado; la barrera actual es simulada.
-
-La API permite que cualquier usuario autenticado, incluido el Operador, consulte las tablas de Administración mediante `GET /api/admin/{table}`. La pantalla y la ruta de Administración en la interfaz están disponibles solo para Supervisor y Administrador. Consultar las tablas por API no concede permisos de modificación: las operaciones de escritura requieren el rol Administrador.
-
-
-## 7. Estructura del proyecto
-
-```
+```text
 SIRAP_2/
-├── .github/workflows/       # Despliegue en Hugging Face Spaces
-├── api/                     # API REST con FastAPI
-├── app/                     # Interfaz alternativa con Streamlit
+├── .github/workflows/       # Automatización y despliegue
+├── api/                     # API FastAPI
+├── app/ y frontend/         # Interfaz web
+├── blind_eval/              # Referencias y revisión de evaluación de video
 ├── config/                  # Configuración sin secretos
-├── data/
-│   ├── processed/           # Datos CSV de ejecución
-│   ├── raw/
-│   └── samples/             # Imágenes de ejemplo
-├── deploy/huggingface/      # Publicación del Space
-├── docs/
-│   ├── img/                 # Capturas e imágenes
-│   └── ...                  # Manual y documentación técnica
-├── frontend/                # Interfaz Vue 3
-├── models/                  # Modelos y pesos
-├── notebooks/               # Análisis, entrenamiento y evaluación; incluye SIRAP_backend.ipynb
-├── results/                 # Figuras, métricas e informes
-├── src/                     # Modelo, OCR, decisiones y almacenamiento
-├── tests/                   # Pruebas
-├── Videos_Imagenes_Prueba/  # Recursos para probar el software
-├── app.py                   # Lanzador compatible de app/app.py
+├── data/                    # Ejemplos, listas y documentación de datos
+├── docs/                    # Manual, arquitectura, análisis y capturas
+├── garita/                  # 21 imágenes y referencia ground_truth.csv
+├── models/                  # Modelo entrenado y exportación ONNX
+├── notebooks/               # Análisis, entrenamiento y evaluación
+├── results/                 # Métricas, informes y figuras compactas
+├── src/                     # Modelo, OCR, decisiones y persistencia
+├── tests/                   # Pruebas automatizadas
+├── artifacts/               # Instrucciones para recursos pesados
 ├── Dockerfile
 ├── LICENSE
 ├── manual_usuario.pdf
-├── README.md
-├── requirements.txt
-└── requirements-dev.txt
+└── README.md
 ```
 
-## 8. Consideraciones éticas y limitaciones
+## Documentación del proyecto
 
-Resumen de [`docs/consideraciones_eticas.md`](docs/consideraciones_eticas.md):
+- [Manual de usuario](docs/manual_usuario.md) y [manual en PDF](manual_usuario.pdf).
+- [Arquitectura](docs/arquitectura.md).
+- [Análisis de datos](docs/analisis_datos.md).
+- [Optimización del detector](docs/optimizacion.md).
+- [Validación SAVH y multisemilla](docs/validacion_savh_multisemilla.md).
+- [Consideraciones éticas](docs/consideraciones_eticas.md).
+- [Documentación de datos y recuperación](data/README.md).
+- [Notebooks y guía de ejecución](notebooks/README.md).
+- [Artefactos pesados](artifacts/README.md).
 
-- **Privacidad:** una placa identifica indirectamente a una persona. No se guardan imágenes; datos mínimos de
-  propietarios; demo con datos ficticios; secretos fuera del código; marco de la LOPDP de Ecuador (letrero
-  informativo, plazo de conservación, derechos de los titulares).
-- **Sesgos:** detector entrenado con placas de otros países; OCR validado solo en Guayaquil; peor desempeño con
-  placas pequeñas (mAP 0,481), nocturnas o deterioradas.
-- **Mitigación:** umbrales calibrados, verificación manual de todo lo dudoso, corrección manual, la barrera nunca se
-  abre sola, apertura de contingencia con motivo y auditoría de solo inserción.
-- **Responsabilidad:** cada operación queda asociada al usuario autenticado y su rol; el servidor vuelve a calcular la
-  decisión antes de registrar, de modo que la interfaz no puede forzar una apertura automática.
-- **Uso indebido:** no usar para vigilancia masiva, seguimiento de personas, multas o decisiones sin operador.
+## Autores
 
-## 9. Autores y contribuciones
-
-| Integrante | Rol |
+| Integrante | Contribuciones |
 |---|---|
-| **Eduardo Alejandro Ceballos Jijón** | Modelado y entrenamiento de YOLO11-s y OCR (fast-plate-ocr); desarrollo de la interfaz web Vue 3. |
-| **Christian Xavier Valle Maridueña** | Datos (SAVH Guayaquil e imágenes de la garita) y desarrollo de la interfaz web Vue 3 |
+| Eduardo Alejandro Ceballos Jijón | Modelado y entrenamiento de YOLO11-s y OCR; desarrollo de la interfaz Vue 3 |
+| Christian Xavier Valle Maridueña | Datos SAVH y de garita; desarrollo de la interfaz Vue 3 |
 
-*Maestría en Inteligencia Artificial — Proyecto Integrador en IA (MIAR0545), 2026.*
+Dirección y asesoría académica: Gladys María Villegas Rugel.
 
-## 10. Licencia
+## Licencia y atribuciones
 
-El código de SIRAP está bajo licencia [MIT](LICENSE). Los pesos entrenados con Ultralytics están sujetos a su licencia AGPL-3.0; el dataset de Roboflow, a CC BY 4.0; y OpenCV 4.x, a Apache 2.0. Las atribuciones y condiciones de otros componentes y recursos se detallan en [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+El código de SIRAP se distribuye bajo [MIT](LICENSE). Los pesos entrenados con Ultralytics están sujetos a AGPL-3.0. El dataset de Roboflow utiliza CC BY 4.0. Los demás componentes y recursos conservan sus licencias y condiciones originales; consulte [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 
-## 11. Agradecimientos y referencias
+## Agradecimientos y recursos
 
-### Agradecimientos
+Gracias a Gladys María Villegas Rugel por la asesoría académica, a la empresa que autorizó la toma de imágenes de garita y a los docentes del programa.
 
-A **Gladys María Villegas Rugel**, por la dirección y asesoría académica; a la empresa que autorizó la toma de imágenes en su garita y a los docentes del programa. Los autores y sus contribuciones se presentan en la [sección 9](#9-autores-y-contribuciones).
-
-### Componentes de software
-
-SIRAP integra componentes de terceros para detección, OCR, procesamiento de imágenes y datos, seguimiento de video, API, interfaz web y consultas de información pública:
-
-- **Detección y OCR:** [Ultralytics YOLO11](https://docs.ultralytics.com/models/yolo11/) y [fast-plate-ocr](https://github.com/ankandrew/fast-plate-ocr).
-- **Entrenamiento e inferencia:** [PyTorch](https://pytorch.org/) se utiliza en el entorno de entrenamiento; la aplicación desplegada ejecuta el modelo exportado mediante [ONNX Runtime](https://onnxruntime.ai/).
-- **Imágenes y datos:** [OpenCV](https://github.com/opencv/opencv) (`opencv-python-headless` 4.12.0.88; Apache 2.0) se usa para redimensionar imágenes y codificar JPEG; la detección la realiza YOLO11. [Pillow](https://python-pillow.org/), [NumPy](https://numpy.org/) y [Pandas](https://pandas.pydata.org/) complementan el procesamiento.
-- **Seguimiento de video:** [OC-SORT](https://github.com/noahcao/OC_SORT), [Roboflow Trackers](https://github.com/roboflow/trackers) y [Roboflow Supervision](https://github.com/roboflow/supervision).
-- **API y servidor:** [FastAPI](https://fastapi.tiangolo.com/) y [Uvicorn](https://www.uvicorn.org/).
-- **Interfaz web:** [Vue 3](https://vuejs.org/), [Vite](https://vite.dev/), [Pinia](https://pinia.vuejs.org/), [Vue Router](https://router.vuejs.org/), [Apache ECharts](https://echarts.apache.org/), [Vue ECharts](https://github.com/ecomfe/vue-echarts) y [Tailwind CSS](https://tailwindcss.com/).
-- **Consulta de información pública:** [Playwright](https://playwright.dev/) y [Chromium](https://www.chromium.org/).
-
-Las marcas, derechos y licencias de los componentes de terceros pertenecen a sus respectivos titulares. La licencia MIT del código de SIRAP, la licencia aplicable a los pesos de Ultralytics y la licencia del dataset de Roboflow se indican en la [sección 10](#10-licencia).
-
-### Datos y recursos del proyecto
-
-- [Roboflow Universe — License Plate Recognition](https://universe.roboflow.com/roboflow-universe-projects/license-plate-recognition-rxg4e) (dataset utilizado para entrenar y evaluar el detector; licencia CC BY 4.0).
-- [SAVH Guayaquil ANPR Plate Images Dataset — Zenodo](https://zenodo.org/records/21120307) (el registro no muestra una licencia para este archivo específico).
-- **Código fuente:** [GitHub — eduardoceballos666/SIRAP_2](https://github.com/eduardoceballos666/SIRAP_2).
-- **Plataforma de despliegue:** [Hugging Face Spaces — eduardoceballos/SIRAP](https://huggingface.co/spaces/eduardoceballos/SIRAP).
-- **Aplicación en vivo:** [eduardoceballos-sirap.hf.space](https://eduardoceballos-sirap.hf.space).
-
-## 12. Videos
-
-- 🎬 [Video pitch (5 minutos)](https://www.youtube.com/watch?v=DBaeSUo64xE)
-- 🎤 [Video de respuestas a las preguntas](https://youtu.be/TUrEQ9sEwYM)
-
-Las métricas y el estado de validación del sistema se presentan en [Resultados y validaciones](#4-resultados-y-validaciones); los videos se mantienen aquí como material de demostración.
+- [Aplicación desplegada](https://eduardoceballos-sirap.hf.space)
+- [Repositorio GitHub](https://github.com/eduardoceballos666/SIRAP_2)
+- [Space de Hugging Face](https://huggingface.co/spaces/eduardoceballos/SIRAP)
+- [Video pitch](https://www.youtube.com/watch?v=DBaeSUo64xE)
+- [Video de respuestas](https://youtu.be/TUrEQ9sEwYM)
