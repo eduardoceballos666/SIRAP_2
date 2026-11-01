@@ -69,7 +69,7 @@ SIRAP se publica en dos lugares con propósitos distintos:
 
 1. Abre SIRAP desde el Space o el enlace directo.
 2. En el inicio de sesión, elige Español o English. El selector también está en el menú y conserva la preferencia en el navegador.
-3. Inicia sesión con una cuenta habilitada para la instancia; las contraseñas no se publican en este README.
+3. Inicia sesión con una cuenta habilitada. La pantalla del Space muestra las cuentas de demostración operador, supervisor y admin; la contraseña se define en el servidor mediante SIRAP_DEMO_PASSWORD y no se publica aquí.
 4. En Reconocimiento y Acceso, usa un ejemplo, una imagen, un video o una cámara disponible. Revisa la placa, la confianza, el recorte y la decisión.
 5. Confirma la información antes de registrar una operación o solicitar la apertura. Las lecturas inciertas requieren revisión humana; la barrera del Space es simulada.
 6. Consulta las operaciones en Historial. Supervisor y Administrador pueden exportar los resultados filtrados a CSV.
@@ -250,7 +250,7 @@ El notebook principal [notebooks/SIRAP_backend.ipynb](notebooks/SIRAP_backend.ip
 1. Abre el notebook desde GitHub en Google Colab y ejecuta la sección 0; clona el repositorio y prepara el entorno sin montar Google Drive.
 2. Para descargar el dataset de Roboflow, guarda ROBOFLOW_API_KEY en Secrets de Colab. Si se usa una fuente local, coloca el ZIP en data/raw/dataset_placas_yolo.zip y configura DATASET_SOURCE = local.
 3. La sección 0 descarga video_camiones.mp4 desde el Release datos-garita-v1 a artifacts/video_camiones.mp4 y comprueba su integridad. El video fuente se usa por defecto; el video de muestra es opcional.
-4. Ejecuta en el mismo runtime las secciones previas requeridas por el pipeline. Una sesión nueva de Colab es temporal: si no tiene el checkpoint de entrenamiento, corre la sección de entrenamiento y luego la calibración de umbrales.
+4. Ejecuta en el mismo runtime las secciones previas requeridas por el pipeline. La sección 0 usa el checkpoint y los umbrales versionados cuando inicia una sesión nueva; si reentrenas, vuelve a correr la calibración antes de evaluar.
 5. La evaluación 7.3 usa las 21 imágenes y garita/ground_truth.csv versionadas en el repositorio.
 6. Las salidas nuevas se escriben en el espacio temporal de Colab. Descarga desde Colab los videos anotados u otros resultados grandes que quieras conservar.
 
