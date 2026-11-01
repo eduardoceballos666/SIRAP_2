@@ -111,3 +111,10 @@ se agregó al final para tener una arquitectura cliente-servidor con autenticaci
 ## Umbral operativo OCR
 
 La aplicación usa un umbral de confianza OCR de **99 %**. Las lecturas por debajo pasan a verificación manual.
+
+
+## Aplicación y entregables publicados
+
+La planificación culmina en el producto SIRAP 1.0, disponible en la [aplicación web](https://eduardoceballos-sirap.hf.space) y desplegado desde el [Hugging Face Space](https://huggingface.co/spaces/eduardoceballos/SIRAP). El código, notebooks, métricas y documentación se mantienen en el [repositorio SIRAP_2](https://github.com/eduardoceballos666/SIRAP_2). La API se puede consultar en [Swagger](https://eduardoceballos-sirap.hf.space/docs).
+
+La interfaz publicada ofrece español e inglés. El [manual de usuario](manual_usuario.md) describe los módulos, perfiles y flujo de operación; los videos requeridos están enlazados al final del [README](../README.md).
