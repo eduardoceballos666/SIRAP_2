@@ -215,7 +215,7 @@ const en = {
   'Use una URL HTTP/HTTPS reproducible en el navegador. RTSP requiere un servidor puente.': 'Use an HTTP/HTTPS URL that can play in the browser. RTSP requires a bridge server.',
   'Cámara en línea': 'Online camera',
   'Primero elija o capture una imagen.': 'Choose or capture an image first.',
-  'Consultando SRI y EcuadorLegalOnline…': 'Checking SRI and EcuadorLegalOnline…',
+  'Consultando datos públicos del SRI…': 'Checking public SRI vehicle data…',
   'Marca, modelo y año cargados desde el SRI.': 'Make, model, and year loaded from SRI.',
   'El SRI no devolvió todos los datos; se muestran los valores locales disponibles.': 'SRI did not return all data; available local values are shown.',
   'La consulta está tardando más de lo esperado. Se muestran los datos locales disponibles.': 'The lookup is taking longer than expected. Available local values are shown.',
