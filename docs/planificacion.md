@@ -55,7 +55,7 @@ un operador de garita, que lea placas ecuatorianas y registre cada operación.
   Historial (con exportación CSV), Administración y Acerca del modelo; publicada en Hugging Face Spaces con Docker.
   La interfaz está disponible en Español (predeterminado) e English desde el mismo enlace del Space; el control Idioma está en el inicio de sesión y en el menú común, y recuerda la selección.
 - Pipeline de video y modo en vivo en el notebook (seguimiento OC-SORT, voto de lecturas).
-- Consultas públicas programadas al SRI para completar marca/modelo/año y a EcuadorLegalOnline para buscar el nombre visible asociado a la placa. La interfaz no muestra ese nombre y ninguna consulta interviene en la decisión de acceso; la exportación enriquecida separada puede guardarlo si está configurada.
+- Consulta pública al SRI para completar marca/modelo/año. No se consulta EcuadorLegalOnline porque su información de propietario es de pago; el nombre mostrado, si existe, procede del registro local. La consulta al SRI y el registro local no intervienen por sí solos en la decisión de acceso.
 - Documentación técnica, ética y manual de usuario; pruebas unitarias.
 
 **No incluye (trabajo futuro)**
