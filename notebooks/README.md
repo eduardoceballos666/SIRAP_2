@@ -27,10 +27,10 @@ Los artefactos de entrenamiento ya están versionados en [métricas](../results/
 
 | Corrida | Datos usados | Historial por época | Resumen |
 |---|---|---|---|
-| Completa | 40 épocas; `train_fraction = 1`, `val_fraction = 1` | [entrenamiento_yolo11_results.csv](../results/metrics/entrenamiento_yolo11_results.csv) | [entrenamiento_yolo11_completo.json](../results/metrics/entrenamiento_yolo11_completo.json) |
+| **Completa (preset vigente: `TRAINING_PRESET = "completo"`)** | 40 épocas; `train_fraction = 1`, `val_fraction = 1` | [entrenamiento_yolo11_results.csv](../results/metrics/entrenamiento_yolo11_results.csv) | [entrenamiento_yolo11_completo.json](../results/metrics/entrenamiento_yolo11_completo.json) |
 | Rápida | 15 épocas; `train_fraction = 0.3`, `val_fraction = 0.25` | [entrenamiento_yolo11_rapido_results.csv](../results/metrics/entrenamiento_yolo11_rapido_results.csv) | [entrenamiento_yolo11_rapido.json](../results/metrics/entrenamiento_yolo11_rapido.json) |
 
-Para revisar posible sobreajuste, compara por época las pérdidas de entrenamiento y validación, junto con las métricas de validación. Un puntaje final aislado no basta para concluir que no hubo sobreajuste. La corrida rápida sirve como ejecución reducida; debido a que usa fracciones distintas del dataset, sus resultados no son directamente comparables con los de la corrida completa. Los CSV y JSON son registros de las corridas publicadas; el checkpoint `models/best_model.pt` contiene los pesos y no reemplaza el historial.
+Para revisar posible sobreajuste, compara por época las pérdidas de entrenamiento y validación, junto con las métricas de validación. Un puntaje final aislado no basta para concluir que no hubo sobreajuste. La corrida completa con `TRAINING_PRESET = "completo"` es el preset utilizado y documentado como referencia. La corrida rápida sirve solo como ejecución reducida; debido a que usa fracciones distintas del dataset, sus resultados no son directamente comparables con los de la corrida completa. Los CSV y JSON son registros de las corridas publicadas; el checkpoint `models/best_model.pt` contiene los pesos y no reemplaza el historial.
 
 ## Resultados y límites de evaluación
 
