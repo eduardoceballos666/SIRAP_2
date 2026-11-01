@@ -107,16 +107,16 @@ descrito aquí, la app descarga y presenta esos campos vehiculares; no obtiene d
 domicilio ni el teléfono del propietario. Consultar y descargar esos datos públicos del vehículo, por sí solo, no
 significa acceder a información privada ni vulnera la privacidad de una persona.
 
-Esta consulta debe distinguirse de la integración con **EcuadorLegalOnline**: al enviar una placa, su respuesta puede
-incluir un nombre asociado públicamente; el panel de SIRAP no lo muestra. Las respuestas se mantienen temporalmente
-en la memoria del proceso; una integración de exportación independiente podría guardar el resultado en
-`data/detecciones.csv` si se configura.
+La información de propietario ofrecida por **EcuadorLegalOnline es de pago**; por esa razón, SIRAP no integra
+ni consulta ese servicio, no muestra datos obtenidos de esa fuente y no los guarda. Si la ficha muestra un propietario,
+el dato proviene del registro local de vehículos de SIRAP.
 
-Que una fuente sea pública no autoriza cualquier uso posterior. Una placa, un nombre o su combinación con imágenes
-e historial pueden hacer identificable a una persona. Por eso SIRAP limita la consulta a su finalidad de apoyo al
-control de acceso, minimiza los campos y no presenta el resultado como verificación oficial de identidad o titularidad.
-La LOPDP regula el tratamiento de datos personales y la SPDP aclara que la disponibilidad pública no elimina por sí
-sola las obligaciones de finalidad, proporcionalidad, minimización y seguridad ([LOPDP](https://spdp.gob.ec/wp-content/uploads/2024/12/03.pdf.pdf);
+Que los datos públicos del SRI sean consultables no autoriza cualquier uso posterior de información que identifique
+a una persona. Una placa, un nombre o su combinación con imágenes e historial pueden hacer identificable a alguien.
+Por eso SIRAP limita la consulta a su finalidad de apoyo al control de acceso, minimiza los campos y no presenta el
+resultado como verificación oficial de identidad o titularidad. La LOPDP regula el tratamiento de datos personales y
+la SPDP aclara que la disponibilidad pública no elimina por sí sola las obligaciones de finalidad, proporcionalidad,
+minimización y seguridad ([LOPDP](https://spdp.gob.ec/wp-content/uploads/2024/12/03.pdf.pdf);
 [criterio de la SPDP sobre fuentes públicas](https://www.spdp.gob.ec/docs/consultas-absueltas/2026-2/oficio-n-spdp-ird-2026-0242-o/)).
 
 Estas consultas no intervienen en la regla de autorización ni intentan eludir CAPTCHA o controles de acceso. Las
