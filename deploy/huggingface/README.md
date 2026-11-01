@@ -1,15 +1,6 @@
 # SIRAP · Sistema de Detección y Reconocimiento Automático de Placas
----
-title: SIRAP
-emoji: 🚗
-colorFrom: yellow
-colorTo: blue
-sdk: docker
-app_port: 7860
-pinned: false
-license: mit
-short_description: Reconocimiento de placas y control de acceso (YOLO11 + OCR)
----
+
+**Reconocimiento de placas y control de acceso (YOLO11 + OCR)**
 
 **Versión del producto: SIRAP 1.0.** La API y el paquete npm del frontend usan el identificador técnico 2.0.0. El tag de GitHub `v2.0` identifica el corte del código con arquitectura FastAPI + Vue 3; no es la versión del producto. El [código fuente y la documentación](https://github.com/eduardoceballos666/SIRAP_2) se mantienen en GitHub.
 
