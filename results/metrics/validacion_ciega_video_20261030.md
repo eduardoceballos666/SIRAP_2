@@ -51,3 +51,10 @@ Para facilitar la revisión sin usar las salidas OCR como etiquetas, la celda 7.
 No se calculó EMR ni recall completo usando esta referencia puntual, porque esos resultados serían engañosos para el video entero. Para completar 7.2 aún hay que revisar el video original cuadro a cuadro, delimitar primer/último cuadro legible de cada pasada, añadir vehículos omitidos por los eventos detectados y solicitar una segunda revisión humana independiente. La guía operativa y la plantilla están en `blind_eval/GUIA_ANOTACION_VIDEO.md` y `blind_eval/video_ground_truth_template.csv`.
 
 Artefactos publicados: este informe y `results/metrics/blind_independent_video_eval_20261030.json` con métricas agregadas. No se publican las matrículas de la referencia de video, predicciones por fila ni claves del holdout ciego; los materiales detallados permanecen en Drive privado para preservar la privacidad y la independencia de las evaluaciones.
+
+
+## Actualización provisional (2026-11-01)
+
+Una nueva ejecución de la sección 7.2 en Colab cargó la referencia privada de 18 puntos que no estaba disponible en la corrida del 2026-10-30. Frente a esos puntos, se registraron 10/18 coincidencias exactas (55.6%) y 8/16 etiquetas únicas de placa detectadas (50.0%). El pipeline emitió 52 lecturas; 34 no tenían una fila de referencia en el mismo cuadro.
+
+Estos valores son condicionales a cuadros puntuales. Las 34 lecturas sin fila coincidente no se clasifican como falsos positivos, y el recall por placa única no es recall por pasada/vehículo. No se calculó EMR/CER del video completo. La referencia completa por intervalos, los vehículos que el detector pudo omitir y la revisión humana independiente siguen pendientes. El detalle agregado y sus límites están en results/metrics/video_e2e_puntos_provisionales_20261101.md. La plantilla de intervalos ya está publicada, sin etiquetas.
