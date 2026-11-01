@@ -202,8 +202,8 @@ const opt = computed(() => m.value.optimizacion_resumen || {})
         <li>{{ $t("El umbral OCR operativo es") }} {{ pct(info?.umbral_ocr ?? 0.94) }}{{ $t(". Se eligió considerando los recursos CPU limitados del hosting: en video y cámara, la interfaz analiza cada segundo y puede terminar antes cuando confirma la misma placa en dos cuadros, evitando cuadros adicionales. El umbral no acelera cada inferencia. Las lecturas inferiores o inconsistentes pasan a verificación manual. El operador solicita la apertura; la barrera no se abre solo por reconocer una placa.") }}</li>
         <li>{{ $t("El EMR punta a punta en la garita real aún no se midió (falta la referencia anotada del video).") }}</li>
         <li>{{ $t("Las imágenes de ejemplo derivan del diseño de la interfaz; no son capturas reales. La barrera de esta versión es") }}
-          <b>{{ $t("simulada") }}</b> {{ $t("y la base de demostración contiene datos") }} <b>{{ $t("ficticios") }}</b> {{ $t("respaldados en el repositorio privado configurado.") }}</li>
-        <li>{{ $t("SIRAP") }} <b>{{ $t("no") }}</b> {{ $t("debe usarse para vigilancia masiva, rastreo de personas ni fines distintos al control de acceso de la\n          instalación. Detalles en") }} <code>{{ $t("docs/consideraciones_eticas.md") }}</code>{{ $t(".") }}</li>
+          <b>{{ $t("simulada") }}</b> {{ $t("y la base de demostración contiene datos ficticios respaldados en el repositorio privado configurado.") }}</li>
+        <li>{{ $t("SIRAP") }} <b>{{ $t("no debe usarse") }}</b> {{ $t("para vigilancia masiva, rastreo de personas ni fines distintos al control de acceso de la instalación. Detalles en") }} <code>{{ $t("docs/consideraciones_eticas.md") }}</code>{{ $t(".") }}</li>
       </ul>
     </section>
   </div>
