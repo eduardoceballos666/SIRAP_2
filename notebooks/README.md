@@ -2,24 +2,24 @@
 
 | Notebook | Contenido |
 |---|---|
-| [`SIRAP_backend.ipynb`](SIRAP_backend.ipynb) | Notebook completo actualizado desde Drive. Incluye preparación del entorno, datos, preprocesamiento, YOLO11-s, fast-plate-ocr, optimización, evaluación de componentes, pipeline de video, evaluaciones 7.2/7.3 y modo en vivo. El video no está incrustado. |
-| `01_exploracion.ipynb` | Análisis exploratorio del dataset de detección y de SAVH. |
-| `02_preprocesamiento.ipynb` | Preparación del dataset YOLO, normalización y referencia de SAVH. |
-| `03_modelado.ipynb` | Entrenamiento del detector, OCR y regla de decisión. |
-| `04_optimizacion.ipynb` | Estudio de sensibilidad de hiperparámetros con Optuna, fANOVA y PDP. |
-| `05_evaluacion.ipynb` | Evaluación de detector, velocidad, OCR y resultados finales. |
-| `06_afinamiento_ocr.ipynb` | Afinamiento opcional del OCR con datos ecuatorianos. |
+| [`SIRAP_backend.ipynb`](SIRAP_backend.ipynb) | Flujo completo de preparación, detector YOLO11-s, OCR, optimización, evaluación, video de garita y modo en vivo. El notebook no incrusta videos. |
+| [`01_exploracion.ipynb`](01_exploracion.ipynb) | Análisis exploratorio del dataset de detección y de SAVH. |
+| [`02_preprocesamiento.ipynb`](02_preprocesamiento.ipynb) | Preparación del dataset YOLO, normalización y referencia de SAVH. |
+| [`03_modelado.ipynb`](03_modelado.ipynb) | Entrenamiento del detector, OCR y regla de decisión. |
+| [`04_optimizacion.ipynb`](04_optimizacion.ipynb) | Estudio de sensibilidad de hiperparámetros con Optuna, fANOVA y PDP. |
+| [`05_evaluacion.ipynb`](05_evaluacion.ipynb) | Evaluación del detector, velocidad, OCR y resultados finales. |
+| [`06_afinamiento_ocr.ipynb`](06_afinamiento_ocr.ipynb) | Afinamiento opcional del OCR con datos ecuatorianos. |
+| [`07_validacion_multisemilla.ipynb`](07_validacion_multisemilla.ipynb) | Validación de entrenamiento con distintas semillas. |
 
-## Ejecutar `SIRAP_backend.ipynb` sin Google Drive
+## Ejecutar `SIRAP_backend.ipynb` desde GitHub
 
-1. Abre el notebook desde GitHub en Google Colab y ejecuta la sección 0. Esta clona el repositorio y lee de GitHub el modelo, los archivos SAVH y el CSV de revisión, la lista autorizada y los resultados ya publicados.
-2. Configura el secreto `ROBOFLOW_API_KEY` en Colab para descargar el dataset público y correr entrenamiento/evaluación. El notebook no monta Drive ni solicita autorización de Google Sheets.
-3. La sección 6.1 usa por defecto un video público de demostración. Para evaluar el video fuente del proyecto, publica `video_camiones.mp4` como artefacto separado y cópialo a `artifacts/video_camiones.mp4` en el entorno de Colab. Las imágenes completas de garita y la referencia revisada son entradas opcionales de 7.3.
-4. El video anotado se guarda aparte; la celda 6.11 solo muestra su ruta y tamaño, nunca incrusta el MP4.
-5. Los resultados de una corrida nueva quedan en `/content/SIRAP_workspace`. Descárgalos desde Colab si deseas conservarlos o publicarlos. Los resultados compactos ya comprobados están en [`../results/metrics/`](../results/metrics/) y los gráficos pequeños en [`../results/figures/`](../results/figures/).
+1. Abre el notebook desde GitHub en Colab y ejecuta la sección 0. Clona el repositorio, instala dependencias y prepara las rutas. No monta Google Drive.
+2. Para descargar el dataset público de Roboflow y ejecutar entrenamiento o evaluación de componentes, agrega `ROBOFLOW_API_KEY` a Secrets de Colab. La alternativa es configurar `DATASET_SOURCE = "local"` y proporcionar el ZIP del dataset en `data/raw/dataset_placas_yolo.zip`.
+3. La sección 0 descarga automáticamente el video fuente desde el [Release `datos-garita-v1`](https://github.com/eduardoceballos666/SIRAP_2/releases/tag/datos-garita-v1) a `artifacts/video_camiones.mp4` y verifica tamaño e integridad. La sección 6.1 usa ese video por defecto; `USE_SAMPLE_VIDEO = True` selecciona la demo y no sirve para medir el caso de los camiones.
+4. Corre las celdas previas en el mismo runtime antes de cada sección. En una sesión nueva, los pesos de entrenamiento y los umbrales guardados en el espacio temporal no se conservan. Si no hay un checkpoint de la corrida en `/content/SIRAP_workspace`, ejecuta 3.2; después corre 4.1 para generar los umbrales.
+5. La evaluación 7.3 usa las 21 imágenes y `garita/ground_truth.csv` versionadas en el repositorio. Necesita que el detector y los umbrales estén listos en la sesión antes de ejecutarla.
+6. Las salidas se guardan en `/content/SIRAP_workspace`, que es temporal. Descarga los archivos que quieras conservar desde el panel **Files** de Colab. Los videos anotados no se incrustan ni se publican automáticamente como Release assets.
 
-El dataset público puede requerir su clave de API; el resto de insumos de evaluación SAVH y los pesos de YOLO11-s ya están en el repositorio. Las corridas de entrenamiento pueden tardar y necesitan GPU; abrir el notebook no inicia entrenamiento.
+## Resultados y límites
 
-## Límites de la evaluación de video
-
-La sección 7.2 registra una corrida provisional sobre 18 cuadros puntuales. Se publica explícitamente como tal en [`video_e2e_puntos_provisionales_20261101.md`](../results/metrics/video_e2e_puntos_provisionales_20261101.md); no representa intervalos completos, todos los vehículos ni validación humana independiente. El artefacto fuente completo de 459 MB todavía no se ha publicado en GitHub.
+Los resultados agregados y gráficos pequeños están en [`results/metrics/`](../results/metrics/) y [`results/figures/`](../results/figures/). La evaluación de video de la sección 7.2 sigue siendo provisional: usa 18 cuadros puntuales y no cubre intervalos completos ni todos los vehículos. Consulta la [revisión de la referencia de video](../blind_eval/video_ground_truth_review.md) y el archivo de [puntos provisionales](../blind_eval/video_ground_truth_points_provisional.csv). No presentes esas métricas como evaluación integral del video.
