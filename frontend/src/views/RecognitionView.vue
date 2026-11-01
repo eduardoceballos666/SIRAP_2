@@ -443,7 +443,7 @@ async function loadVehicleDetails(plate) {
   if (!plate) return
   const generation = ++vehicleLookupGeneration
   vehicleLookup.value = null
-  vehicleLookupStatus.value = 'Consultando SRI y EcuadorLegalOnline…'
+  vehicleLookupStatus.value = 'Consultando datos públicos del SRI…'
   try {
     const started = await api('/api/plates/vehicle-data', {
       method: 'POST',
