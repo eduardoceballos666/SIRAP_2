@@ -15,3 +15,10 @@ Cada fila identifica un cuadro guía en el que la placa se pudo leer visualmente
 - Cargar la anotación completa en `MyDrive/proyecto_integrador_placas/video_ground_truth.csv` y luego ejecutar la sección 7.2. Las métricas del conjunto puntual serían métricas condicionadas a estos cuadros, no una evaluación completa del video ni del recall de vehículos.
 
 Placas dudosas que no se incorporaron incluyen la del camión amarillo del cuadro 1312 y lecturas nocturnas con reflejo/oclusiones. También se descartaron recuadros OCR que apuntaban a texto lateral del camión en vez de a una placa.
+
+
+## Actualización de insumos (2026-11-01)
+
+Se recibieron 21 imágenes completas de garita y una referencia privada de 21 filas para la sección 7.3. Esas imágenes permiten una evaluación por imagen, cuyos resultados agregados están en results/metrics/garita_imagenes_e2e_20261101.md. No reemplazan los intervalos temporales por pasada requeridos para evaluar el video completo ni resuelven la segunda revisión humana independiente.
+
+El video adjunto tiene 18,115 cuadros a 30 fps y 1280×720, consistente en metadatos con la corrida registrada; no se comparó el hash de archivo.
