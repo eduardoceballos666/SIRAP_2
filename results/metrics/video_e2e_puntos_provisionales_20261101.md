@@ -1,22 +1,26 @@
 # Resultado provisional de puntos de referencia del video
 
-Fecha del registro: 2026-11-01.
+Fecha de la corrida: 2026-11-01. Notebook fuente: [`notebooks/SIRAP_backend.ipynb`](../../notebooks/SIRAP_backend.ipynb), sección 7.2.
 
-Este archivo registra únicamente la salida agregada de la ejecución 7.2 del notebook en Colab frente a las 18 observaciones puntuales privadas existentes. No es una evaluación completa del video ni una validación humana independiente.
+Se volvió a ejecutar 7.2 con la referencia de 18 cuadros puntuales. Las etiquetas corregidas fueron verificadas visualmente en el video original de Drive: cuadro 208 `LBA-7763` y cuadro 660 `GBR-5172`. La referencia con los 18 puntos se conserva en [`blind_eval/video_ground_truth_points_provisional.csv`](../../blind_eval/video_ground_truth_points_provisional.csv), claramente identificada como provisional.
 
-| Medida | Resultado |
+| Métrica | Resultado |
 |---|---:|
+| Cuadros de referencia | 18 |
+| Placas distintas en la referencia | 16 |
 | Lecturas emitidas por el pipeline | 52 |
-| Lecturas comparables en los cuadros de referencia | 18 |
-| Coincidencia exacta en cuadros de referencia | 10/18 (55.6%) |
-| Etiquetas de placa únicas de referencia detectadas en esos puntos | 8/16 (50.0%) |
+| Lecturas comparadas en los cuadros anotados | 18 |
+| Coincidencia exacta (EMR por lectura) | 11/18 (61,1 %) |
+| Recall de placas únicas en los puntos | 9/16 (56,25 %) |
+| Falsos autorizados | 7 |
+| Tasa de falsos autorizados sobre las lecturas | 7/52 (13,46 %) |
+| Lecturas fuera de los cuadros de referencia | 34 |
+| Cuadros procesados | 18.115 |
 
-Alcance y limitaciones:
+## Alcance y límites
 
-- Las 18 referencias son cuadros puntuales (frame_start == frame_end), no intervalos completos ni un censo de pasadas. No permiten estimar recall del video completo.
-- Las 34 lecturas restantes no coinciden con una fila de referencia en ese mismo cuadro. No se clasifican como falsos positivos porque la referencia es dispersa.
-- El 50.0% es recall sobre 16 etiquetas de placa únicas en los puntos revisados; no equivale a recall por pasada/vehículo y puede verse afectado por pasadas repetidas.
-- La referencia actual fue preparada como anotación provisional por un evaluador. La segunda revisión humana independiente y la adjudicación siguen pendientes.
-- No se publica ninguna placa, clave de respuestas ni predicción individual.
-
-Para cerrar la evaluación punta a punta, se necesita una referencia completa de intervalos por pasada, inclusión de vehículos omitidos por el detector, revisión ciega independiente y ejecución de la sección 7.2 contra el mismo video de 18,115 cuadros procesado por el pipeline. Mantén results/metrics/e2e.json sin EMR/CER completos hasta completar esos pasos.
+- Las 18 referencias son puntos (`frame_start == frame_end`), no intervalos completos ni un censo de pasadas. Estos valores no son una evaluación integral del video ni recall de todos los vehículos.
+- Las 34 lecturas restantes no coinciden con una fila de referencia en esos cuadros; no se clasifican como falsos positivos porque la referencia es dispersa.
+- Los resultados son métricas condicionadas a los puntos revisados. La revisión humana independiente y la anotación completa por pasada siguen pendientes.
+- El archivo CSV publicado contiene las etiquetas de esos 18 puntos y puede consultarse para reproducir la evaluación puntual. No debe tratarse como respuesta final para futuras pruebas ciegas.
+- Para completar la evaluación, hay que anotar intervalos inclusivos para cada pasada, incluir vehículos omitidos por el detector, validar independientemente las placas/límites y volver a ejecutar la sección 7.2 con el mismo video.
