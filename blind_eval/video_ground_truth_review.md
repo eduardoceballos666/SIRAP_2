@@ -22,3 +22,8 @@ Placas dudosas que no se incorporaron incluyen la del camión amarillo del cuadr
 Se recibieron 21 imágenes completas de garita y una referencia privada de 21 filas para la sección 7.3. Esas imágenes permiten una evaluación por imagen, cuyos resultados agregados están en results/metrics/garita_imagenes_e2e_20261101.md. No reemplazan los intervalos temporales por pasada requeridos para evaluar el video completo ni resuelven la segunda revisión humana independiente.
 
 El video adjunto tiene 18,115 cuadros a 30 fps y 1280×720, consistente en metadatos con la corrida registrada; no se comparó el hash de archivo.
+
+
+## Publicación de los 18 puntos corregidos (2026-11-01)
+
+Por solicitud del usuario, los 18 puntos revisados se publicaron en `blind_eval/video_ground_truth_points_provisional.csv`. Las lecturas de los cuadros 208 (`LBA-7763`) y 660 (`GBR-5172`) sustituyen las transcripciones anteriores. La referencia sigue siendo puntual: no define intervalos completos ni todos los vehículos. Al estar publicados estos puntos, no deben reutilizarse como conjunto de prueba ciego; la validación integral requiere nueva revisión independiente y anotación por pasada.
