@@ -200,3 +200,12 @@ En dos clips el sistema confirmó una lectura incorrecta; ambas superaron el umb
 El script reproducible es [`scripts/evaluate_video_e2e.py`](../scripts/evaluate_video_e2e.py); el resumen sin placas y los hashes de los archivos probados están en [video_e2e_muestra.json](../results/metrics/video_e2e_muestra.json). La tabla privada de referencias `video_path,plate_gt` no se publica.
 
 **Estado de las dos tareas:** la lectura de video ya tiene una evaluación de cinco clips, con dos errores de aceptación que deben corregirse antes de adoptar cambios; falta evaluar el video operativo con su ground truth. La validación ciega independiente queda pendiente hasta adjudicar las 13 discrepancias mediante un revisor humano independiente.
+
+
+## Acceso al producto y código
+
+La validación descrita aquí corresponde a los datos y protocolos detallados en este documento; no debe confundirse con una evaluación ciega completa de todos los escenarios de uso de la aplicación.
+
+- [Aplicación SIRAP](https://eduardoceballos-sirap.hf.space) · [Space de Hugging Face](https://huggingface.co/spaces/eduardoceballos/SIRAP)
+- [Repositorio SIRAP_2](https://github.com/eduardoceballos666/SIRAP_2) · [API](https://eduardoceballos-sirap.hf.space/docs)
+- La interfaz de la aplicación está disponible en español e inglés. Los videos de presentación se enlazan en el [README](../README.md).
