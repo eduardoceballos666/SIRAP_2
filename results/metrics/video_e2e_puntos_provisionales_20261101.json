@@ -8,11 +8,18 @@
   "lecturas_con_referencia": 18,
   "emr_por_lectura": 0.611111,
   "recall_placas": 0.5625,
-  "falsos_autorizados": 7,
-  "tasa_falsos_autorizados": 0.134615,
+  "falsos_autorizados": null,
+  "tasa_falsos_autorizados": null,
   "lecturas_sin_placa_real": 34,
   "placas_en_referencia": 16,
   "placas_fuera_del_tramo": 0,
   "cuadros_procesados": 18115,
-  "estado": "provisional; evaluación integral y revisión humana independiente pendientes"
+  "estado": "provisional; evaluación integral y revisión humana independiente pendientes",
+  "estado_falsas_autorizaciones": "NO_ESTIMABLE; resultado previo retirado por error de cálculo",
+  "resultado_previo_retirado": {
+    "falsos_autorizados_reportados": 7,
+    "tasa_reportada": 0.134615,
+    "estado": "INVALIDO",
+    "motivo": "El cálculo comparó las 52 lecturas con el ground truth aunque 34 no tenían referencia."
+  }
 }
