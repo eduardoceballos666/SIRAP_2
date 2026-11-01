@@ -33,12 +33,12 @@ si no se define, el código usa ese repositorio por defecto. En el despliegue ac
 valida el token y configura ambos valores como secretos del Space. Esta es la integración que mantiene los datos
 principales después de reiniciar el contenedor.
 
-La ficha de la aplicación consulta el servicio público del SRI para completar marca, modelo y año. La API también
-consulta EcuadorLegalOnline con la placa; puede recibir el nombre visible asociado públicamente, aunque el panel actual
-no lo muestra. Las respuestas complementan los datos locales y no intervienen en la decisión de acceso. Se mantienen
-temporalmente en memoria durante la consulta. La exportación enriquecida independiente puede guardar resultados en
-`data/detecciones.csv` solo si se configura con sus variables propias. No se consultan cédula, domicilio ni teléfono;
-si una fuente no responde o requiere CAPTCHA, no se eluden sus controles.
+La ficha de la aplicación consulta el servicio público del SRI para completar marca, modelo y año. EcuadorLegalOnline
+ofrece información de propietario de pago; por esa razón, SIRAP no consulta ese servicio ni muestra información
+obtenida de él. El propietario que puede aparecer procede del registro local de la aplicación. La consulta al SRI se
+mantiene temporalmente en memoria durante la solicitud y no interviene en la decisión de acceso. La exportación
+enriquecida independiente puede guardar los datos vehiculares del SRI en `data/detecciones.csv` si se configura.
+No se consultan cédula, domicilio ni teléfono; no se eluden CAPTCHA ni controles de acceso.
 
 ### B. Exportación enriquecida de detecciones
 
