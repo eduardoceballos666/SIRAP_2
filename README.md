@@ -56,6 +56,8 @@ La aplicación ofrece Español e English desde el selector de idioma de la panta
 
 Capturas: [Reconocimiento](docs/img/vue_reconocimiento.png), [Dashboard](docs/img/vue_dashboard.png), [Verificación](docs/img/vue_verificacion.png) y [vista móvil](docs/img/vue_movil.png).
 
+La interfaz es adaptable a celular y ofrece tema claro y oscuro. Valida el tipo, el tamaño y la resolución de las imágenes, muestra estados de carga y mensajes de error comprensibles, y permite comparar las lecturas obtenidas durante la sesión.
+
 ### Roles
 
 - **Operador:** reconoce placas, verifica o corrige lecturas y registra operaciones. Los perfiles autenticados pueden proponer el registro de una placa nueva; autorizarla requiere una confirmación explícita.
@@ -63,6 +65,26 @@ Capturas: [Reconocimiento](docs/img/vue_reconocimiento.png), [Dashboard](docs/im
 - **Administrador:** gestiona los registros y la configuración desde Administración.
 
 Los cambios a registros existentes y la administración de listas están restringidos al Administrador. El acceso de lectura a algunas tablas de administración también está expuesto mediante la API a usuarios autenticados; la pantalla de Administración de la interfaz se limita a Supervisor y Administrador.
+
+### API REST
+
+La API publica documentación interactiva en [Swagger](https://eduardoceballos-sirap.hf.space/docs). Los principales endpoints son:
+
+| Endpoint | Acceso | Función |
+|---|---|---|
+| POST /api/auth/login · GET /api/auth/me | Público / autenticado | Inicio de sesión JWT y consulta de identidad |
+| POST /api/recognize | Todos los perfiles autenticados | Analizar imagen y devolver placa, confianza, recorte y decisión sin registrar |
+| POST /api/plates/verify | Todos los perfiles autenticados | Verificar una placa escrita o corregida |
+| POST /api/plates/register | Todos los perfiles autenticados | Proponer el registro de un vehículo nuevo; autorización explícita |
+| POST /api/operations | Todos los perfiles autenticados | Revalidar la decisión, registrar la solicitud y el estado de barrera |
+| GET /api/operations · /api/operations/export.csv | Historial / Supervisor y Administrador | Consultar y exportar operaciones |
+| GET /api/dashboard | Todos los perfiles autenticados | Indicadores y datos de los gráficos |
+| GET /api/admin/{table} | Usuarios autenticados | Consultar tablas administrativas |
+| POST/PUT/DELETE /api/admin/... | Administrador | Crear y modificar registros administrativos |
+| GET /api/system · /api/model/info · /api/samples | Usuarios autenticados | Estado, información del modelo y ejemplos |
+
+La solicitud de apertura se guarda primero como pendiente; después se registra si fue confirmada, falló o quedó indeterminada. Si falla el guardado inicial, la API no envía la orden. Una falla al guardar el estado final requiere conciliación manual y no debe provocar un reintento automático. La barrera desplegada es simulada.
+
 
 ## Arquitectura y tecnología
 
@@ -112,6 +134,14 @@ El detector se entrenó con YOLO11-s durante 40 épocas y se exportó para la ap
 Los archivos agregados y las figuras pequeñas están en [métricas](results/metrics/) y [figuras](results/figures/). El resumen detallado de la [evaluación por imágenes de garita](results/metrics/garita_imagenes_e2e_20261101.md) y el informe de la [evaluación puntual de video](results/metrics/video_e2e_puntos_provisionales_20261101.md) describen las muestras y sus límites.
 
 <img src="results/figures/resumen_yolo11_completo.png" alt="Resumen de resultados del detector YOLO11-s" width="900">
+
+### Validaciones complementarias
+
+- Se compararon el modelo base y una configuración seleccionada por Optuna en el conjunto de prueba reservado: mAP@0.5:0.95 pasó de 0,693 a 0,704 y mAP@0.5 de 0,97223 a 0,97284 en esa comparación de una semilla. El modelo entregado se mantiene.
+- El estudio multisemilla del detector comparó tres pares de corridas. La mejora media descriptiva de mAP@0.5:0.95 fue de 0,3743 puntos porcentuales, con desviación estándar muestral de 0,3153 puntos; no es una prueba de significación estadística.
+- El afinamiento OCR con placas ecuatorianas no mejoró la exactitud en el conjunto de prueba separado por placa: EMR de 94,2 % antes y después (86 placas; McNemar p = 1,0), por lo que se conserva el OCR original.
+- En una muestra distinta de cinco clips de prueba, tres placas coincidieron exactamente y dos lecturas incorrectas fueron aceptadas. Es una muestra pequeña y no sustituye la evaluación integral del video operativo.
+- En la validación offline SAVH al umbral 0,94 se aceptaron 363 de 399 lecturas; 349/363 fueron exactas. La muestra incluye 69 referencias sugeridas sin confirmar y no es una evaluación ciega independiente.
 
 ### Límites de evaluación
 
