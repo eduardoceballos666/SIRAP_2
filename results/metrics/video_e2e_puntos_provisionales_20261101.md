@@ -12,8 +12,8 @@ Se volvió a ejecutar 7.2 con la referencia de 18 cuadros puntuales. Las etiquet
 | Lecturas comparadas en los cuadros anotados | 18 |
 | Coincidencia exacta (EMR por lectura) | 11/18 (61,1 %) |
 | Recall de placas únicas en los puntos | 9/16 (56,25 %) |
-| Falsos autorizados | 7 |
-| Tasa de falsos autorizados sobre las lecturas | 7/52 (13,46 %) |
+| Casos señalados como posibles falsas autorizaciones | 7 |
+| Proporción descriptiva de casos señalados entre las lecturas | 7/52 (13,46 %); provisional, no es una tasa integral confirmada |
 | Lecturas fuera de los cuadros de referencia | 34 |
 | Cuadros procesados | 18.115 |
 
