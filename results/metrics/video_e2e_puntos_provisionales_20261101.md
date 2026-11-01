@@ -1,10 +1,8 @@
-# Resultado provisional de puntos de referencia del video
+# Resultado histórico de la evaluación puntual del video
 
-Fecha de la corrida: 2026-11-01. Notebook fuente: [`notebooks/SIRAP_backend.ipynb`](../../notebooks/SIRAP_backend.ipynb), sección 7.2.
+Esta corrida de la sección 7.2 usó una versión anterior de la referencia, con 18 cuadros puntuales. Después de una revisión visual posterior se corrigieron cuatro etiquetas, se retiró el punto 7842 por falta de sustento visual y se excluyeron dos puntos PZF que siguen sin resolverse. La referencia pública actual contiene 15 puntos exactos provisionales.
 
-Se volvió a ejecutar 7.2 con la referencia de 18 cuadros puntuales. Las etiquetas corregidas fueron verificadas visualmente en el video original de Drive: cuadro 208 `LBA-7763` y cuadro 660 `GBR-5172`. La referencia con los 18 puntos se conserva en [`blind_eval/video_ground_truth_points_provisional.csv`](../../blind_eval/video_ground_truth_points_provisional.csv), claramente identificada como provisional.
-
-| Métrica | Resultado |
+| Métrica histórica (18 puntos, antes del cotejo) | Resultado |
 |---|---:|
 | Cuadros de referencia | 18 |
 | Placas distintas en la referencia | 16 |
@@ -12,15 +10,16 @@ Se volvió a ejecutar 7.2 con la referencia de 18 cuadros puntuales. Las etiquet
 | Lecturas comparadas en los cuadros anotados | 18 |
 | Coincidencia exacta (EMR por lectura) | 11/18 (61,1 %) |
 | Recall de placas únicas en los puntos | 9/16 (56,25 %) |
-| Falsas autorizaciones válidas | No estimables con el registro publicado |
+| Falsas autorizaciones | No estimables |
 | Cálculo anterior retirado | 7/52; inválido porque incluyó lecturas sin referencia |
 | Lecturas fuera de los cuadros de referencia | 34 |
 | Cuadros procesados | 18.115 |
 
+**Estos valores son históricos y no describen la referencia corregida de 15 puntos.** El repositorio no conserva el registro por lectura de esa corrida; por eso no se pueden recalcular a partir de este resumen agregado. Para obtener métricas actuales, corre 6.9 y luego 7.2 en Colab con la referencia corregida y la lista autorizada que se quiera evaluar.
+
 ## Alcance y límites
 
-- Las 18 referencias son puntos (`frame_start == frame_end`), no intervalos completos ni un censo de pasadas. Estos valores no son una evaluación integral del video ni recall de todos los vehículos.
-- Las 34 lecturas restantes no coinciden con una fila de referencia y no se pueden clasificar. El cálculo anterior de 7 falsas autorizaciones se retiró porque la función de 7.2 comparaba también esas filas sin etiqueta contra ground truth; no se conserva el registro por lectura para recalcular el numerador. La métrica queda no estimable hasta regenerar el registro con la lógica corregida y la misma lista autorizada.
-- Los resultados son métricas condicionadas a los puntos revisados. La revisión humana independiente y la anotación completa por pasada siguen pendientes.
-- El archivo CSV publicado contiene las etiquetas de esos 18 puntos y puede consultarse para reproducir la evaluación puntual. No debe tratarse como respuesta final para futuras pruebas ciegas.
-- Para completar la evaluación, hay que anotar intervalos inclusivos para cada pasada, incluir vehículos omitidos por el detector, validar independientemente las placas/límites y volver a ejecutar la sección 7.2 con el mismo video.
+- La referencia actual sigue compuesta por cuadros puntuales; no cubre intervalos completos ni todas las pasadas del video. Los valores históricos no son una evaluación integral ni recall de todos los vehículos.
+- Las lecturas sin una etiqueta asociada no se clasifican como aciertos o errores.
+- El cotejo manual posterior conocía las lecturas anteriores, así que no constituye una segunda revisión ciega ni independiente.
+- La evaluación integral requiere intervalos inclusivos por pasada, los vehículos omitidos por el detector, validación independiente de las placas y límites y una nueva corrida con el mismo video.
