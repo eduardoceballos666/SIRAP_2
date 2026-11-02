@@ -44,6 +44,6 @@ plate_gt,frame_start,frame_end
 
 ## Estado de la referencia publicada
 
-El archivo [`video_ground_truth.csv`](video_ground_truth.csv) contiene 20 pasadas legibles con intervalos inclusivos en el video completo (cuadros 0 a 18.114). Para consultar su procedencia, las decisiones de cotejo, el alcance y las limitaciones, revisa [`video_ground_truth_review.md`](video_ground_truth_review.md).
+El archivo [`video_ground_truth.csv`](video_ground_truth.csv) contiene 20 pasadas legibles con intervalos inclusivos en el video completo (cuadros 0 a 18.114). La referencia fue cotejada y las discrepancias se adjudicaron; consulta [`video_ground_truth_review.md`](video_ground_truth_review.md) para ver el proceso, su procedencia, el alcance y las limitaciones.
 
 Los archivos `video_ground_truth_points_provisional.csv` (18 cuadros puntuales) y `video_ground_truth_intervals_provisional.csv` (borrador de intervalos) son históricos y no deben usarse en 7.2.
