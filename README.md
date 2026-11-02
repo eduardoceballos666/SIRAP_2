@@ -155,7 +155,7 @@ La aplicación consulta servicios públicos para obtener datos complementarios d
 | Lista de placas para el notebook | data/authorized_plates.csv está versionada en este repositorio y se usa como dato de demostración/evaluación; no contiene credenciales |
 | Datos operativos de la aplicación | Vehículos, autorizaciones, operaciones, usuarios, garitas, hashes de credenciales y detecciones enriquecidas se almacenan en el repositorio privado |
 
-La lista de placas de demostración/evaluación [`data/authorized_plates.csv`](data/authorized_plates.csv) y la referencia puntual de video [`blind_eval/video_ground_truth_points_provisional.csv`](blind_eval/video_ground_truth_points_provisional.csv) están publicadas intencionalmente como artefactos del proyecto. La referencia cubre 18 cuadros y es provisional: no representa intervalos completos ni todos los vehículos. No se deben añadir credenciales, datos operativos privados ni nuevas predicciones identificables sin revisión. Los secretos de despliegue se configuran como variables de entorno o secretos del proveedor.
+La lista de placas de demostración/evaluación [`data/authorized_plates.csv`](data/authorized_plates.csv) y la **referencia final del video** [`blind_eval/video_ground_truth.csv`](blind_eval/video_ground_truth.csv) están publicadas intencionalmente como artefactos del proyecto. La referencia final tiene las columnas `plate_gt,frame_start,frame_end` y 20 pasadas con intervalos inclusivos sobre el video completo; es el archivo que usa la sección 7.2. Su procedencia y sus límites están en [la revisión de la referencia](blind_eval/video_ground_truth_review.md). Los CSV provisionales de `blind_eval/` son históricos. No se deben añadir credenciales, datos operativos privados ni nuevas predicciones identificables sin revisión. Los secretos de despliegue se configuran como variables de entorno o secretos del proveedor.
 
 Más detalles: [análisis de datos](docs/analisis_datos.md), [descripción de los datos](data/README.md) y [consideraciones éticas](docs/consideraciones_eticas.md).
 
@@ -182,9 +182,9 @@ El CSV permite comparar por época las pérdidas de entrenamiento y validación,
 | Velocidad del detector | Promedio **23,3 ms** por imagen (aprox. 43 FPS) | GPU NVIDIA L4, lote 1, FP16; no es una medición del hosting de producción |
 | OCR en SAVH | EMR **93,7 %**, CER **0,010** | Resultado offline en 399 recortes legibles; 69 referencias se marcaron como sugerencias sin confirmar |
 | Garita, evaluación por imagen 7.3 | Detección **19/21**; EMR **8/21**; formato válido **16/21**; latencia media **37,69 ms** | Muestra de 21 imágenes, no evalúa seguimiento en video |
-| Video de garita, evaluación 7.2 | **18 puntos corregidos**; métricas de esta referencia: pendientes de recalcular | Las cifras anteriores (11/18 exactas y 9/16 placas recuperadas) corresponden a una versión previa de la referencia y son históricas. Los 18 puntos actuales siguen siendo provisionales; no representan intervalos completos ni todos los vehículos. La cifra 7/52 de falsas autorizaciones está retirada por error de cálculo |
+| Video de garita, evaluación 7.2 | Referencia final publicada: **20 pasadas** en [`blind_eval/video_ground_truth.csv`](blind_eval/video_ground_truth.csv); métricas pendientes de ejecutar 6.9 y 7.2 con ese archivo | Dos anotaciones ciegas del video completo hechas con Claude (IA), cotejadas y adjudicadas en el video; sin revisión humana. Se excluyeron 2 placas dudosas. Las cifras anteriores (11/18 exactas y 9/16 placas recuperadas) se calcularon con una referencia puntual previa y son históricas. La cifra 7/52 de falsas autorizaciones está retirada por error de cálculo |
 
-Los archivos agregados y las figuras pequeñas están en [métricas](results/metrics/) y [figuras](results/figures/). El resumen detallado de la [evaluación por imágenes de garita](results/metrics/garita_imagenes_e2e_20261101.md) y el informe de la [evaluación puntual de video](results/metrics/video_e2e_puntos_provisionales_20261101.md) describen las muestras y sus límites.
+Los archivos agregados y las figuras pequeñas están en [métricas](results/metrics/) y [figuras](results/figures/). El resumen detallado de la [evaluación por imágenes de garita](results/metrics/garita_imagenes_e2e_20261101.md) y el informe histórico de la [evaluación puntual de video](results/metrics/video_e2e_puntos_provisionales_20261101.md) describen las muestras y sus límites. La referencia final del video y su cotejo se documentan en [`blind_eval/video_ground_truth_review.md`](blind_eval/video_ground_truth_review.md).
 
 <img src="results/figures/resumen_yolo11_completo.png" alt="Resumen de resultados del detector YOLO11-s" width="900">
 
@@ -278,7 +278,7 @@ SIRAP_2/
 ├── .github/workflows/       # Automatización y despliegue
 ├── api/                     # API FastAPI
 ├── app/ y frontend/         # Interfaz web
-├── blind_eval/              # Referencias y revisión de evaluación de video
+├── blind_eval/              # Referencia final del video (video_ground_truth.csv) y su revisión
 ├── config/                  # Configuración sin secretos
 ├── data/                    # Ejemplos, listas y documentación de datos
 ├── docs/                    # Manual, arquitectura, análisis y capturas

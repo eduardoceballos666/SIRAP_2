@@ -40,7 +40,7 @@ La sección 7.3 procesa 21 imágenes y usa `garita/ground_truth.csv`. En el resu
 
 ### Video de garita — sección 7.2
 
-La referencia publicada contiene **18 cuadros puntuales**, no intervalos completos ni un censo de todos los vehículos. En esa muestra, la coincidencia exacta fue 11/18 (61,1 %) y el recall por placas únicas en los puntos fue 9/16 (56,25 %). Son métricas provisionales condicionadas a esos cuadros; no representan evaluación integral del video ni recall de todas las pasadas. Revisa el [informe de la referencia](../blind_eval/video_ground_truth_review.md), el [CSV provisional](../blind_eval/video_ground_truth_points_provisional.csv) y el [reporte de la corrida](../results/metrics/video_e2e_puntos_provisionales_20261101.md).
+La sección 7.2 usa la **referencia final** [`blind_eval/video_ground_truth.csv`](../blind_eval/video_ground_truth.csv): 20 pasadas con columnas `plate_gt,frame_start,frame_end` e intervalos inclusivos sobre el video completo. La sección 0 la copia a `/content/SIRAP_workspace`. Se armó con dos anotaciones ciegas hechas con Claude (IA), cotejadas y adjudicadas en el video, sin revisión humana; su procedencia y sus límites están en el [informe de la referencia](../blind_eval/video_ground_truth_review.md). Las métricas con esta referencia están pendientes de ejecutar 6.9 y 7.2. Las cifras 11/18 (61,1 %) y 9/16 (56,25 %) son históricas: se calcularon con una referencia puntual anterior ([reporte](../results/metrics/video_e2e_puntos_provisionales_20261101.md)).
 
 Los gráficos pequeños y las métricas agregadas están en [figuras](../results/figures/) y [métricas](../results/metrics/). El video de origen se descarga desde el Release; las nuevas salidas permanecen en el espacio temporal de Colab hasta que se descarguen.
 

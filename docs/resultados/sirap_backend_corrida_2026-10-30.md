@@ -12,7 +12,7 @@ Este informe organiza por tema las métricas de la corrida guardada y las evalua
 | Placas pequeñas | mAP@0.5:0.95: 0,481 | Es el tamaño más difícil en la evaluación del detector |
 | OCR SAVH, corrida guardada | EMR: 93,7 %; CER: 0,010 | 399 referencias; 69 eran sugerencias sin confirmar |
 | OCR SAVH, recálculo posterior | EMR: 388/398 (97,49 %); CER: 0,003649 | Offline, condicionado a respuestas no ciegas; no equivale a validación independiente |
-| Video, puntos de referencia | Métricas históricas: EMR 11/18 (61,1 %); recall 9/16 (56,25 %), pendientes de recalcular con la referencia actual | Valores de una versión anterior de la muestra puntual; no cobertura completa de pasadas |
+| Video, evaluación 7.2 | Métricas históricas: EMR 11/18 (61,1 %); recall 9/16 (56,25 %). Pendiente: recalcular con la referencia final de 20 pasadas | Las cifras históricas usan una referencia puntual anterior. La referencia final es [`blind_eval/video_ground_truth.csv`](../../blind_eval/video_ground_truth.csv) |
 | Imágenes completas de garita | EMR: 8/21 (38,1 %) | Sección 7.3 ejecutada en una evaluación posterior; por debajo de la meta de 80 % |
 | Entrenamiento de la corrida guardada | 40 épocas; 0,70 h; GPU NVIDIA L4 | Duración y equipo de esa corrida |
 | Video, rendimiento | 65,7 FPS reportados por el notebook | Medición de la corrida guardada; no mezclar con tiempos de otras ejecuciones |
@@ -41,7 +41,7 @@ Con umbral offline de 0,94, se aceptaron 362 resultados: 359 exactos y 3 erróne
 
 Fuente agregada: [ocr_savh_aprobaciones_398.json](../../results/metrics/ocr_savh_aprobaciones_398.json). Las matrículas, imágenes y filas individuales no se incluyen en este informe.
 
-## 3. Video operativo y referencia puntual
+## 3. Video operativo y referencia del video
 
 ### Métricas de procesamiento
 
@@ -55,9 +55,13 @@ La corrida resumida en este informe usó una versión anterior de la referencia 
 
 La corrida anterior reportó cero falsas autorizaciones con otra corrida y referencia; tampoco es una estimación integral. El repositorio no conserva el registro por lectura necesario para recalcular el resultado. La métrica queda **no estimable** hasta volver a ejecutar 6.9 y 7.2 con la lógica corregida, la misma lista de autorizaciones y referencias correspondientes. Para una tasa integral hace falta además anotar todas las pasadas.
 
-Los 18 puntos corregidos no representan intervalos completos ni un censo de vehículos. No permiten afirmar la exactitud integral del video, medir el recall de todas las pasadas ni clasificar todas las lecturas fuera de referencia. La anotación completa por pasada y una segunda revisión humana independiente siguen pendientes.
+### Referencia final del video
 
-Fuentes: [reporte de puntos provisionales](../../results/metrics/video_e2e_puntos_provisionales_20261101.md) y [revisión de la referencia](../../blind_eval/video_ground_truth_review.md).
+La referencia final es [`blind_eval/video_ground_truth.csv`](../../blind_eval/video_ground_truth.csv) y es el archivo que usa la sección 7.2. Tiene las columnas `plate_gt,frame_start,frame_end` y 20 pasadas con intervalos inclusivos sobre los 18.115 cuadros del video. Reemplaza los 18 puntos provisionales y el borrador de intervalos, que quedan como históricos.
+
+Se armó con dos anotaciones ciegas del video completo, hechas con Claude (IA) en sesiones separadas. Después se cotejaron y las discrepancias se adjudicaron en el video original. Se excluyeron dos placas que siguieron dudosas y un fragmento sin placa visible. No hubo revisión humana independiente, así que al informar las métricas hay que indicar esa procedencia. Las métricas de esta referencia están pendientes de ejecutar 6.9 y 7.2.
+
+Fuentes: [reporte histórico de puntos provisionales](../../results/metrics/video_e2e_puntos_provisionales_20261101.md) y [revisión de la referencia final](../../blind_eval/video_ground_truth_review.md).
 
 ## 4. Evaluación punta a punta con imágenes completas de garita
 

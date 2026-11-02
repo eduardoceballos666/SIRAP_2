@@ -19,5 +19,5 @@ Limitaciones: la referencia fila por fila y el registro con predicciones permane
 
 El resultado queda por debajo de la meta del proyecto de EMR ≥ 80%. Debe analizarse como desempeño de esta muestra de 21 imágenes; no se deben inferir métricas de intervalos, pasadas o vehículos omitidos en el video.
 
-La evaluación completa de video (EMR/recall por pasada sobre intervalos exhaustivos) sigue pendiente de completar la referencia de todas las pasadas, incluir vehículos omitidos y obtener segunda revisión humana independiente. Ver también blind_eval/video_ground_truth_review.md.
+La evaluación completa de video (EMR y recall por pasada) usa la referencia final `blind_eval/video_ground_truth.csv`, con 20 pasadas e intervalos inclusivos, y está pendiente de ejecutar 6.9 y 7.2. Su procedencia y sus límites están en blind_eval/video_ground_truth_review.md.
 

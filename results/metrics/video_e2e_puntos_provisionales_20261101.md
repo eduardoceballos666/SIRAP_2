@@ -1,6 +1,6 @@
 # Resultado histórico de la evaluación puntual del video
 
-Esta corrida de la sección 7.2 usó una versión anterior de la referencia, con 18 cuadros puntuales antes del cotejo visual posterior. La referencia pública actual contiene 18 puntos exactos corregidos: incluye P003 (`POD-0350`) en el cuadro 1312 y PZF-0329 en los cuadros 4817 y 16506, y excluye el punto 7842, que no tiene un vehículo visible. También incorpora las correcciones de lectura descritas en [la revisión visual](../../blind_eval/video_ground_truth_review.md).
+Esta corrida de la sección 7.2 usó una versión anterior de la referencia, con 18 cuadros puntuales. **Esa referencia ya no está vigente.** La referencia final es [`blind_eval/video_ground_truth.csv`](../../blind_eval/video_ground_truth.csv): 20 pasadas con intervalos inclusivos y columnas `plate_gt,frame_start,frame_end`, armada con dos anotaciones ciegas del video completo y adjudicada en el video. Los archivos de 18 puntos y el borrador de intervalos se conservan solo como históricos; ver [la revisión de la referencia final](../../blind_eval/video_ground_truth_review.md).
 
 | Métrica histórica (18 puntos, antes del cotejo) | Resultado |
 |---|---:|
@@ -15,11 +15,11 @@ Esta corrida de la sección 7.2 usó una versión anterior de la referencia, con
 | Lecturas fuera de los cuadros de referencia | 34 |
 | Cuadros procesados | 18.115 |
 
-**Estos valores son históricos y no describen la referencia corregida actual.** El repositorio no conserva el registro por lectura de esa corrida; por eso no se pueden recalcular a partir de este resumen agregado. Para obtener métricas actuales, ejecuta 6.9 y luego 7.2 en Colab con la referencia corregida y la lista autorizada que se quiera evaluar.
+**Estos valores son históricos y no describen la referencia final.** El repositorio no conserva el registro por lectura de esa corrida; por eso no se pueden recalcular a partir de este resumen agregado. Para obtener métricas actuales, ejecuta 6.9 y luego 7.2 en Colab: la sección 0 carga la referencia final `blind_eval/video_ground_truth.csv`. Usa la lista autorizada que se quiera evaluar.
 
 ## Alcance y límites
 
-- La referencia actual sigue compuesta por cuadros puntuales; no cubre intervalos completos ni todas las pasadas del video. Los valores históricos no son una evaluación integral ni recall de todos los vehículos.
+- La referencia de esta corrida estaba compuesta por cuadros puntuales; no cubría intervalos completos ni todas las pasadas del video. Los valores históricos no son una evaluación integral ni recall de todos los vehículos.
 - Las lecturas sin una etiqueta asociada no se clasifican como aciertos o errores.
 - El cotejo visual posterior conocía lecturas anteriores, así que no constituye una segunda revisión ciega ni independiente.
-- La evaluación integral requiere intervalos inclusivos por pasada, vehículos omitidos por el detector, validación independiente de placas y límites y una nueva corrida con el mismo video.
+- La referencia final ya tiene intervalos inclusivos por pasada sobre el video completo. Falta la nueva corrida de 6.9 y 7.2 con el mismo video. Esa referencia proviene de dos anotaciones hechas con Claude (IA), sin revisión humana.

@@ -65,4 +65,8 @@ La sección 7.3 de Colab se ejecutó con las 21 imágenes actuales de garita y s
 
 El video adjunto tiene 1280×720, 30 fps y 18,115 cuadros (603.83 s), coherentes con las dimensiones y el conteo de cuadros de la corrida de video documentada. Esto confirma compatibilidad de metadatos; no sustituye una comparación de hash del archivo con la fuente exacta usada en esa corrida.
 
-La evaluación del video completo continúa pendiente: las 18 referencias puntuales no forman intervalos exhaustivos; faltan pasadas/vehículos omitidos y la revisión humana independiente.
+## Actualización: referencia final del video (2026-11-02)
+
+Este informe describe el estado al 30 de octubre y el 1 de noviembre. Desde el 2 de noviembre, la referencia final del video es `blind_eval/video_ground_truth.csv`: 20 pasadas con columnas `plate_gt,frame_start,frame_end` e intervalos inclusivos sobre los 18.115 cuadros. Se publica intencionalmente con placas reales, como artefacto del proyecto.
+
+La referencia se obtuvo con dos anotaciones ciegas del video completo, hechas con Claude (IA) en sesiones separadas. Después se cotejaron y se adjudicaron en el video original, sin revisión humana. La copia del video se verificó con SHA-256. Los 18 puntos y el borrador de intervalos son históricos. Las métricas con la referencia final están pendientes de ejecutar 6.9 y 7.2. Detalle en `blind_eval/video_ground_truth_review.md`.

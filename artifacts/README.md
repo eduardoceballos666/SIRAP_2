@@ -11,7 +11,7 @@ El notebook no incrusta videos ni archivos grandes. El repositorio conserva el c
 | Imágenes y referencia de garita | Las 21 imágenes y `garita/ground_truth.csv` están versionadas en `garita/`. | Entradas de la evaluación por imagen 7.3; describen esta muestra, no la evaluación completa del video. |
 | Dataset SAVH y modelo YOLO11-s | Versionados bajo `evidence/savh/` y `models/`. | Insumos del análisis y del detector. |
 
-La sección 0 clona el repositorio y descarga el video directamente desde el Release público; no monta Google Drive. Para descargar el dataset Roboflow, configura `ROBOFLOW_API_KEY` en Secrets de Colab. Las salidas nuevas permanecen en el espacio temporal de Colab hasta que las descargues. La evaluación 7.2 continúa siendo provisional hasta completar y revisar de forma independiente la referencia de intervalos del video.
+La sección 0 clona el repositorio y descarga el video directamente desde el Release público; no monta Google Drive. Para descargar el dataset Roboflow, configura `ROBOFLOW_API_KEY` en Secrets de Colab. Las salidas nuevas permanecen en el espacio temporal de Colab hasta que las descargues. La sección 0 también copia la referencia final del video, `blind_eval/video_ground_truth.csv`, a la carpeta temporal; la evaluación 7.2 la usa después de ejecutar 6.9.
 
 
 ## Aplicación y repositorio

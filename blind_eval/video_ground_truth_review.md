@@ -1,47 +1,82 @@
-# Revisión y cotejo provisional de `video_camiones.mp4`
+# Referencia final de `video_camiones.mp4`
 
-## Alcance de la referencia puntual
+## Archivo final
 
-La referencia pública contiene 18 cuadros seleccionados, con `frame_start == frame_end`. Sirve para medir lecturas en esos puntos; no describe los intervalos completos de legibilidad ni incluye necesariamente todas las pasadas del video. No debe presentarse como evaluación integral.
+**[`video_ground_truth.csv`](video_ground_truth.csv) es la referencia final del video para la sección 7.2.** Los demás CSV de esta carpeta son plantillas o borradores históricos y no deben usarse para evaluar.
 
-La anotación ciega original se conserva aparte como registro histórico. El cotejo que se documenta abajo se hizo después de conocer lecturas anteriores; por ello no constituye una segunda revisión ciega ni una revisión independiente. La revisión visual de P003 y PZF se hizo directamente en los cuadros del video original: 1312, 4817 y 16506.
+| Aspecto | Valor |
+|---|---|
+| Columnas | `plate_gt,frame_start,frame_end` |
+| Filas | 20 pasadas legibles, una fila por pasada; 17 placas distintas |
+| Placas | Formato del notebook, `XXX-0000`; las placas antiguas de 3 dígitos llevan un 0 inicial (`TAK-131` → `TAK-0131`) |
+| Cuadros | Enteros desde 0, con límites inclusivos: primer y último cuadro en que la placa se transcribe con seguridad |
+| Video | `video_camiones.mp4` del Release `datos-garita-v1`: 1280×720, 30 fps constantes, 18.115 cuadros (0 a 18.114), SHA-256 `87744d76bdccb9c90dbd2d1c2d27f8dc08e34a341b4ca1b1cac2ff6382f478ce` |
 
-## Cotejo visual
+La sección 0 del notebook copia este archivo a `/content/SIRAP_workspace/video_ground_truth.csv`, y la 7.2 lo identifica como «referencia final publicada». El archivo cumple las validaciones de 7.1 y 7.2: placas con formato, cuadros dentro del rango y ningún intervalo solapado.
 
-| Caso | Lectura observada | Disposición para la referencia |
-|---|---|---|
-| P001, cuadro 208 | `LBA-7763`; la forma del dígito favorece 6 frente a 8. Confianza media-alta. | Se conserva `LBA-7763`. |
-| P002, cuadro 660 | `GRW-5172`; el segundo carácter es R y el tercero W. | Corregido de `GBR-5172` a `GRW-5172`. |
-| P003, cuadro 1312 | La placa visible dice `POD-350`: se distinguen las letras POD y no hay cuarto dígito. | Se incorpora como `POD-0350`, aplicando la regla documentada para placas antiguas de tres dígitos. |
-| P011, cuadro 5197 | `ABI-8220`; el tercer carácter no coincide con T. | Corregido de `ABT-8220` a `ABI-8220`. |
-| P012, cuadro 6388 | `GBO-5174` es legible hasta el cuadro 6390 y deja de verse desde 6392. | Hallazgo de intervalo; este cuadro no forma parte de los 18 puntos seleccionados. |
-| Cuadro 7842 | No aparece un vehículo; se ve el resplandor de los neblineros. `GBN-2864` había salido del video en el corte de 7322. | Punto 7842 eliminado por falta de sustento visual. |
-| P014, cuadro 8408 | `GBQ-2106`; el tercer carácter tiene curva y cola, no la forma de D. | Corregido de `GBD-2106` a `GBQ-2106`. |
-| P016 | `GLB-0246`; el tercer carácter tiene dos lóbulos. | Se conserva `GLB-0246`; la referencia anterior con `GLD-0246` queda marcada como errónea. |
-| P017 | `GBQ-6255`; el tercer carácter es cerrado y tiene cola, no es V. | Hallazgo para el cotejo de pasadas; no se añadió un punto sin un índice de cuadro confirmado. |
-| P020, cuadro 14817 | `GPQ-0783`; la Q tiene cola. El primer dígito después del guion es 0. | Corregido de `GPR-0783` a `GPQ-0783`. El 0 sirve como comparación visual para PZF. |
-| P010/P022, cuadros 4817 y 16506 | `PZF-0329`; el primer carácter después del guion es visualmente un 0 y coincide con la forma del 0 de `GPQ-0783`. | Se conservan ambos puntos como `PZF-0329`. |
+## Cómo se obtuvo
 
-En P003, la imagen muestra tres dígitos después del guion. El notebook normaliza una placa antigua de tres dígitos agregando un cero a la izquierda, por lo que el valor de referencia normalizado es `POD-0350`. En PZF, la lectura se basa en los cuadros del video y la comparación con `GPQ-0783`; el formato de placa por sí solo no se usó para escoger el carácter.
+1. **Revisión 1 (R1).** Anotación ciega del video completo, hecha con Claude (asistente de IA de Anthropic). Usó solo el video original, sin predicciones, salidas OCR, etiquetas anteriores ni la hoja de cotejo.
+2. **Revisión 2 (R2).** Segunda anotación ciega del video completo, hecha en otra sesión de Claude. Esa sesión solo recibió el video, verificado por SHA-256, y una plantilla vacía. No vio R1, las lecturas anteriores, el OCR ni las discrepancias.
+3. **Cotejo.** Se emparejaron las pasadas por solapamiento de cuadros y se compararon placas, pasadas y límites.
+4. **Adjudicación en el video original.** Cada discrepancia se volvió a revisar con recortes ampliados, promedios de cuadros con el camión detenido y comparación con los mismos caracteres en otras placas del video. Si un carácter no se pudo resolver, la placa quedó fuera de la referencia; no se completó por intuición ni se tomó del OCR.
+5. **Regla de límites.** Si la diferencia entre R1 y R2 era de umbral (la placa se acerca o se aleja y se vuelve legible de a poco), se usó el tramo en que ambas la consideran segura: el inicio más tardío y el fin más temprano. Si el video mostraba un hecho objetivo, como la placa entrando o saliendo del cuadro, se usó ese cuadro.
 
-La anotadora señaló una inconsistencia propia: no había marcado como dudoso el cuarto carácter de `GPQ-0783), aunque tiene forma similar al de PZF. La comparación visual de ambos cuadros favorece 0 en las dos placas. Esta comprobación no reemplaza la revisión independiente.
+## Resultado del cotejo
 
-## Estado del CSV puntual
+- **Pasadas.** R1 y R2 encontraron las mismas 22 pasadas. R1 registró además un fragmento (cuadros 9296–9304) en el que solo se ve el costado de un vehículo que sale del cuadro; la placa nunca es visible y no entra a la referencia.
+- **Placas.**
+  - 19 de las 22 placas coincidieron entre R1 y R2, incluidas las dos lecturas parciales.
+  - Se resolvieron 3 diferencias:
+    - `PZF-0329`, en las dos pasadas: el carácter es un 0, con la forma de los 0 de otras placas del video.
+    - `ABT-8220`: el carácter es una T. Con el carácter completo y 94 cuadros promediados, su barra superior es mucho más ancha que la base.
+  - Quedaron 2 placas dudosas en ambas revisiones, que se excluyen.
+- **Límites.** Los finales casi coinciden, con 3 cuadros de diferencia como máximo. Los inicios difieren más donde la placa entra pequeña. Las mayores diferencias fueron `GBP-9871` (3741 frente a 3812) y `GBQ-3986` (17004 frente a 16952), y se resolvieron con la regla de límites.
 
-El archivo `video_ground_truth_points_provisional.csv` contiene 18 puntos exactos. Se corrigieron las lecturas 660, 5197, 8408 y 14817; se agregó P003 en el cuadro 1312; se confirmó PZF en 4817 y 16506; y se retiró el punto 7842. Esas 18 etiquetas ya no son las mismas que las usadas para las métricas históricas publicadas, que deben recalcularse.
+| Pasada | Placa en la referencia | Cuadros | Estado |
+|---|---|---|---|
+| P001 | — (lectura parcial `LBA-77?3`) | 0–247 | Excluida: el 3.er dígito puede ser 6 u 8; dudosa en R1 y R2 |
+| P002 | `GRW-5172` | 472–827 | Coincidencia |
+| P003 | — (lectura parcial `PO?-350`) | 1142–1488 | Excluida: el 3.er carácter es probablemente D, pero podría ser U o J; dudosa en R1 y R2 |
+| P004 | `TAK-0131` | 1489–1916 | Coincidencia; placa antigua de 3 dígitos |
+| P005 | `PAA-2178` | 1945–2301 | Coincidencia |
+| P006 | `PAB-6510` | 2380–2771 | Coincidencia |
+| P007 | `PTD-0533` | 3150–3696 | Coincidencia |
+| P008 | `GBP-9871` | 3812–4076 | Coincidencia |
+| P009 | `GTA-6721` | 4426–4774 | Coincidencia; imagen con bruma |
+| P010 | `PZF-0329` | 4775–4899 | Resuelta: 4.º carácter 0 |
+| P011 | `ABT-8220` | 5138–5714 | Resuelta: 3.er carácter T (R1 había leído I) |
+| P012 | `GBO-5174` | 6142–6389 | Coincidencia; la placa sale por la izquierda desde 6390 |
+| P013 | `GBN-2864` | 6593–7287 | Coincidencia; entra completa en 6593 y sale por abajo después de 7287. Humo entre ~6604 y ~6676 |
+| P014 | `GBQ-2106` | 8373–9295 | Coincidencia; antes de 8373, el resplandor de los neblineros tapa la placa |
+| — | — | 9296–9304 | Excluida: costado de un vehículo, sin placa visible (solo R1) |
+| P016 | `GLB-0246` | 9814–10547 | Coincidencia; la lluvia interrumpe la lectura en tramos cortos |
+| P017 | `GBQ-6255` | 11304–12214 | Coincidencia |
+| P018 | `GBQ-2801` | 12784–13430 | Coincidencia; R1 la marcó como parcial por bajo contraste, pero R2 dio la misma cadena |
+| P019 | `PAB-6510` | 13622–14410 | Coincidencia; el mismo vehículo de P006 vuelve a pasar |
+| P020 | `GPQ-0783` | 14800–15338 | Coincidencia |
+| P021 | `GBO-5174` | 15804–16473 | Coincidencia; el mismo vehículo de P012 vuelve a pasar |
+| P022 | `PZF-0329` | 16474–16598 | Resuelta: es el clip de P010 repetido idéntico en el video |
+| P023 | `GBQ-3986` | 17004–18080 | Coincidencia |
 
+Los identificadores son los de R1.
 
-## Borrador de intervalos por pasada
+## Limitaciones
 
-Se publicó `video_ground_truth_intervals_provisional.csv` con 21 pasadas legibles transcritas de la hoja de anotación ciega. Incluye las lecturas visuales ya resueltas de P003 (`POD-0350`) y PZF (`PZF-0329`). Se excluyeron P015, donde no se ve la placa, y P018, cuyos caracteres siguen ambiguos.
+- **No hubo revisión humana.** Las dos anotaciones se hicieron con Claude, y la segunda, aunque ciega, usa el mismo tipo de modelo. Pueden existir errores compartidos, como confundir un carácter de la misma forma en ambas. Al informar métricas de 7.2 hay que indicar esa procedencia; una revisión humana independiente sigue siendo recomendable antes de presentarlas como evaluación integral.
+- **Cobertura.** La referencia cubre 20 de las 22 pasadas con placa. Las lecturas del pipeline en los cuadros 0–247 y 1142–1488 quedan sin referencia y 7.2 no las puntúa.
+- **Clip duplicado.** Las filas `PZF-0329` de 4775–4899 y 16474–16598 corresponden al mismo clip repetido en la edición del video. Se anotan dos veces porque el pipeline lo procesa dos veces.
+- **Límites conservadores.** La regla del tramo común puede acortar algunos intervalos frente al rango en que una de las revisiones ya leía la placa.
+- **Privacidad.** El CSV contiene placas reales. Se publica intencionalmente como artefacto del proyecto, igual que [`data/authorized_plates.csv`](../data/authorized_plates.csv).
 
-Los límites se copiaron de la hoja de anotación. Aunque están expresados en números de cuadro, todavía no se han confirmado cuadro a cuadro. Tampoco se ha demostrado que la lista cubra todos los vehículos omitidos por el detector. Este borrador no sustituye `video_ground_truth.csv` ni permite publicar métricas integrales. Falta verificar límites y cobertura con una revisión humana independiente.
+## Archivos anteriores (históricos)
 
-## Pendiente para evaluar el video completo
+- [`video_ground_truth_points_provisional.csv`](video_ground_truth_points_provisional.csv): 18 cuadros puntuales armados antes de la referencia final. Contiene `ABI-8220`, que es un error (la placa es `ABT-8220`), y `LBA-7763` y `POD-0350`, que quedaron como dudosas en la referencia final. No usar en 7.2.
+- [`video_ground_truth_intervals_provisional.csv`](video_ground_truth_intervals_provisional.csv): borrador de 21 intervalos copiado de R1 antes del cotejo. Lo reemplaza `video_ground_truth.csv`.
+- Un cotejo anterior, no ciego, contra las lecturas previas al cotejo final:
+  - Corrigió `GRW-5172`, `GBQ-2106`, `GLB-0246` y `GPQ-0783`, y retiró el punto 7842, en el que no hay vehículo visible. Esas correcciones se mantienen en la referencia final.
+  - En cambio, sus conclusiones sobre `ABI-8220`, `POD-0350` y `LBA-7763` quedaron sustituidas por la adjudicación descrita arriba.
 
-- Revisar los puntos en que las lecturas anteriores y la anotación coinciden, para detectar errores compartidos.
-- Revisar el video completo, incluir todas las pasadas —también los vehículos omitidos por el detector— y anotar límites inclusivos del primer y último cuadro legible.
-- Confirmar los límites cuadro a cuadro y pedir una revisión independiente de placas y límites sin mostrar predicciones; documentar discrepancias y casos ilegibles.
-- Ejecutar 6.9 y 7.2 con la referencia de intervalos validada.
+## Métricas
 
-Hasta entonces, las métricas de la muestra puntual corregida no son una evaluación integral ni una tasa de error de todo el video. El video tiene 18.115 cuadros a 30 fps según sus metadatos; no se cotejó el hash con una copia externa. Las 21 imágenes de garita y su evaluación por imagen son un conjunto distinto.
+Las cifras publicadas de 7.2 (11/18 lecturas exactas y 9/16 placas recuperadas) se calcularon con una versión anterior de la referencia puntual, así que son históricas. Las métricas con la referencia final están pendientes: hay que ejecutar 6.9 y luego 7.2 en Colab con este archivo.
