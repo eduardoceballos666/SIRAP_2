@@ -17,9 +17,9 @@ La sección 0 del notebook copia este archivo a `/content/SIRAP_workspace/video_
 ## Cómo se obtuvo
 
 1. **Revisión 1 (R1).** Anotación ciega del video completo, hecha con Claude (asistente de IA de Anthropic). Usó solo el video original, sin predicciones, salidas OCR, etiquetas anteriores ni la hoja de cotejo.
-2. **Revisión 2 (R2).** Segunda anotación ciega del video completo, hecha en otra sesión de Claude. Esa sesión solo recibió el video, verificado por SHA-256, y una plantilla vacía. No vio R1, las lecturas anteriores, el OCR ni las discrepancias.
+2. **Revisión 2 (R2).** Segunda anotación ciega del video completo, hecha por el usuario en una revisión separada de R1. El usuario indicó que completó esa hoja sin consultar las lecturas anteriores. No vio R1, las lecturas OCR ni las discrepancias antes de terminar la anotación.
 3. **Cotejo.** Se emparejaron las pasadas por solapamiento de cuadros y se compararon placas, pasadas y límites.
-4. **Adjudicación en el video original.** Cada discrepancia se volvió a revisar con recortes ampliados, promedios de cuadros con el camión detenido y comparación con los mismos caracteres en otras placas del video. Si un carácter no se pudo resolver, la placa quedó fuera de la referencia; no se completó por intuición ni se tomó del OCR.
+4. **Adjudicación en el video original.** Después, el usuario revisó las discrepancias con conocimiento de las lecturas anteriores, usando recortes ampliados, promedios de cuadros con el camión detenido y comparación con los mismos caracteres en otras placas del video. Esta adjudicación posterior no fue ciega. Si un carácter no se pudo resolver, la placa quedó fuera de la referencia; no se completó por intuición ni se tomó del OCR.
 5. **Regla de límites.** Si la diferencia entre R1 y R2 era de umbral (la placa se acerca o se aleja y se vuelve legible de a poco), se usó el tramo en que ambas la consideran segura: el inicio más tardío y el fin más temprano. Si el video mostraba un hecho objetivo, como la placa entrando o saliendo del cuadro, se usó ese cuadro.
 
 ## Resultado del cotejo
@@ -63,7 +63,7 @@ Los identificadores son los de R1.
 
 ## Limitaciones
 
-- **No hubo revisión humana.** Las dos anotaciones se hicieron con Claude, y la segunda, aunque ciega, usa el mismo tipo de modelo. Pueden existir errores compartidos, como confundir un carácter de la misma forma en ambas. Al informar métricas de 7.2 hay que indicar esa procedencia; una revisión humana independiente sigue siendo recomendable antes de presentarlas como evaluación integral.
+- **Procedencia y revisión.** R1 se hizo con Claude (asistente de IA de Anthropic); R2 fue una anotación ciega hecha por el usuario en una revisión separada, según indicó, sin consultar las lecturas anteriores. La adjudicación posterior de discrepancias sí conocía esas lecturas y no fue ciega. No hubo una tercera revisión humana independiente; las métricas de 7.2 deben informar esta procedencia y sus límites.
 - **Cobertura.** La referencia cubre 20 de las 22 pasadas con placa. Las lecturas del pipeline en los cuadros 0–247 y 1142–1488 quedan sin referencia y 7.2 no las puntúa.
 - **Clip duplicado.** Las filas `PZF-0329` de 4775–4899 y 16474–16598 corresponden al mismo clip repetido en la edición del video. Se anotan dos veces porque el pipeline lo procesa dos veces.
 - **Límites conservadores.** La regla del tramo común puede acortar algunos intervalos frente al rango en que una de las revisiones ya leía la placa.
