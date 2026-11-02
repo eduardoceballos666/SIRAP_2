@@ -1,6 +1,6 @@
 # Guía humana de anotación y revisión del video SIRAP
 
-> **Referencia final:** [`video_ground_truth.csv`](video_ground_truth.csv) es el archivo usado por la sección 7.2. Su procedencia y sus límites están descritos en [`video_ground_truth_review.md`](video_ground_truth_review.md). Esta guía está dirigida a una persona que anote o revise el video; no modifica ni oculta cómo se produjo la referencia actualmente publicada.
+> **Referencia final:** [`video_ground_truth.csv`](video_ground_truth.csv) es el archivo usado por la sección 7.2. Consulta [`video_ground_truth_review.md`](video_ground_truth_review.md) para conocer su procedencia, alcance, decisiones de cotejo y limitaciones. Esta guía describe el procedimiento para que una persona anote o revise el video.
 
 ## Propósito
 
@@ -42,8 +42,8 @@ plate_gt,frame_start,frame_end
 2. Conserva la referencia, el registro de decisiones de la sección 6.9, el JSON de métricas y el video anotado como artefactos de una misma corrida.
 3. Reporta por separado EMR por lectura, recall de placas reales, falsos autorizados, latencia y lecturas por placa. Las métricas de clips cortos a 1 fps no sustituyen la evaluación del video completo ni la evaluación del pipeline con OC-SORT.
 
-## Estado y procedencia de la referencia publicada
+## Estado de la referencia publicada
 
-El archivo [`video_ground_truth.csv`](video_ground_truth.csv) contiene 20 pasadas legibles con intervalos inclusivos en el video completo (cuadros 0 a 18.114). Su procedencia, las decisiones de cotejo, las limitaciones y la falta de una revisión humana independiente están documentadas en [`video_ground_truth_review.md`](video_ground_truth_review.md). Esta guía está escrita para orientar anotaciones y revisiones humanas; esa descripción no debe confundirse con la procedencia del archivo publicado.
+El archivo [`video_ground_truth.csv`](video_ground_truth.csv) contiene 20 pasadas legibles con intervalos inclusivos en el video completo (cuadros 0 a 18.114). Para consultar su procedencia, las decisiones de cotejo, el alcance y las limitaciones, revisa [`video_ground_truth_review.md`](video_ground_truth_review.md).
 
 Los archivos `video_ground_truth_points_provisional.csv` (18 cuadros puntuales) y `video_ground_truth_intervals_provisional.csv` (borrador de intervalos) son históricos y no deben usarse en 7.2.
