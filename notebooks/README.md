@@ -36,7 +36,7 @@ Para revisar posible sobreajuste, compara por época las pérdidas de entrenamie
 
 ### Imágenes de la garita — sección 7.3
 
-La sección 7.3 procesa 21 imágenes y usa `garita/ground_truth.csv`. En el resultado publicado, el detector encontró placa en 19/21 imágenes y el EMR fue **8/21 (38,1 %)**, por debajo de la meta de 80 %. La latencia media fue 37,69 ms por imagen. La lista de autorizaciones estaba vacía en esa evaluación, por lo que el resultado de cero falsos autorizados no demuestra cómo funciona la autorización con una lista poblada. Consulta el [informe de evaluación por imágenes](../results/metrics/garita_imagenes_e2e_20261101.md).
+La sección 7.3 procesa 21 imágenes y usa `garita/ground_truth.csv`. El informe publicado registra detección 19/21, EMR **8/21 (38,1 %)** y latencia media de 37,69 ms. La salida guardada del notebook registra otra ejecución con detección 19/21, EMR **9/21 (42,9 %)** y latencia media de 1,400674 s. Como esa salida no tiene fecha ni ID de corrida, se presentan por separado y no se combinan. El informe documenta que la lista de autorizaciones estaba vacía; la salida del notebook no conserva cuál lista cargó. El archivo `data/authorized_plates.csv` está poblado en el repositorio actual, así que el cero del informe no demuestra el comportamiento con la lista publicada actualmente. Consulta el [informe de evaluación por imágenes](../results/metrics/garita_imagenes_e2e_20261101.md).
 
 ### Video de garita — sección 7.2
 
