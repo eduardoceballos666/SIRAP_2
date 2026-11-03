@@ -19,7 +19,7 @@ Esta carpeta reúne métricas agregadas, tablas, gráficos compactos y reportes.
 | [`metrics/detector_test.json`](metrics/detector_test.json) | mAP, precisión, recall y F1 del detector en test; P, recall y F1 usan el umbral de decisión calibrado en validación. |
 | [`metrics/umbrales.json`](metrics/umbrales.json) | Umbral de confianza de detección YOLO11 calibrado con validación. No contiene el umbral OCR. |
 | [`metrics/velocidad.json`](metrics/velocidad.json) | Latencias, FPS, parámetros y GFLOPs medidos para inferencia del detector en GPU. |
-| [`metrics/video_garita.json`](metrics/video_garita.json) | Conteos y rendimiento operativo de la corrida del video completo. No contiene métricas de exactitud: esas se calculan en 7.2 con la referencia final [`blind_eval/video_ground_truth.csv`](../blind_eval/video_ground_truth.csv). |
+| [`metrics/video_garita.json`](metrics/video_garita.json) | Conteos y rendimiento de una corrida operativa anterior del video completo (52 seguimientos/lecturas). | No contiene las métricas de exactitud de la corrida final; consulta `metrics/video_e2e_intervalos_final.md` para 7.2.
 
 ### Umbrales que no deben confundirse
 
