@@ -53,7 +53,7 @@ La mayoría de los reportes agregados no incluye matrículas ni imágenes. Hay d
 | [`metrics/video_e2e_intervalos_final.json`](metrics/video_e2e_intervalos_final.json) y [reporte](metrics/video_e2e_intervalos_final.md) | Corrida final 6.9/7.2: EMR 17/24 (70,83 %), recall de placas únicas 15/17 (88,24 %), 0 falsas autorizaciones entre las 24 lecturas con referencia. | De 34 lecturas, 10 quedaron sin referencia y no se clasifican; la tasa integral de falsas autorizaciones no es estimable. La referencia contiene 20 pasadas y excluye dos dudosas. |
 | [`metrics/garita_imagenes_e2e_20261101.md`](metrics/garita_imagenes_e2e_20261101.md) | Sección 7.3: 21 imágenes, detección 19/21, EMR 8/21 (38,1 %) y latencia media 37,69 ms. | Prueba por imagen; EMR por debajo de la meta del 80 %. La lista autorizada estaba vacía, por lo que cero falsas autorizaciones no demuestra su comportamiento con una lista poblada. |
 
-La referencia final del video es [`blind_eval/video_ground_truth.csv`](../blind_eval/video_ground_truth.csv), con 20 pasadas. R1 se anotó con Claude; R2 fue una anotación ciega humana del usuario, según indicó. La adjudicación posterior conocía las lecturas previas y no fue ciega; no hubo tercera revisión humana independiente. El resultado ya ejecutado de 7.2 se resume en [`metrics/video_e2e_intervalos_final.md`](metrics/video_e2e_intervalos_final.md).
+La referencia final del video es [`blind_eval/video_ground_truth.csv`](../blind_eval/video_ground_truth.csv), con 20 pasadas. El resultado ya ejecutado de 7.2 se resume en [`metrics/video_e2e_intervalos_final.md`](metrics/video_e2e_intervalos_final.md).
 
 ## Optimización y estabilidad multisemilla del detector
 
