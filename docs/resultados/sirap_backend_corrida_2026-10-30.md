@@ -53,7 +53,7 @@ En otro resumen operativo se informa un rendimiento de **61,77 FPS** y un tiempo
 
 La corrida resumida en este informe usó una versión anterior de la referencia de 18 cuadros. Sus resultados fueron 11/18 lecturas exactas (**61,1 %**) y 9/16 placas recuperadas (**56,25 %**). Son cifras históricas: el cotejo visual posterior corrigió etiquetas, agregó P003 y retiró el punto 7842. El CSV de 18 puntos se conserva como histórico; sus resultados no describen la corrida final por intervalos. La cifra de 7/52 falsas autorizaciones está retirada: comparó 52 lecturas aunque 34 no tenían referencia, por lo que no es válida.
 
-La corrida anterior reportó cero falsas autorizaciones con otra corrida y referencia; tampoco es una estimación integral. El repositorio no conserva el registro por lectura necesario para recalcular el resultado. La métrica queda **no estimable** hasta volver a ejecutar 6.9 y 7.2 con la lógica corregida, la misma lista de autorizaciones y referencias correspondientes. Para una tasa integral hace falta además anotar todas las pasadas.
+La corrida anterior reportó cero falsas autorizaciones con otra referencia, por lo que tampoco es una estimación integral. En la corrida final 6.9/7.2, hubo 0 falsas autorizaciones entre 24 lecturas clasificables; 10 de 34 lecturas no tenían referencia y quedaron sin clasificar. Por ello, la tasa de falsas autorizaciones para todo el video sigue sin ser estimable. Ver el [informe final](../../results/metrics/video_e2e_intervalos_final.md).
 
 ### Referencia final del video
 
