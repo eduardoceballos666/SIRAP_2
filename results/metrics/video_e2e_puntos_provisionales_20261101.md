@@ -15,7 +15,7 @@ Esta corrida de la sección 7.2 usó una versión anterior de la referencia, con
 | Lecturas fuera de los cuadros de referencia | 34 |
 | Cuadros procesados | 18.115 |
 
-**Estos valores son históricos y no describen la referencia final.** El repositorio no conserva el registro por lectura de esa corrida; por eso no se pueden recalcular a partir de este resumen agregado. Para obtener métricas actuales, ejecuta 6.9 y luego 7.2 en Colab: la sección 0 carga la referencia final `blind_eval/video_ground_truth.csv`. Usa la lista autorizada que se quiera evaluar.
+**Estos valores son históricos y no describen la referencia final.** El repositorio no conserva el registro por lectura de esa corrida; por eso no se pueden recalcular a partir de este resumen agregado. Las métricas actuales están en el [informe de la corrida final](video_e2e_intervalos_final.md). Para reproducirlas en Colab, ejecuta la sección 0 y las celdas previas requeridas, luego 6.9 y 7.2 con el mismo video, la referencia `blind_eval/video_ground_truth.csv` y la lista autorizada que se desea evaluar.
 
 ## Alcance y límites
 
