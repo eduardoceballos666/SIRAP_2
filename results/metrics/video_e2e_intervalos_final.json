@@ -1,6 +1,9 @@
 {
   "notebook": "notebooks/SIRAP_backend.ipynb",
-  "secciones": ["6.9", "7.2"],
+  "secciones": [
+    "6.9",
+    "7.2"
+  ],
   "referencia": "blind_eval/video_ground_truth.csv",
   "cuadros_procesados": 18115,
   "lecturas_pipeline": 34,
@@ -19,6 +22,5 @@
   "pasadas_placa_identificadas": 22,
   "pasadas_dudosas_excluidas": 2,
   "pasadas_fuera_del_tramo": 0,
-  "procedencia": "R1 anotada con Claude; R2 anotación ciega humana del usuario según indicó; adjudicación posterior no ciega; sin tercera revisión humana independiente",
   "nota": "Las métricas solo describen las lecturas que se pudieron emparejar con la referencia; no se extrapolan a todo el video ni a las pasadas excluidas."
 }
