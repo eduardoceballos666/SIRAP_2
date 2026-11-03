@@ -21,6 +21,7 @@
     "encontrada": 19,
     "no_encontrada": 3
   },
-  "nota": "Sin referencia anotada del video todavía: no hay EMR punta a punta. Las placas leídas no se publican (datos reales).",
-  "fuente": "Notebook SIRAP_backend.ipynb, preset «completo» (Ultralytics 8.4.177, GPU NVIDIA L4)"
+  "nota": "Corrida operativa anterior: estos conteos y tiempos no son los de la corrida final 6.9/7.2. No contiene métricas de exactitud. Para los resultados finales por intervalos, consultar results/metrics/video_e2e_intervalos_final.json.",
+  "fuente": "Notebook SIRAP_backend.ipynb, preset «completo» (Ultralytics 8.4.177, GPU NVIDIA L4)",
+  "estado": "Corrida operativa anterior; sus 52 lecturas no son comparables con las 34 lecturas de la corrida final de evaluación."
 }
