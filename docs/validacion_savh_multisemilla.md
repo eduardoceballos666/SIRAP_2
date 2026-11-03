@@ -10,7 +10,7 @@ Este documento reúne los resultados de validación por tipo de prueba y disting
 | OCR SAVH | 388/398 de coincidencia exacta (97,49 %) | Métrica offline condicionada a respuestas registradas; no es ciega y puede tener sesgo de confirmación |
 | Piloto visual SAVH | 73/84 de coincidencia exacta (86,90 %) | Revisión piloto no independiente; 13 discrepancias pendientes de adjudicación |
 | Video, cinco clips | 3/5 lecturas exactas (60 %) | Muestra de clips; no es evaluación del video operativo completo |
-| Video, observaciones puntuales | 11/18 exactas (61,11 %) | Cifra histórica con una referencia puntual anterior. La referencia final es [`blind_eval/video_ground_truth.csv`](../blind_eval/video_ground_truth.csv); sus métricas están pendientes |
+| Video, evaluación final por intervalos | EMR 17/24 (70,83 %); recall de placas únicas 15/17 (88,24 %) | Corrida 6.9/7.2. Diez lecturas sin referencia no clasificables; tasa integral de falsas autorizaciones no estimable. [Informe](../results/metrics/video_e2e_intervalos_final.md) |
 | Imágenes completas de garita | 8/21 exactas (38,10 %) | Muestra pequeña; por debajo de la meta de EMR del 80 % |
 
 ## 1. Validación multisemilla del detector
@@ -96,7 +96,7 @@ Evidencia: [evaluador reproducible](../scripts/evaluate_video_e2e.py) y [resumen
 
 La referencia puntual disponible contiene 18 observaciones y 16 placas únicas. Se contabilizaron 52 lecturas del pipeline; 11/18 observaciones fueron exactas (61,11 %), y 9/16 placas únicas se recuperaron (56,25 %). La evaluación puntual posterior había reportado 7/52 falsas autorizaciones, pero ese cálculo se retira: la sección 7.2 comparó las 52 lecturas con la referencia aunque 34 no tenían etiqueta, de modo que lecturas sin ground truth pudieron contarse como falsas. La cifra no es una métrica válida. La corrida anterior reportó cero falsas autorizaciones con otra corrida y referencia, por lo que tampoco permite estimar la tasa integral. El resultado queda no estimable hasta regenerar el registro por lectura y recalcular con la lógica corregida y la lista de autorizaciones usada. Para una evaluación integral se requiere una referencia exhaustiva por pasada.
 
-Esa referencia puntual no contenía intervalos completos ni garantizaba incluir todos los vehículos, así que sus métricas son históricas. La **referencia final** del video es [`blind_eval/video_ground_truth.csv`](../blind_eval/video_ground_truth.csv): 20 pasadas con columnas `plate_gt,frame_start,frame_end` e intervalos inclusivos. Se obtuvo con dos anotaciones ciegas hechas con Claude (IA), cotejadas y adjudicadas en el video, sin revisión humana. Las métricas de 7.2 con esa referencia están pendientes de una nueva ejecución de 6.9 y 7.2.
+Esa referencia puntual no contenía intervalos completos ni garantizaba incluir todos los vehículos, así que sus métricas son históricas. La **referencia final** del video es [`blind_eval/video_ground_truth.csv`](../blind_eval/video_ground_truth.csv): 20 pasadas con columnas `plate_gt,frame_start,frame_end` e intervalos inclusivos. R1 se hizo con Claude; R2 fue una anotación ciega humana del usuario, según indicó. La adjudicación posterior conocía las lecturas previas y no fue ciega; no hubo una tercera revisión humana independiente. La corrida final 6.9/7.2 obtuvo EMR 17/24 (70,83 %), recall de placas únicas 15/17 (88,24 %) y 0 falsas autorizaciones entre las 24 lecturas clasificables. Diez lecturas quedaron sin referencia, por lo que la tasa integral no es estimable. Dos pasadas dudosas quedaron excluidas; ver el [informe](../results/metrics/video_e2e_intervalos_final.md) y la [revisión de procedencia](../blind_eval/video_ground_truth_review.md).
 
 Evidencia: [revisión de la referencia final](../blind_eval/video_ground_truth_review.md) y [resumen de la evaluación puntual](../results/metrics/video_e2e_puntos_provisionales_20261101.md).
 
@@ -125,7 +125,7 @@ Los resúmenes públicos enlazados en este documento omiten matrículas e imáge
 - La comparación multisemilla muestra una mejora media pequeña en mAP50:95, con tres semillas; no justifica por sí sola cambiar el modelo publicado.
 - El EMR SAVH de 97,49 % está condicionado a respuestas de revisión no ciega y no debe presentarse como independiente.
 - El piloto visual SAVH necesita adjudicación humana independiente de las 13 discrepancias.
-- Los cinco clips y las 18 observaciones puntuales son muestras; las cifras puntuales son históricas. La referencia final del video (`blind_eval/video_ground_truth.csv`) está publicada y sus métricas siguen pendientes.
+- Los cinco clips son una muestra. Los resultados de 18 observaciones puntuales son históricos; la corrida final de 7.2 está disponible en `results/metrics/video_e2e_intervalos_final.md` y conserva las limitaciones de cobertura descritas allí.
 - La muestra de imágenes completas de garita obtuvo 38,10 % de coincidencia exacta, por debajo de la meta del 80 %.
 - Las cifras del detector, OCR, video y garita deben conservarse separadas y publicarse con su alcance y limitaciones.
 
