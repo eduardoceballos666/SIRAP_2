@@ -55,7 +55,7 @@ Artefactos publicados: este informe y `results/metrics/blind_independent_video_e
 
 ## Evaluación puntual del video
 
-La referencia pública vigente contiene 18 cuadros puntuales corregidos. Los resultados guardados de las corridas previas, incluidos los conteos de lecturas y coincidencias, corresponden a referencias anteriores y no describen la referencia corregida. El repositorio no conserva el registro por lectura necesario para recalcularlos. Las métricas de la referencia actual están pendientes de una nueva ejecución de la sección 7.2.
+En el estado original de este informe, la referencia disponible contenía 18 cuadros puntuales corregidos, y no había un registro por lectura que permitiera recalcular la corrida previa. Esa versión puntual es histórica; la referencia final por intervalos y los resultados actuales de 7.2 se documentan en la actualización siguiente.
 
 El borrador de intervalos publicado aparte se basa en la hoja de anotación ciega, pero sus límites aún no se han validado cuadro a cuadro ni se ha confirmado la cobertura de todas las pasadas. No debe presentarse como evaluación integral.
 
@@ -65,4 +65,8 @@ La sección 7.3 de Colab se ejecutó con las 21 imágenes actuales de garita y s
 
 El video adjunto tiene 1280×720, 30 fps y 18,115 cuadros (603.83 s), coherentes con las dimensiones y el conteo de cuadros de la corrida de video documentada. Esto confirma compatibilidad de metadatos; no sustituye una comparación de hash del archivo con la fuente exacta usada en esa corrida.
 
-La evaluación del video completo continúa pendiente: las 18 referencias puntuales no forman intervalos exhaustivos; faltan pasadas/vehículos omitidos y la revisión humana independiente.
+## Actualización: referencia final y corrida 7.2 (2026-11-03)
+
+Este informe describe el estado al 30 de octubre y el 1 de noviembre. Desde el 2 de noviembre, la referencia final del video es `blind_eval/video_ground_truth.csv`: 20 pasadas con columnas `plate_gt,frame_start,frame_end` e intervalos inclusivos sobre los 18.115 cuadros. Se publica intencionalmente con placas reales, como artefacto del proyecto.
+
+La copia del video se verificó con SHA-256. La corrida final procesó 18.115 cuadros: 7.2 comparó 24 de 34 lecturas y obtuvo EMR 17/24 (70,83 %), recall de placas únicas 15/17 (88,24 %) y 0 falsas autorizaciones entre las lecturas clasificables. Diez lecturas quedaron sin referencia, por lo que la tasa para el video completo no es estimable. Las 20 pasadas de referencia cubren 20 de las 22 identificadas; dos pasadas dudosas se excluyeron. Consulta el [informe de corrida](video_e2e_intervalos_final.md) y el [detalle de la referencia](../../blind_eval/video_ground_truth_review.md).

@@ -19,7 +19,7 @@ Esta carpeta reúne métricas agregadas, tablas, gráficos compactos y reportes.
 | [`metrics/detector_test.json`](metrics/detector_test.json) | mAP, precisión, recall y F1 del detector en test; P, recall y F1 usan el umbral de decisión calibrado en validación. |
 | [`metrics/umbrales.json`](metrics/umbrales.json) | Umbral de confianza de detección YOLO11 calibrado con validación. No contiene el umbral OCR. |
 | [`metrics/velocidad.json`](metrics/velocidad.json) | Latencias, FPS, parámetros y GFLOPs medidos para inferencia del detector en GPU. |
-| [`metrics/video_garita.json`](metrics/video_garita.json) | Conteos y rendimiento operativo de la corrida del video completo. No contiene una métrica de exactitud completa porque la referencia por pasada no es exhaustiva. |
+| [`metrics/video_garita.json`](metrics/video_garita.json) | Conteos y rendimiento de una corrida operativa anterior del video completo (52 seguimientos/lecturas). | No contiene las métricas de exactitud de la corrida final; consulta `metrics/video_e2e_intervalos_final.md` para 7.2.
 
 ### Umbrales que no deben confundirse
 
@@ -41,18 +41,19 @@ Estos archivos usan subconjuntos, referencias y protocolos distintos. Sus porcen
 | [`metrics/blind_independent_video_eval_20261030.json`](metrics/blind_independent_video_eval_20261030.json) y [reporte detallado](metrics/validacion_ciega_video_20261030.md) | Holdout ciego de OCR: 57 imágenes puntuadas; OCR base 42/57 (73,7 %) y afinado 35/57 (61,4 %). | Es una evaluación de imágenes OCR, no de video. Un caso sin referencia aprobada se excluyó; la revisión no tuvo doble adjudicación. |
 | [`metrics/ocr_afinamiento.json`](metrics/ocr_afinamiento.json) | Compara OCR base y afinado en 86 imágenes de test. | El EMR fue 94,2 % para ambos; el archivo indica `adoptar: false`. No presentar el modelo afinado como mejora comprobada. |
 
-La mayoría de los reportes agregados no incluye matrículas ni imágenes. Hay dos excepciones publicadas intencionalmente como materiales del proyecto: la lista de demostración/evaluación [`data/authorized_plates.csv`](../data/authorized_plates.csv) y la referencia provisional de 18 cuadros [`blind_eval/video_ground_truth_points_provisional.csv`](../blind_eval/video_ground_truth_points_provisional.csv). Esta referencia no es exhaustiva ni representa todos los vehículos del video. Los archivos operativos privados y las predicciones adicionales identificables no deben agregarse a los reportes públicos sin revisión.
+La mayoría de los reportes agregados no incluye matrículas ni imágenes. Hay dos excepciones publicadas intencionalmente como materiales del proyecto: la lista de demostración/evaluación [`data/authorized_plates.csv`](../data/authorized_plates.csv) y la **referencia final del video** [`blind_eval/video_ground_truth.csv`](../blind_eval/video_ground_truth.csv) (20 pasadas, columnas `plate_gt,frame_start,frame_end`). Los CSV provisionales de `blind_eval/` (18 puntos y borrador de intervalos) son históricos. Los archivos operativos privados y las predicciones adicionales identificables no deben agregarse a los reportes públicos sin revisión.
 
 ## Evaluaciones de video e imágenes de garita
 
 | Artefacto | Resultado o propósito | Alcance y limitación |
 |---|---|---|
-| [`metrics/e2e.json`](metrics/e2e.json) | Estado resumido de evaluación y latencia promedio (99,21 ms); EMR y CER están en `null`. | No es una evaluación puntual de imagen ni aporta exactitud. Indica que la evaluación integral del video está pendiente. |
+| [`metrics/e2e.json`](metrics/e2e.json) | Resumen general de evaluación y latencia promedio (99,21 ms); EMR y CER están en `null`. | No contiene las métricas de la corrida 7.2 por intervalos; consulta el informe final específico. |
 | [`metrics/video_e2e_muestra.json`](metrics/video_e2e_muestra.json) | Evaluación E2E de cinco clips: 3/5 coincidencias exactas (60 %). | Aplicó la regla de misma placa en dos cuadros aceptados con OCR ≥0,94 dentro de 7,5 s. No hubo comparación de un solo cuadro para medir el efecto aislado; no sustituye la evaluación integral del video operativo. |
-| [`metrics/video_e2e_puntos_provisionales_20261101.json`](metrics/video_e2e_puntos_provisionales_20261101.json) y [reporte](metrics/video_e2e_puntos_provisionales_20261101.md) | Las cifras 11/18 exactas (61,1 %) y 9/16 recuperadas son históricas: se calcularon con la versión anterior de la referencia y no describen los 18 puntos actuales. La referencia puntual corregida está publicada; sus métricas esperan una nueva corrida de 6.9 y 7.2. La cifra 7/52 está retirada por error de cálculo. | Referencia provisional de puntos, no intervalos completos ni censo de todos los vehículos. Las lecturas fuera de referencia no se clasifican automáticamente como falsos positivos. |
+| [`metrics/video_e2e_puntos_provisionales_20261101.json`](metrics/video_e2e_puntos_provisionales_20261101.json) y [reporte](metrics/video_e2e_puntos_provisionales_20261101.md) | Informe histórico de la evaluación puntual: 11/18 exactas (61,1 %) y 9/16 recuperadas. | Usó una referencia puntual anterior; no representa los resultados de la corrida final por intervalos. La cifra 7/52 se retiró por error de cálculo. |
+| [`metrics/video_e2e_intervalos_final.json`](metrics/video_e2e_intervalos_final.json) y [reporte](metrics/video_e2e_intervalos_final.md) | Corrida final 6.9/7.2: EMR 17/24 (70,83 %), recall de placas únicas 15/17 (88,24 %), 0 falsas autorizaciones entre las 24 lecturas con referencia. | De 34 lecturas, 10 quedaron sin referencia y no se clasifican; la tasa integral de falsas autorizaciones no es estimable. La referencia contiene 20 pasadas y excluye dos dudosas. |
 | [`metrics/garita_imagenes_e2e_20261101.md`](metrics/garita_imagenes_e2e_20261101.md) | Sección 7.3: 21 imágenes, detección 19/21, EMR 8/21 (38,1 %) y latencia media 37,69 ms. | Prueba por imagen; EMR por debajo de la meta del 80 %. La lista autorizada estaba vacía, por lo que cero falsas autorizaciones no demuestra su comportamiento con una lista poblada. |
 
-La revisión del ground truth puntual y sus límites está en [`blind_eval/video_ground_truth_review.md`](../blind_eval/video_ground_truth_review.md). La evaluación integral del video sigue pendiente: hace falta anotar cada pasada con intervalos inclusivos, incluir vehículos no detectados y obtener revisión humana independiente.
+La referencia final del video es [`blind_eval/video_ground_truth.csv`](../blind_eval/video_ground_truth.csv), con 20 pasadas. El resultado ya ejecutado de 7.2 se resume en [`metrics/video_e2e_intervalos_final.md`](metrics/video_e2e_intervalos_final.md).
 
 ## Optimización y estabilidad multisemilla del detector
 
@@ -67,7 +68,7 @@ Los pesos de experimentos y optimización no reemplazan automáticamente el mode
 
 ## Ejecución y conservación de resultados
 
-El notebook actualizado lee los insumos versionados desde GitHub y no requiere Google Drive para iniciar. Las salidas nuevas de Colab se guardan en `/content/SIRAP_workspace` y no se publican automáticamente. Conserva en el repositorio métricas agregadas, tablas y gráficos pequeños; distribuye el video fuente como artefacto separado y no lo incrustes en el notebook. El archivo de 18 puntos corregidos permanece como referencia puntual provisional. Antes de publicar nuevas predicciones, anotaciones detalladas o registros operativos, confirma su alcance, procedencia y autorización.
+El notebook actualizado lee los insumos versionados desde GitHub y no requiere Google Drive para iniciar. Las salidas nuevas de Colab se guardan en `/content/SIRAP_workspace` y no se publican automáticamente. Conserva en el repositorio métricas agregadas, tablas y gráficos pequeños; distribuye el video fuente como artefacto separado y no lo incrustes en el notebook. La referencia final del video es `blind_eval/video_ground_truth.csv`; el archivo de 18 puntos se conserva solo como histórico. Antes de publicar nuevas predicciones, anotaciones detalladas o registros operativos, confirma su alcance, procedencia y autorización.
 
 Si un resultado está pendiente o su referencia es incompleta, indícalo como tal; no extrapoles métricas ni completes etiquetas por intuición.
 

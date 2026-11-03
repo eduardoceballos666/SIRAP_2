@@ -3,7 +3,7 @@
   "cer": null,
   "tiempo_ms_promedio": 99.21,
   "detector": "YOLO11-s",
-  "nota": "EMR y CER del video completo pendientes: la referencia disponible contiene 18 cuadros puntuales, no intervalos completos ni todos los vehículos. Ver video_e2e_puntos_provisionales_20261101.md para métricas exploratorias condicionadas a esos puntos.",
+  "nota": "Este resumen general conserva EMR y CER en null y no contiene las métricas de la corrida final de video por intervalos. Consultar results/metrics/video_e2e_intervalos_final.json y .md para los resultados de 6.9 y 7.2 con blind_eval/video_ground_truth.csv.",
   "meta_emr": 0.8,
   "meta_tiempo_s": 1
 }

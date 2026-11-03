@@ -10,7 +10,7 @@ Este documento reúne los resultados de validación por tipo de prueba y disting
 | OCR SAVH | 388/398 de coincidencia exacta (97,49 %) | Métrica offline condicionada a respuestas registradas; no es ciega y puede tener sesgo de confirmación |
 | Piloto visual SAVH | 73/84 de coincidencia exacta (86,90 %) | Revisión piloto no independiente; 13 discrepancias pendientes de adjudicación |
 | Video, cinco clips | 3/5 lecturas exactas (60 %) | Muestra de clips; no es evaluación del video operativo completo |
-| Video, observaciones puntuales | 11/18 exactas (61,11 %) | Referencia puntual y dispersa; no cubre todos los vehículos ni intervalos completos |
+| Video, evaluación final por intervalos | EMR 17/24 (70,83 %); recall de placas únicas 15/17 (88,24 %) | Corrida 6.9/7.2. Diez lecturas sin referencia no clasificables; tasa integral de falsas autorizaciones no estimable. [Informe](../results/metrics/video_e2e_intervalos_final.md) |
 | Imágenes completas de garita | 8/21 exactas (38,10 %) | Muestra pequeña; por debajo de la meta de EMR del 80 % |
 
 ## 1. Validación multisemilla del detector
@@ -72,7 +72,7 @@ Evidencia agregada: [piloto visual SAVH](../results/metrics/ocr_savh_validacion_
 
 ### 3.1 Métricas operativas del video completo
 
-La corrida operativa registró 18.115 cuadros a 1280×720. El procesamiento, incluyendo escritura de salida, tomó 409,6 segundos (61,77 cuadros por segundo). Se registraron 52 seguimientos y lecturas; no hubo seguimientos sin lectura. Se reportaron 25 placas con formato válido, 225 llamadas OCR, un promedio de 14,51 ms por cuadro para el detector y 0,45 ms para seguimiento. El tiempo promedio de detección más OCR por decisión fue 91,99 ms.
+Una corrida operativa anterior registró 18.115 cuadros a 1280×720. El procesamiento, incluyendo escritura de salida, tomó 409,6 segundos (61,77 cuadros por segundo). Se registraron 52 seguimientos y lecturas; no hubo seguimientos sin lectura. Esas cifras pertenecen a esa ejecución; la corrida final de 6.9/7.2 registró 34 lecturas. Se reportaron 25 placas con formato válido, 225 llamadas OCR, un promedio de 14,51 ms por cuadro para el detector y 0,45 ms para seguimiento. El tiempo promedio de detección más OCR por decisión fue 91,99 ms.
 
 Estos son conteos y tiempos de operación, no métricas de exactitud. Sin una referencia completa e independiente por vehículo o pasada, no permiten calcular recall integral, falsos positivos integrales ni exactitud de extremo a extremo.
 
@@ -94,11 +94,11 @@ Evidencia: [evaluador reproducible](../scripts/evaluate_video_e2e.py) y [resumen
 
 ### 3.3 Observaciones puntuales del video operativo
 
-La referencia puntual disponible contiene 18 observaciones y 16 placas únicas. Se contabilizaron 52 lecturas del pipeline; 11/18 observaciones fueron exactas (61,11 %), y 9/16 placas únicas se recuperaron (56,25 %). La evaluación puntual posterior había reportado 7/52 falsas autorizaciones, pero ese cálculo se retira: la sección 7.2 comparó las 52 lecturas con la referencia aunque 34 no tenían etiqueta, de modo que lecturas sin ground truth pudieron contarse como falsas. La cifra no es una métrica válida. La corrida anterior reportó cero falsas autorizaciones con otra corrida y referencia, por lo que tampoco permite estimar la tasa integral. El resultado queda no estimable hasta regenerar el registro por lectura y recalcular con la lógica corregida y la lista de autorizaciones usada. Para una evaluación integral se requiere una referencia exhaustiva por pasada.
+La referencia puntual disponible contiene 18 observaciones y 16 placas únicas. Se contabilizaron 52 lecturas del pipeline; 11/18 observaciones fueron exactas (61,11 %), y 9/16 placas únicas se recuperaron (56,25 %). La evaluación puntual posterior había reportado 7/52 falsas autorizaciones, pero ese cálculo se retira: la sección 7.2 comparó las 52 lecturas con la referencia aunque 34 no tenían etiqueta, de modo que lecturas sin ground truth pudieron contarse como falsas. La cifra no es una métrica válida. Una corrida previa reportó cero falsas autorizaciones con otro denominador, lo que tampoco estima la tasa integral. En la corrida final 6.9/7.2 se obtuvieron 0 falsas autorizaciones entre 24 lecturas clasificables; las otras 10 no tenían referencia. La tasa para todo el video no es estimable. Para cifras y alcance, consulta el [informe final](../results/metrics/video_e2e_intervalos_final.md).
 
-Esta referencia no contiene intervalos completos ni garantiza que incluya todos los vehículos. Sus métricas son provisionales y no equivalen a una evaluación integral del video. Para cerrar la evaluación se necesita anotar cada pasada, con primer y último cuadro legibles, revisar las etiquetas de forma independiente y resolver discrepancias sin consultar las predicciones.
+Esa referencia puntual no contenía intervalos completos ni garantizaba incluir todos los vehículos, así que sus métricas son históricas. La **referencia final** del video es [`blind_eval/video_ground_truth.csv`](../blind_eval/video_ground_truth.csv): 20 pasadas con columnas `plate_gt,frame_start,frame_end` e intervalos inclusivos. La corrida final 6.9/7.2 obtuvo EMR 17/24 (70,83 %), recall de placas únicas 15/17 (88,24 %) y 0 falsas autorizaciones entre las 24 lecturas clasificables. Diez lecturas quedaron sin referencia, por lo que la tasa integral no es estimable. Dos pasadas dudosas quedaron excluidas; ver el [informe](../results/metrics/video_e2e_intervalos_final.md).
 
-Evidencia: [revisión de referencia puntual](../blind_eval/video_ground_truth_review.md) y [resumen de la evaluación puntual](../results/metrics/video_e2e_puntos_provisionales_20261101.md).
+Evidencia: [revisión de la referencia final](../blind_eval/video_ground_truth_review.md) y [resumen de la evaluación puntual](../results/metrics/video_e2e_puntos_provisionales_20261101.md).
 
 ### 3.4 Regla temporal y barrera
 
@@ -125,7 +125,7 @@ Los resúmenes públicos enlazados en este documento omiten matrículas e imáge
 - La comparación multisemilla muestra una mejora media pequeña en mAP50:95, con tres semillas; no justifica por sí sola cambiar el modelo publicado.
 - El EMR SAVH de 97,49 % está condicionado a respuestas de revisión no ciega y no debe presentarse como independiente.
 - El piloto visual SAVH necesita adjudicación humana independiente de las 13 discrepancias.
-- Los cinco clips y las 18 observaciones puntuales son muestras; la segunda no cubre intervalos ni todos los vehículos.
+- Los cinco clips son una muestra. Los resultados de 18 observaciones puntuales son históricos; la corrida final de 7.2 está disponible en `results/metrics/video_e2e_intervalos_final.md` y conserva las limitaciones de cobertura descritas allí.
 - La muestra de imágenes completas de garita obtuvo 38,10 % de coincidencia exacta, por debajo de la meta del 80 %.
 - Las cifras del detector, OCR, video y garita deben conservarse separadas y publicarse con su alcance y limitaciones.
 
