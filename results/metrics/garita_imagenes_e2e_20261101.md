@@ -19,5 +19,5 @@ Limitaciones: la referencia fila por fila y el registro con predicciones permane
 
 El resultado queda por debajo de la meta del proyecto de EMR ≥ 80%. Debe analizarse como desempeño de esta muestra de 21 imágenes; no se deben inferir métricas de intervalos, pasadas o vehículos omitidos en el video.
 
-La evaluación por video de 6.9/7.2 ya se ejecutó con la referencia final `blind_eval/video_ground_truth.csv`: EMR 17/24 (70,83 %), recall de placas únicas 15/17 (88,24 %) y 0 falsas autorizaciones entre 24 lecturas clasificables. Diez lecturas no tienen referencia, así que la tasa integral no es estimable; dos pasadas dudosas quedaron excluidas. Consulta el [informe final](video_e2e_intervalos_final.md) y la [procedencia y límites](../../blind_eval/video_ground_truth_review.md).
+La evaluación por video de 6.9/7.2 ya se ejecutó con la referencia final `blind_eval/video_ground_truth.csv`: EMR 17/24 (70,83 %), recall de placas únicas 15/17 (88,24 %) y 0 falsas autorizaciones entre 24 lecturas clasificables. Diez lecturas no tienen referencia, así que la tasa integral no es estimable; dos pasadas dudosas quedaron excluidas. Consulta el [informe final](video_e2e_intervalos_final.md).
 
