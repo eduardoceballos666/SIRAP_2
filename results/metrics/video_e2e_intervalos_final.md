@@ -1,25 +1,29 @@
-# Evaluación final del video de garita: secciones 6.9 y 7.2
+# Evaluación del video de garita: secciones 6.9 y 7.2
 
-La corrida guardada procesó el video completo con 18.115 cuadros en la sección 6.9 y usó como referencia la versión final [`blind_eval/video_ground_truth.csv`](../../blind_eval/video_ground_truth.csv), con 20 pasadas anotadas y límites inclusivos.
+La referencia publicada es [`blind_eval/video_ground_truth.csv`](../../blind_eval/video_ground_truth.csv): contiene 20 pasadas anotadas, 17 placas únicas e intervalos inclusivos. Dos pasadas dudosas (cuadros 0–247 y 1142–1488) siguen excluidas; por eso la referencia no cubre todas las pasadas identificadas en el video.
 
-## Resultados de 7.2
+## Reejecución más reciente en Colab
+
+En esta reejecución, la sección 6.9 procesó los 18.115 cuadros y registró 51 lecturas. La sección 7.2 pudo comparar 30 lecturas con la referencia:
 
 | Indicador | Resultado |
 |---|---:|
-| Lecturas del pipeline (6.9) | 34 |
-| Lecturas dentro de intervalos de referencia | 24/34 |
-| Coincidencia exacta por lectura (EMR) | 17/24 (70,83 %) |
-| Placas únicas de referencia recuperadas | 15/17 (88,24 %) |
-| Falsas autorizaciones entre lecturas clasificables | 0/24 |
-| Lecturas sin referencia | 10/34 (no clasificables) |
-| Pasadas de referencia fuera del tramo procesado | 0 |
+| Cuadros procesados por 6.9 | 18.115 |
+| Lecturas registradas por 6.9 | 51 |
+| Lecturas con referencia en 7.2 | 30/51 |
+| Coincidencia exacta por lectura (EMR) | 18/30 (60 %) |
+| Placas únicas de referencia recuperadas | 16/17 (94,12 %) |
+| Falsas autorizaciones observadas entre lecturas clasificables | 2/30 (6,67 %) |
+| Lecturas sin referencia | 21/51 (no clasificables) |
 
-La tasa integral de falsas autorizaciones **no es estimable**: las 10 lecturas que caen fuera de los intervalos no tienen una etiqueta real asociada, por lo que no se clasifican como aciertos ni errores. El resultado 0/24 corresponde solo a las lecturas que sí pudieron compararse con la referencia; no equivale a cero falsas autorizaciones en todo el video.
+Estas cifras describen esta reejecución y no una cobertura integral del video. Las 21 lecturas sin referencia no se clasifican como aciertos o errores. La tasa integral de falsas autorizaciones para todo el video **no es estimable**. Las dos pasadas dudosas tampoco se incorporaron ni se completaron por inferencia.
 
-## Alcance y procedencia
+## Corrida guardada anterior
 
-La referencia contiene 20 pasadas y 17 placas únicas; cubre 20 de las 22 pasadas con placa identificadas. Se excluyeron dos pasadas dudosas (cuadros 0–247 y 1142–1488).
+La corrida guardada anteriormente procesó los mismos 18.115 cuadros y registró 34 lecturas. De ellas, 24 coincidieron con intervalos de referencia; obtuvo EMR de 17/24 (70,83 %), recall de placas únicas de 15/17 (88,24 %) y 0 falsas autorizaciones entre las 24 lecturas clasificables. Diez lecturas quedaron sin referencia. Esos valores pertenecen a una ejecución distinta y no deben combinarse con la reejecución más reciente.
 
-El EMR de 70,83 % queda por debajo de la meta del proyecto de 80 %. Los resultados describen la corrida y la referencia publicadas; no deben extrapolarse a las dos pasadas excluidas ni presentarse como cobertura exhaustiva de todos los vehículos. El resultado histórico de 11/18 puntos y 9/16 placas corresponde a una referencia anterior y se conserva únicamente como antecedente en [`video_e2e_puntos_provisionales_20261101.md`](video_e2e_puntos_provisionales_20261101.md).
+## Alcance y reproducción
 
-Para reproducir la evaluación, ejecuta la sección 0, las celdas previas requeridas para el pipeline completo, 6.9 y después 7.2 con el mismo video y el CSV final.
+La referencia cubre 20 de las 22 pasadas con placa identificadas. La reejecución más reciente obtuvo EMR de 60 %, por debajo de la meta del proyecto de 80 %. Los resultados no deben extrapolarse a las dos pasadas excluidas ni presentarse como cobertura exhaustiva de todos los vehículos. El resultado histórico de 11/18 puntos y 9/16 placas corresponde a una referencia anterior y se conserva únicamente como antecedente en [`video_e2e_puntos_provisionales_20261101.md`](video_e2e_puntos_provisionales_20261101.md).
+
+Para reproducir la evaluación, ejecuta la sección 0, las celdas previas requeridas para el pipeline completo, 6.9 y después 7.2 con el mismo video y el CSV de referencia.
