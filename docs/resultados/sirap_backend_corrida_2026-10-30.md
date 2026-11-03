@@ -13,7 +13,7 @@ Este informe organiza por tema las métricas de la corrida guardada y las evalua
 | OCR SAVH, corrida guardada | EMR: 93,7 %; CER: 0,010 | 399 referencias; 69 eran sugerencias sin confirmar |
 | OCR SAVH, recálculo posterior | EMR: 388/398 (97,49 %); CER: 0,003649 | Offline, condicionado a respuestas no ciegas; no equivale a validación independiente |
 | Video, evaluación 7.2 | Reejecución más reciente: EMR 18/30 (60 %); recall de placas únicas 16/17 (94,12 %); 2/30 falsas autorizaciones observadas entre lecturas clasificables | 51 lecturas; 30 con referencia y 21 sin clasificar. La tasa integral del video no es estimable. Dos pasadas dudosas siguen excluidas. La corrida guardada anterior (17/24) se conserva separada. [Informe](../../results/metrics/video_e2e_intervalos_final.md) |
-| Imágenes completas de garita | EMR: 8/21 (38,1 %) | Sección 7.3 ejecutada en una evaluación posterior; por debajo de la meta de 80 % |
+| Imágenes completas de garita | Informe: EMR 8/21 (38,1 %), 37,69 ms; salida guardada del notebook: EMR 9/21 (42,9 %), 1,400674 s | Corridas distintas; la salida del notebook no tiene fecha/ID para ordenarlas. No combinar; ambas bajo la meta EMR de 80 % |
 | Entrenamiento de la corrida guardada | 40 épocas; 0,70 h; GPU NVIDIA L4 | Duración y equipo de esa corrida |
 | Video, rendimiento | 65,7 FPS reportados por el notebook | Medición de la corrida guardada; no mezclar con tiempos de otras ejecuciones |
 
@@ -65,7 +65,7 @@ Fuentes: [reporte histórico de puntos provisionales](../../results/metrics/vide
 
 ## 4. Evaluación punta a punta con imágenes completas de garita
 
-La sección 7.3 **se omitió en la corrida guardada** porque en ese momento no estaba disponible `garita/ground_truth.csv`. Posteriormente se proporcionaron 21 imágenes y su referencia privada, y la evaluación se ejecutó.
+La sección 7.3 **se omitió en una corrida guardada anterior** porque entonces no estaba disponible `garita/ground_truth.csv`. El repositorio ahora contiene las 21 imágenes y la referencia en `garita/imagenes/` y `garita/ground_truth.csv`.
 
 | Métrica | Resultado |
 |---|---:|
@@ -78,9 +78,11 @@ La sección 7.3 **se omitió en la corrida guardada** porque en ese momento no e
 | Detección media | 20,18 ms |
 | Falsas autorizaciones reportadas | 0 |
 
-El EMR usa las 21 imágenes como denominador: la falta de detección o una transcripción distinta cuenta como error. El resultado de exactitud queda por debajo de la meta del proyecto de **80 %**. Como `authorized_plates.csv` estaba vacío, cero falsas autorizaciones no demuestra cómo se comportaría la autorización con una lista poblada.
+La salida guardada del notebook registra otra ejecución sobre las 21 imágenes: detección 19/21, EMR 9/21 (42,9 %), formato válido 16/21, latencia media 1,400674 s por imagen, p95 1,905149 s y detección media 1,33666 s. No hay un identificador común ni fecha en esa salida que permita combinarla con la medición de este informe; se reportan por separado.
 
-Esta prueba cubre imágenes individuales: no evalúa seguimiento temporal ni sustituye la evaluación completa del video. La referencia fila por fila y el registro con predicciones permanecen privados. Los datos agregados están en [garita_imagenes_e2e](../../results/metrics/garita_imagenes_e2e_20261101.md).
+El EMR usa las 21 imágenes como denominador: la falta de detección o una transcripción distinta cuenta como error. El resultado de exactitud queda por debajo de la meta del proyecto de **80 %**. El informe de esa corrida registra una lista de autorizaciones vacía. El archivo `data/authorized_plates.csv` está poblado en el repositorio actual; por tanto, el cero reportado no prueba el comportamiento con la lista actualmente publicada.
+
+Esta prueba cubre imágenes individuales: no evalúa seguimiento temporal ni sustituye la evaluación del video. Las imágenes y la referencia fila por fila están publicadas en el repositorio. El registro detallado de predicciones no aparece entre los archivos versionados. El [informe de evaluación por imágenes](../../results/metrics/garita_imagenes_e2e_20261101.md) distingue esta medición de la salida guardada en el notebook.
 
 ## 5. Secciones omitidas y resultados no concluyentes
 
