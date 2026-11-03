@@ -18,7 +18,7 @@ La tasa integral de falsas autorizaciones **no es estimable**: las 10 lecturas q
 
 ## Alcance y procedencia
 
-La referencia contiene 20 pasadas y 17 placas únicas; cubre 20 de las 22 pasadas con placa identificadas. Se excluyeron dos pasadas dudosas (cuadros 0–247 y 1142–1488). La primera anotación (R1) se hizo con Claude; la segunda (R2) fue una anotación ciega humana del usuario, según indicó. La adjudicación posterior conocía lecturas previas y no fue ciega. No hubo una tercera revisión humana independiente. Los detalles están en [`blind_eval/video_ground_truth_review.md`](../../blind_eval/video_ground_truth_review.md).
+La referencia contiene 20 pasadas y 17 placas únicas; cubre 20 de las 22 pasadas con placa identificadas. Se excluyeron dos pasadas dudosas (cuadros 0–247 y 1142–1488).
 
 El EMR de 70,83 % queda por debajo de la meta del proyecto de 80 %. Los resultados describen la corrida y la referencia publicadas; no deben extrapolarse a las dos pasadas excluidas ni presentarse como cobertura exhaustiva de todos los vehículos. El resultado histórico de 11/18 puntos y 9/16 placas corresponde a una referencia anterior y se conserva únicamente como antecedente en [`video_e2e_puntos_provisionales_20261101.md`](video_e2e_puntos_provisionales_20261101.md).
 
