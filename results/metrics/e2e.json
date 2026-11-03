@@ -3,7 +3,7 @@
   "cer": null,
   "tiempo_ms_promedio": 99.21,
   "detector": "YOLO11-s",
-  "nota": "EMR y CER del video completo pendientes de ejecutar 6.9 y 7.2 con la referencia final blind_eval/video_ground_truth.csv (20 pasadas, intervalos inclusivos). Las métricas de video_e2e_puntos_provisionales_20261101.md son históricas.",
+  "nota": "Este resumen general conserva EMR y CER en null y no contiene las métricas de la corrida final de video por intervalos. Consultar results/metrics/video_e2e_intervalos_final.json y .md para los resultados de 6.9 y 7.2 con blind_eval/video_ground_truth.csv.",
   "meta_emr": 0.8,
   "meta_tiempo_s": 1
 }
