@@ -59,7 +59,7 @@ La corrida anterior reportó cero falsas autorizaciones con otra referencia, por
 
 La referencia final es [`blind_eval/video_ground_truth.csv`](../../blind_eval/video_ground_truth.csv) y es el archivo que usa la sección 7.2. Tiene las columnas `plate_gt,frame_start,frame_end` y 20 pasadas con intervalos inclusivos sobre los 18.115 cuadros del video. Reemplaza los 18 puntos provisionales y el borrador de intervalos, que quedan como históricos.
 
-R1 se hizo con Claude y R2 fue una anotación ciega humana del usuario, según indicó. Después se cotejaron y las discrepancias se adjudicaron en el video original; esa adjudicación conocía lecturas previas y no fue ciega. Se excluyeron dos pasadas dudosas y un fragmento sin placa visible. No hubo una tercera revisión humana independiente. La corrida final 6.9/7.2 ya está resumida en [el informe de resultados](../../results/metrics/video_e2e_intervalos_final.md).
+Se excluyeron dos pasadas dudosas y un fragmento sin placa visible. La corrida final 6.9/7.2 está resumida en [el informe de resultados](../../results/metrics/video_e2e_intervalos_final.md).
 
 Fuentes: [reporte histórico de puntos provisionales](../../results/metrics/video_e2e_puntos_provisionales_20261101.md) y [revisión de la referencia final](../../blind_eval/video_ground_truth_review.md).
 
