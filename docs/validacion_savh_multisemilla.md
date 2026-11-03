@@ -72,7 +72,7 @@ Evidencia agregada: [piloto visual SAVH](../results/metrics/ocr_savh_validacion_
 
 ### 3.1 Métricas operativas del video completo
 
-La corrida operativa registró 18.115 cuadros a 1280×720. El procesamiento, incluyendo escritura de salida, tomó 409,6 segundos (61,77 cuadros por segundo). Se registraron 52 seguimientos y lecturas; no hubo seguimientos sin lectura. Se reportaron 25 placas con formato válido, 225 llamadas OCR, un promedio de 14,51 ms por cuadro para el detector y 0,45 ms para seguimiento. El tiempo promedio de detección más OCR por decisión fue 91,99 ms.
+Una corrida operativa anterior registró 18.115 cuadros a 1280×720. El procesamiento, incluyendo escritura de salida, tomó 409,6 segundos (61,77 cuadros por segundo). Se registraron 52 seguimientos y lecturas; no hubo seguimientos sin lectura. Esas cifras pertenecen a esa ejecución; la corrida final de 6.9/7.2 registró 34 lecturas. Se reportaron 25 placas con formato válido, 225 llamadas OCR, un promedio de 14,51 ms por cuadro para el detector y 0,45 ms para seguimiento. El tiempo promedio de detección más OCR por decisión fue 91,99 ms.
 
 Estos son conteos y tiempos de operación, no métricas de exactitud. Sin una referencia completa e independiente por vehículo o pasada, no permiten calcular recall integral, falsos positivos integrales ni exactitud de extremo a extremo.
 
