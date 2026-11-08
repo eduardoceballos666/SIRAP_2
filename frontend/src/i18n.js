@@ -14,6 +14,7 @@ export const language = ref(savedLanguage)
 export const localeTag = computed(() => language.value === 'en' ? 'en-US' : 'es-EC')
 
 const en = {
+  'Ver protocolo y notebook reproducible': 'Open the protocol and reproducible notebook',
   'Exactitud OCR (holdout ciego)': 'OCR exact match (blind holdout)',
   'Lectura exacta (holdout)': 'Exact read (holdout)',
   'Cobertura de lectura': 'Read coverage',
