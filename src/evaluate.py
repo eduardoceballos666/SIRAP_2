@@ -14,6 +14,7 @@ Los resultados se guardan en ``results/metrics/`` como JSON y CSV.
 from __future__ import annotations
 
 import argparse
+from statistics import NormalDist
 from typing import Any, Iterable
 
 import pandas as pd
@@ -44,6 +45,39 @@ def character_error_rate(predictions: Iterable[str | None], references: Iterable
         errors += plate_distance(p or "", ref)
         total += len(ref)
     return errors / total if total else 0.0
+
+
+
+def wilson_interval(successes: int, trials: int, confidence_level: float = 0.95) -> dict[str, float | int | str]:
+    """IC score de Wilson para una proporción binomial.
+
+    Cada ensayo debe ser una unidad independiente (por ejemplo, una imagen
+    muestreada una vez o una pasada de vehículo), no un cuadro repetido.
+    """
+    if isinstance(successes, bool) or isinstance(trials, bool):
+        raise TypeError("successes y trials deben ser enteros.")
+    if not isinstance(successes, int) or not isinstance(trials, int):
+        raise TypeError("successes y trials deben ser enteros.")
+    if trials <= 0 or successes < 0 or successes > trials:
+        raise ValueError("Se requiere trials > 0 y 0 <= successes <= trials.")
+    if not 0 < confidence_level < 1:
+        raise ValueError("confidence_level debe estar entre 0 y 1.")
+
+    p_hat = successes / trials
+    z = NormalDist().inv_cdf(0.5 + confidence_level / 2)
+    z2 = z * z
+    denominator = 1 + z2 / trials
+    center = (p_hat + z2 / (2 * trials)) / denominator
+    half_width = z * ((p_hat * (1 - p_hat) / trials + z2 / (4 * trials * trials)) ** 0.5) / denominator
+    return {
+        "successes": successes,
+        "trials": trials,
+        "estimate": p_hat,
+        "confidence_level": confidence_level,
+        "lower": max(0.0, center - half_width),
+        "upper": min(1.0, center + half_width),
+        "method": "wilson_score",
+    }
 
 
 def f1_score(precision: float, recall: float) -> float:
@@ -95,12 +129,20 @@ def evaluate_end_to_end(csv_path: str, pipeline: Any | None = None) -> dict[str,
     out = pd.DataFrame(rows)
     out.to_csv(resolve_path("results/metrics/e2e_predicciones.csv"), index=False)
     targets = load_config()["metas"]
+    exact = int(sum(
+        pred is not None and normalize_plate(pred) == normalize_plate(ref)
+        for pred, ref in zip(out["plate_pred"], out["plate_gt"])
+    ))
+    n_units = len(out)
     result = {
-        "n": len(out), "detector": pipeline.detector.name,
-        "emr": exact_match_rate(out["plate_pred"], out["plate_gt"]),
+        "n": n_units, "detector": pipeline.detector.name,
+        "emr": exact / n_units if n_units else None,
+        "exact_matches": exact,
+        "emr_wilson_95": wilson_interval(exact, n_units) if n_units else None,
         "cer": character_error_rate(out["plate_pred"], out["plate_gt"]),
         "tiempo_ms_promedio": float(out["tiempo_ms"].dropna().mean()) if out["tiempo_ms"].notna().any() else None,
         "meta_emr": targets["emr"], "meta_tiempo_s": targets["tiempo_e2e_s"],
+        "ci_note": "Wilson es válido si cada fila corresponde a una unidad independiente; agrupe imágenes repetidas de una misma pasada antes de interpretar el intervalo.",
     }
     save_json(result, "results/metrics/e2e.json")
     logger.info("Punta a punta: %s", result)
