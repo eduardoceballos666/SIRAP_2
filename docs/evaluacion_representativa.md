@@ -10,7 +10,7 @@ El resultado del video de garita sigue siendo parcial: 30 de 51 lecturas pudiero
 
 ## Qué se calcula
 
-Para una proporción binomial, con x éxitos de n ensayos independientes, p̂ = x/n. El intervalo score de Wilson usa el cuantil normal z y queda dentro de [0, 1], a diferencia del intervalo normal simple. Para 95 %, z ≈ 1,96. La función wilson_interval de src/evaluate.py devuelve conteos, estimación, nivel, límites y método. Solo se informa cuando hay un denominador positivo.
+Para una proporción binomial, con x éxitos de n ensayos independientes, p̂ = x/n. El intervalo score de Wilson usa el cuantil normal z y queda dentro de [0, 1], a diferencia del intervalo normal simple. Para 95 %, z ≈ 1,96. La función wilson_interval de src/evaluate.py devuelve conteos, estimación, nivel, límites y método. En la evaluación punta a punta, el IC solo se devuelve cuando el CSV incluye unit_id no nulos y únicos: un ID por imagen independiente o pasada, nunca por cuadro repetido. Si falta esa columna, se conserva la métrica descriptiva, pero el CI queda sin reportar.
 
 Aplicaciones apropiadas: lectura exacta por imagen o pasada independiente, formato válido por unidad, cobertura de lectura por unidad y recuperación de placas únicas. Para detector, precisión/recall requieren TP, FP y FN al umbral definido; no se debe derivar un Wilson de mAP, F1 o promedios de clases sin sus conteos subyacentes. CER, latencia media y mAP tampoco son proporciones binomiales.
 
