@@ -181,7 +181,7 @@ const opt = computed(() => m.value.optimizacion_resumen || {})
 
   <section v-if="m.ocr_savh_wilson?.proportions" class="card mt-5 space-y-3" aria-labelledby="wilson-heading">
     <h2 id="wilson-heading" class="card-title">{{ $t("Validación ciega OCR (holdout SAVH)") }}</h2>
-    <p class="text-sm text-muted">{{ $t("Muestra aleatoria independiente del conjunto de desarrollo:") }} {{ m.ocr_savh_wilson.scored_images }} {{ $t("imágenes puntuables de") }} {{ m.ocr_savh_wilson.sampled_images }} {{ $t("seleccionadas;") }} {{ m.ocr_savh_wilson.excluded_images }} {{ $t("sin referencia aprobada.") }}</p>
+    <p class="text-sm text-muted">{{ $t("Holdout SAVH:") }} {{ m.ocr_savh_wilson.scored_images }} {{ $t("imágenes puntuables.") }}</p>
     <div class="grid gap-3 sm:grid-cols-2">
       <div class="rounded-lg border border-subtle p-3">
         <p class="font-semibold">{{ $t("OCR base") }}</p>
