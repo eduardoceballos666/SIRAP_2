@@ -195,6 +195,7 @@ const opt = computed(() => m.value.optimizacion_resumen || {})
       </div>
     </div>
     <p class="text-sm text-muted">{{ $t("Este intervalo describe el holdout SAVH con referencias aprobadas; no representa por sí solo todas las garitas ni condiciones operativas.") }}</p>
+    <p class="text-sm"><a class="text-brand-600 hover:underline" href="https://github.com/eduardoceballos666/SIRAP_2/blob/main/docs/evaluacion_representativa.md" target="_blank" rel="noopener noreferrer">{{ $t("Ver protocolo y notebook reproducible") }}</a></p>
   </section>
 
   <div class="mt-5 grid gap-5 xl:grid-cols-2">
