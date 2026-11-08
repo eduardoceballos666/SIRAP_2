@@ -12,14 +12,16 @@
       "trials": 57,
       "estimate": 0.7368421052631579,
       "wilson_lower": 0.6102342073651619,
-      "wilson_upper": 0.8335421340202693
+      "wilson_upper": 0.8335421340202693,
+      "cer": 0.05357142857142857
     },
     "fine_tuned_ocr_exact_match": {
       "successes": 35,
       "trials": 57,
       "estimate": 0.6140350877192983,
       "wilson_lower": 0.4842973291580958,
-      "wilson_upper": 0.7293727611385934
+      "wilson_upper": 0.7293727611385934,
+      "cer": 0.07142857142857142
     },
     "base_ocr_coverage": {
       "successes": 56,
