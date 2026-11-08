@@ -163,6 +163,12 @@ Más detalles: [análisis de datos](docs/analisis_datos.md), [descripción de lo
 
 El detector se entrenó con YOLO11-s durante 40 épocas y se exportó para la aplicación. En video se usa OC-SORT para asociar detecciones de un mismo vehículo y seleccionar lecturas. El umbral de detección se calibró con el conjunto de validación. En modo continuo de video o cámara, la interfaz espera que la misma placa alcance al menos 94 % de confianza OCR en dos cuadros aceptados dentro de 7,5 segundos antes de mostrar y registrar la decisión. Esto ayuda a evitar basarla en una sola lectura.
 
+### Incertidumbre estadística y alcance de la evaluación
+
+El holdout ciego SAVH independiente del desarrollo contiene 57 imágenes puntuables de 58 seleccionadas. El OCR base obtuvo 42/57 exactas (**73,7 %; IC de Wilson 95 %: 61,0–83,4 %**); el OCR afinado, 35/57 (**61,4 %; IC: 48,4–72,9 %**). Una imagen seleccionada no tenía referencia humana aprobada. Estas cifras son condicionales a la población SAVH con etiqueta aprobada y no representan todas las cámaras ni condiciones de operación. El resumen de 399 recortes incluye 69 referencias sugeridas sin confirmar y no se usa como estimación principal.
+
+La evaluación publicada del video sigue siendo parcial: 18/30 lecturas clasificables exactas; 21/51 lecturas no tienen referencia y dos pasadas son dudosas. No se calcula IC de Wilson para el video completo ni se extrapola esa proporción. Para estimar desempeño operativo representativo se necesita completar la referencia de pasadas y muestrear aleatoriamente unidades independientes por cámara y condiciones, con anotación humana ciega. Consulta el [protocolo](docs/evaluacion_representativa.md), el [notebook de Wilson y muestreo](notebooks/Evaluacion_IC_Wilson_y_muestreo.ipynb) y el [JSON de intervalos](results/metrics/ocr_savh_wilson.json).
+
 ### Entrenamiento YOLO11
 
 La corrida de referencia usa el preset vigente `TRAINING_PRESET = "completo"`: 40 de 40 épocas, `train_fraction = 1`, `val_fraction = 1`, lote 16 e imágenes de 640 px. Su mejor mAP@0.5:0.95 de validación fue **0,69082** en la época 40. El resumen registra aproximadamente **0,70 horas** de entrenamiento y **6,90 GB** de memoria GPU máxima.
@@ -305,6 +311,7 @@ SIRAP_2/
 - [Consideraciones éticas](docs/consideraciones_eticas.md).
 - [Documentación de datos y recuperación](data/README.md).
 - [Notebooks y guía de ejecución](notebooks/README.md).
+- [Evaluación representativa e IC de Wilson](docs/evaluacion_representativa.md).
 - [Artefactos pesados](artifacts/README.md).
 
 ## Autores
