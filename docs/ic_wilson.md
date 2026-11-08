@@ -25,4 +25,4 @@ No se informa un intervalo de Wilson para el resultado 18/30 del video. El cálc
 
 - Función y uso en evaluación: [src/evaluate.py](../src/evaluate.py).
 - Métricas numéricas: [results/metrics/ocr_savh_wilson.json](../results/metrics/ocr_savh_wilson.json).
-- Notebook reproducible: [notebooks/Evaluacion_IC_Wilson_y_muestreo.ipynb](../notebooks/Evaluacion_IC_Wilson_y_muestreo.ipynb).
+- Notebook reproducible: [notebooks/Evaluacion_IC_Wilson.ipynb](../notebooks/Evaluacion_IC_Wilson.ipynb).
