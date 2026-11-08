@@ -4,8 +4,8 @@ Los notebooks documentan el análisis de datos, la preparación, el entrenamient
 
 | Notebook | Propósito |
 |---|---|
-| [SIRAP_backend.ipynb](SIRAP_backend.ipynb) | Flujo principal: detector YOLO11-s, OCR, reglas de acceso, video de garita, evaluaciones 7.2 y 7.3, y modo en vivo. No incrusta videos. |
-| [Evaluacion_IC_Wilson.ipynb](Evaluacion_IC_Wilson.ipynb) | Cálculo reproducible de los IC de Wilson para coincidencia exacta y cobertura OCR en el holdout SAVH. |
+| [SIRAP_backend.ipynb](SIRAP_backend.ipynb) | Flujo principal: detector YOLO11-s, OCR, reglas de acceso, video de garita, evaluaciones 7.2 y 7.3, modo en vivo e IC de Wilson del holdout SAVH (sección 5.4.1). No incrusta videos. |
+| [Evaluacion_IC_Wilson.ipynb](Evaluacion_IC_Wilson.ipynb) | Método y cálculo reproducible del IC de Wilson al 95 % para coincidencia exacta y cobertura OCR en 57 imágenes del holdout ciego SAVH. |
 | [01_exploracion.ipynb](01_exploracion.ipynb) | Análisis exploratorio del dataset de detección y de SAVH. |
 | [02_preprocesamiento.ipynb](02_preprocesamiento.ipynb) | Preparación del dataset YOLO, normalización y referencias de SAVH. |
 | [03_modelado.ipynb](03_modelado.ipynb) | Entrenamiento del detector, integración OCR y regla de decisión. |
@@ -54,4 +54,4 @@ El código, los notebooks y los artefactos están en [GitHub SIRAP_2](https://gi
 
 ## IC de Wilson
 
-El notebook calcula y explica el IC score de Wilson al 95 % para las proporciones binarias del holdout SAVH. Muestra los conteos, porcentajes e intervalos para OCR base y afinado. La explicación metodológica está en [docs/ic_wilson.md](../docs/ic_wilson.md).
+El notebook dedicado calcula y explica el IC score de Wilson al 95 % para coincidencia exacta y cobertura OCR en el holdout ciego SAVH (57 imágenes). La sección 5.4.1 de `SIRAP_backend.ipynb` reproduce esos conteos en una tabla; los separa de la corrida de 399 recortes descrita en 5.4. La cobertura indica que hubo una salida OCR, no que fuera correcta. No se calcula Wilson para CER, mAP, latencia ni para las lecturas de video 18/30. El método, sus supuestos y límites están en [docs/ic_wilson.md](../docs/ic_wilson.md), y los conteos están en [ocr_savh_wilson.json](../results/metrics/ocr_savh_wilson.json).
