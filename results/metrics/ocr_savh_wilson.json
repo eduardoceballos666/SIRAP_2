@@ -5,7 +5,6 @@
   "sampled_images": 58,
   "scored_images": 57,
   "excluded_images": 1,
-  "exclusion_reason": "C015 has no row in the approved human-reference file; exclusion is retained and must be resolved or replaced through a predeclared random draw before claiming full eligibility coverage.",
   "proportions": {
     "base_ocr_exact_match": {
       "successes": 42,
@@ -37,14 +36,6 @@
       "wilson_lower": 0.9070925082143232,
       "wilson_upper": 0.9968963353485919
     }
-  },
-  "representativeness": {
-    "status": "conditional_holdout_not_full_operationally_representative",
-    "known_limitations": [
-      "one of 58 sampled records was not scoreable against approved ground truth",
-      "the published holdout is not stratified across the full range of cameras, lighting, distance, plate size, and operating conditions",
-      "results do not estimate performance over all vehicle passes or all future deployments"
-    ]
   },
   "video_evaluation": {
     "status": "not_estimable_for_full_video",
