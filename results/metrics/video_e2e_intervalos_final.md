@@ -28,10 +28,8 @@ La referencia cubre 20 de las 22 pasadas con placa identificadas. La reejecució
 
 Para reproducir la evaluación, ejecuta la sección 0, las celdas previas requeridas para el pipeline completo, 6.9 y después 7.2 con el mismo video y el CSV de referencia.
 
-## Interpretación estadística e intervalo de Wilson
+## Intervalo de Wilson
 
-El resultado 18/30 (60 %) es descriptivo de lecturas clasificables y no estima el video completo: 21 de 51 lecturas no tienen referencia y dos pasadas dudosas están excluidas. No se calcula un IC de Wilson para esta corrida porque la referencia es incompleta y las lecturas repetidas dentro de una pasada no son ensayos independientes. No se imputan ni ponderan las lecturas faltantes; hacerlo con la información publicada introduciría supuestos no verificables.
+No se informa IC de Wilson para el resultado 18/30 del video. El cálculo requiere unidades independientes y referencia para todas las observaciones del denominador; las lecturas repetidas dentro de una pasada y los casos sin referencia no cumplen esas condiciones.
 
-Como contraste, el holdout ciego aleatorio de imágenes SAVH tiene 42/57 exactas para OCR base (IC Wilson 95 %: 61,0–83,4 %) y 35/57 para el OCR afinado (48,4–72,9 %). Esa inferencia se limita a imágenes con referencia humana aprobada, independientes de la partición de desarrollo; no se debe trasladar a todas las condiciones de garita. Una imagen de las 58 seleccionadas quedó fuera por falta de referencia aprobada.
-
-Para una estimación representativa de operación, el marco debe cubrir las pasadas objetivo, muestrear pasadas aleatoriamente por cámara y condición de captura, etiquetar todas las unidades muestreadas a ciegas y resolver referencias faltantes antes de puntuar. El protocolo completo está en docs/evaluacion_representativa.md y el cálculo reproducible en notebooks/Evaluacion_IC_Wilson_y_muestreo.ipynb.
+En el holdout ciego de imágenes SAVH, el OCR base obtuvo 42/57 exactas (IC Wilson 95 %: 61,0–83,4 %) y el OCR afinado 35/57 (48,4–72,9 %). El [informe de Wilson](../../docs/ic_wilson.md) y el [notebook reproducible](../../notebooks/Evaluacion_IC_Wilson_y_muestreo.ipynb) detallan el cálculo.
