@@ -14,7 +14,8 @@ export const language = ref(savedLanguage)
 export const localeTag = computed(() => language.value === 'en' ? 'en-US' : 'es-EC')
 
 const en = {
-  'Ver protocolo y notebook reproducible': 'Open the protocol and reproducible notebook',
+  'Los intervalos corresponden a las 57 imágenes puntuables del holdout SAVH.': 'The intervals correspond to the 57 scoreable images in the SAVH holdout.',
+  'Ver explicación del IC de Wilson': 'Read the Wilson interval explanation',
   'Exactitud OCR (holdout ciego)': 'OCR exact match (blind holdout)',
   'Lectura exacta (holdout)': 'Exact read (holdout)',
   'Cobertura de lectura': 'Read coverage',
@@ -29,8 +30,6 @@ const en = {
   'OCR base': 'Base OCR',
   'OCR afinado': 'Fine-tuned OCR',
   'IC de Wilson al 95 %': '95% Wilson confidence interval',
-  'Este intervalo describe el holdout SAVH con referencias aprobadas; no representa por sí solo todas las garitas ni condiciones operativas.': 'This interval describes the SAVH holdout with approved labels; it does not by itself represent all checkpoints or operating conditions.',
-  'La evaluación del video de garita es parcial: 30 de 51 lecturas tienen referencia, 21 no son clasificables y dos pasadas siguen dudosas. El 18/30 es descriptivo para lecturas comparables; no estima el video completo y no recibe un IC de Wilson.': 'The checkpoint video evaluation is partial: 30 of 51 reads have ground truth, 21 are unclassifiable, and two passes remain uncertain. The 18/30 result is descriptive for comparable reads; it does not estimate the full video and has no Wilson interval.',
 
   'Idioma': 'Language',
   'Español': 'Spanish',
