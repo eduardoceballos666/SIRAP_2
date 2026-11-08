@@ -33,7 +33,7 @@ def exact_match_rate(predictions: Iterable[str | None], references: Iterable[str
     pairs = list(zip(predictions, references))
     if not pairs:
         return 0.0
-    hits = sum(1 for p, r in pairs if p is not None and normalize_plate(p) == normalize_plate(r))
+    hits = sum(1 for p, r in pairs if pd.notna(p) and pd.notna(r) and normalize_plate(p) == normalize_plate(r))
     return hits / len(pairs)
 
 
@@ -119,30 +119,37 @@ def evaluate_end_to_end(csv_path: str, pipeline: Any | None = None) -> dict[str,
         try:
             image = load_image(resolve_path(row["image_path"]).read_bytes())
             rec = pipeline.recognize(image)
-            rows.append({"image_path": row["image_path"], "plate_gt": normalize_plate(row["plate_gt"]),
+            rows.append({"image_path": row["image_path"], "unit_id": row.get("unit_id"), "plate_gt": normalize_plate(row["plate_gt"]),
                          "plate_pred": rec.plate, "ocr_confidence": rec.ocr_confidence,
                          "tiempo_ms": rec.timings_ms.get("total")})
         except Exception as exc:  # noqa: BLE001 — una imagen dañada no detiene la evaluación
             logger.error("No se pudo evaluar %s: %s", row["image_path"], exc)
-            rows.append({"image_path": row["image_path"], "plate_gt": normalize_plate(row["plate_gt"]),
+            rows.append({"image_path": row["image_path"], "unit_id": row.get("unit_id"), "plate_gt": normalize_plate(row["plate_gt"]),
                          "plate_pred": None, "ocr_confidence": 0.0, "tiempo_ms": None})
     out = pd.DataFrame(rows)
     out.to_csv(resolve_path("results/metrics/e2e_predicciones.csv"), index=False)
     targets = load_config()["metas"]
     exact = int(sum(
-        pred is not None and normalize_plate(pred) == normalize_plate(ref)
+        pd.notna(pred) and pd.notna(ref) and normalize_plate(pred) == normalize_plate(ref)
         for pred, ref in zip(out["plate_pred"], out["plate_gt"])
     ))
-    n_units = len(out)
+    n_rows = len(out)
+    unit_ids_valid = (
+        "unit_id" in df.columns
+        and df["unit_id"].notna().all()
+        and not df["unit_id"].astype(str).duplicated().any()
+    )
+    ci = wilson_interval(exact, n_rows) if n_rows and unit_ids_valid else None
     result = {
-        "n": n_units, "detector": pipeline.detector.name,
-        "emr": exact / n_units if n_units else None,
+        "n": n_rows, "detector": pipeline.detector.name,
+        "emr": exact / n_rows if n_rows else None,
         "exact_matches": exact,
-        "emr_wilson_95": wilson_interval(exact, n_units) if n_units else None,
+        "emr_wilson_95": ci,
+        "wilson_status": "reported_unique_unit_id" if ci else "not_reported_requires_unique_unit_id",
         "cer": character_error_rate(out["plate_pred"], out["plate_gt"]),
         "tiempo_ms_promedio": float(out["tiempo_ms"].dropna().mean()) if out["tiempo_ms"].notna().any() else None,
         "meta_emr": targets["emr"], "meta_tiempo_s": targets["tiempo_e2e_s"],
-        "ci_note": "Wilson es válido si cada fila corresponde a una unidad independiente; agrupe imágenes repetidas de una misma pasada antes de interpretar el intervalo.",
+        "ci_note": "El IC solo se calcula si el CSV aporta unit_id no nulos y únicos; use un identificador por imagen independiente o por pasada de vehículo, nunca por cuadro repetido.",
     }
     save_json(result, "results/metrics/e2e.json")
     logger.info("Punta a punta: %s", result)
