@@ -167,7 +167,7 @@ El detector se entrenó con YOLO11-s durante 40 épocas y se exportó para la ap
 
 En el holdout ciego SAVH, el OCR base obtuvo 42/57 aciertos (73,7 %; IC Wilson 95 %: 61,0–83,4 %) y el OCR afinado 35/57 (61,4 %; IC: 48,4–72,9 %). La app presenta estos resultados con sus intervalos. No se informa IC para la proporción 18/30 del video.
 
-Consulta la [explicación del IC de Wilson](docs/ic_wilson.md), el [notebook reproducible](notebooks/Evaluacion_IC_Wilson_y_muestreo.ipynb) y el [JSON de métricas](results/metrics/ocr_savh_wilson.json).
+Consulta la [explicación del IC de Wilson](docs/ic_wilson.md), el [notebook reproducible](notebooks/Evaluacion_IC_Wilson.ipynb) y el [JSON de métricas](results/metrics/ocr_savh_wilson.json).
 
 ### Entrenamiento YOLO11
 
