@@ -32,4 +32,4 @@ Para reproducir la evaluación, ejecuta la sección 0, las celdas previas requer
 
 No se informa IC de Wilson para el resultado 18/30 del video. El cálculo requiere unidades independientes y referencia para todas las observaciones del denominador; las lecturas repetidas dentro de una pasada y los casos sin referencia no cumplen esas condiciones.
 
-En el holdout ciego de imágenes SAVH, el OCR base obtuvo 42/57 exactas (IC Wilson 95 %: 61,0–83,4 %) y el OCR afinado 35/57 (48,4–72,9 %). El [informe de Wilson](../../docs/ic_wilson.md) y el [notebook reproducible](../../notebooks/Evaluacion_IC_Wilson_y_muestreo.ipynb) detallan el cálculo.
+En el holdout ciego de imágenes SAVH, el OCR base obtuvo 42/57 exactas (IC Wilson 95 %: 61,0–83,4 %) y el OCR afinado 35/57 (48,4–72,9 %). El [informe de Wilson](../../docs/ic_wilson.md) y el [notebook reproducible](../../notebooks/Evaluacion_IC_Wilson.ipynb) detallan el cálculo.
