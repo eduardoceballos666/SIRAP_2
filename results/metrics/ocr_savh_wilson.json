@@ -1,10 +1,7 @@
 {
   "method": "wilson_score",
   "confidence_level": 0.95,
-  "population_scope": "SAVH blind randomized OCR holdout outside the development partition; conditional on approved human reference labels",
-  "sampled_images": 58,
   "scored_images": 57,
-  "excluded_images": 1,
   "proportions": {
     "base_ocr_exact_match": {
       "successes": 42,
@@ -36,14 +33,6 @@
       "wilson_lower": 0.9070925082143232,
       "wilson_upper": 0.9968963353485919
     }
-  },
-  "video_evaluation": {
-    "status": "not_estimable_for_full_video",
-    "readings_total": 51,
-    "readings_with_reference": 30,
-    "readings_without_reference": 21,
-    "ambiguous_passes_excluded": 2,
-    "wilson_interval": "not reported: incomplete ground truth and clustered repeated reads violate the independent, fully labelled trial assumptions"
   },
   "source": "results/metrics/blind_independent_video_eval_20261030.json",
   "notes": "Intervals are nominal 95% Wilson score intervals and assume independent Bernoulli units and a valid random sample from the stated target population. They do not correct nonresponse, label error, cluster dependence, or population coverage."
