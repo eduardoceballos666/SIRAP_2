@@ -1,0 +1,57 @@
+{
+  "method": "wilson_score",
+  "confidence_level": 0.95,
+  "population_scope": "SAVH blind randomized OCR holdout outside the development partition; conditional on approved human reference labels",
+  "sampled_images": 58,
+  "scored_images": 57,
+  "excluded_images": 1,
+  "exclusion_reason": "C015 has no row in the approved human-reference file; exclusion is retained and must be resolved or replaced through a predeclared random draw before claiming full eligibility coverage.",
+  "proportions": {
+    "base_ocr_exact_match": {
+      "successes": 42,
+      "trials": 57,
+      "estimate": 0.7368421052631579,
+      "wilson_lower": 0.6102342073651619,
+      "wilson_upper": 0.8335421340202693
+    },
+    "fine_tuned_ocr_exact_match": {
+      "successes": 35,
+      "trials": 57,
+      "estimate": 0.6140350877192983,
+      "wilson_lower": 0.4842973291580958,
+      "wilson_upper": 0.7293727611385934
+    },
+    "base_ocr_coverage": {
+      "successes": 56,
+      "trials": 57,
+      "estimate": 0.9824561403508771,
+      "wilson_lower": 0.9070925082143232,
+      "wilson_upper": 0.9968963353485919
+    },
+    "fine_tuned_ocr_coverage": {
+      "successes": 56,
+      "trials": 57,
+      "estimate": 0.9824561403508771,
+      "wilson_lower": 0.9070925082143232,
+      "wilson_upper": 0.9968963353485919
+    }
+  },
+  "representativeness": {
+    "status": "conditional_holdout_not_full_operationally_representative",
+    "known_limitations": [
+      "one of 58 sampled records was not scoreable against approved ground truth",
+      "the published holdout is not stratified across the full range of cameras, lighting, distance, plate size, and operating conditions",
+      "results do not estimate performance over all vehicle passes or all future deployments"
+    ]
+  },
+  "video_evaluation": {
+    "status": "not_estimable_for_full_video",
+    "readings_total": 51,
+    "readings_with_reference": 30,
+    "readings_without_reference": 21,
+    "ambiguous_passes_excluded": 2,
+    "wilson_interval": "not reported: incomplete ground truth and clustered repeated reads violate the independent, fully labelled trial assumptions"
+  },
+  "source": "results/metrics/blind_independent_video_eval_20261030.json",
+  "notes": "Intervals are nominal 95% Wilson score intervals and assume independent Bernoulli units and a valid random sample from the stated target population. They do not correct nonresponse, label error, cluster dependence, or population coverage."
+}
