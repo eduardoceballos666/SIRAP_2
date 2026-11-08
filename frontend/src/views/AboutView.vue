@@ -24,7 +24,7 @@ const cards = computed(() => {
     { label: t('mAP@0.5 (test)'), value: num(d.map50), sub: `${d.imagenes ?? '—'} ${t('imágenes')} · ${d.placas ?? '—'} ${t('placas')}` },
     { label: t('mAP@0.5:0.95'), value: num(d.map50_95), sub: t('Detector YOLO11-s') },
     { label: t('Precisión / Recall'), value: `${num(d.precision, 3)} / ${num(d.recall, 3)}`, sub: `F1 ${num(d.f1)}` },
-    { label: t('Exactitud OCR (SAVH)'), value: pct(o.emr, 1), sub: `${o.n ?? '—'} ${t('placas de Guayaquil')} · CER ${pct(o.cer, 1)}` },
+    { label: t('Exactitud OCR (holdout ciego)'), value: pct(wilson.value.base_ocr_exact_match?.estimate, 1), sub: `${m.value.ocr_savh_wilson?.scored_images ?? '—'} ${t('imágenes puntuables')} · IC 95% ${ciRange(wilson.value.base_ocr_exact_match)}` },
     { label: t('Tiempo por decisión'), value: e.tiempo_ms_promedio ? `${Math.round(e.tiempo_ms_promedio)} ms` : '—', sub: t('Detección + OCR (meta < 1 s)') },
     { label: t('Umbral del detector'), value: num(m.value.umbrales?.YOLO11?.conf, 2), sub: t('Calibrado en validación') },
   ]
@@ -77,10 +77,10 @@ const plateSizeChart = computed(() => {
   ], '#0f766e')
 })
 const ocrChart = computed(() => {
-  const o = m.value.ocr_savh || {}
+  const o = wilson.value
   return percentBarChart([
-    { label: 'Lectura exacta (EMR)', value: o.emr },
-    { label: 'Formato válido', value: o.formato_valido },
+    { label: t('Lectura exacta (holdout)'), value: o.base_ocr_exact_match?.estimate },
+    { label: t('Cobertura de lectura'), value: o.base_ocr_coverage?.estimate },
   ], '#16a34a')
 })
 const latencyChart = computed(() => {
@@ -162,7 +162,7 @@ const opt = computed(() => m.value.optimizacion_resumen || {})
       </section>
       <section class="card">
         <h3 class="font-bold">{{ $t("Lectura OCR en placas de Guayaquil") }}</h3>
-        <p class="text-sm text-muted">{{ $t("SAVH,") }} {{ m.ocr_savh?.n ?? '—' }} {{ $t("placas revisadas. CER:") }} {{ pct(m.ocr_savh?.cer, 1) }} {{ $t("(menor es mejor).") }}</p>
+        <p class="text-sm text-muted">{{ $t("Holdout ciego SAVH:") }} {{ m.ocr_savh_wilson?.scored_images ?? '—' }} {{ $t("imágenes con referencia aprobada. CER:") }} {{ pct(wilson.base_ocr_exact_match?.cer, 1) }} {{ $t("(menor es mejor).") }}</p>
         <VChart :option="ocrChart" autoresize style="height: 210px" />
       </section>
       <section class="card">
