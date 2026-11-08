@@ -14,6 +14,8 @@ export const language = ref(savedLanguage)
 export const localeTag = computed(() => language.value === 'en' ? 'en-US' : 'es-EC')
 
 const en = {
+  'Holdout SAVH:': 'SAVH holdout:',
+  'imágenes puntuables.': 'scoreable images.',
   'Los intervalos corresponden a las 57 imágenes puntuables del holdout SAVH.': 'The intervals correspond to the 57 scoreable images in the SAVH holdout.',
   'Ver explicación del IC de Wilson': 'Read the Wilson interval explanation',
   'Exactitud OCR (holdout ciego)': 'OCR exact match (blind holdout)',
@@ -23,10 +25,6 @@ const en = {
   'imágenes con referencia aprobada. CER:': 'images with approved ground truth. CER:',
 
   'Validación ciega OCR (holdout SAVH)': 'Blind OCR validation (SAVH holdout)',
-  'Muestra aleatoria independiente del conjunto de desarrollo:': 'Random sample independent from the development set:',
-  'imágenes puntuables de': 'scored images out of',
-  'seleccionadas;': 'selected;',
-  'sin referencia aprobada.': 'without approved ground truth.',
   'OCR base': 'Base OCR',
   'OCR afinado': 'Fine-tuned OCR',
   'IC de Wilson al 95 %': '95% Wilson confidence interval',
