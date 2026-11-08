@@ -194,8 +194,8 @@ const opt = computed(() => m.value.optimizacion_resumen || {})
         <p class="text-sm text-muted">{{ $t("IC de Wilson al 95 %") }}: {{ ciRange(wilson.fine_tuned_ocr_exact_match) }}</p>
       </div>
     </div>
-    <p class="text-sm text-muted">{{ $t("Este intervalo describe el holdout SAVH con referencias aprobadas; no representa por sí solo todas las garitas ni condiciones operativas.") }}</p>
-    <p class="text-sm"><a class="text-brand-600 hover:underline" href="https://github.com/eduardoceballos666/SIRAP_2/blob/main/docs/evaluacion_representativa.md" target="_blank" rel="noopener noreferrer">{{ $t("Ver protocolo y notebook reproducible") }}</a></p>
+    <p class="text-sm text-muted">{{ $t("Los intervalos corresponden a las 57 imágenes puntuables del holdout SAVH.") }}</p>
+    <p class="text-sm"><a class="text-brand-600 hover:underline" href="https://github.com/eduardoceballos666/SIRAP_2/blob/main/docs/ic_wilson.md" target="_blank" rel="noopener noreferrer">{{ $t("Ver explicación del IC de Wilson") }}</a></p>
   </section>
 
   <div class="mt-5 grid gap-5 xl:grid-cols-2">
@@ -223,7 +223,7 @@ const opt = computed(() => m.value.optimizacion_resumen || {})
       <ul class="list-disc space-y-1.5 pl-5">
         <li>{{ $t("El detector se entrenó con placas de varios países; no es específico de Ecuador. El OCR se validó con placas reales\n          de") }} <b>{{ $t("SAVH Guayaquil") }}</b>{{ $t(", pero rinde menos con placas sucias, dañadas, de noche, muy inclinadas o lejanas\n          (mAP@0.5:0.95 de placas pequeñas:") }} {{ num(m.detector_test?.map50_95_pequenas) }}{{ $t(").") }}</li>
         <li>{{ $t("El umbral OCR operativo es") }} {{ pct(info?.umbral_ocr ?? 0.94) }}{{ $t(". Se eligió considerando los recursos CPU limitados del hosting: en video y cámara, la interfaz analiza cada segundo y puede terminar antes cuando confirma la misma placa en dos cuadros, evitando cuadros adicionales. El umbral no acelera cada inferencia. Las lecturas inferiores o inconsistentes pasan a verificación manual. El operador solicita la apertura; la barrera no se abre solo por reconocer una placa.") }}</li>
-        <li>{{ $t("La evaluación del video de garita es parcial: 30 de 51 lecturas tienen referencia, 21 no son clasificables y dos pasadas siguen dudosas. El 18/30 es descriptivo para lecturas comparables; no estima el video completo y no recibe un IC de Wilson.") }}</li>
+        <li>{{ $t("El EMR punta a punta en la garita real aún no se midió (falta la referencia anotada del video).") }}</li>
         <li>{{ $t("Las imágenes de ejemplo derivan del diseño de la interfaz; no son capturas reales. La barrera de esta versión es") }}
           <b>{{ $t("simulada") }}</b> {{ $t("y la base de demostración contiene datos ficticios respaldados en el repositorio privado configurado.") }}</li>
         <li>{{ $t("SIRAP") }} <b>{{ $t("no debe usarse") }}</b> {{ $t("para vigilancia masiva, rastreo de personas ni fines distintos al control de acceso de la instalación. Detalles en") }} <code>{{ $t("docs/consideraciones_eticas.md") }}</code>{{ $t(".") }}</li>
