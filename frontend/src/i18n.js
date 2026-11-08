@@ -14,6 +14,12 @@ export const language = ref(savedLanguage)
 export const localeTag = computed(() => language.value === 'en' ? 'en-US' : 'es-EC')
 
 const en = {
+  'Exactitud OCR (holdout ciego)': 'OCR exact match (blind holdout)',
+  'Lectura exacta (holdout)': 'Exact read (holdout)',
+  'Cobertura de lectura': 'Read coverage',
+  'Holdout ciego SAVH:': 'Blind SAVH holdout:',
+  'imágenes con referencia aprobada. CER:': 'images with approved ground truth. CER:',
+
   'Validación ciega OCR (holdout SAVH)': 'Blind OCR validation (SAVH holdout)',
   'Muestra aleatoria independiente del conjunto de desarrollo:': 'Random sample independent from the development set:',
   'imágenes puntuables de': 'scored images out of',
