@@ -165,7 +165,7 @@ El detector se entrenó con YOLO11-s durante 40 épocas y se exportó para la ap
 
 ### Intervalos de Wilson
 
-En el holdout ciego SAVH, el OCR base obtuvo 42/57 aciertos (73,7 %; IC Wilson 95 %: 61,0–83,4 %) y el OCR afinado 35/57 (61,4 %; IC: 48,4–72,9 %). La app presenta estos resultados con sus intervalos. No se informa IC para la proporción 18/30 del video.
+En el holdout ciego SAVH de 57 imágenes, el OCR base obtuvo 42 aciertos exactos (73,7 %; IC Wilson 95 %: 61,0–83,4 %) y el OCR afinado 35 (61,4 %; IC: 48,4–72,9 %). La cobertura fue 56/57 (98,2 %; IC: 90,7–99,7 %) para ambos; cobertura significa que hubo una salida OCR, no que la lectura fuera correcta. Estos intervalos corresponden a ese holdout y son distintos del EMR de 399 recortes de la evaluación SAVH en el notebook principal. Describen incertidumbre de las proporciones bajo supuestos binomiales, sin corregir selección ni calidad de etiquetas. No se informa IC para la proporción de video 18/30, porque las lecturas no son necesariamente unidades independientes y existen casos sin referencia.
 
 Consulta la [explicación del IC de Wilson](docs/ic_wilson.md), el [notebook reproducible](notebooks/Evaluacion_IC_Wilson.ipynb) y el [JSON de métricas](results/metrics/ocr_savh_wilson.json).
 
