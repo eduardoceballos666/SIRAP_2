@@ -5,7 +5,7 @@ Los notebooks documentan el análisis de datos, la preparación, el entrenamient
 | Notebook | Propósito |
 |---|---|
 | [SIRAP_backend.ipynb](SIRAP_backend.ipynb) | Flujo principal: detector YOLO11-s, OCR, reglas de acceso, video de garita, evaluaciones 7.2 y 7.3, y modo en vivo. No incrusta videos. |
-| [Evaluacion_IC_Wilson_y_muestreo.ipynb](Evaluacion_IC_Wilson_y_muestreo.ipynb) | Cálculo reproducible de los IC de Wilson para coincidencia exacta y cobertura OCR en el holdout SAVH. |
+| [Evaluacion_IC_Wilson.ipynb](Evaluacion_IC_Wilson.ipynb) | Cálculo reproducible de los IC de Wilson para coincidencia exacta y cobertura OCR en el holdout SAVH. |
 | [01_exploracion.ipynb](01_exploracion.ipynb) | Análisis exploratorio del dataset de detección y de SAVH. |
 | [02_preprocesamiento.ipynb](02_preprocesamiento.ipynb) | Preparación del dataset YOLO, normalización y referencias de SAVH. |
 | [03_modelado.ipynb](03_modelado.ipynb) | Entrenamiento del detector, integración OCR y regla de decisión. |
