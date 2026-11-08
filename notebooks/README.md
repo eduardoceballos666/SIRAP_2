@@ -5,6 +5,7 @@ Los notebooks documentan el análisis de datos, la preparación, el entrenamient
 | Notebook | Propósito |
 |---|---|
 | [SIRAP_backend.ipynb](SIRAP_backend.ipynb) | Flujo principal: detector YOLO11-s, OCR, reglas de acceso, video de garita, evaluaciones 7.2 y 7.3, y modo en vivo. No incrusta videos. |
+| [Evaluacion_IC_Wilson_y_muestreo.ipynb](Evaluacion_IC_Wilson_y_muestreo.ipynb) | IC de Wilson para el holdout independiente y protocolo de muestreo/anotación representativo; identifica por qué el video parcial no admite un IC válido. |
 | [01_exploracion.ipynb](01_exploracion.ipynb) | Análisis exploratorio del dataset de detección y de SAVH. |
 | [02_preprocesamiento.ipynb](02_preprocesamiento.ipynb) | Preparación del dataset YOLO, normalización y referencias de SAVH. |
 | [03_modelado.ipynb](03_modelado.ipynb) | Entrenamiento del detector, integración OCR y regla de decisión. |
@@ -49,3 +50,10 @@ Los gráficos pequeños y las métricas agregadas están en [figuras](../results
 La aplicación web se encuentra en [Hugging Face](https://huggingface.co/spaces/eduardoceballos/SIRAP) y puede abrirse en [eduardoceballos-sirap.hf.space](https://eduardoceballos-sirap.hf.space). La interfaz ofrece español e inglés; la [API interactiva](https://eduardoceballos-sirap.hf.space/docs) está disponible para consulta. El workflow de despliegue sincroniza `SIRAP_backend.ipynb` con el Space cuando ese notebook cambia en `main`.
 
 El código, los notebooks y los artefactos están en [GitHub SIRAP_2](https://github.com/eduardoceballos666/SIRAP_2). Los videos de presentación están enlazados al final del [README principal](../README.md).
+
+
+## IC de Wilson y evaluación representativa
+
+El notebook dedicado reproduce los IC de Wilson de 95 % para el holdout ciego SAVH (OCR base: 42/57; afinado: 35/57) y explica sus supuestos. Cada ensayo debe ser una unidad independiente y tener etiqueta aprobada. La muestra respalda una inferencia condicional a las imágenes elegibles SAVH; no permite inferir rendimiento para todas las garitas y condiciones.
+
+La evaluación actual de video informa 18/30 lecturas comparables; 21/51 lecturas carecen de referencia y dos pasadas son dudosas. Por la referencia incompleta y la dependencia de lecturas dentro de pasadas, el notebook no calcula un IC para el video completo. El protocolo para seleccionar pasadas por cámara/condición, etiquetarlas a ciegas y resolver faltantes está en [docs/evaluacion_representativa.md](../docs/evaluacion_representativa.md).
