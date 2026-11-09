@@ -6,7 +6,7 @@ colorTo: blue
 sdk: docker
 app_port: 7860
 pinned: false
-license: mit
+license: agpl-3.0
 short_description: Reconocimiento de placas y control de acceso (YOLO11 + OCR)
 ---
 
