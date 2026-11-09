@@ -229,5 +229,14 @@ const opt = computed(() => m.value.optimizacion_resumen || {})
         <li>{{ $t("SIRAP") }} <b>{{ $t("no debe usarse") }}</b> {{ $t("para vigilancia masiva, rastreo de personas ni fines distintos al control de acceso de la instalación. Detalles en") }} <code>{{ $t("docs/consideraciones_eticas.md") }}</code>{{ $t(".") }}</li>
       </ul>
     </section>
+    <section class="card space-y-3 leading-relaxed xl:col-span-2">
+      <h2 class="card-title"><span class="icon-chip"><AppIcon name="info" /></span> {{ $t("Código fuente y licencia") }}</h2>
+      <p>{{ $t("SIRAP se distribuye bajo la GNU Affero General Public License, versión 3 (AGPL-3.0). El software se ofrece sin garantía; puede compartirse conforme a los términos de la licencia.") }}</p>
+      <p>
+        <a class="link" href="https://github.com/eduardoceballos666/SIRAP_2" target="_blank" rel="noopener noreferrer">{{ $t("Ver código fuente") }}</a>
+        ·
+        <a class="link" href="https://github.com/eduardoceballos666/SIRAP_2/blob/main/LICENSE" target="_blank" rel="noopener noreferrer">{{ $t("Leer AGPL-3.0") }}</a>
+      </p>
+    </section>
   </div>
 </template>
