@@ -12,7 +12,7 @@
 ![Vue](https://img.shields.io/badge/Frontend-Vue%203-42b883?logo=vuedotjs&logoColor=white)
 ![Detector](https://img.shields.io/badge/Detector-YOLO11--s-0b2a6b)
 ![OCR](https://img.shields.io/badge/OCR-fast--plate--ocr-2156e8)
-![License](https://img.shields.io/badge/License-MIT-yellow)
+![License](https://img.shields.io/badge/License-AGPL--3.0-blue)
 
 **Interfaz disponible en español e inglés.**
 
