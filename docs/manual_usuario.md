@@ -43,9 +43,9 @@ Guía práctica de operación, consulta y administración en computadora y dispo
 
 **© 2026 Eduardo Alejandro Ceballos Jijón y Christian Xavier Valle Maridueña.** Todos los derechos reservados sobre los elementos de SIRAP cuyos derechos pertenezcan a sus titulares.
 
-El código de SIRAP se distribuye bajo la Licencia MIT, que permite usar, copiar, modificar, distribuir, sublicenciar y vender el software, siempre que se conserven el aviso de copyright y el texto de la licencia en las copias o partes sustanciales. [<u>Open Source Initiative: Licencia MIT</u>](https://opensource.org/license/mit)
+El código de SIRAP se distribuye bajo la **GNU Affero General Public License, versión 3 (AGPL-3.0)**. El texto completo está en [LICENSE](../LICENSE). La licencia permite usar, estudiar, modificar y redistribuir el software conforme a sus términos. Si una versión modificada permite interacción remota por red, la sección 13 requiere ofrecer a esos usuarios acceso al código fuente correspondiente. El código fuente de la versión actual está disponible en [GitHub](https://github.com/eduardoceballos666/SIRAP_2). Las versiones publicadas anteriormente bajo MIT conservan la licencia otorgada para esas versiones; este cambio aplica a la versión actual.
 
-Los pesos entrenados con Ultralytics están sujetos a AGPL-3.0. Los componentes de terceros conservan sus respectivas licencias.
+Los componentes, modelos y datos de terceros conservan sus licencias y condiciones respectivas. Los pesos entrenados con Ultralytics están sujetos a AGPL-3.0. Consulte [THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md).
 
 **Recursos del proyecto**
 
