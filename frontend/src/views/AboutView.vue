@@ -231,6 +231,7 @@ const opt = computed(() => m.value.optimizacion_resumen || {})
     </section>
     <section class="card space-y-3 leading-relaxed xl:col-span-2">
       <h2 class="card-title"><span class="icon-chip"><AppIcon name="info" /></span> {{ $t("Código fuente y licencia") }}</h2>
+      <p>© 2026 Eduardo Alejandro Ceballos Jijón y Christian Xavier Valle Maridueña.</p>
       <p>{{ $t("SIRAP se distribuye bajo la GNU Affero General Public License, versión 3 (AGPL-3.0). El software se ofrece sin garantía; puede compartirse conforme a los términos de la licencia.") }}</p>
       <p>
         <a class="link" href="https://github.com/eduardoceballos666/SIRAP_2" target="_blank" rel="noopener noreferrer">{{ $t("Ver código fuente") }}</a>
