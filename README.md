@@ -325,7 +325,7 @@ Dirección y asesoría académica: Gladys María Villegas Rugel.
 
 ## Licencia y atribuciones
 
-El código de SIRAP se distribuye bajo [MIT](LICENSE). Los pesos entrenados con Ultralytics están sujetos a AGPL-3.0. El dataset de Roboflow utiliza CC BY 4.0. Los demás componentes y recursos conservan sus licencias y condiciones originales; consulte [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+El código de SIRAP se distribuye bajo la GNU Affero General Public License, versión 3 ([AGPL-3.0](LICENSE)). La sección 13 contempla el acceso al código fuente correspondiente cuando una versión modificada permite interacción remota por red. Las versiones publicadas anteriormente bajo MIT conservan la licencia otorgada para esas versiones; este cambio aplica a la versión actual. Las dependencias, los modelos y los datos de terceros conservan sus propias condiciones; consulte [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 
 ## Agradecimientos y recursos
 
