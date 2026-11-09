@@ -63,3 +63,7 @@ La aplicación de demostración se ejecuta en CPU, sin GPU dedicada. Por eso, la
 - **Videos de presentación:** [README principal](https://github.com/eduardoceballos666/SIRAP_2#videos-de-entrega)
 
 SIRAP 1.0 ofrece interfaz en español e inglés. La configuración del Space y su despliegue se administran desde este repositorio.
+
+## Licencia
+
+El código de la versión actual se distribuye bajo **GNU AGPL-3.0**. El código fuente está disponible en [GitHub](https://github.com/eduardoceballos666/SIRAP_2). La sección 13 de la licencia contempla el acceso al código fuente correspondiente para usuarios que interactúan remotamente con versiones modificadas. Las versiones publicadas anteriormente bajo MIT conservan la licencia otorgada para esas versiones; este cambio aplica a la versión actual. Las dependencias, modelos y datos de terceros mantienen sus condiciones respectivas.
