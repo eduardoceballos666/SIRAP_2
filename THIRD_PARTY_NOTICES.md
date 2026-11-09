@@ -1,6 +1,6 @@
 # Avisos de componentes y recursos de terceros
 
-La licencia MIT de [LICENSE](LICENSE) cubre el código original de SIRAP. No sustituye las licencias ni las condiciones aplicables a modelos, pesos, bibliotecas o conjuntos de datos de terceros.
+La GNU Affero General Public License, versión 3 (AGPL-3.0), de [LICENSE](LICENSE) cubre el código original de SIRAP en la versión actual. Las versiones publicadas anteriormente bajo MIT conservan la licencia otorgada para esas versiones. La licencia del proyecto no sustituye las licencias ni las condiciones aplicables a modelos, pesos, bibliotecas o conjuntos de datos de terceros.
 
 ## Modelos y bibliotecas
 
