@@ -21,12 +21,16 @@ logger = get_logger("sirap.api.security")
 
 ROLES = ("OPERADOR", "SUPERVISOR", "ADMINISTRADOR")
 _ITERATIONS = 240_000
+_MIN_PASSWORD_LENGTH = 15
+_COMPROMISED_PASSWORDS = {"sirap2026"}
 
 
 def hash_password(password: str) -> str:
     """Hash PBKDF2-SHA256 con sal aleatoria, en formato ``pbkdf2$iteraciones$sal$hash``."""
-    if len(password) < 8:
-        raise ValueError("La contraseña debe tener al menos 8 caracteres.")
+    if password.strip().casefold() in _COMPROMISED_PASSWORDS:
+        raise ValueError("La contraseña conocida de demostración está bloqueada; elija una contraseña nueva.")
+    if len(password) < _MIN_PASSWORD_LENGTH:
+        raise ValueError(f"La contraseña debe tener al menos {_MIN_PASSWORD_LENGTH} caracteres.")
     salt = os.urandom(16)
     digest = hashlib.pbkdf2_hmac("sha256", password.encode(), salt, _ITERATIONS)
     return "pbkdf2${}${}${}".format(_ITERATIONS, base64.b64encode(salt).decode(), base64.b64encode(digest).decode())
@@ -56,13 +60,21 @@ def decode_token(token: str) -> dict[str, Any]:
 
 
 def ensure_credentials_table(store: Any) -> None:
-    """Crea credenciales CSV para los usuarios activos de demostración."""
-    if not settings.demo_password:
-        return
+    """Inicializa hashes ausentes solo en desarrollo; producción exige credenciales individuales precargadas."""
+    missing = []
     for usuario in store.active_users():
-        if not store.credential_hash(usuario):
+        if store.credential_hash(usuario):
+            continue
+        if settings.demo_password:
             store.set_credential(usuario, hash_password(settings.demo_password))
-            logger.info("Usuario de demostración habilitado en la API: %s", usuario)
+            logger.info("Hash inicial creado para la cuenta local: %s", usuario)
+        else:
+            missing.append(usuario)
+    if settings.github_required and missing:
+        raise RuntimeError(
+            "Hay cuentas activas sin contraseña individual en credenciales.csv; "
+            "restablézcalas antes de desplegar."
+        )
 
 
 def authenticate(store: Any, usuario: str, password: str) -> dict[str, Any] | None:

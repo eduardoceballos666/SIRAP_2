@@ -123,7 +123,7 @@ flowchart TD
     B -- no --> M[VERIFICACIÓN MANUAL<br/>placa no legible]
     B -- sí --> B2{¿Confianza del detector ≥ 0,30?}
     B2 -- no --> M4[VERIFICACIÓN MANUAL<br/>detección dudosa]
-    B2 -- sí --> C{¿Confianza OCR ≥ 0,99?}
+    B2 -- sí --> C{¿Confianza OCR ≥ 0,94?}
     C -- no --> M2[VERIFICACIÓN MANUAL<br/>confianza baja]
     C -- sí --> D{¿En lista RESTRINGIDA vigente?}
     D -- sí --> X[ACCESO DENEGADO]
@@ -134,10 +134,12 @@ flowchart TD
     F -- no --> N[NO REGISTRADO]
 ```
 
-Los umbrales operativos son detector 0,30 (calibrado en *val*) y OCR 0,99; la distancia para «¿quiso decir…?» es 1.
-La interfaz exige al menos 99 % de confianza OCR antes de mostrar la lectura como confirmada. Los resultados de evaluación offline
-con umbral 0,94 corresponden a una configuración anterior y no describen el rendimiento medido de la app con 0,99. La decisión **nunca abre la barrera sola**: la
-interfaz habilita «Registrar y Abrir Barrera» solo con *acceso autorizado* y una vez por captura.
+Los umbrales operativos actuales son detector 0,30 (calibrado en *val*) y OCR 0,94; la distancia para «¿quiso decir…?» es 1.
+En imágenes, una lectura confirmada debe alcanzar 0,94. En video y cámara, además se exige la misma placa en dos cuadros aceptados
+dentro de 7,5 segundos. El valor 0,99 se usó en análisis offline anteriores y no describe la configuración de la aplicación.
+Estas reglas no acreditan una tasa de falsas autorizaciones aceptable: las evaluaciones punta a punta publicadas quedan bajo la meta
+de exactitud del 80 %. La decisión no acciona la barrera por sí sola; el operador debe solicitar la apertura y la API vuelve a validar
+la lista vigente.
 
 ## 4. Pipeline de datos (de la entrada a la salida)
 
@@ -150,7 +152,7 @@ interfaz habilita «Registrar y Abrir Barrera» solo con *acceso autorizado* y u
 | 5 | `normalize_plate` | texto → `XXX-0000` o `None` |
 | 6 | `ALPRPipeline.recognize` | elige la mejor lectura válida → `Recognition` (placa, confianzas, caja, tiempos) |
 | 7 | `decide_access` | placa + confianza + base → `AccessDecision` |
-| 8 | `CsvStore.log_operation` | operación confirmada → fila en `operaciones` (solo inserción) |
+| 8 | `CsvStore.log_operation` | operación confirmada → fila en `operaciones`; el estado de barrera se actualiza después en esa fila |
 
 En el **notebook** el pipeline de video añade seguimiento **OC-SORT** (cada camión se lee una sola vez, con los
 recortes más grandes que tuvo la placa y voto de lecturas) y un **modo en vivo** sobre una cámara publicada con un

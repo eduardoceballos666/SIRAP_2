@@ -38,6 +38,18 @@ def _run(fn, *args, **kwargs):
         raise HTTPException(422, str(exc))
 
 
+def _require_distinct_white_list_approver(db, plate: str, user: dict) -> None:
+    vehicle = _run(db.get_vehicle, plate)
+    if vehicle is None:
+        return
+    registrant = str(vehicle.get("registrado_por") or "").strip()
+    if registrant and registrant.casefold() == str(user["usuario"]).casefold():
+        raise HTTPException(
+            status.HTTP_409_CONFLICT,
+            "La cuenta que registró el vehículo no puede autorizarlo. Solicite la aprobación de otra cuenta Administrador.",
+        )
+
+
 @router.get("/{table}", summary="Contenido de una tabla")
 def get_table(table: Table, _: dict = Depends(admin_read)) -> list[dict[str, Any]]:
     df = get_store().table(table)
@@ -45,7 +57,7 @@ def get_table(table: Table, _: dict = Depends(admin_read)) -> list[dict[str, Any
 
 
 @router.post("/vehiculos", status_code=201, summary="Crear o actualizar un vehículo")
-def upsert_vehicle(body: schemas.AdminVehicleIn, _: dict = Depends(admin_only)) -> dict[str, str]:
+def upsert_vehicle(body: schemas.AdminVehicleIn, user: dict = Depends(admin_only)) -> dict[str, str]:
     plate = _plate(body.placa)
     fields = [body.marca, body.modelo, body.color, body.propietario, body.transportista]
     if any(not value.strip() for value in fields):
@@ -53,7 +65,7 @@ def upsert_vehicle(body: schemas.AdminVehicleIn, _: dict = Depends(admin_only)) 
     db = get_store()
     updating = _run(db.get_vehicle, plate) is not None
     _run(db.upsert_vehicle, plate, body.marca.strip(), body.modelo.strip(), body.color.strip(), body.tipo,
-         body.propietario.strip(), body.transportista.strip())
+         body.propietario.strip(), body.transportista.strip(), user["usuario"])
     message = "Registro actualizado correctamente." if updating else f"Vehículo {plate} guardado correctamente."
     return {"placa": plate, "mensaje": message}
 
@@ -63,7 +75,10 @@ def set_authorization(body: schemas.AuthorizationIn, user: dict = Depends(admin_
     plate = _plate(body.placa)
     if not body.motivo.strip():
         raise HTTPException(422, "El motivo es obligatorio.")
-    _run(get_store().set_authorization, plate, body.lista, body.motivo.strip(), body.vigente_hasta, user["usuario"])
+    db = get_store()
+    if body.lista == "BLANCA":
+        _require_distinct_white_list_approver(db, plate, user)
+    _run(db.set_authorization, plate, body.lista, body.motivo.strip(), body.vigente_hasta, user["usuario"])
     return {"placa": plate, "mensaje": f"{plate} ahora está en la lista {body.lista}."}
 
 
@@ -75,7 +90,10 @@ def update_authorization(placa: str, body: schemas.AuthorizationIn,
         raise HTTPException(422, "La placa del formulario no coincide con la placa que se actualiza.")
     if not body.motivo.strip():
         raise HTTPException(422, "El motivo es obligatorio.")
-    _run(get_store().update_authorization, plate, body.lista, body.motivo.strip(),
+    db = get_store()
+    if body.lista == "BLANCA":
+        _require_distinct_white_list_approver(db, plate, user)
+    _run(db.update_authorization, plate, body.lista, body.motivo.strip(),
          body.vigente_hasta, user["usuario"])
     return {"placa": plate, "mensaje": f"Autorización de {plate} actualizada en la lista {body.lista}."}
 
@@ -99,6 +117,18 @@ def update_selected_truck_authorizations(body: schemas.BulkTruckAuthorizationIn,
     if missing or non_trucks:
         invalid = missing + non_trucks
         raise HTTPException(422, f"Solo se pueden cambiar camiones registrados. Revise: {', '.join(invalid)}.")
+    if body.lista == "BLANCA":
+        self_registered = [
+            plate for plate, vehicle in vehicles.items()
+            if vehicle and str(vehicle.get("registrado_por") or "").strip().casefold()
+            == str(user["usuario"]).casefold()
+        ]
+        if self_registered:
+            raise HTTPException(
+                status.HTTP_409_CONFLICT,
+                "La cuenta que registró un vehículo no puede autorizarlo. Solicite aprobación de otra cuenta Administrador: "
+                + ", ".join(self_registered),
+            )
     try:
         for plate in plates:
             if body.lista:

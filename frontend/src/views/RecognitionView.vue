@@ -59,7 +59,6 @@ const readingsOpen = ref(false)
 const registrationOpen = ref(false)
 const registrationPromptDismissed = ref(false)
 const plateConfirmedForRegistration = ref(false)
-const authorizeOnRegistration = ref(false)
 const operationAttemptId = ref(null)
 const vehicleDraft = reactive({ marca: '', modelo: '', color: '', propietario: '', transportista: '' })
 const showCapture = ref(false)
@@ -513,7 +512,6 @@ const needsVehicleRegistration = computed(() => decision.value?.resultado === 'N
 function startVehicleRegistration() {
   Object.assign(vehicleDraft, { marca: '', modelo: '', color: '', propietario: '', transportista: '' })
   plateConfirmedForRegistration.value = false
-  authorizeOnRegistration.value = false
   registrationOpen.value = true
 }
 
@@ -528,7 +526,7 @@ async function saveVehicle() {
     const saved = await api('/api/plates/register', {
       method: 'POST',
       body: { placa: plateShown.value, ...vehicleDraft, tipo: 'CAMION',
-        placa_confirmada: plateConfirmedForRegistration.value, autorizar: authorizeOnRegistration.value },
+        placa_confirmada: plateConfirmedForRegistration.value },
     })
     const checked = await api('/api/plates/verify', { method: 'POST', body: { placa: saved.placa } })
     manualPlate.value = checked.placa
@@ -761,8 +759,7 @@ onMounted(async () => {
       <label class="field-label" for="vehicle-owner">{{ $t("Propietario *") }}</label><input id="vehicle-owner" v-model.trim="vehicleDraft.propietario" class="field" required maxlength="120" :placeholder="$t('Nombre del propietario')" />
       <label class="field-label" for="vehicle-carrier">{{ $t("Transportista") }}</label><input id="vehicle-carrier" v-model.trim="vehicleDraft.transportista" class="field" maxlength="120" :placeholder="$t('Empresa transportista (opcional)')" />
       <label class="registration-note"><input type="checkbox" v-model="plateConfirmedForRegistration" required /> {{ $t("Confirmo que comparé la placa con el vehículo y que sus datos son correctos.") }}</label>
-      <label class="registration-note"><input type="checkbox" v-model="authorizeOnRegistration" /> {{ $t("Autorizar ahora este camión en la lista blanca (solo si comprobé que su ingreso está permitido).") }}</label>
-      <p class="registration-note">{{ $t("Los tres perfiles pueden autorizar una placa nueva después de verificarla. Si no marca la autorización, el camión quedará registrado sin permiso de entrada. Una placa existente o restringida no puede modificarse aquí.") }}</p>
+      <p class="registration-note">{{ $t("El vehículo quedará pendiente. Una cuenta de Administrador diferente de la cuenta que lo registró debe aprobarlo en Administración antes de permitir el ingreso.") }}</p>
       <div class="mt-4 flex justify-end gap-2"><button type="button" class="btn-ghost" @click="registrationOpen = false">{{ $t("Cancelar") }}</button><button type="submit" class="btn-primary" :disabled="busy || !plateConfirmedForRegistration">{{ $t(busy ? 'Guardando…' : 'Guardar camión') }}</button></div>
     </form>
   </ModalDialog>

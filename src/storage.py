@@ -206,7 +206,7 @@ class CsvStore:
     def upsert_owner(self,nombre,tipo="PERSONA",contacto=None):
         if not nombre.strip():raise ValueError("El nombre del propietario es obligatorio.")
         return 1
-    def upsert_vehicle(self,placa,marca="",modelo="",color="",tipo="LIVIANO",propietario=None,transportista=None):
+    def upsert_vehicle(self,placa,marca="",modelo="",color="",tipo="LIVIANO",propietario=None,transportista=None,registrado_por=None):
         placa=placa.strip().upper()
         if not placa:raise ValueError("La placa es obligatoria.")
         row={"placa":placa,"marca":marca,"modelo":modelo,"color":color,"tipo":tipo,"propietario":propietario or "","transportista":transportista or "","fuente":"ADMIN","actualizado_en":now_local().isoformat(sep=" ",timespec="seconds")}
@@ -215,7 +215,9 @@ class CsvStore:
             if m.any():
                 i=d[m].index[-1]
                 for k,v in row.items():d.at[i,k]=v
-            else:d.loc[len(d)]=row
+            else:
+                row["registrado_por"]=(registrado_por or "").strip()
+                d.loc[len(d)]=row
             self._write("vehiculos",d)
     def create_vehicle_from_access(self,placa,marca,modelo,color,propietario,transportista,usuario):
         """Solo crea vehículos nuevos, sin sobrescribir restricciones ni datos previos."""

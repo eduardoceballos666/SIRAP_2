@@ -44,8 +44,11 @@ class Settings:
     jwt_hours: float = float(_env("SIRAP_JWT_HOURS", "12"))
     #: Archivo local de demostración de la API; es temporal en servicios con disco efímero.
     data_dir: str = _env("SIRAP_DATA_DIR", "data/processed")
-    #: Contraseña inicial de las cuentas de demostración; el entorno puede reemplazarla.
-    demo_password: str = _env("SIRAP_DEMO_PASSWORD", "sirap2026") or "sirap2026"
+    #: Contraseña de bootstrap solo para desarrollo local; producción utiliza hashes individuales ya guardados.
+    demo_password: str | None = _env("SIRAP_DEMO_PASSWORD")
+    #: En Docker, obliga a usar secretos persistentes y datos remotos.
+    github_required: bool = field(default_factory=lambda: (_env("SIRAP_GITHUB_REQUIRED", "0") or "0").lower()
+                                  in {"1", "true", "yes"})
     #: Orígenes permitidos para el frontend en desarrollo (Vite usa el puerto 5173).
     cors_origins: tuple[str, ...] = tuple(
         o.strip() for o in (_env("SIRAP_CORS_ORIGINS", "http://localhost:5173,http://127.0.0.1:5173") or "").split(",")
@@ -55,5 +58,13 @@ class Settings:
 
 
 settings = Settings()
-if not _env("SIRAP_JWT_SECRET"):
+_configured_jwt_secret = _env("SIRAP_JWT_SECRET")
+if settings.github_required:
+    if not _configured_jwt_secret or len(_configured_jwt_secret) < 32:
+        raise RuntimeError("SIRAP_JWT_SECRET debe configurarse como secreto de producción de al menos 32 caracteres.")
+    if settings.demo_password:
+        raise RuntimeError(
+            "No use SIRAP_DEMO_PASSWORD en producción. Configure hashes individuales para cada cuenta en credenciales."
+        )
+elif not _configured_jwt_secret:
     logger.warning("SIRAP_JWT_SECRET no está definido: se generó una clave temporal (solo para desarrollo).")

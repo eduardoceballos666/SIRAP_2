@@ -197,9 +197,14 @@ def verify_plate(body: schemas.VerifyIn, _: dict = Depends(current_user)) -> sch
     return schemas.VerifyOut(placa=plate, decision=_decision_out(decision))
 
 
-@router.post("/plates/register", status_code=201, summary="Registrar un camión nuevo y, si se confirma, autorizarlo")
+@router.post("/plates/register", status_code=201, summary="Registrar un camión nuevo como pendiente de autorización")
 def register_vehicle(body: schemas.VehicleIn, user: dict = Depends(current_user)) -> dict[str, str]:
-    """Los tres perfiles pueden registrar y autorizar; solo nuevos y con confirmación explícita."""
+    """Cualquier perfil autenticado puede crear un alta pendiente; la autorización se concede aparte."""
+    if body.autorizar:
+        raise HTTPException(
+            status.HTTP_403_FORBIDDEN,
+            "El registro no puede autorizar vehículos. Una cuenta Administrador distinta de la del registrante debe aprobarlo.",
+        )
     plate = normalize_plate(body.placa)
     if not plate:
         raise HTTPException(422, "Formato inválido: use 3 letras y 3 o 4 dígitos (ej.: PBA-8901).")
@@ -222,16 +227,6 @@ def register_vehicle(body: schemas.VehicleIn, user: dict = Depends(current_user)
     except StorageError as exc:
         raise HTTPException(status.HTTP_503_SERVICE_UNAVAILABLE, "No se pudo guardar el camión.") from exc
 
-    if body.autorizar:
-        try:
-            db.set_authorization(plate, "BLANCA", "Autorización explícita tras verificación visual en garita",
-                                 None, user["usuario"])
-        except (StorageError, ValueError) as exc:
-            logger.exception("Camión registrado sin lista blanca porque falló la autorización de %s", plate)
-            raise HTTPException(status.HTTP_503_SERVICE_UNAVAILABLE,
-                                "Camión registrado, pero NO autorizado: falló el guardado de la lista blanca. "
-                                "Un Administrador debe revisar el registro.") from exc
-        return {"placa": plate, "mensaje": f"Camión {plate} registrado y autorizado por {user['usuario']}."}
     return {"placa": plate, "mensaje": f"Camión {plate} registrado, pendiente de autorización."}
 
 

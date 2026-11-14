@@ -273,9 +273,9 @@ Figura 1. Pantalla de inicio de sesión SIRAP.
 
 | PERFIL        | FUNCIONES DISPONIBLES                                                                                                                                                                                                                                                                                                    |
 |---------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Operador      | Captura y reconocimiento; verificación de placas, registro de acciones e Historial. Puede registrar y, tras confirmar visualmente, **autorizar expresamente** un camión NUEVO desde Reconocimiento y Acceso. No puede modificar placas existentes desde ese módulo. |
-| Supervisor    | Operaciones de garita; consulta y exportación del Historial; Dashboard y Administración de solo lectura. Puede registrar y autorizar expresamente placas nuevas desde Reconocimiento y Acceso después de verificarlas. |
-| Administrador | Además de las funciones de garita y autorización expresa de placas nuevas, puede administrar vehículos existentes, listas, usuarios, garitas y datos DEMO desde Administración. |
+| Operador      | Captura y reconocimiento; verificación de placas, registro de acciones e Historial. Puede registrar vehículos nuevos como pendientes; no puede autorizarlos. |
+| Supervisor    | Operaciones de garita; consulta y exportación del Historial; Dashboard y Administración de solo lectura. Puede registrar vehículos nuevos como pendientes. |
+| Administrador | Además de las funciones de garita, puede administrar vehículos, listas, usuarios, garitas y datos DEMO. Puede aprobar una placa registrada por otra persona; no puede aprobar su propia alta. |
 
 *Tabla 2. Perfiles de usuario y funciones disponibles*
 
@@ -458,7 +458,7 @@ Detalle del vehículo. Ejemplo de datos del automotor consultados al SRI y de in
 
 ## 5.5. Registrar camión nuevo
 
-Cuando SIRAP identifica una placa sin ficha, cualquiera de los tres perfiles autenticados (Operador, Supervisor o Administrador) puede seleccionar «Sí, registrar». Debe confirmar visualmente la placa y, solo si ha verificado el permiso de ingreso, marcar la casilla «Autorizar ahora este camión en la lista blanca». Si no la marca, se crea la ficha sin autorización. El formulario nunca modifica una placa existente, especialmente si está restringida. Registrar o autorizar no abre la barrera por sí solo.
+Cuando SIRAP identifica una placa sin ficha, cualquiera de los tres perfiles autenticados puede seleccionar «Sí, registrar» después de confirmar visualmente la placa. El formulario crea la ficha como **pendiente de autorización** y no ofrece una casilla para incluirla en la lista blanca. Una cuenta de Administrador distinta de la cuenta que registró la placa debe revisar el permiso y autorizarla desde Administración. El formulario nunca modifica una placa existente. Registrar la ficha no abre la barrera ni concede permiso de ingreso.
 
 ![](img/manual_usuario_image10.jpg)
 
@@ -476,13 +476,13 @@ Figura 9B. Formulario «Registrar camión nuevo» para completar la información
 
 03 Complete los campos solicitados. Marca, Modelo, Color y Propietario son obligatorios; el campo Transportista es opcional.
 
-04 Revise cuidadosamente los datos y marque «Confirmo que comparé la placa con el vehículo». Si verificó que el ingreso está permitido, puede marcar además «Autorizar ahora este camión en la lista blanca». Si no, deje esta segunda casilla desmarcada.
+04 Revise cuidadosamente los datos y marque «Confirmo que comparé la placa con el vehículo».
 
-**05** Presione Guardar camión. SIRAP registra el vehículo y, únicamente si se marcó la segunda casilla, lo incorpora a la lista blanca con el usuario responsable identificado. Esta opción está disponible para los tres perfiles autenticados.
+**05** Presione Guardar camión. SIRAP registra el vehículo como pendiente y conserva el usuario que lo ingresó. Solo un Administrador diferente puede autorizarlo desde Administración.
 
 06 Si el operador no desea crear el registro en ese momento, puede pulsar Cancelar para cerrar la ventana sin guardar cambios.
 
-Nota operativa. Registrar no significa autorizar: la lista blanca requiere una confirmación explícita. Operador, Supervisor y Administrador pueden otorgarla a vehículos **nuevos** desde Reconocimiento; solo el Administrador puede cambiar autorizaciones o datos **existentes** desde Administración. Una placa ya registrada no puede sobrescribirse desde Reconocimiento. Si hay dudas sobre el permiso, guarde sin autorizar o cancele.
+Nota operativa. El alta desde Reconocimiento nunca autoriza. Solo Administración permite modificar listas y únicamente un Administrador distinto de quien registró la placa puede añadirla a la lista blanca. Si hay dudas sobre el permiso, no solicite la aprobación.
 
 # 6. Registrar acciones y utilizar la barrera
 
@@ -565,7 +565,7 @@ Figura 11. Historial y principales controles de búsqueda.
 
 # 8. Administración de datos maestros
 
-Administración reúne los datos que SIRAP necesita para identificar vehículos, asignar listas vigentes y administrar puntos de control. Solo el Administrador puede modificar estos datos desde Administración; el Supervisor puede consultar en modo de solo lectura. En Reconocimiento y Acceso, los tres perfiles pueden crear un camión nuevo y autorizarlo de manera expresa tras confirmar su placa; si no lo autorizan, queda registrado sin permiso. No se permite sobrescribir una placa existente desde esa pantalla.
+Administración reúne los datos que SIRAP necesita para identificar vehículos, asignar listas vigentes y administrar puntos de control. Solo el Administrador puede modificar estos datos desde Administración; el Supervisor puede consultar en modo de solo lectura. En Reconocimiento y Acceso, los tres perfiles pueden crear un camión nuevo como pendiente. Para incluirlo en la lista blanca se requiere una cuenta de Administrador distinta de la cuenta que lo registró. No se permite sobrescribir una placa existente desde esa pantalla.
 
 ## 8.1. Vehículos
 
@@ -620,7 +620,7 @@ Figura 15. Administración de garitas.
 
 ## 8.5. Usuarios
 
-Solo el Administrador puede crear usuarios, cambiar sus nombres y roles, restablecer contraseñas y activar o inactivar cuentas. El Supervisor puede consultar esta sección en modo de solo lectura. En SIRAP 1.0, los nombres de usuario deben tener entre 3 y 40 caracteres y las contraseñas iniciales al menos 8 caracteres.
+Solo el Administrador puede crear usuarios, cambiar sus nombres y roles, restablecer contraseñas y activar o inactivar cuentas. El Supervisor puede consultar esta sección en modo de solo lectura. En SIRAP 1.0, los nombres de usuario deben tener entre 3 y 40 caracteres. Las contraseñas nuevas y los restablecimientos requieren al menos 15 caracteres; cada persona debe utilizar una contraseña individual.
 
 ![](img/manual_usuario_image18.jpg)
 
@@ -680,7 +680,11 @@ Figura 19. Pantalla de información del modelo y gráficos de desempeño.
 
 *Tabla 6. Indicadores de rendimiento del modelo y su interpretación*
 
-La evaluación de SIRAP versión 1.0, realizada el 27 de octubre de 2026, reportó como referencia: mAP@0.5 = 0,972; mAP@0.5:0.95 = 0,693; Precision/Recall/F1 = 0,986/0,956/0,971; exactitud OCR de 93,7 % sobre 399 placas; CER de 1,0 % y 99 ms promedio por decisión. Los resultados de detección se calcularon sobre 1.020 imágenes y 1.085 placas. Son valores de esa evaluación y pueden cambiar al actualizar el modelo, el conjunto de datos o el equipo de evaluación.
+La evaluación de componentes de SIRAP versión 1.0, realizada el 27 de octubre de 2026, reportó como referencia: mAP@0.5 = 0,972; mAP@0.5:0.95 = 0,693; Precision/Recall/F1 = 0,986/0,956/0,971; OCR de 93,7 % sobre 399 recortes y CER de 1,0 %. Los resultados de detección se calcularon sobre 1.020 imágenes y 1.085 placas. Son métricas de componentes y no exactitud punta a punta.
+
+La meta del 80 % no está demostrada en las pruebas publicadas: el informe de imágenes de garita registra 8/21 (38,1 %), los cinco clips 3/5 (60 %) y la corrida más reciente del video 18/30 (60 %). En el video, 21 de 51 lecturas no tienen referencia y se observaron dos falsas autorizaciones entre los 30 casos comparables; no se puede estimar la tasa para el video completo. El resultado histórico OCR 97,49 % (388/398) no es independiente porque algunas sugerencias OCR fueron visibles durante la revisión; el holdout ciego disponible obtuvo 42/57 (73,7 %) sin doble adjudicación.
+
+El umbral operativo OCR actual es 0,94. El 0,99 citado en análisis previos corresponde a comparaciones offline, no a la configuración vigente de la aplicación. Para video y cámara, además se exigen dos cuadros con la misma placa dentro de 7,5 segundos.
 
 | **CÓMO LEER LAS MÉTRICAS** La confianza de una lectura individual no es lo mismo que la precisión general del modelo, y ninguna de las dos equivale a autorización de acceso. La autorización depende de la consulta de listas vigentes. |
 |------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -848,7 +852,7 @@ Compare la lectura con la imagen. Corrija únicamente los caracteres que pueda c
 
 ## ¿Registrar un camión nuevo desde Reconocimiento y Acceso autoriza su ingreso?
 
-No automáticamente. Los tres perfiles pueden confirmar la placa y marcar «Autorizar ahora» al registrar un camión nuevo. Sin esa selección, quedará sin permiso. Una placa existente o restringida no puede modificarse desde ese formulario. Registrar o autorizar no abre por sí solo la barrera.
+No. Los tres perfiles pueden guardar la ficha como pendiente, pero el formulario no autoriza. Un Administrador distinto de quien registró el vehículo debe añadirlo a la lista blanca desde Administración. Registrar una ficha no abre la barrera.
 
 ## ¿Qué sucede si falla el almacenamiento durante una apertura?
 

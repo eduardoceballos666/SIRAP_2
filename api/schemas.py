@@ -104,7 +104,8 @@ class VehicleIn(BaseModel):
     propietario: Optional[str] = None
     transportista: Optional[str] = None
     placa_confirmada: bool = False
-    autorizar: bool = False
+    # Campo transitorio para rechazar explícitamente clientes antiguos que intenten autorizar durante el registro.
+    autorizar: bool = Field(default=False, description="Obsoleto: el alta solo crea vehículos pendientes.")
 
 
 class AdminVehicleIn(BaseModel):
@@ -148,7 +149,7 @@ class UserIn(BaseModel):
     usuario: str = Field(min_length=3, max_length=40, pattern=r"^[a-zA-Z0-9_.-]+$")
     nombre: str = Field(min_length=1, max_length=120)
     rol: Rol
-    password: str = Field(min_length=8, max_length=128)
+    password: str = Field(min_length=15, max_length=128)
 
 
 class AdminUserUpdateIn(BaseModel):
@@ -157,4 +158,4 @@ class AdminUserUpdateIn(BaseModel):
 
 
 class AdminPasswordResetIn(BaseModel):
-    password: str = Field(min_length=8, max_length=128)
+    password: str = Field(min_length=15, max_length=128)

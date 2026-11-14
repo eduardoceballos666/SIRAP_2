@@ -20,13 +20,13 @@ short_description: Reconocimiento de placas y control de acceso (YOLO11 + OCR)
 
 Abre la [aplicación SIRAP](https://eduardoceballos-sirap.hf.space). Español es el idioma inicial. Para cambiar a inglés, selecciona **English** en el control **Idioma** de la pantalla de inicio de sesión o en el menú común una vez dentro. Selecciona **Español** para volver. Ambas opciones usan la misma dirección y la preferencia se conserva en ese navegador.
 
-Las cuentas de demostración son `operador`, `supervisor` y `admin`. La contraseña se puede configurar mediante el secreto `SIRAP_DEMO_PASSWORD`. Si no se define, la API usa el valor predeterminado configurado en `api/settings.py`; para el Space público, configura explícitamente un valor propio y no publiques el valor del secreto. Los registros de demostración son ficticios y la barrera está simulada.
+Las cuentas disponibles son `operador`, `supervisor` y `admin`; cada una debe tener su hash de contraseña individual en `credenciales.csv` del repositorio privado. No existe contraseña compartida predeterminada. La contraseña de demostración anterior se considera expuesta: restablezca individualmente las cuentas existentes. Los registros de demostración son ficticios y la barrera está simulada.
 
 ## Despliegue
 
 El Space ejecuta la API FastAPI y la interfaz Vue 3 en un contenedor Docker, en el puerto 7860. El workflow [deploy-hf-space.yml](https://github.com/eduardoceballos666/SIRAP_2/blob/main/.github/workflows/deploy-hf-space.yml) publica al Space cuando hay cambios en `main` que coinciden con las rutas configuradas, y también permite iniciar el despliegue manualmente desde GitHub Actions. Los cambios solo en documentación fuera de `deploy/huggingface/`, notebooks o pruebas no activan el despliegue automático. El propio README de `deploy/huggingface/` sí coincide con una ruta incluida en el filtro del workflow, por lo que sus cambios en `main` pueden activar la publicación.
 
-El workflow requiere los secretos `HF_TOKEN` y `SIRAP_DATA_GITHUB_TOKEN`. También puede recibir `SIRAP_JWT_SECRET` y `SIRAP_DEMO_PASSWORD` como secretos opcionales. La variable de repositorio `HF_SPACE` permite indicar el destino; si no se configura, el script de despliegue usa `eduardoceballos/sirap`. El repositorio privado de datos se establece como `eduardoceballos666/SIRAP_datos_privados`.
+El workflow requiere `HF_TOKEN`, `SIRAP_DATA_GITHUB_TOKEN` y `SIRAP_JWT_SECRET`. El secreto JWT debe tener al menos 32 caracteres y se copia al Space desde GitHub Actions. `SIRAP_DEMO_PASSWORD` ya no se usa: el script elimina esa clave del Space si aún existe. La variable de repositorio `HF_SPACE` permite indicar el destino; si no se configura, el script de despliegue usa `eduardoceballos/sirap`. El repositorio privado de datos se establece como `eduardoceballos666/SIRAP_datos_privados`.
 
 ## Persistencia y datos consultados
 
