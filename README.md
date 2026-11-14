@@ -107,7 +107,7 @@ La interfaz es adaptable a celular y ofrece tema claro y oscuro. Valida el tipo,
 - **Supervisor:** consulta el historial y exporta sus resultados; puede crear altas pendientes.
 - **Administrador:** gestiona los registros y la configuración desde Administración. Puede aprobar vehículos registrados desde otra cuenta Administrador u operador.
 
-La API restringe la lectura administrativa a Supervisor y Administrador. Solo Administradores pueden modificar listas; una cuenta que registró una placa no puede añadirla a la lista blanca.
+La API restringe la lectura administrativa a Supervisor y Administrador. Solo Administradores pueden modificar listas; para autorizar una placa nueva, la ficha debe existir primero y una cuenta distinta de la registrante debe aprobarla.
 
 ### API REST
 

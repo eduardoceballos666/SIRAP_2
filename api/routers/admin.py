@@ -41,7 +41,10 @@ def _run(fn, *args, **kwargs):
 def _require_distinct_white_list_approver(db, plate: str, user: dict) -> None:
     vehicle = _run(db.get_vehicle, plate)
     if vehicle is None:
-        return
+        raise HTTPException(
+            status.HTTP_409_CONFLICT,
+            "Registre primero el vehículo como pendiente. No se puede autorizar una placa sin ficha.",
+        )
     registrant = str(vehicle.get("registrado_por") or "").strip()
     if registrant and registrant.casefold() == str(user["usuario"]).casefold():
         raise HTTPException(

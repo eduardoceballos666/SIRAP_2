@@ -156,13 +156,16 @@ def test_registro_pendiente_y_aprobacion_separada(client):
     assert denied.status_code == 403
     assert db.get_vehicle("ZZQ-9876") is None
 
+    authorization = {"placa": "ZZQ-9876", "lista": "BLANCA", "motivo": "Alta aprobada",
+                     "vigente_hasta": "2099-12-31"}
+    admin = _token(client)
+    # No se puede preautorizar una placa inexistente antes de que el alta quede pendiente.
+    assert client.post("/api/admin/autorizaciones", json=authorization, headers=admin).status_code == 409
+
     pending = client.post("/api/plates/register", json=vehicle, headers=operator)
     assert pending.status_code == 201 and "pendiente" in pending.json()["mensaje"]
     assert db.get_vehicle("ZZQ-9876")["registrado_por"] == "operador"
-    authorization = {"placa": "ZZQ-9876", "lista": "BLANCA", "motivo": "Alta aprobada",
-                     "vigente_hasta": "2099-12-31"}
     assert client.post("/api/admin/autorizaciones", json=authorization, headers=operator).status_code == 403
-    admin = _token(client)
     assert client.post("/api/admin/autorizaciones", json=authorization, headers=admin).status_code == 201
 
     # Si un administrador registra, solo otro administrador puede aprobarlo.

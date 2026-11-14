@@ -1,7 +1,7 @@
 # Plan de corrección y cierre de brechas de SIRAP_2
 
 **Fecha:** 14 de noviembre de 2026  
-**Estado:** cambios de código y documentación preparados en la rama `fix/sirap2-security-evaluation-20261114`. No se ha desplegado la rama ni se han cambiado datos privados, secretos o etiquetas de evaluación.
+**Estado:** cambios propuestos en la rama `fix/sirap2-security-evaluation-20261114`, en revisión mediante un PR en borrador. No se ha desplegado la rama ni se han cambiado datos privados, secretos o etiquetas de evaluación.
 
 ## Evidencia vigente
 
@@ -17,9 +17,9 @@ El umbral operativo de la aplicación es 0,94. El 0,99 corresponde a comparacion
 ## Cambios preparados en el código
 
 - El endpoint de alta solo crea vehículos pendientes. Rechaza explícitamente solicitudes antiguas que intenten autorizar en el mismo registro.
-- Solo un Administrador puede añadir una placa a la lista blanca. La misma cuenta que creó la ficha no puede aprobarla, incluso mediante autorización masiva. Esta separación distingue cuentas técnicas, no acredita que correspondan a personas diferentes; la organización debe asignar una cuenta individual a cada persona.
+- Solo un Administrador puede añadir una placa a la lista blanca y la ficha del vehículo debe existir antes de autorizar; esto impide preautorizar una placa y eludir el flujo pendiente. La misma cuenta que creó la ficha no puede aprobarla, incluso mediante autorización masiva. Esta separación distingue cuentas técnicas, no acredita que correspondan a personas diferentes; la organización debe asignar una cuenta individual a cada persona.
 - El backend conserva la cuenta registrante también cuando el Administrador crea un vehículo desde Administración. La interfaz ya no ofrece autorización al registrar. En filas históricas donde `registrado_por` esté vacío no se puede comprobar retrospectivamente quién creó la ficha; validar esos casos antes de una nueva autorización.
-- Producción deja de usar una contraseña compartida o predeterminada. El despliegue exige una clave JWT configurada y hashes individuales para todas las cuentas activas; también elimina el secreto heredado de contraseña compartida del Space. Las contraseñas nuevas y restablecidas requieren 15 caracteres.
+- Producción deja de usar una contraseña compartida o predeterminada. El login bloquea la contraseña retirada y el preflight impide desplegar mientras alguna cuenta activa conserve su hash. El despliegue exige una clave JWT configurada y hashes individuales; también elimina el secreto heredado del Space. Las contraseñas nuevas y restablecidas requieren 15 caracteres.
 - Las guías ya separan métricas de componentes y del sistema completo, describen las imágenes y video de evaluación que sí se publican y dejan de llamar inmutable a la auditoría CSV.
 
 Estos cambios requieren aprobación e integración en `main`; el workflow de despliegue se ejecuta desde `main`, no desde esta rama.

@@ -482,7 +482,7 @@ Figura 9B. Formulario «Registrar camión nuevo» para completar la información
 
 06 Si el operador no desea crear el registro en ese momento, puede pulsar Cancelar para cerrar la ventana sin guardar cambios.
 
-Nota operativa. El alta desde Reconocimiento nunca autoriza. Solo Administración permite modificar listas y únicamente un Administrador distinto de quien registró la placa puede añadirla a la lista blanca. Si hay dudas sobre el permiso, no solicite la aprobación.
+Nota operativa. El alta desde Reconocimiento nunca autoriza. Para añadir una placa nueva a la lista blanca, la ficha pendiente debe existir primero y la aprobación debe hacerla un Administrador distinto de la cuenta registrante. No se puede preautorizar una placa sin ficha. Si hay dudas sobre el permiso, no solicite la aprobación.
 
 # 6. Registrar acciones y utilizar la barrera
 
