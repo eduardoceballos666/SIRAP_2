@@ -43,7 +43,7 @@ async function submit() {
         <p v-if="error" class="rounded-lg bg-bad-soft px-3 py-2 text-sm font-semibold text-bad">{{ $t(error) }}</p>
         <button class="btn-primary w-full" :disabled="loading">{{ $t(loading ? 'Ingresando…' : 'Ingresar') }}</button>
         <p class="text-xs text-muted">
-          {{ $t("Usuarios de demostración:") }} <b>{{ $t("operador") }}</b>{{ $t(",") }} <b>{{ $t("supervisor") }}</b> {{ $t("y") }} <b>{{ $t("admin") }}</b>{{ $t(". La contraseña de demostración\n          se define con") }} <code>{{ $t("SIRAP_DEMO_PASSWORD") }}</code> {{ $t("en el servidor.") }}
+          {{ $t("Cuentas disponibles:") }} <b>{{ $t("operador") }}</b>{{ $t(",") }} <b>{{ $t("supervisor") }}</b> {{ $t("y") }} <b>{{ $t("admin") }}</b>{{ $t(". Solicite su contraseña individual al Administrador de la instalación.") }}
         </p>
       </form>
     </div>

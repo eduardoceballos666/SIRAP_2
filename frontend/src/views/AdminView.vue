@@ -240,7 +240,7 @@ async function saveUser() {
     password: user.password,
   }
   if (!payload.usuario || payload.usuario.length < 3 || !/^[a-zA-Z0-9_.-]+$/.test(payload.usuario) ||
-      !payload.nombre || !payload.rol || !payload.password.trim() || payload.password.length < 8) {
+      !payload.nombre || !payload.rol || !payload.password.trim() || payload.password.length < 15) {
     session.notify('Complete todos los campos obligatorios. El usuario requiere 3 caracteres y la contraseña al menos 8.', 'warn')
     return
   }
@@ -253,7 +253,7 @@ async function resetUserPassword() {
     session.notify('Seleccione un usuario de la tabla para restablecer su contraseña.', 'warn')
     return
   }
-  if (password.length < 8) {
+  if (password.length < 15) {
     session.notify('La nueva contraseña debe tener al menos 8 caracteres.', 'warn')
     return
   }
@@ -382,14 +382,14 @@ onMounted(load)
             <option value="ADMINISTRADOR">{{ $t("ADMINISTRADOR") }}</option>
           </select>
           <template v-if="!editingUser">
-            <input v-model="user.password" type="password" class="field" :placeholder="$t('Contraseña * (mín. 8)')" required minlength="8" maxlength="128" autocomplete="new-password" />
+            <input v-model="user.password" type="password" class="field" :placeholder="$t('Contraseña * (mín. 15)')" required minlength="15" maxlength="128" autocomplete="new-password" />
             <button class="btn-primary w-full" :disabled="busy">{{ $t("Crear usuario") }}</button>
           </template>
           <template v-else>
             <div class="rounded-xl border border-line bg-subtle p-3">
               <label class="field-label" :for="'reset-user-password'">{{ $t("Nueva contraseña de") }} {{ editingUser }}</label>
-              <input id="reset-user-password" v-model="user.password" type="password" class="field" :placeholder="$t('Nueva contraseña (mín. 8)')" minlength="8" maxlength="128" autocomplete="new-password" />
-              <button type="button" class="btn-yellow mt-2 w-full" :disabled="busy || user.password.length < 8" @click="resetUserPassword">{{ $t("Restablecer contraseña") }}</button>
+              <input id="reset-user-password" v-model="user.password" type="password" class="field" :placeholder="$t('Nueva contraseña (mín. 15)')" minlength="15" maxlength="128" autocomplete="new-password" />
+              <button type="button" class="btn-yellow mt-2 w-full" :disabled="busy || user.password.length < 15" @click="resetUserPassword">{{ $t("Restablecer contraseña") }}</button>
             </div>
             <button class="btn-primary w-full" :disabled="busy">{{ $t("Guardar cambios") }}</button>
           </template>

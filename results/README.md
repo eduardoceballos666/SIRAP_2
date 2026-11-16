@@ -2,6 +2,8 @@
 
 Esta carpeta reúne métricas agregadas, tablas, gráficos compactos y reportes. Cada artefacto debe leerse con el protocolo y las limitaciones indicadas; una métrica de detector, OCR, imagen o video no representa por sí sola el rendimiento total de la aplicación.
 
+**La meta de exactitud de lectura punta a punta del 80 % no está demostrada.** El informe de imágenes de garita registra 8/21 (38,1 %), los cinco clips 3/5 (60 %) y la reejecución más reciente del video 18/30 (60 %). Veintiuna de 51 lecturas del video carecen de referencia y dos pasadas dudosas siguen excluidas; por ello no se puede estimar la tasa de falsas autorizaciones para el video completo. No presentar estas cifras como cumplimiento ni combinar corridas. El trabajo pendiente y los criterios de cierre están en el [plan de correcciones](../docs/plan_correcciones_y_validacion.md).
+
 | Carpeta | Contenido |
 |---|---|
 | [`figures/`](figures/) | Gráficos pequeños para documentación e informes. |
@@ -9,6 +11,8 @@ Esta carpeta reúne métricas agregadas, tablas, gráficos compactos y reportes.
 | [`reports/`](reports/) | Reportes generados. Los logs de ejecución locales se excluyen de Git. |
 
 ## Detector, entrenamiento y velocidad
+
+El conjunto Roboflow usado para detector tiene 10.125 imágenes; solo 9 no contienen placa y una de esas imágenes está en test. La precisión global publicada no sustituye una evaluación específica de falsas detecciones en garita ni una colección representativa de negativos difíciles.
 
 | Artefacto | Contenido y alcance |
 |---|---|
@@ -64,13 +68,15 @@ La referencia final del video es [`blind_eval/video_ground_truth.csv`](../blind_
 | [`metrics/optimizacion_antes_despues.csv`](metrics/optimizacion_antes_despues.csv) y [`metrics/optimizacion_resumen.json`](metrics/optimizacion_resumen.json) | Configuración seleccionada y comparación experimental base/optimizada en test; no implica que los pesos optimizados estén desplegados. |
 | [`metrics/validacion_multisemilla_comparacion.csv`](metrics/validacion_multisemilla_comparacion.csv), [resumen](metrics/validacion_multisemilla_resumen.json), [protocolo](metrics/validacion_multisemilla_protocolo.json) y [resultados individuales](metrics/validacion_multisemilla_individuales/) | Seis entrenamientos en tres pares de semillas. La mejora media de mAP50:95 es descriptiva; tres semillas no demuestran significación estadística ni mejora punta a punta. |
 
+La búsqueda Optuna usó 24 trials con 30 % del entrenamiento y 10 épocas; el mejor `lr0=0,000163` quedó cerca del límite inferior probado (0,0001). No es evidencia de que la búsqueda haya cubierto un óptimo. La configuración de referencia de la búsqueda fijó AdamW y `lr0=0,002`, mientras el registro de los pesos base dice `optimizer="auto (AdamW)"`; antes de comparar modelos hay que repetir ambos con la misma configuración. El mejor checkpoint base fue de la época 40 y no se activó early stopping: esto no demuestra falta de convergencia, solo que la corrida terminó en el máximo previsto. Las curvas de validación deben guiar si se amplía el entrenamiento.
+
 Los pesos de experimentos y optimización no reemplazan automáticamente el modelo publicado. El detalle y las limitaciones están en [`docs/validacion_savh_multisemilla.md`](../docs/validacion_savh_multisemilla.md).
 
 ## Ejecución y conservación de resultados
 
 El notebook actualizado lee los insumos versionados desde GitHub y no requiere Google Drive para iniciar. Las salidas nuevas de Colab se guardan en `/content/SIRAP_workspace` y no se publican automáticamente. Conserva en el repositorio métricas agregadas, tablas y gráficos pequeños; distribuye el video fuente como artefacto separado y no lo incrustes en el notebook. La referencia final del video es `blind_eval/video_ground_truth.csv`; el archivo de 18 puntos se conserva solo como histórico. Antes de publicar nuevas predicciones, anotaciones detalladas o registros operativos, confirma su alcance, procedencia y autorización.
 
-Si un resultado está pendiente o su referencia es incompleta, indícalo como tal; no extrapoles métricas ni completes etiquetas por intuición.
+Si un resultado está pendiente o su referencia es incompleta, indícalo como tal; no extrapoles métricas ni completes etiquetas por intuición. La selección de umbral debe hacerse en validación; el conjunto final reservado se evalúa una sola vez con el protocolo y la regla ya congelados.
 
 ## Aplicación, repositorio y videos
 

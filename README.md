@@ -69,7 +69,7 @@ SIRAP se publica en dos lugares con propósitos distintos:
 
 1. Abre SIRAP desde el Space o el enlace directo.
 2. En el inicio de sesión, elige Español o English. El selector también está en el menú y conserva la preferencia en el navegador.
-3. Inicia sesión con una cuenta habilitada. La pantalla del Space muestra las cuentas de demostración operador, supervisor y admin. La contraseña se configura mediante SIRAP_DEMO_PASSWORD; si el secreto no está definido, la API usa el valor predeterminado configurado en api/settings.py. En el Space público, configura explícitamente un valor propio.
+3. Inicia sesión con tu cuenta individual habilitada. La pantalla enumera los nombres de usuario disponibles; solicita tu contraseña personal al Administrador de la instalación. No hay una contraseña compartida predeterminada.
 4. En Reconocimiento y Acceso, usa un ejemplo, una imagen, un video o una cámara disponible. Revisa la placa, la confianza, el recorte y la decisión.
 5. Confirma la información antes de registrar una operación o solicitar la apertura. Las lecturas inciertas requieren revisión humana; la barrera del Space es simulada.
 6. Consulta las operaciones en Historial. Supervisor y Administrador pueden exportar los resultados filtrados a CSV.
@@ -103,11 +103,11 @@ La interfaz es adaptable a celular y ofrece tema claro y oscuro. Valida el tipo,
 
 ### Roles
 
-- **Operador:** reconoce placas, verifica o corrige lecturas y registra operaciones. Los perfiles autenticados pueden proponer el registro de una placa nueva; autorizarla requiere una confirmación explícita.
-- **Supervisor:** consulta el historial y exporta sus resultados.
-- **Administrador:** gestiona los registros y la configuración desde Administración.
+- **Operador:** reconoce placas, verifica o corrige lecturas y registra operaciones. Puede crear un vehículo nuevo como pendiente de autorización.
+- **Supervisor:** consulta el historial y exporta sus resultados; puede crear altas pendientes.
+- **Administrador:** gestiona los registros y la configuración desde Administración. Puede aprobar vehículos registrados desde otra cuenta Administrador u operador.
 
-Los cambios a registros existentes y la administración de listas están restringidos al Administrador. La lectura de tablas administrativas mediante la API y la pantalla de Administración están disponibles para Supervisor y Administrador.
+La API restringe la lectura administrativa a Supervisor y Administrador. Solo Administradores pueden modificar listas; para autorizar una placa nueva, la ficha debe existir primero y una cuenta distinta de la registrante debe aprobarla.
 
 ### API REST
 
@@ -118,7 +118,7 @@ La API publica documentación interactiva en [Swagger](https://eduardoceballos-s
 | POST /api/auth/login · GET /api/auth/me | Público / autenticado | Inicio de sesión JWT y consulta de identidad |
 | POST /api/recognize | Todos los perfiles autenticados | Analizar imagen y devolver placa, confianza, recorte y decisión sin registrar |
 | POST /api/plates/verify | Todos los perfiles autenticados | Verificar una placa escrita o corregida |
-| POST /api/plates/register | Todos los perfiles autenticados | Proponer el registro de un vehículo nuevo; autorización explícita |
+| POST /api/plates/register | Todos los perfiles autenticados | Registrar un vehículo nuevo como pendiente; no autoriza |
 | POST /api/operations | Todos los perfiles autenticados | Revalidar la decisión, registrar la solicitud y el estado de barrera |
 | GET /api/operations · /api/operations/export.csv | Historial / Supervisor y Administrador | Consultar y exportar operaciones |
 | GET /api/dashboard | Todos los perfiles autenticados | Indicadores y datos de los gráficos |
@@ -181,12 +181,14 @@ El CSV permite comparar por época las pérdidas de entrenamiento y validación,
 
 ### Resultados publicados
 
+La meta de exactitud del 80 % para el sistema completo no se cumple en la evidencia publicada. Las pruebas de garita por imagen, clips y video completo registran 38,1 %, 60 % y 60 %, respectivamente; consulta cada denominador y limitación antes de interpretar una cifra.
+
 | Evaluación | Resultado | Alcance |
 |---|---|---|
 | Detector YOLO11-s | mAP@0.5 **0,972**; mAP@0.5:0.95 **0,693**; precisión **0,986**; recall **0,956**; F1 **0,971** | Conjunto de prueba: 1.020 imágenes y 1.085 placas |
 | Detector por tamaño | mAP@0.5:0.95: pequeñas **0,481**, medianas **0,729**, grandes **0,744** | Las placas pequeñas y lejanas son más difíciles |
 | Velocidad del detector | Promedio **23,3 ms** por imagen (aprox. 43 FPS) | GPU NVIDIA L4, lote 1, FP16; no es una medición del hosting de producción |
-| OCR en SAVH | EMR **93,7 %**, CER **0,010** | Resultado offline en 399 recortes legibles; 69 referencias se marcaron como sugerencias sin confirmar |
+| OCR en recortes SAVH (resultado histórico) | EMR **93,7 %**, CER **0,010** | Métrica offline en 399 recortes legibles; 69 referencias eran sugerencias sin confirmar. No representa el sistema completo ni una evaluación ciega independiente |
 | Garita, evaluación por imagen 7.3 | Informe: EMR **8/21 (38,1 %)** y 37,69 ms; salida guardada del notebook: **9/21 (42,9 %)** y 1,400674 s | Corridas distintas; no combinarlas. La salida del notebook no conserva fecha ni ID de corrida. |
 | Video de garita, evaluación 7.2 | Reejecución más reciente: EMR **18/30 (60 %)**; recall de placas únicas **16/17 (94,12 %)**; **2/30** falsas autorizaciones observadas entre lecturas clasificables | 51 lecturas: 30 con referencia y 21 sin clasificar. La tasa integral del video no es estimable. La referencia contiene 20 pasadas (17 placas únicas) y excluye dos pasadas dudosas. La corrida guardada anterior se documenta por separado. [Informe de métricas](results/metrics/video_e2e_intervalos_final.md) |
 
@@ -242,11 +244,11 @@ Para desarrollo de la interfaz, ejecuta npm run dev dentro de frontend/ y uvicor
 
 ### Variables y despliegue
 
-Los secretos se configuran fuera del código. Según el modo de ejecución, pueden incluir:
+Los secretos se configuran fuera del código:
 
-- SIRAP_JWT_SECRET para firmar sesiones.
-- SIRAP_DEMO_PASSWORD para las cuentas de demostración.
-- SIRAP_DATA_GITHUB_TOKEN para leer y escribir en el repositorio privado de datos.
+- En producción, SIRAP_JWT_SECRET es obligatorio, aleatorio y de al menos 32 caracteres.
+- Cada cuenta debe tener un hash individual de contraseña en el repositorio privado; el despliegue no crea contraseñas compartidas.
+- SIRAP_DATA_GITHUB_TOKEN permite leer y escribir en el repositorio privado de datos.
 - HF_TOKEN para el despliegue automático en Hugging Face.
 - ROBOFLOW_API_KEY para descargar el dataset de Roboflow desde el notebook.
 - BARRERA_URL y BARRERA_TOKEN solo para una integración futura con un controlador compatible.
@@ -271,8 +273,8 @@ El notebook no incrusta el video fuente ni publica automáticamente los videos a
 ## Privacidad, seguridad y uso responsable
 
 - Una placa puede identificar indirectamente a una persona y revelar patrones de movimiento.
-- La aplicación de demostración usa datos ficticios; los datos operativos residen en un repositorio privado.
-- Las contraseñas se almacenan como hashes en el sistema de datos; los tokens y claves deben guardarse en secretos, no en archivos públicos.
+- Los CSV operativos residen en un repositorio privado. El repo público contiene imágenes, etiquetas de placas reales y un video de garita para evaluación; revisa `data/README.md` y la autorización de publicación antes de redistribuirlos.
+- Las contraseñas se almacenan como hashes individuales; los secretos de despliegue deben configurarse fuera del repositorio.
 - Las lecturas inciertas requieren revisión humana. La aplicación registra el usuario y el resultado de las operaciones.
 - La apertura manual de contingencia exige un motivo. La barrera de esta demostración es simulada y el sistema no reemplaza la supervisión del operador.
 - El detector y el OCR tienen sesgos por región, condiciones de captura y tamaño de placa. Revise [consideraciones éticas y limitaciones](docs/consideraciones_eticas.md) antes de usar los resultados.
@@ -309,6 +311,7 @@ SIRAP_2/
 - [Optimización del detector](docs/optimizacion.md).
 - [Validación SAVH y multisemilla](docs/validacion_savh_multisemilla.md).
 - [Consideraciones éticas](docs/consideraciones_eticas.md).
+- [Plan de cierre de brechas y criterios de validación](docs/plan_correcciones_y_validacion.md).
 - [Documentación de datos y recuperación](data/README.md).
 - [Notebooks y guía de ejecución](notebooks/README.md).
 - [Intervalo de confianza de Wilson](docs/ic_wilson.md).

@@ -41,7 +41,7 @@ def client():
         ("supervisor", "Supervisor de prueba", "SUPERVISOR"),
     ):
         db.add_user(usuario, nombre, rol)
-        set_password(db, usuario, "sirap2026")
+        set_password(db, usuario, "SIRAP-test-only-password-2026")
     db.add_garita("Garita 3", "Ubicación ficticia")
     seed_test_vehicles(db)
     get_store.cache_clear()
@@ -52,10 +52,19 @@ def client():
         get_store.cache_clear()
 
 
-def _token(client, usuario="admin", password="sirap2026"):
+def _token(client, usuario="admin", password="SIRAP-test-only-password-2026"):
     r = client.post("/api/auth/login", json={"usuario": usuario, "password": password})
     assert r.status_code == 200, r.text
     return {"Authorization": f"Bearer {r.json()['access_token']}"}
+
+
+def test_hash_password_rechaza_clave_corta_y_clave_de_demo():
+    from api.security import hash_password
+
+    with pytest.raises(ValueError):
+        hash_password("sirap2026")
+    with pytest.raises(ValueError):
+        hash_password("corta-123456")
 
 
 def test_health(client):
@@ -133,20 +142,69 @@ def test_roles(client):
     assert r.status_code == 200 and "text/csv" in r.headers["content-type"]
 
 
+def test_registro_pendiente_y_aprobacion_separada(client):
+    from api.deps import get_store
+    from api.security import set_password
+
+    db = get_store()
+    operator = _token(client, "operador")
+    vehicle = {"placa": "ZZQ-9876", "marca": "Kia", "modelo": "Prueba", "color": "Azul",
+               "propietario": "Propietario ficticio", "transportista": "", "tipo": "CAMION",
+               "placa_confirmada": True}
+    # El contrato antiguo de la interfaz no puede autorizar, ni siquiera al registrar.
+    denied = client.post("/api/plates/register", json={**vehicle, "autorizar": True}, headers=operator)
+    assert denied.status_code == 403
+    assert db.get_vehicle("ZZQ-9876") is None
+
+    authorization = {"placa": "ZZQ-9876", "lista": "BLANCA", "motivo": "Alta aprobada",
+                     "vigente_hasta": "2099-12-31"}
+    admin = _token(client)
+    # No se puede preautorizar una placa inexistente antes de que el alta quede pendiente.
+    assert client.post("/api/admin/autorizaciones", json=authorization, headers=admin).status_code == 409
+
+    pending = client.post("/api/plates/register", json=vehicle, headers=operator)
+    assert pending.status_code == 201 and "pendiente" in pending.json()["mensaje"]
+    assert db.get_vehicle("ZZQ-9876")["registrado_por"] == "operador"
+    assert client.post("/api/admin/autorizaciones", json=authorization, headers=operator).status_code == 403
+    assert client.post("/api/admin/autorizaciones", json=authorization, headers=admin).status_code == 201
+
+    # Si un administrador registra, solo otro administrador puede aprobarlo.
+    own_vehicle = {**vehicle, "placa": "ZZR-1234"}
+    assert client.post("/api/plates/register", json=own_vehicle, headers=admin).status_code == 201
+    own_auth = {**authorization, "placa": "ZZR-1234"}
+    assert client.post("/api/admin/autorizaciones", json=own_auth, headers=admin).status_code == 409
+    assert client.post("/api/admin/autorizaciones/seleccionadas",
+                       json={"placas": ["ZZR-1234"], "lista": "BLANCA"}, headers=admin).status_code == 409
+
+    db.add_user("admin3", "Tercer administrador", "ADMINISTRADOR")
+    set_password(db, "admin3", "SIRAP-test-only-password-2026")
+    third_admin = _token(client, "admin3")
+    assert client.post("/api/admin/autorizaciones", json=own_auth, headers=third_admin).status_code == 201
+
+
 def test_administracion(client):
     h = _token(client)
     r = client.post("/api/admin/vehiculos", json={"placa": "tst-1234", "marca": "Kia", "modelo": "Rio", "color": "Rojo", "tipo": "CAMION", "propietario": "Propietario de prueba", "transportista": "Transportista de prueba"}, headers=h)
     assert r.status_code == 201 and r.json()["placa"] == "TST-1234"
+    # La persona que registró el camión no puede aprobar su propia entrada a la lista blanca.
     r = client.post("/api/admin/autorizaciones", json={"placa": "TST-1234", "lista": "BLANCA", "motivo": "Alta de prueba", "vigente_hasta": "2099-12-31"}, headers=h)
+    assert r.status_code == 409
+    from api.deps import get_store
+    from api.security import set_password
+    db = get_store()
+    db.add_user("admin2", "Segundo administrador", "ADMINISTRADOR")
+    set_password(db, "admin2", "SIRAP-test-only-password-2026")
+    second_admin = _token(client, "admin2")
+    r = client.post("/api/admin/autorizaciones", json={"placa": "TST-1234", "lista": "BLANCA", "motivo": "Aprobación independiente", "vigente_hasta": "2099-12-31"}, headers=second_admin)
     assert r.status_code == 201
     v = client.post("/api/plates/verify", json={"placa": "TST-1234"}, headers=h).json()
     assert v["decision"]["resultado"] == "AUTORIZADO"
     assert client.delete("/api/admin/autorizaciones/TST-1234", headers=h).status_code == 200
     assert any(x["placa"] == "TST-1234" for x in client.get("/api/admin/vehiculos", headers=h).json())
     r = client.post("/api/admin/usuarios", json={"usuario": "nuevo", "nombre": "Nuevo", "rol": "OPERADOR",
-                                                  "password": "clave-segura"}, headers=h)
+                                                  "password": "clave-de-prueba-2026"}, headers=h)
     assert r.status_code == 201
-    _token(client, "nuevo", "clave-segura")
+    _token(client, "nuevo", "clave-de-prueba-2026")
 
 
 def test_dashboard_y_modelo(client):

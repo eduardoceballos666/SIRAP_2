@@ -19,13 +19,21 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: { python-version: "3.11" }
+      - name: Validar secretos de producción
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          SIRAP_JWT_SECRET: ${{ secrets.SIRAP_JWT_SECRET }}
+          SIRAP_DATA_GITHUB_TOKEN: ${{ secrets.SIRAP_DATA_GITHUB_TOKEN }}
+        run: |
+          test -n "$HF_TOKEN" || { echo "Falta HF_TOKEN"; exit 1; }
+          test -n "$SIRAP_DATA_GITHUB_TOKEN" || { echo "Falta SIRAP_DATA_GITHUB_TOKEN"; exit 1; }
+          python -c 'import os,sys; value=os.environ.get("SIRAP_JWT_SECRET",""); sys.exit(0 if len(value) >= 32 else "SIRAP_JWT_SECRET debe tener al menos 32 caracteres.")'
       - run: pip install "huggingface_hub>=0.25"
       - name: Subir al Space
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
           HF_SPACE: ${{ vars.HF_SPACE }}
           SIRAP_JWT_SECRET: ${{ secrets.SIRAP_JWT_SECRET }}
-          SIRAP_DEMO_PASSWORD: ${{ secrets.SIRAP_DEMO_PASSWORD }}
           SIRAP_DATA_GITHUB_TOKEN: ${{ secrets.SIRAP_DATA_GITHUB_TOKEN }}
           SIRAP_DATA_GITHUB_REPO: eduardoceballos666/SIRAP_datos_privados
         run: python deploy/huggingface/sync_space.py

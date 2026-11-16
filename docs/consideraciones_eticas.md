@@ -65,26 +65,28 @@ reparte igual** entre grupos de vehículos/placas. Por eso:
 | Placa | Sí (identifica indirectamente al propietario) | Se guarda solo cuando se registra una operación |
 | Propietario registrado localmente | Sí | Nombre y datos que registra el administrador para la operación; no se requieren cédula, domicilio ni teléfono |
 | Nombre devuelto por consulta pública | Sí | La API lo conserva temporalmente en memoria; la exportación enriquecida independiente puede guardarlo si se configura |
-| Historial (fecha, hora, garita) | Sí (patrón de movimientos) | Solo inserción; acceso restringido al personal de la instalación |
+| Historial (fecha, hora, garita) | Sí (patrón de movimientos) | CSV operativos en repositorio privado; el estado de barrera y algunas autorizaciones se actualizan en filas existentes. No es una bitácora inmutable. |
 
 ### 3.2 Medidas
 
 - **Minimización:** el esquema solo pide lo necesario para el control de acceso.
-- **Datos ficticios** en la demo pública (archivos CSV de demostración); las imágenes reales de la garita y los registros de la
-  planta **no** se publican (`data/README.md`).
-- **Secretos fuera del código:** contraseñas y llaves se leen de variables de entorno; en el despliegue se guardan
-  como Secrets de GitHub Actions y del Space. No se publican en el repositorio.
+- Los CSV operativos de la instalación se guardan en el repositorio privado. El repositorio público sí incluye 21 imágenes
+  de evaluación de garita, etiquetas con placas reales y un video de referencia como asset de Release; `data/README.md`
+  documenta autorización escrita de la empresa. La publicación y cualquier redistribución deben respetar ese alcance.
+- **Secretos fuera del código:** el despliegue requiere un secreto JWT externo y hashes de contraseña individuales.
+  La antigua contraseña compartida de demostración se considera expuesta y no debe usarse; las cuentas existentes requieren
+  restablecimiento individual. Hugging Face y GitHub conservan sus propios secretos fuera de los archivos del repositorio.
 - **Consultas parametrizadas** (sin inyección SQL) y escape de HTML en la interfaz.
 - En el Space, los secretos configurados permiten restaurar y sincronizar las tablas CSV con el repositorio privado
   `SIRAP_datos_privados`. El contenedor conserva una copia de trabajo temporal; el respaldo privado es la fuente de
   persistencia entre reinicios. En instalaciones propias, restrinja el repositorio y los permisos de acceso.
-- **Versión web (producto SIRAP 1.0):** la imagen viaja por HTTPS hasta la API, se procesa en memoria y se descarta; la respuesta
-  devuelve temporalmente el recorte para mostrarlo al operador. Las «lecturas de esta sesión» se guardan en la
-  memoria del navegador hasta que se registran. Los CSV de datos de la demo son ficticios y se respaldan en el
-  repositorio privado configurado; las imágenes reales de la garita no se publican.
-- **Contraseñas y sesiones:** nunca se guardan en texto plano (PBKDF2-SHA256, 240 000 iteraciones); el token de
-  sesión se guarda en el navegador y vence a las 12 h; la clave de firma (`SIRAP_JWT_SECRET`) es un *secret* del
-  despliegue, no del código.
+- **Versión web (producto SIRAP 1.0):** la imagen enviada se procesa en memoria y la respuesta devuelve temporalmente el recorte
+  para mostrarlo al operador. Las «lecturas de esta sesión» se guardan en la memoria del navegador hasta que se registran.
+  Los CSV operativos se respaldan en el repositorio privado; las imágenes y referencias públicas de evaluación de garita
+  están separadas de esos registros.
+- **Contraseñas y sesiones:** se guardan hashes PBKDF2-SHA256 con sal (240 000 iteraciones). Las cuentas nuevas y los
+  restablecimientos exigen 15 caracteres; cada usuario debe tener su propia contraseña. El token vence a las 12 h.
+  En producción, `SIRAP_JWT_SECRET` es obligatorio y el servidor falla al iniciar si falta.
 
 ### 3.3 Cumplimiento normativo
 
@@ -129,7 +131,7 @@ y muestra que la consulta externa no pudo completarse.
   (`docs/arquitectura.md`). La parte de «caja negra» (detector y OCR) se acota con salidas verificables por un humano.
 - La interfaz muestra **por qué** decidió: la caja de la placa sobre la imagen, el **recorte que leyó el OCR**, el
   texto crudo leído, la **confianza OCR** con color, la lista aplicada y el motivo (p. ej. «Confianza OCR 48 % <
-  umbral 99 %»).
+  umbral 94 %»).
 - El módulo **Acerca del modelo** explica el funcionamiento, las métricas y las limitaciones, y advierte cuando el
   estado del detector cargado y los errores que impiden el reconocimiento.
 - No se usan SHAP/LIME porque la decisión final no depende de atributos tabulares; la evidencia visual (caja +
@@ -141,7 +143,7 @@ y muestra que la consulta externa no pudo completarse.
 |---|---|
 | Menos colas y tiempo de espera en la garita | Pérdida o cambio de tareas del personal de garita |
 | Menos errores de transcripción | Sensación de vigilancia constante |
-| Historial auditable ante incidentes | Uso del historial para controlar horarios de personas (p. ej. empleadas domésticas, proveedores) |
+| Registro consultable de operaciones para revisar incidentes | Uso del historial para controlar horarios de personas (p. ej. empleadas domésticas, proveedores); los CSV actuales no garantizan inmutabilidad |
 | Listas actualizadas en tiempo real | Exclusión de quien tiene placa ilegible si se elimina al guardia |
 
 **Beneficiados:** administración, residentes, empresas. **Posibles perjudicados:** conductores con placas
@@ -153,11 +155,17 @@ sustituto: siempre hay un humano que confirma.
 
 - **Si el modelo falla, la decisión final es del operador**, que confirma cada apertura; el sistema no abre solo.
 - La **apertura manual** exige motivo (≥ 10 caracteres) y confirmación explícita, y queda registrada con nombre.
-- El **historial es de solo inserción**: la app no permite editar ni borrar operaciones.
+- **Limitación de auditoría:** aunque la interfaz no ofrece un botón para editar o borrar operaciones, el backend actualiza
+  filas CSV al registrar el estado de la barrera y modifica filas de autorizaciones. El historial de commits de GitHub
+  puede alterarse y no equivale a almacenamiento inmutable. Para producción se necesita una bitácora append-only en una
+  base de datos con controles de acceso y respaldo independiente.
 - **Autenticación por usuario (SIRAP 1.0):** cada persona inicia sesión con su contraseña (guardada solo como hash
   PBKDF2-SHA256 con sal) y recibe una sesión firmada (JWT) que vence a las 12 h. Cada operación queda asociada al
   usuario autenticado, no a un nombre escrito a mano, lo que permite auditar quién abrió la barrera.
-- **Permisos por rol:** los tres perfiles autenticados pueden consultar las tablas administrativas mediante `GET /api/admin/{table}`. El Operador puede hacerlo desde la API, aunque la interfaz no muestra la sección Administración; el Supervisor la consulta desde la interfaz en modo de solo lectura y también puede exportar el Historial. Solo el Administrador puede modificar vehículos, listas, garitas y usuarios. Las operaciones de escritura se restringen en el servidor.
+- **Permisos por rol:** Supervisor y Administrador pueden consultar tablas administrativas; el Operador no. Solo el
+  Administrador puede cambiar vehículos, listas, garitas y usuarios. Los tres perfiles pueden registrar una placa nueva
+  como pendiente; solo un Administrador puede autorizarla en la lista blanca, y quien registró esa placa no puede aprobarla.
+  El servidor impone estas reglas aunque se llame directamente a la API.
 - **La interfaz no puede forzar una apertura:** antes de registrar, la API vuelve a calcular la decisión con la placa
   final; solo abre automáticamente un AUTORIZADO y la apertura manual exige motivo.
 - **Responsables:** la instalación que opera SIRAP es responsable del tratamiento de datos; el equipo desarrollador

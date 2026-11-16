@@ -117,7 +117,9 @@ La configuración del trial 12 se reentrenó con el protocolo completo: 40 époc
 | Optimizada, trial 12 | 0,973 | **0,704** | 0,988 | 0,946 | 0,699 | ≈107 s (T4) |
 | Diferencia | +0,001 | **+0,011** (+1,6 %) | +0,002 | −0,006 | +0,008 | GPU distinta |
 
-La precisión y el recall usan el umbral de máximo F1 de Ultralytics. El mAP de placas pequeñas no se midió para la configuración optimizada. El entrenamiento completo llegó a las 40 épocas sin activar *early stopping*.
+La precisión y el recall usan el umbral de máximo F1 de Ultralytics. El mAP de placas pequeñas no se midió para la configuración optimizada. El checkpoint base registrado fue de la época 40 y el entrenamiento llegó al máximo previsto sin activar *early stopping*; eso no demuestra que el modelo no convergiera.
+
+**Límite de comparación:** el registro de entrenamiento de los pesos base entregados indica `optimizer="auto (AdamW)"`; la búsqueda y el reentrenamiento de trial fijaron `optimizer="AdamW"` y `lr0` explícito. La opción `auto` puede seleccionar una tasa y no aplicar el mismo `lr0`, por lo que la comparación publicada es descriptiva, no un contraste completamente controlado. Para atribuir mejoras, repetir base y candidato con el mismo optimizer y configuración.
 
 **Decisión:** se mantienen los pesos entregados (`models/best_model.pt` y `models/best_model.onnx`). La configuración optimizada mejora mAP@0.5:0.95, pero apenas cambia mAP@0.5 y reduce ligeramente el recall. Como SIRAP recorta la placa antes del OCR, una caja más ajustada no implica necesariamente una mejora práctica de lectura. Cambiar los pesos también requeriría exportar ONNX, recalibrar el umbral del detector y repetir las evaluaciones de la aplicación.
 
