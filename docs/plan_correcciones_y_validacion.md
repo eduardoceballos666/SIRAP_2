@@ -14,6 +14,15 @@ La meta de exactitud de lectura del 80 % para el sistema completo no se cumple c
 
 El umbral operativo de la aplicación es 0,94. El 0,99 corresponde a comparaciones offline previas. Una métrica de recortes no debe presentarse como exactitud punta a punta.
 
+
+## Disponibilidad de evidencia para cerrar revisiones (16 de noviembre de 2026)
+
+- **Piloto SAVH:** el JSON público conserva los agregados (84 imágenes, 13 desacuerdos) y el SHA-256 de una anotación privada, pero no incluye la tabla que identifica esos 13 casos. La partición guardada contiene 86 imágenes de prueba; el artefacto publicado no indica cuáles dos se excluyeron antes de anotar. No se puede adjudicar exactamente el conjunto de 84 ni sustituir sus etiquetas a partir del agregado. Se preparó fuera del repositorio un paquete ciego con los 86 recortes candidatos, dos formularios independientes y hoja de reconciliación; no incluye OCR ni referencias. No subir ese paquete al repositorio público.
+- **Video:** la referencia publicada cubre 20 intervalos y el archivo de revisión aclara que son cuadros puntuales, no todos los vehículos ni los intervalos completos. Las dos pasadas excluidas son los cuadros 0–247 y 1142–1488. El video original de Drive pesa 459.252.859 bytes y no se pudo recuperar mediante la integración disponible, cuyo límite de descarga es 268.435.456 bytes. No se revisaron esos cuadros ni se completaron las 21 lecturas sin referencia; hace falta procesar el original sin superposiciones y adjudicarlo con dos revisores ciegos.
+- **Negativos de garita:** el ZIP SAVH disponible contiene recortes de placas legibles/no legibles, no escenas negativas completas. Las 21 imágenes completas de garita tienen referencia de placa. Una placa presente pero ilegible sigue siendo un positivo para el detector, no un negativo. Hace falta extraer fotogramas originales sin superposición de detecciones y confirmar visualmente cada negativo; separar por pasada/fecha antes de medir falsos positivos.
+- **Auditoría:** el diseño de solo anexado de la sección 6 está especificado, pero no implementado. PostgreSQL persistente, inserción transaccional, permisos sin actualización/borrado, respaldos WORM y prueba de restauración siguen siendo criterios previos a producción.
+
+
 ## Cambios preparados en el código
 
 - El endpoint de alta solo crea vehículos pendientes. Rechaza explícitamente solicitudes antiguas que intenten autorizar en el mismo registro.
