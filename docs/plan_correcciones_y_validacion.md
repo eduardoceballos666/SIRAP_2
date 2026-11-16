@@ -64,7 +64,25 @@ Añadir y ejecutar pruebas para: usuario sin rol suficiente; alta nueva pendient
 
 El almacenamiento operativo actual son CSV privados. El backend actualiza filas existentes para reflejar estado de barrera y autorización; el historial de commits de GitHub no garantiza que los eventos sean inmutables.
 
-Para producción, migrar a una base de datos persistente con eventos de auditoría de solo anexado: actor, hora, entidad, acción, valores anteriores/nuevos, motivo y resultado. Restringir actualización/borrado de eventos, conservar respaldos independientes y verificar restauración. La infraestructura y sus credenciales no están configuradas en esta rama.
+Para producción, migrar los registros operativos y la auditoría a PostgreSQL gestionado y persistente. El disco del Space y los CSV versionados en GitHub no serán la fuente de verdad.
+
+#### Diseño de eventos
+
+La tabla `audit_events` tendrá `event_id` (UUID), `occurred_at` (UTC de servidor), `actor_id`, `role_snapshot`, `action`, `entity_type`, `entity_id`, `request_id`, `reason`, `outcome`, `app_version`, `model_version` y `changed_fields` (JSONB con una lista permitida de campos). No guardará contraseñas, tokens, imágenes ni nombres completos del propietario; la placa se referenciará por el ID del vehículo y se limitará a lo necesario para investigar un evento.
+
+Eventos mínimos: alta de vehículo pendiente; aprobación/revocación de autorización con registrante y aprobador; decisión de acceso con versión del modelo, umbrales y regla; solicitud de apertura; confirmación, fallo o resultado incierto de barrera; apertura manual con motivo; cambios de usuarios, roles, garitas, umbrales y configuración; exportaciones administrativas. Una corrección será un evento nuevo que referencie el anterior.
+
+#### Inmutabilidad y transacciones
+
+- Cada mutación de vehículos, autorizaciones o usuarios y su evento de auditoría se guardarán en la misma transacción de base de datos. Si no se puede confirmar la escritura, la operación se rechaza.
+- Antes de enviar una orden a la barrera se inserta `BARRIER_OPEN_REQUESTED`; luego se agrega `BARRIER_OPEN_CONFIRMED`, `BARRIER_OPEN_FAILED` o `BARRIER_OPEN_UNKNOWN`. Nunca se actualiza el evento inicial; un estado incierto requiere conciliación manual y no se reintenta automáticamente.
+- El usuario de base de datos de la aplicación tendrá permisos `SELECT, INSERT` en `audit_events`, sin `UPDATE, DELETE` ni `TRUNCATE`. Triggers rechazarán actualizaciones y borrados. El propietario del esquema y la credencial de migración serán distintos de la cuenta de la aplicación.
+- Los eventos y respaldos cifrados se copiarán a almacenamiento independiente con retención bloqueada (WORM); una verificación diaria guardará un manifiesto/hash fuera de la base principal. Una regla SQL por sí sola no protege contra el propietario o superusuario de la base.
+- Los CSV quedarán como exportaciones de consulta, no como escritura operativa. No se habilitará producción hasta probar persistencia, restauración y conciliación.
+
+#### Criterios de aceptación de auditoría
+
+Pruebas automatizadas demostrarán que el rol de aplicación no puede actualizar, borrar ni truncar eventos; que fallar la transacción impide cambiar la autorización; que cada transición de barrera produce eventos separados; que las correcciones conservan la historia; y que se restaura un respaldo independiente. La infraestructura PostgreSQL/WORM y sus credenciales siguen sin configurarse en esta rama.
 
 ### 7. Publicación de datos y guías
 
